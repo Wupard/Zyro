@@ -23,9 +23,17 @@ if (isFirebaseConfigured && typeof firebase !== 'undefined') {
   auth = firebase.auth();
   db = firebase.firestore();
 
-  // Enable offline persistence
+  // Enable offline persistence (modern API to avoid deprecation warning)
+  db.settings({
+    cacheSizeBytes: firebase.firestore.CACHE_SIZE_UNLIMITED,
+    merge: true
+  });
   db.enablePersistence({ synchronizeTabs: true }).catch((err) => {
-    console.warn('Firestore persistence error:', err.code);
+    if (err.code === 'failed-precondition') {
+      console.warn('Firestore persistence: Multiple tabs open, only one can enable persistence.');
+    } else if (err.code === 'unimplemented') {
+      console.warn('Firestore persistence: Browser does not support all features.');
+    }
   });
 }
 

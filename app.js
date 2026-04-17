@@ -1241,22 +1241,8 @@ function renderLoggedExercises(){
 }
 
 // =============================================
-// MUSCLE MAP
+// MUSCLE MAP (uses EXERCISE_MUSCLES defined at top of file)
 // =============================================
-const EXERCISE_MUSCLES = {
-  // Front
-  'DB Bench Press': ['chest'], 'Incline DB Bench Press': ['chest'], 'High-to-Low Cable Fly': ['chest'],
-  'DB Shoulder Press': ['shoulders'], 'Cable Lateral Raise': ['shoulders'], 'DB Lateral Raise': ['shoulders'],
-  'Seated Incline DB Curl': ['arms'], 'Cross-body Hammer Curl': ['arms'], 'Reverse Curl Z-Bar': ['arms'],
-  'Wrist Curls (Normal & Reverse)': ['arms'], 'Leg Press': ['legs'], 'Leg Extension': ['legs'],
-  'Adductor Machine': ['legs'], 'Cable Crunch': ['core'], 'Russian Twist': ['core'],
-  // Back
-  'Bent-Over DB Reverse Fly': ['shoulders_back'], 'Seated Face Pull': ['shoulders_back'],
-  'Lat Pulldown': ['back'], 'DB Row': ['back'], 'Chest Supported Row': ['back'],
-  'Rope Pullovers': ['back'], 'Shrugs': ['back'], 'Romanian Deadlift (RDL)': ['legs_back'],
-  'Seated Leg Curl': ['legs_back'], 'Standing Calf Raise': ['legs_back'], 'Overhead Extension': ['arms_back'],
-  'V-Bar Pushdown': ['arms_back'], 'Plate Pinch Walk': ['arms_back']
-};
 
 function updateMuscleMap() {
   const muscleVolume = {};
@@ -1276,27 +1262,27 @@ function updateMuscleMap() {
   const maxVol = Math.max(...volumes, 1);
   const view = document.querySelector('input[name="muscleView"]:checked')?.value || 'front';
 
-  document.querySelectorAll('.muscle-part').forEach(el => {
-    const m = el.dataset.muscle;
-    const isBackPart = m.endsWith('_back');
-    const baseMuscle = isBackPart ? m.replace('_back', '') : m;
-    
-    // Show/Hide based on view
-    if (view === 'front') {
-      el.style.display = isBackPart ? 'none' : 'block';
-    } else {
-      el.style.display = isBackPart ? 'block' : 'none';
-    }
+  // Toggle front/back view containers
+  const frontView = document.getElementById('muscleViewFront');
+  const backView = document.getElementById('muscleViewBack');
+  if (frontView) frontView.style.display = view === 'front' ? 'block' : 'none';
+  if (backView) backView.style.display = view === 'back' ? 'block' : 'none';
 
-    const vol = muscleVolume[m] || 0;
-    el.classList.remove('intensity-low', 'intensity-mid', 'intensity-high');
-    if (vol > 0) {
-      const r = vol / maxVol;
-      if (r > 0.5) el.classList.add('intensity-high');
-      else if (r > 0.2) el.classList.add('intensity-mid');
-      else el.classList.add('intensity-low');
-    }
-  });
+  // Apply intensity classes to all muscle-part elements in the active view
+  const activeContainer = view === 'front' ? frontView : backView;
+  if (activeContainer) {
+    activeContainer.querySelectorAll('.muscle-part').forEach(el => {
+      const m = el.dataset.muscle;
+      const vol = muscleVolume[m] || 0;
+      el.classList.remove('intensity-low', 'intensity-mid', 'intensity-high');
+      if (vol > 0) {
+        const r = vol / maxVol;
+        if (r > 0.5) el.classList.add('intensity-high');
+        else if (r > 0.2) el.classList.add('intensity-mid');
+        else el.classList.add('intensity-low');
+      }
+    });
+  }
 
   const summary = document.getElementById('muscleSummary');
   if (summary) {
@@ -1309,6 +1295,7 @@ function updateMuscleMap() {
     }
   }
 }
+
 
 // =============================================
 // CHARTS
@@ -1582,14 +1569,16 @@ function updateStats(){
   document.getElementById('statConsistencyVal').textContent=`${Math.min(con,100)}%`;
   document.getElementById('statConsistencyBar').style.width=`${Math.min(con,100)}%`;
 
+
   // Streak calculation based on this week's marked days
-  const monday = getMonday(new Date());
+  // (reuses `monday` from the top of this function)
   let weeklyStreak = 0;
   for (let i = 0; i < 7; i++) {
     const d = new Date(monday);
     d.setDate(d.getDate() + i);
     if (appData.attendance[dateStr(d)]) weeklyStreak++;
   }
+
   
   const streakEl = document.getElementById('streakText');
   if (streakEl) {

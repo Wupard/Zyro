@@ -172,111 +172,114 @@
             <span class="card-badge" data-i18n="thisWeek">This Week</span>
           </div>
           <div class="body-map-container">
-            <div class="body-map-svg-wrap">
-              <!-- Athletic Male Body SVG -->
-              <svg id="bodyMapSvg" viewBox="0 0 200 420" class="body-map-svg">
-                <!-- Body silhouette base -->
-                <defs>
-                  <radialGradient id="bodyGlow" cx="50%" cy="40%" r="50%">
-                    <stop offset="0%" stop-color="rgba(124,110,230,0.06)"/>
-                    <stop offset="100%" stop-color="transparent"/>
-                  </radialGradient>
-                </defs>
-                <ellipse cx="100" cy="180" rx="80" ry="180" fill="url(#bodyGlow)"/>
+            <div class="body-map-visual-wrap">
+              <!-- FRONT VIEW -->
+              <div class="muscle-map-view" id="muscleViewFront">
+                <img src="assets/muscle_front.png" alt="Front body" class="muscle-bg-img" draggable="false">
+                <svg viewBox="0 0 400 820" class="muscle-overlay-svg" preserveAspectRatio="xMidYMid meet">
+                  <!-- Traps -->
+                  <path data-muscle="traps" class="muscle-part" d="M158,82 Q170,70 200,65 Q230,70 242,82 L238,110 Q225,95 200,93 Q175,95 162,110 Z"/>
 
-                <!-- Head -->
-                <ellipse cx="100" cy="30" rx="17" ry="20" fill="#2a2a38" stroke="#3d3d52" stroke-width="0.6"/>
-                <!-- Neck -->
-                <rect x="92" y="49" width="16" height="12" rx="4" fill="#2a2a38" stroke="#3d3d52" stroke-width="0.4"/>
+                  <!-- Left Shoulder -->
+                  <path data-muscle="shoulders" class="muscle-part" d="M155,88 Q128,85 115,110 Q108,130 112,155 L140,142 Q148,120 155,105 Z"/>
+                  <!-- Right Shoulder -->
+                  <path data-muscle="shoulders" class="muscle-part" d="M245,88 Q272,85 285,110 Q292,130 288,155 L260,142 Q252,120 245,105 Z"/>
 
-                <!-- TRAPS -->
-                <path data-muscle="traps" class="muscle-part" d="M76 61 Q82 54 100 53 Q118 54 124 61 L120 75 Q112 68 100 67 Q88 68 80 75 Z"/>
+                  <!-- Left Chest -->
+                  <path data-muscle="chest" class="muscle-part" d="M157,112 Q172,100 200,108 L200,180 Q182,196 157,186 L145,155 Z"/>
+                  <!-- Right Chest -->
+                  <path data-muscle="chest" class="muscle-part" d="M243,112 Q228,100 200,108 L200,180 Q218,196 243,186 L255,155 Z"/>
 
-                <!-- LEFT SHOULDER / DELT -->
-                <path data-muscle="shoulders" class="muscle-part" d="M76 62 Q58 62 52 78 Q50 88 54 96 L68 88 Q72 78 76 72 Z"/>
-                <!-- RIGHT SHOULDER -->
-                <path data-muscle="shoulders" class="muscle-part" d="M124 62 Q142 62 148 78 Q150 88 146 96 L132 88 Q128 78 124 72 Z"/>
+                  <!-- Left Bicep -->
+                  <path data-muscle="biceps" class="muscle-part" d="M112,160 Q100,170 92,200 Q86,235 90,265 L110,262 Q115,235 115,205 Q115,178 112,160 Z"/>
+                  <!-- Right Bicep -->
+                  <path data-muscle="biceps" class="muscle-part" d="M288,160 Q300,170 308,200 Q314,235 310,265 L290,262 Q285,235 285,205 Q285,178 288,160 Z"/>
 
-                <!-- LEFT CHEST / PEC -->
-                <path data-muscle="chest" class="muscle-part" d="M78 74 Q88 68 100 73 L100 106 Q90 114 78 108 L74 92 Z"/>
-                <!-- RIGHT CHEST -->
-                <path data-muscle="chest" class="muscle-part" d="M122 74 Q112 68 100 73 L100 106 Q110 114 122 108 L126 92 Z"/>
+                  <!-- Left Tricep (behind bicep, slight offset) -->
+                  <path data-muscle="triceps" class="muscle-part" d="M114,162 Q125,170 128,200 Q130,230 125,260 L112,260 Q105,230 104,205 Q104,178 112,162 Z" opacity="0.7"/>
+                  <!-- Right Tricep -->
+                  <path data-muscle="triceps" class="muscle-part" d="M286,162 Q275,170 272,200 Q270,230 275,260 L288,260 Q295,230 296,205 Q296,178 288,162 Z" opacity="0.7"/>
 
-                <!-- LEFT BICEP -->
-                <path data-muscle="biceps" class="muscle-part" d="M54 98 Q48 100 44 116 Q42 132 46 142 L56 140 Q58 128 58 116 Q58 104 56 98 Z"/>
-                <!-- RIGHT BICEP -->
-                <path data-muscle="biceps" class="muscle-part" d="M146 98 Q152 100 156 116 Q158 132 154 142 L144 140 Q142 128 142 116 Q142 104 144 98 Z"/>
+                  <!-- Left Forearm -->
+                  <path data-muscle="forearms" class="muscle-part" d="M88,268 Q76,290 68,330 L60,390 Q64,405 72,408 L88,404 Q92,380 94,350 L98,310 Q98,282 92,268 Z"/>
+                  <!-- Right Forearm -->
+                  <path data-muscle="forearms" class="muscle-part" d="M312,268 Q324,290 332,330 L340,390 Q336,405 328,408 L312,404 Q308,380 306,350 L302,310 Q302,282 308,268 Z"/>
 
-                <!-- LEFT TRICEP -->
-                <path data-muscle="triceps" class="muscle-part" d="M56 98 Q62 100 64 112 Q66 126 62 140 L56 140 Q52 128 52 114 Q52 104 54 98 Z" opacity="0.75"/>
-                <!-- RIGHT TRICEP -->
-                <path data-muscle="triceps" class="muscle-part" d="M144 98 Q138 100 136 112 Q134 126 138 140 L144 140 Q148 128 148 114 Q148 104 146 98 Z" opacity="0.75"/>
+                  <!-- Abs - 6 blocks -->
+                  <rect data-muscle="abs" class="muscle-part" x="183" y="188" width="34" height="26" rx="5"/>
+                  <rect data-muscle="abs" class="muscle-part" x="183" y="218" width="34" height="26" rx="5"/>
+                  <rect data-muscle="abs" class="muscle-part" x="183" y="248" width="34" height="30" rx="5"/>
 
-                <!-- LEFT FOREARM -->
-                <path data-muscle="forearms" class="muscle-part" d="M44 144 Q38 152 34 172 L32 196 Q34 204 38 206 L46 204 Q48 194 48 180 L50 160 Q50 148 48 144 Z"/>
-                <!-- RIGHT FOREARM -->
-                <path data-muscle="forearms" class="muscle-part" d="M156 144 Q162 152 166 172 L168 196 Q166 204 162 206 L154 204 Q152 194 152 180 L150 160 Q150 148 152 144 Z"/>
+                  <!-- Left Oblique -->
+                  <path data-muscle="obliques" class="muscle-part" d="M155,188 L180,195 L180,285 L150,298 Q143,255 148,218 Z"/>
+                  <!-- Right Oblique -->
+                  <path data-muscle="obliques" class="muscle-part" d="M245,188 L220,195 L220,285 L250,298 Q257,255 252,218 Z"/>
 
-                <!-- ABS (6 blocks) -->
-                <rect data-muscle="abs" class="muscle-part" x="91" y="110" width="18" height="13" rx="3"/>
-                <rect data-muscle="abs" class="muscle-part" x="91" y="126" width="18" height="13" rx="3"/>
-                <rect data-muscle="abs" class="muscle-part" x="91" y="142" width="18" height="13" rx="3"/>
+                  <!-- Left Quad -->
+                  <path data-muscle="quads" class="muscle-part" d="M150,310 Q142,340 138,400 L134,520 Q136,545 148,555 L182,555 Q190,545 188,520 L186,400 Q186,340 182,310 Z"/>
+                  <!-- Right Quad -->
+                  <path data-muscle="quads" class="muscle-part" d="M250,310 Q258,340 262,400 L266,520 Q264,545 252,555 L218,555 Q210,545 212,520 L214,400 Q214,340 218,310 Z"/>
 
-                <!-- LEFT OBLIQUE -->
-                <path data-muscle="obliques" class="muscle-part" d="M76 108 L89 112 L89 158 L74 164 Q70 144 72 124 Z"/>
-                <!-- RIGHT OBLIQUE -->
-                <path data-muscle="obliques" class="muscle-part" d="M124 108 L111 112 L111 158 L126 164 Q130 144 128 124 Z"/>
+                  <!-- Left Glute (front, partially visible) -->
+                  <path data-muscle="glutes" class="muscle-part" d="M152,296 Q168,308 192,314 L192,330 Q168,325 152,315 Z" opacity="0.5"/>
+                  <!-- Right Glute -->
+                  <path data-muscle="glutes" class="muscle-part" d="M248,296 Q232,308 208,314 L208,330 Q232,325 248,315 Z" opacity="0.5"/>
 
-                <!-- HIP / WAIST LINE -->
-                <path d="M74 168 Q86 172 100 172 Q114 172 126 168" fill="none" stroke="#3d3d52" stroke-width="0.5" opacity="0.4"/>
+                  <!-- Left Calf -->
+                  <path data-muscle="calves" class="muscle-part" d="M140,568 Q134,595 130,650 L134,730 Q138,755 152,760 L168,760 Q178,752 176,730 L172,650 Q168,595 162,568 Z"/>
+                  <!-- Right Calf -->
+                  <path data-muscle="calves" class="muscle-part" d="M260,568 Q266,595 270,650 L266,730 Q262,755 248,760 L232,760 Q222,752 224,730 L228,650 Q232,595 238,568 Z"/>
+                </svg>
+              </div>
 
-                <!-- LEFT GLUTE -->
-                <path data-muscle="glutes" class="muscle-part" d="M76 164 Q84 170 96 174 L96 186 Q84 184 76 178 Z" opacity="0.6"/>
-                <!-- RIGHT GLUTE -->
-                <path data-muscle="glutes" class="muscle-part" d="M124 164 Q116 170 104 174 L104 186 Q116 184 124 178 Z" opacity="0.6"/>
+              <!-- BACK VIEW -->
+              <div class="muscle-map-view" id="muscleViewBack" style="display:none;">
+                <img src="assets/muscle_back.png" alt="Back body" class="muscle-bg-img" draggable="false">
+                <svg viewBox="0 0 400 820" class="muscle-overlay-svg" preserveAspectRatio="xMidYMid meet">
+                  <!-- Traps (back) -->
+                  <path data-muscle="traps" class="muscle-part" d="M160,80 Q175,65 200,60 Q225,65 240,80 L235,130 Q220,110 200,108 Q180,110 165,130 Z"/>
 
-                <!-- LEFT QUAD -->
-                <path data-muscle="quads" class="muscle-part" d="M76 180 Q72 190 70 210 L68 270 Q68 286 74 292 L92 292 Q96 286 94 270 L94 210 Q94 190 92 180 Z"/>
-                <!-- RIGHT QUAD -->
-                <path data-muscle="quads" class="muscle-part" d="M124 180 Q128 190 130 210 L132 270 Q132 286 126 292 L108 292 Q104 286 106 270 L106 210 Q106 190 108 180 Z"/>
+                  <!-- Rear Delts -->
+                  <path data-muscle="shoulders" class="muscle-part" d="M156,88 Q130,88 118,115 Q110,135 115,158 L142,145 Q150,122 155,108 Z"/>
+                  <path data-muscle="shoulders" class="muscle-part" d="M244,88 Q270,88 282,115 Q290,135 285,158 L258,145 Q250,122 245,108 Z"/>
 
-                <!-- LEFT KNEE -->
-                <ellipse cx="81" cy="298" rx="10" ry="6" fill="#2a2a38" stroke="#3d3d52" stroke-width="0.4" opacity="0.5"/>
-                <!-- RIGHT KNEE -->
-                <ellipse cx="119" cy="298" rx="10" ry="6" fill="#2a2a38" stroke="#3d3d52" stroke-width="0.4" opacity="0.5"/>
+                  <!-- Upper Back / Lats -->
+                  <path data-muscle="traps" class="muscle-part" d="M162,115 Q180,105 200,108 Q220,105 238,115 L240,180 Q225,170 200,168 Q175,170 160,180 Z"/>
 
-                <!-- LEFT CALF -->
-                <path data-muscle="calves" class="muscle-part" d="M72 304 Q68 316 66 340 L68 378 Q70 390 78 392 L86 392 Q92 388 90 376 L88 340 Q86 316 84 304 Z"/>
-                <!-- RIGHT CALF -->
-                <path data-muscle="calves" class="muscle-part" d="M128 304 Q132 316 134 340 L132 378 Q130 390 122 392 L114 392 Q108 388 110 376 L112 340 Q114 316 116 304 Z"/>
+                  <!-- Left Lat -->
+                  <path data-muscle="traps" class="muscle-part" d="M155,140 Q138,170 142,220 L150,270 Q160,250 162,210 Q164,170 160,140 Z"/>
+                  <!-- Right Lat -->
+                  <path data-muscle="traps" class="muscle-part" d="M245,140 Q262,170 258,220 L250,270 Q240,250 238,210 Q236,170 240,140 Z"/>
 
-                <!-- LEFT FOOT -->
-                <path d="M66 390 Q64 398 60 402 L86 402 Q88 396 86 392" fill="#2a2a38" stroke="#3d3d52" stroke-width="0.4" opacity="0.3"/>
-                <!-- RIGHT FOOT -->
-                <path d="M134 390 Q136 398 140 402 L114 402 Q112 396 114 392" fill="#2a2a38" stroke="#3d3d52" stroke-width="0.4" opacity="0.3"/>
+                  <!-- Left Tricep -->
+                  <path data-muscle="triceps" class="muscle-part" d="M112,162 Q100,175 94,210 Q90,240 94,265 L115,262 Q118,235 118,210 Q118,182 115,162 Z"/>
+                  <!-- Right Tricep -->
+                  <path data-muscle="triceps" class="muscle-part" d="M288,162 Q300,175 306,210 Q310,240 306,265 L285,262 Q282,235 282,210 Q282,182 285,162 Z"/>
 
-                <!-- Hands -->
-                <ellipse cx="34" cy="212" rx="6" ry="8" fill="#2a2a38" stroke="#3d3d52" stroke-width="0.4" opacity="0.3"/>
-                <ellipse cx="166" cy="212" rx="6" ry="8" fill="#2a2a38" stroke="#3d3d52" stroke-width="0.4" opacity="0.3"/>
-                <!-- BACK VIEW (Hidden by default) -->
-                <!-- Trapezius -->
-                <path data-muscle="back_back" class="muscle-part" d="M100 80 L120 100 L100 120 L80 100 Z" style="display:none;"/>
-                <!-- Lats -->
-                <path data-muscle="back_back" class="muscle-part" d="M80 120 Q60 150 70 200 L100 220 L130 200 Q140 150 120 120 Z" style="display:none;"/>
-                <!-- Lower Back -->
-                <path data-muscle="back_back" class="muscle-part" d="M90 220 L110 220 L110 250 L90 250 Z" style="display:none;"/>
-                <!-- Glutes -->
-                <path data-muscle="legs_back" class="muscle-part" d="M70 250 Q100 240 130 250 L140 300 Q100 320 60 300 Z" style="display:none;"/>
-                <!-- Hamstrings -->
-                <path data-muscle="legs_back" class="muscle-part" d="M70 300 L95 300 L90 400 L65 400 Z" style="display:none;"/>
-                <path data-muscle="legs_back" class="muscle-part" d="M105 300 L130 300 L135 400 L110 400 Z" style="display:none;"/>
-                <!-- Rear Delts -->
-                <path data-muscle="shoulders_back" class="muscle-part" d="M60 100 Q50 120 70 140 Z" style="display:none;"/>
-                <path data-muscle="shoulders_back" class="muscle-part" d="M140 100 Q150 120 130 140 Z" style="display:none;"/>
-                <!-- Triceps -->
-                <path data-muscle="arms_back" class="muscle-part" d="M50 140 L65 140 L60 200 L45 200 Z" style="display:none;"/>
-                <path data-muscle="arms_back" class="muscle-part" d="M135 140 L150 140 L155 200 L140 200 Z" style="display:none;"/>
-              </svg>
+                  <!-- Left Forearm Back -->
+                  <path data-muscle="forearms" class="muscle-part" d="M92,268 Q80,290 72,330 L64,390 Q68,405 76,408 L92,404 Q96,380 98,350 L100,310 Q100,282 96,268 Z"/>
+                  <!-- Right Forearm Back -->
+                  <path data-muscle="forearms" class="muscle-part" d="M308,268 Q320,290 328,330 L336,390 Q332,405 324,408 L308,404 Q304,380 302,350 L300,310 Q300,282 304,268 Z"/>
+
+                  <!-- Lower Back -->
+                  <path data-muscle="traps" class="muscle-part" d="M170,210 Q185,200 200,198 Q215,200 230,210 L228,290 Q215,282 200,280 Q185,282 172,290 Z"/>
+
+                  <!-- Left Glute -->
+                  <path data-muscle="glutes" class="muscle-part" d="M152,288 Q170,300 192,310 L192,360 Q170,350 152,335 Z"/>
+                  <!-- Right Glute -->
+                  <path data-muscle="glutes" class="muscle-part" d="M248,288 Q230,300 208,310 L208,360 Q230,350 248,335 Z"/>
+
+                  <!-- Left Hamstring -->
+                  <path data-muscle="glutes" class="muscle-part" d="M148,340 Q142,380 138,440 L136,530 Q138,550 150,558 L180,558 Q188,548 186,530 L184,440 Q182,380 178,340 Z"/>
+                  <!-- Right Hamstring -->
+                  <path data-muscle="glutes" class="muscle-part" d="M252,340 Q258,380 262,440 L264,530 Q262,550 250,558 L220,558 Q212,548 214,530 L216,440 Q218,380 222,340 Z"/>
+
+                  <!-- Left Calf Back -->
+                  <path data-muscle="calves" class="muscle-part" d="M140,564 Q134,595 130,650 L134,730 Q138,755 152,760 L168,760 Q178,752 176,730 L172,650 Q168,595 162,564 Z"/>
+                  <!-- Right Calf Back -->
+                  <path data-muscle="calves" class="muscle-part" d="M260,564 Q266,595 270,650 L266,730 Q262,755 248,760 L232,760 Q222,752 224,730 L228,650 Q232,595 238,564 Z"/>
+                </svg>
+              </div>
             </div>
             <div class="body-map-legend">
               <div style="display: flex; gap: 8px; margin-bottom: 16px; background: rgba(0,0,0,0.2); padding: 4px; border-radius: 12px;">
