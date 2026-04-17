@@ -1241,8 +1241,37 @@ function renderLoggedExercises(){
 }
 
 // =============================================
-// MUSCLE MAP (uses EXERCISE_MUSCLES defined at top of file)
+// MUSCLE MAP (Pure SVG Vector System)
 // =============================================
+
+// Intensity color mapping
+const MUSCLE_INTENSITY_COLORS = {
+  low:    '#FFD54F',
+  medium: '#FFA726',
+  high:   '#EF5350'
+};
+
+/**
+ * Highlight a specific muscle by its data-muscle attribute or element ID.
+ * @param {string} muscleId - The muscle group name (e.g., 'chest', 'traps') or element ID
+ * @param {'low'|'medium'|'high'|'none'} intensityLevel - Intensity level
+ */
+function highlightMuscle(muscleId, intensityLevel) {
+  // Try by data-muscle attribute first, then by element ID
+  let elements = document.querySelectorAll(`[data-muscle="${muscleId}"]`);
+  if (elements.length === 0) {
+    const el = document.getElementById(muscleId);
+    if (el) elements = [el];
+  }
+
+  elements.forEach(el => {
+    el.classList.remove('intensity-low', 'intensity-mid', 'intensity-high');
+    if (intensityLevel === 'low') el.classList.add('intensity-low');
+    else if (intensityLevel === 'medium') el.classList.add('intensity-mid');
+    else if (intensityLevel === 'high') el.classList.add('intensity-high');
+    // 'none' = remove all classes (back to default #2c2c2e)
+  });
+}
 
 function updateMuscleMap() {
   const muscleVolume = {};
@@ -1268,21 +1297,18 @@ function updateMuscleMap() {
   if (frontView) frontView.style.display = view === 'front' ? 'block' : 'none';
   if (backView) backView.style.display = view === 'back' ? 'block' : 'none';
 
-  // Apply intensity classes to all muscle-part elements in the active view
-  const activeContainer = view === 'front' ? frontView : backView;
-  if (activeContainer) {
-    activeContainer.querySelectorAll('.muscle-part').forEach(el => {
-      const m = el.dataset.muscle;
-      const vol = muscleVolume[m] || 0;
-      el.classList.remove('intensity-low', 'intensity-mid', 'intensity-high');
-      if (vol > 0) {
-        const r = vol / maxVol;
-        if (r > 0.5) el.classList.add('intensity-high');
-        else if (r > 0.2) el.classList.add('intensity-mid');
-        else el.classList.add('intensity-low');
-      }
-    });
-  }
+  // Apply intensity to ALL muscle-part elements in BOTH views (so switching preserves state)
+  document.querySelectorAll('.muscle-part').forEach(el => {
+    const m = el.dataset.muscle;
+    const vol = muscleVolume[m] || 0;
+    el.classList.remove('intensity-low', 'intensity-mid', 'intensity-high');
+    if (vol > 0) {
+      const r = vol / maxVol;
+      if (r > 0.5) el.classList.add('intensity-high');
+      else if (r > 0.2) el.classList.add('intensity-mid');
+      else el.classList.add('intensity-low');
+    }
+  });
 
   const summary = document.getElementById('muscleSummary');
   if (summary) {

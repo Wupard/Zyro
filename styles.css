@@ -386,17 +386,18 @@ body.sidebar-collapsed .signout-btn { opacity:0; pointer-events:none; }
 .dashboard-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
 
 /* ===========================
-   MUSCLE BODY MAP (Image-based)
+   MUSCLE BODY MAP (Pure SVG Vector)
    =========================== */
 .body-map-container{display:flex;gap:28px;align-items:flex-start}
 .body-map-visual-wrap{
   flex-shrink:0;
   width: 240px;
-  background: var(--bg-primary);
+  background: linear-gradient(145deg, #111115, #0d0d12);
   border-radius:var(--radius-md);
-  padding:16px;
+  padding:20px 16px;
   display:flex;align-items:center;justify-content:center;
   border:1px solid rgba(255,255,255,0.06);
+  box-shadow: inset 0 2px 8px rgba(0,0,0,0.4);
 }
 
 .muscle-map-view {
@@ -405,69 +406,86 @@ body.sidebar-collapsed .signout-btn { opacity:0; pointer-events:none; }
   max-width: 240px;
 }
 
-.muscle-bg-img {
+.muscle-svg {
   width: 100%;
   height: auto;
   display: block;
-  filter: brightness(0.5) contrast(1.15) saturate(0.8);
-  user-select: none;
-  pointer-events: none;
-  border-radius: 8px;
-  background: var(--bg-primary);
 }
 
-.muscle-overlay-svg {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+.body-silhouette {
   pointer-events: none;
 }
 
 .muscle-part {
-  fill: transparent;
-  stroke: none;
-  transition: fill 0.5s cubic-bezier(0.4, 0, 0.2, 1), filter 0.5s ease;
+  fill: #2c2c2e;
+  stroke: rgba(255,255,255,0.04);
+  stroke-width: 0.3;
+  transition: fill 0.3s ease, filter 0.4s ease, stroke 0.3s ease;
   cursor: default;
-  mix-blend-mode: screen;
+}
+
+.muscle-part:hover {
+  stroke: rgba(255,255,255,0.12);
+  stroke-width: 0.5;
 }
 
 .intensity-high {
-  fill: rgba(255, 50, 50, 0.55) !important;
-  filter: drop-shadow(0 0 10px rgba(255, 50, 50, 0.5)) !important;
+  fill: #EF5350 !important;
+  filter: drop-shadow(0 0 8px rgba(239, 83, 80, 0.6)) !important;
+  stroke: rgba(239, 83, 80, 0.4) !important;
 }
 .intensity-mid {
-  fill: rgba(255, 140, 40, 0.5) !important;
-  filter: drop-shadow(0 0 7px rgba(255, 140, 40, 0.4)) !important;
+  fill: #FFA726 !important;
+  filter: drop-shadow(0 0 6px rgba(255, 167, 38, 0.5)) !important;
+  stroke: rgba(255, 167, 38, 0.3) !important;
 }
 .intensity-low {
-  fill: rgba(255, 210, 50, 0.4) !important;
-  filter: drop-shadow(0 0 4px rgba(255, 210, 50, 0.3)) !important;
+  fill: #FFD54F !important;
+  filter: drop-shadow(0 0 4px rgba(255, 213, 79, 0.4)) !important;
+  stroke: rgba(255, 213, 79, 0.25) !important;
 }
 
 .body-map-legend{flex:1;padding-top:8px}
 .legend-title{font-size:.78rem;color:var(--text-secondary);font-weight:500;margin-bottom:14px;text-transform:uppercase;letter-spacing:.04em}
 .legend-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;font-size:.78rem;color:var(--text-secondary)}
 .legend-swatch{width:16px;height:16px;border-radius:5px;flex-shrink:0}
-.swatch-low{background:var(--muscle-low);box-shadow:0 0 6px rgba(212,195,74,0.3)}
-.swatch-mid{background:var(--muscle-mid);box-shadow:0 0 6px rgba(224,138,48,0.3)}
-.swatch-high{background:var(--muscle-high);box-shadow:0 0 6px rgba(224,69,69,0.3)}
-.swatch-none{background:var(--muscle-none);border:1px solid rgba(255,255,255,0.1)}
+.swatch-low{background:#FFD54F;box-shadow:0 0 6px rgba(255,213,79,0.3)}
+.swatch-mid{background:#FFA726;box-shadow:0 0 6px rgba(255,167,38,0.3)}
+.swatch-high{background:#EF5350;box-shadow:0 0 6px rgba(239,83,80,0.3)}
+.swatch-none{background:#2c2c2e;border:1px solid rgba(255,255,255,0.1)}
 
 .muscle-summary{margin-top:18px;display:flex;flex-direction:column;gap:6px}
 .muscle-summary-item{display:flex;align-items:center;justify-content:space-between;font-size:.75rem;color:var(--text-secondary);padding:4px 0}
 .muscle-summary-item .muscle-name{text-transform:capitalize}
 .muscle-summary-item .muscle-vol{font-family:'Space Grotesk',sans-serif;font-weight:500;color:var(--text-accent)}
 
-.muscle-view-btn {
-  color: var(--text-tertiary);
-  cursor: pointer;
-  transition: all var(--t-base);
+/* View Toggle */
+.muscle-view-toggle {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 16px;
+  background: rgba(0,0,0,0.25);
+  padding: 4px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.04);
 }
+.muscle-view-btn {
+  flex: 1;
+  text-align: center;
+  padding: 8px;
+  cursor: pointer;
+  border-radius: 8px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  transition: all 0.25s ease;
+  color: var(--text-tertiary);
+  user-select: none;
+}
+.muscle-view-btn input { display: none; }
 .muscle-view-btn:has(input:checked) {
   background: var(--accent-primary) !important;
   color: white !important;
+  box-shadow: 0 2px 10px rgba(139,124,247,0.35);
 }
 
 /* ===========================
