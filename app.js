@@ -3,6 +3,13 @@
    i18n, Firebase Auth, Routing, Logging, Charts
    =========================== */
 
+// Global Error Handler for better debugging
+window.onerror = function(message, source, lineno, colno, error) {
+  console.error('Global Error Detected:', { message, source, lineno, colno, error });
+  // You could optionally show a toast or notification to the user here
+  return false;
+};
+
 // =============================================
 // TRANSLATIONS
 // =============================================
@@ -477,6 +484,7 @@ let appData = {
   posturePrograms:null,
   completedDays:{},
   streak:0,
+  userRank: 'default'
 };
 
 // =============================================
@@ -662,7 +670,7 @@ function updateUserUI(user){
     rankInfo.style.marginRight = '6px';
     
     // Get rank from data
-    const userRank = (appData.userRanks && appData.userRank) || (user.email === 'wupard@gmail.com' ? 'mod' : 'default');
+    const userRank = appData.userRank || (user.email === 'wupard@gmail.com' ? 'mod' : 'default');
     const rank = RANKS[userRank] || RANKS.default;
     rankInfo.textContent = rank.label;
     rankInfo.style.color = rank.color;
@@ -684,7 +692,7 @@ function updateUserUI(user){
   }
 
   // Admin Check
-  const userRank = (appData.userRanks && appData.userRank) || (user && user.email === 'wupard@gmail.com' ? 'mod' : 'default');
+  const userRank = appData.userRank || (user && user.email === 'wupard@gmail.com' ? 'mod' : 'default');
   const rank = RANKS[userRank] || RANKS.default;
   
   if (user && rank.canAdmin) {

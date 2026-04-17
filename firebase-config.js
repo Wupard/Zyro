@@ -13,9 +13,6 @@ const firebaseConfig = {
 };
 
 // Check if Firebase is configured
-const isFirebaseConfigured = firebaseConfig.apiKey !== "YOUR_API_KEY";
-
-// Explicitly make these global for app.js
 var isFirebaseConfigured = firebaseConfig.apiKey !== "YOUR_API_KEY";
 var app = null;
 var auth = null;
