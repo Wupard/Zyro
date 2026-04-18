@@ -234,44 +234,46 @@ const DAYS_TR = ['Pzt','Sal','Çar','Per','Cum','Cmt','Paz'];
 
 const EXERCISE_MUSCLES = {
   // Göğüs
-  'DB Bench Press': ['chest', 'triceps'],
-  'Incline DB Bench Press': ['chest', 'triceps'],
-  'High-to-Low Cable Fly': ['chest'],
+  'Barbell Bench Press': ['chest', 'triceps'],
+  'İncline Bench Press': ['chest', 'triceps'],
+  'Upper-lower Cable crossover': ['chest'],
   
   // Omuz
-  'DB Shoulder Press': ['shoulders', 'triceps'],
-  'Cable Lateral Raise': ['shoulders'],
-  'DB Lateral Raise': ['shoulders'],
-  'Bent-Over DB Reverse Fly': ['shoulders', 'traps'],
-  'Seated Face Pull': ['shoulders', 'traps'],
+  'Cable Shoulder': ['shoulders', 'triceps'],
+  'Face Pull': ['shoulders', 'traps'],
+  'Seated Dumbbell Rear Delt Fly': ['shoulders', 'traps'],
   
   // Sırt
   'Lat Pulldown': ['traps', 'biceps'],
-  'DB Row': ['traps', 'biceps'],
-  'Chest Supported Row': ['traps', 'biceps'],
-  'Rope Pullovers': ['traps', 'chest'],
-  'Shrugs': ['traps'],
+  'Close-Grip V-Bar Pulldown': ['traps', 'biceps'],
+  'Seated Row Machine': ['traps', 'biceps'],
+  'Smith Machine Shrug': ['traps'],
+  'DB Shrug': ['traps'],
   
   // Bacak
-  'Romanian Deadlift (RDL)': ['glutes', 'traps'],
-  'Leg Press': ['quads', 'glutes'],
-  'Leg Extension': ['quads'],
-  'Seated Leg Curl': ['glutes'],
-  'Adductor Machine': ['quads', 'glutes'],
+  'Squat': ['quads', 'glutes', 'traps'],
+  'Romanian Deadlift': ['glutes', 'traps'],
+  'Farmers Walk': ['forearms', 'traps', 'core'],
+  'Hip Abductor Machines': ['glutes'],
   'Standing Calf Raise': ['calves'],
   
   // Kol & Bilek
-  'Seated Incline DB Curl': ['biceps'],
-  'Cross-body Hammer Curl': ['biceps', 'forearms'],
-  'Reverse Curl Z-Bar': ['biceps', 'forearms'],
-  'Wrist Curls (Normal & Reverse)': ['forearms'],
-  'Overhead Extension': ['triceps'],
-  'V-Bar Pushdown': ['triceps'],
-  'Plate Pinch Walk': ['forearms', 'traps', 'abs'],
+  'Seated DB Biceps Curl': ['biceps'],
+  'Cross-Body Hammer Curl': ['biceps', 'forearms'],
+  'Single-Arm DB Preacher Curl': ['biceps'],
+  'V-Bar Triceps Pushdown': ['triceps'],
+  'Single-Arm Cable Reverse Pushdown': ['triceps'],
+  'Skull Crusher': ['triceps'],
+  'Overhead DB Triceps Extension': ['triceps'],
+  'Yusuf\'s Forearm Exercise': ['forearms'],
+  'Z-Bar Reverse Curl': ['biceps', 'forearms'],
+  'Classic Forearm Exercises': ['forearms'],
   
   // Karın & Core
-  'Cable Crunch': ['abs'],
-  'Russian Twist': ['obliques', 'abs'],
+  'Straight Bar Cable Crunch': ['abs'],
+  'Sit-up': ['abs'],
+  'Reverse Crunch': ['abs'],
+  'Russian twist': ['obliques', 'abs'],
 };
 const ALL_EXERCISES = Object.keys(EXERCISE_MUSCLES).sort();
 
@@ -279,12 +281,12 @@ const ALL_EXERCISES = Object.keys(EXERCISE_MUSCLES).sort();
 // GLOBAL EXERCISE CATEGORIES
 // =============================================
 const EXERCISE_CATEGORIES = {
-  'chest': ['DB Bench Press', 'Incline DB Bench Press', 'High-to-Low Cable Fly'],
-  'shoulders': ['DB Shoulder Press', 'Cable Lateral Raise', 'DB Lateral Raise', 'Bent-Over DB Reverse Fly', 'Seated Face Pull'],
-  'back': ['Lat Pulldown', 'DB Row', 'Chest Supported Row', 'Rope Pullovers', 'Shrugs'],
-  'legs': ['Romanian Deadlift (RDL)', 'Leg Press', 'Leg Extension', 'Seated Leg Curl', 'Adductor Machine', 'Standing Calf Raise'],
-  'arms': ['Seated Incline DB Curl', 'Cross-body Hammer Curl', 'Reverse Curl Z-Bar', 'Wrist Curls (Normal & Reverse)', 'Overhead Extension', 'V-Bar Pushdown', 'Plate Pinch Walk'],
-  'core': ['Cable Crunch', 'Russian Twist']
+  'chest': ['Barbell Bench Press', 'İncline Bench Press', 'Upper-lower Cable crossover'],
+  'shoulders': ['Cable Shoulder', 'Face Pull', 'Seated Dumbbell Rear Delt Fly', 'Smith Machine Shrug', 'DB Shrug'],
+  'back': ['Lat Pulldown', 'Close-Grip V-Bar Pulldown', 'Seated Row Machine'],
+  'legs': ['Squat', 'Romanian Deadlift', 'Farmers Walk', 'Hip Abductor Machines', 'Standing Calf Raise'],
+  'arms': ['Seated DB Biceps Curl', 'Cross-Body Hammer Curl', 'Single-Arm DB Preacher Curl', 'V-Bar Triceps Pushdown', 'Single-Arm Cable Reverse Pushdown', 'Skull Crusher', 'Overhead DB Triceps Extension', 'Yusuf\'s Forearm Exercise', 'Z-Bar Reverse Curl', 'Classic Forearm Exercises'],
+  'core': ['Straight Bar Cable Crunch', 'Sit-up', 'Reverse Crunch', 'Russian twist']
 };
 
 const RANKS = {
@@ -307,40 +309,43 @@ const CATEGORY_ICONS = {
 
 const DEFAULT_PROGRAMS = {
   day1: [
-    {name:'DB Bench Press',sets:'3×8-10',weight:'-'},
-    {name:'Incline DB Bench Press',sets:'3×10-12',weight:'-'},
-    {name:'DB Shoulder Press',sets:'3×10-12',weight:'-'},
-    {name:'High-to-Low Cable Fly',sets:'3×12-15',weight:'-'},
-    {name:'Cable Lateral Raise',sets:'3×15',weight:'-'},
-    {name:'Seated Incline DB Curl',sets:'3×10-12',weight:'-'},
-    {name:'Cross-body Hammer Curl',sets:'3×10-12',weight:'-'},
-    {name:'Reverse Curl Z-Bar',sets:'3×12-15',weight:'-'},
-    {name:'Wrist Curls (Normal & Reverse)',sets:'3×15-20',weight:'-'},
+    {name:'Barbell Bench Press',sets:'3×8-10',weight:'-'},
+    {name:'İncline Bench Press',sets:'3×10-12',weight:'-'},
+    {name:'Upper-lower Cable crossover',sets:'3×12-15',weight:'-'},
+    {name:'Cable Shoulder',sets:'3×10-12',weight:'-'},
+    {name:'Face Pull',sets:'3×15',weight:'-'},
+    {name:'Seated Dumbbell Rear Delt Fly',sets:'3×15',weight:'-'},
+    {name:'Seated DB Biceps Curl',sets:'3×10-12',weight:'-'},
+    {name:'Cross-Body Hammer Curl',sets:'3×10-12',weight:'-'},
+    {name:'Single-Arm DB Preacher Curl',sets:'3×12-15',weight:'-'},
   ],
   day2: [
-    {name:'Romanian Deadlift (RDL)',sets:'3×8-10',weight:'-'},
-    {name:'Leg Press',sets:'4×10-12',weight:'-'},
-    {name:'Leg Extension',sets:'3×12-15',weight:'-'},
-    {name:'Seated Leg Curl',sets:'3×12-15',weight:'-'},
-    {name:'Adductor Machine',sets:'3×15',weight:'-'},
-    {name:'Standing Calf Raise',sets:'4×15-20',weight:'-'},
+    {name:'Lat Pulldown',sets:'3×8-12',weight:'-'},
+    {name:'Close-Grip V-Bar Pulldown',sets:'3×10-12',weight:'-'},
+    {name:'Seated Row Machine',sets:'3×10-12',weight:'-'},
+    {name:'V-Bar Triceps Pushdown',sets:'3×12-15',weight:'-'},
+    {name:'Single-Arm Cable Reverse Pushdown',sets:'3×12-15',weight:'-'},
+    {name:'Skull Crusher',sets:'3×10-12',weight:'-'},
+    {name:'Overhead DB Triceps Extension',sets:'3×12-15',weight:'-'},
+    {name:'Yusuf\'s Forearm Exercise',sets:'3×Maks',weight:'-'},
+    {name:'Z-Bar Reverse Curl',sets:'3×12-15',weight:'-'},
+    {name:'Classic Forearm Exercises',sets:'3×15',weight:'-'},
   ],
   day3: [
-    {name:'Lat Pulldown',sets:'3×8-12',weight:'-'},
-    {name:'DB Row',sets:'3×10-12',weight:'-'},
-    {name:'Chest Supported Row',sets:'3×10-12',weight:'-'},
-    {name:'Rope Pullovers',sets:'3×12-15',weight:'-'},
-    {name:'Seated Face Pull',sets:'3×15',weight:'-'},
-    {name:'Bent-Over DB Reverse Fly',sets:'3×15',weight:'-'},
-    {name:'DB Lateral Raise',sets:'3×12-15',weight:'-'},
-    {name:'Overhead Extension',sets:'3×10-12',weight:'-'},
-    {name:'V-Bar Pushdown',sets:'3×12-15',weight:'-'},
-  ],
-  day4: [
-    {name:'Shrugs',sets:'4×10-12',weight:'-'},
-    {name:'Plate Pinch Walk',sets:'3×Maks',weight:'-'},
-    {name:'Cable Crunch',sets:'3×15-20',weight:'-'},
-    {name:'Russian Twist',sets:'3×20',weight:'-'},
+    {name:'Squat',sets:'3×8-10',weight:'-'},
+    {name:'Romanian Deadlift',sets:'3×10-12',weight:'-'},
+    {name:'Farmers Walk',sets:'3×Maks',weight:'-'},
+    {name:'Hip Abductor Machines',sets:'3×15',weight:'-'},
+    {name:'Standing Calf Raise',sets:'4×15-20',weight:'-'},
+    {name:'Smith Machine Shrug',sets:'4×10-12',weight:'-'},
+    {name:'DB Shrug',sets:'4×10-12',weight:'-'},
+    {name:'Straight Bar Cable Crunch',sets:'3×15-20',weight:'-'},
+    {name:'Sit-up',sets:'3×20',weight:'-'},
+    {name:'Reverse Crunch',sets:'3×20',weight:'-'},
+    {name:'Russian twist',sets:'3×20',weight:'-'},
+    {name:'Yusuf\'s Forearm Exercise',sets:'3×Maks',weight:'-'},
+    {name:'Z-Bar Reverse Curl',sets:'3×12-15',weight:'-'},
+    {name:'Classic Forearm Exercises',sets:'3×15',weight:'-'},
   ],
 };
 
@@ -369,38 +374,41 @@ const POSTURE_VIDEO_URLS = {
 // WORKOUT VIDEO URLS
 // =============================================
 const WORKOUT_VIDEO_URLS = {
-  // Gün 1
-  'DB Bench Press':                'https://www.youtube.com/watch?v=M0tN99QgPyU',
-  'Incline DB Bench Press':        'https://www.youtube.com/shorts/ljyqdC4ydrM',
-  'DB Shoulder Press':             'https://www.youtube.com/shorts/k6tzKisR3NY',
-  'High-to-Low Cable Fly':         'https://www.youtube.com/watch?v=hhruLxo9yZU',
-  'Cable Lateral Raise':           'https://www.youtube.com/shorts/oBnlhLf6sxM',
-  'Seated Incline DB Curl':        'https://www.youtube.com/shorts/S2cYwsDhpI4',
-  'Cross-body Hammer Curl':        'https://www.youtube.com/watch?v=as77fHUitS4',
-  'Reverse Curl Z-Bar':            'https://www.youtube.com/shorts/MOEMvgYzNZQ',
-  'Wrist Curls (Normal & Reverse)':'https://www.youtube.com/watch?v=3VLTzIrnb5g',
-  // Gün 2
-  'Romanian Deadlift (RDL)':       'https://www.youtube.com/shorts/TIvKHlZZJGs',
-  'Leg Press':                     'https://www.youtube.com/shorts/nDh_BlnLCGc',
-  'Leg Extension':                 'https://www.youtube.com/shorts/Tae3aeJe5Ks',
-  'Seated Leg Curl':               'https://www.youtube.com/shorts/mDSpvNsBx1Y',
-  'Adductor Machine':              'https://www.youtube.com/shorts/Rzj3BffTARY',
-  'Standing Calf Raise':           'https://www.youtube.com/shorts/rsOLKY02m70',
-  // Gün 3
-  'Lat Pulldown':                  'https://www.youtube.com/shorts/KlxStcwWHcM',
-  'DB Row':                        'https://www.youtube.com/shorts/vN8xskk-7G8',
-  'Chest Supported Row':           'https://www.youtube.com/shorts/rqjkN0QVLBs',
-  'Rope Pullovers':                'https://www.youtube.com/watch?v=h1qdFssQTsA',
-  'Seated Face Pull':              'https://www.youtube.com/watch?v=6vV21-R7qs8',
-  'Bent-Over DB Reverse Fly':      'https://www.youtube.com/watch?v=Z-QcDFukpZQ',
-  'DB Lateral Raise':              'https://www.youtube.com/watch?v=pzj8pmSH8d4',
-  'Overhead Extension':            'https://www.youtube.com/shorts/J565P8FzJXA',
-  'V-Bar Pushdown':                'https://www.youtube.com/shorts/e6LpbaNbF6M',
-  // Gün 4
-  'Shrugs':                        'https://www.youtube.com/shorts/qE9PbsENZfg',
-  'Plate Pinch Walk':              'https://www.youtube.com/watch?v=CprwPRO9b-Q',
-  'Cable Crunch':                  'https://www.youtube.com/shorts/U3dx1Wfw2uw',
-  'Russian Twist':                 'https://www.youtube.com/shorts/KUsvxlmpPoI',
+  // Salı: Göğüs-Omuz-Biceps
+  'Barbell Bench Press': 'https://www.youtube.com/shorts/ZR1i47nkH9c',
+  'İncline Bench Press': 'https://www.youtube.com/shorts/98HWfiRonkE',
+  'Upper-lower Cable crossover': 'https://m.youtube.com/shorts/LCgCPxcUIOM',
+  'Cable Shoulder': 'https://www.youtube.com/shorts/6wHaXpM6JgE',
+  'Face Pull': 'https://www.youtube.com/shorts/7kXfVIwmfwE',
+  'Seated Dumbbell Rear Delt Fly': 'https://www.youtube.com/watch?v=d_feFQGGVh4',
+  'Seated DB Biceps Curl': 'https://www.youtube.com/watch?v=aez76Uo6xkA',
+  'Cross-Body Hammer Curl': 'https://www.youtube.com/shorts/7HkJh-OBA0s',
+  'Single-Arm DB Preacher Curl': 'https://m.youtube.com/shorts/-CJEoRtcyHc',
+
+  // Perşembe: Sırt-Triceps-Bilek
+  'Lat Pulldown': 'https://www.youtube.com/shorts/8kgs9hrgNks',
+  'Close-Grip V-Bar Pulldown': 'https://www.youtube.com/shorts/wrt5Y25QbH4',
+  'Seated Row Machine': 'https://www.youtube.com/shorts/DHA7QGDa2qg',
+  'V-Bar Triceps Pushdown': 'https://www.youtube.com/shorts/8xT4OwwiACQ',
+  'Single-Arm Cable Reverse Pushdown': 'https://www.youtube.com/watch?v=AzxlbXEDMq4',
+  'Skull Crusher': 'https://www.youtube.com/shorts/u3W3uE5F-ig',
+  'Overhead DB Triceps Extension': 'https://m.youtube.com/channel/UCcoCfmrZG4f_QRnGXf09NuQ/videos?view=0&sort=dd&shelf_id=0',
+  'Yusuf\'s Forearm Exercise': 'https://www.youtube.com/shorts/SDHjq-okXYk',
+  'Z-Bar Reverse Curl': 'https://m.youtube.com/shorts/VMda3081JI8',
+  'Classic Forearm Exercises': 'https://www.youtube.com/watch?v=sOlAqdzsomM',
+
+  // Cumartesi: Bacak-Trapez-Core-Bilek
+  'Squat': 'https://www.youtube.com/watch?v=-_bBA1bHc9M',
+  'Romanian Deadlift': 'https://www.youtube.com/shorts/LJAnNYPex6Y',
+  'Farmers Walk': 'https://www.youtube.com/shorts/1uOs1hP3u4A',
+  'Hip Abductor Machines': 'https://www.youtube.com/shorts/kbk2E1ziO8Q',
+  'Standing Calf Raise': 'https://www.youtube.com/shorts/FmJKR_fGDz8',
+  'Smith Machine Shrug': 'https://www.youtube.com/shorts/_beyMmxuNwk',
+  'DB Shrug': 'https://www.youtube.com/shorts/zhnJErrN6FU',
+  'Straight Bar Cable Crunch': 'https://www.youtube.com/watch?v=rRC3iZorDC8',
+  'Sit-up': 'https://www.youtube.com/shorts/q5EOcLVXwZ8',
+  'Reverse Crunch': 'https://www.youtube.com/shorts/OaUHOeCq3Po',
+  'Russian twist': 'https://www.youtube.com/shorts/KUsvxlmpPoI',
 };
 
 const DEFAULT_POSTURE_PROGRAMS = {
@@ -517,7 +525,7 @@ function saveData(){
   localStorage.setItem('zyro_data',JSON.stringify(appData));
 }
 
-const CURRENT_PROGRAM_VERSION = 7; // Force full cache reset
+const CURRENT_PROGRAM_VERSION = 8; // Force full cache reset
 
 function enforceVersion() {
   if(appData.programVersion !== CURRENT_PROGRAM_VERSION) {
