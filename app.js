@@ -484,7 +484,10 @@ let appData = {
   posturePrograms:null,
   completedDays:{},
   streak:0,
-  userRank: 'default'
+  userRank: 'default',
+  achievements: {},
+  progressImages: [],
+  weeklyGoal: 0
 };
 
 // =============================================
@@ -1039,7 +1042,9 @@ function initLogForm(){
     e.preventDefault();
     const exercise=document.getElementById('logExercise').value;
     const weight=parseFloat(document.getElementById('logWeight').value);
-    const unit=document.getElementById('logUnit').value;
+    // 1.5: Read from custom radio buttons instead of select
+    const checkedUnit = document.querySelector('input[name="logUnitRadio"]:checked');
+    const unit = checkedUnit ? checkedUnit.value : 'kg';
     const reps=parseInt(document.getElementById('logReps').value);
     const sets=parseInt(document.getElementById('logSets').value);
     if(!exercise||isNaN(weight)||isNaN(reps)||isNaN(sets))return;
@@ -1052,9 +1057,17 @@ function initLogForm(){
     appData.workoutLogs[td].push({exercise,weight:finalWeight,reps,sets,timestamp:Date.now()});
     appData.attendance[td]=true;
     saveData();renderLoggedExercises();renderAttendance();updateMuscleMap();updateStats();
+    // Check achievements on each log
+    checkAchievements(exercise, finalWeight);
     document.getElementById('logWeight').value='';
     document.getElementById('logReps').value='';
     document.getElementById('logSets').value='';
+  });
+  // 1.5: Sync aria-checked on radio change
+  document.querySelectorAll('input[name="logUnitRadio"]').forEach(r => {
+    r.addEventListener('change', () => {
+      document.querySelectorAll('input[name="logUnitRadio"]').forEach(x => x.setAttribute('aria-checked', x.checked ? 'true' : 'false'));
+    });
   });
 }
 
@@ -1511,8 +1524,12 @@ function initNotes() {
     const text = input.value.trim();
     if (!text) return;
     
+    // 4.1: Only allow valid tags: 'Daha sonra', 'Fikir', 'GYM'
+    const VALID_TAGS = ['Daha sonra', 'Fikir', 'GYM'];
     const selectedTags = [];
-    document.querySelectorAll('#pageNotes .tag-btn.active').forEach(b => selectedTags.push(b.dataset.tag));
+    document.querySelectorAll('#pageNotes .tag-btn.active').forEach(b => {
+      if (VALID_TAGS.includes(b.dataset.tag)) selectedTags.push(b.dataset.tag);
+    });
 
     const noteId = Date.now().toString();
     const note = {
@@ -1530,7 +1547,7 @@ function initNotes() {
     input.value = '';
     document.querySelectorAll('#pageNotes .tag-btn.active').forEach(b => b.classList.remove('active'));
     
-    alert(currentLang === 'tr' ? 'Not kaydedildi!' : 'Note saved!');
+    showToast(currentLang === 'tr' ? 'Not kaydedildi! ✓' : 'Note saved! ✓', 'success');
     renderNotes();
   });
 }
@@ -1567,10 +1584,20 @@ function renderNotes() {
 
 window.deleteNote = function(noteId) {
   if (!confirm(currentLang === 'tr' ? 'Bu notu silmek istediğine emin misin?' : 'Are you sure you want to delete this note?')) return;
+  // 4.1: Robust note deletion with transaction-style check
   if (appData.notes && appData.notes[noteId]) {
-    delete appData.notes[noteId];
-    saveData();
-    renderNotes();
+    const backup = { ...appData.notes };
+    try {
+      delete appData.notes[noteId];
+      saveData();
+      renderNotes();
+      showToast('Not silindi', 'success');
+    } catch(e) {
+      // 4.1: Rollback on failure
+      appData.notes = backup;
+      console.error('Note delete failed, rolled back:', e);
+      showToast('Silme başarısız!', 'error');
+    }
   }
 };
 
@@ -1580,8 +1607,20 @@ window.deleteNote = function(noteId) {
 function updateStats(){
   const monday=getMonday(new Date());let ww=0;
   for(let i=0;i<7;i++){const d=new Date(monday);d.setDate(d.getDate()+i);if(appData.attendance[dateStr(d)])ww++}
-  document.getElementById('statWorkoutsVal').textContent=`${ww}/6`;
-  document.getElementById('statWorkoutsBar').style.width=`${Math.min(ww/6*100,100)}%`;
+  
+  // 2.5: Use weeklyGoal from localStorage for progress bar & display
+  const weeklyGoal = parseInt(localStorage.getItem('weeklyGoal')) || 6;
+  const statVal = document.getElementById('statWorkoutsVal');
+  const statBar = document.getElementById('statWorkoutsBar');
+  if (statVal) statVal.textContent = `${ww}/${weeklyGoal}`;
+  if (statBar) statBar.style.width = `${Math.min(ww/weeklyGoal*100,100)}%`;
+  // Weekly goal progress ratio (green display)
+  const ratioEl = document.getElementById('weeklyGoalRatio');
+  if (ratioEl) {
+    const pct = weeklyGoal > 0 ? Math.round((ww/weeklyGoal)*100) : 0;
+    ratioEl.textContent = `${pct}% (${ww}/${weeklyGoal})`;
+    ratioEl.style.color = pct >= 100 ? 'var(--green-vivid)' : pct >= 50 ? 'var(--orange-vivid)' : 'var(--text-secondary)';
+  }
 
   const weights=Object.entries(appData.weightLog||{}).sort((a,b)=>b[0].localeCompare(a[0]));
   if(weights.length>0){
@@ -1623,8 +1662,13 @@ function refreshAllViews(){
   renderAttendance();updateStats();updateMuscleMap();
   if(currentPage==='dashboard')setTimeout(drawDashboardChart,50);
   else if(currentPage==='workouts'){renderWorkout(currentWorkoutTab);renderLoggedExercises()}
-  else if(currentPage==='progress')setTimeout(()=>{drawWeightChart();drawStrengthChart();renderPRTable()},50);
+  else if(currentPage==='progress')setTimeout(()=>{
+    drawWeightChart();drawStrengthChart();renderPRTable();
+    renderMonthlyTracker();renderProgressTracker();
+    renderProgressPhotos();renderAchievements();
+  },50);
   else if(currentPage==='notes')renderNotes();
+  else if(currentPage==='comments')renderComments();
 }
 
 let resizeTimeout;
@@ -1646,9 +1690,331 @@ document.addEventListener('DOMContentLoaded',()=>{
   initNotes();initDashboardChartTabs();
   initComments();
   populateExerciseDropdown();renderAttendance();
-  loadData(()=>refreshAllViews());
+  initWeeklyGoalSheet();
+  initProgressPhotos();
+  loadData(()=>{
+    refreshAllViews();
+    renderAchievements();
+    renderProgressPhotos();
+  });
 });
+// ==============================================
+// WEEKLY GOAL (2.5) — Bottom Sheet
 // =============================================
+function initWeeklyGoalSheet() {
+  const slider = document.getElementById('weeklyGoalSlider');
+  const display = document.getElementById('weeklyGoalDisplay');
+  if (!slider || !display) return;
+
+  // Load saved goal
+  const saved = parseInt(localStorage.getItem('weeklyGoal')) || 0;
+  if (!saved) {
+    // First time: show the bottom sheet after 3s
+    setTimeout(() => {
+      document.getElementById('weeklyGoalSheet')?.classList.add('show');
+    }, 3000);
+  } else {
+    appData.weeklyGoal = saved;
+    slider.value = saved;
+    display.textContent = saved;
+    slider.style.setProperty('--fill', `${((saved - 1) / 6) * 100}%`);
+  }
+
+  slider.addEventListener('input', () => {
+    const val = parseInt(slider.value);
+    display.textContent = val;
+    slider.style.setProperty('--fill', `${((val - 1) / 6) * 100}%`);
+  });
+}
+
+window.confirmWeeklyGoal = function() {
+  const slider = document.getElementById('weeklyGoalSlider');
+  const val = parseInt(slider.value);
+  localStorage.setItem('weeklyGoal', val);
+  appData.weeklyGoal = val;
+  document.getElementById('weeklyGoalSheet')?.classList.remove('show');
+  updateStats();
+  showToast(`Haftalık hedef ${val} gün olarak kaydedildi! 🎯`, 'success');
+};
+
+// Update stat to show weekly goal ratio
+function getWeeklyGoalStats() {
+  const goal = parseInt(localStorage.getItem('weeklyGoal')) || 6;
+  const monday = getMonday(new Date());
+  let attended = 0;
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(monday);
+    d.setDate(d.getDate() + i);
+    if (appData.attendance[dateStr(d)]) attended++;
+  }
+  return { attended, goal, ratio: goal > 0 ? attended / goal : 0 };
+}
+
+// =============================================
+// TOAST NOTIFICATIONS
+// =============================================
+function showToast(msg, type = 'success') {
+  let toast = document.getElementById('zyroToast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'zyroToast';
+    toast.style.cssText = `
+      position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%) translateY(100px);
+      background: ${type === 'success' ? 'linear-gradient(135deg, #4ecb8d, #3aaf78)' : 'linear-gradient(135deg, #e05454, #c73e3e)'};
+      color: white; padding: 12px 24px; border-radius: 12px; font-weight: 600; font-size: 0.88rem;
+      z-index: 9999; transition: all 0.4s cubic-bezier(0.34,1.56,0.64,1);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.4); white-space: nowrap; max-width: 90vw;
+      text-align: center; pointer-events: none;
+    `;
+    document.body.appendChild(toast);
+  }
+  toast.textContent = msg;
+  toast.style.background = type === 'success'
+    ? 'linear-gradient(135deg, #4ecb8d, #3aaf78)'
+    : 'linear-gradient(135deg, #e05454, #c73e3e)';
+  toast.style.transform = 'translateX(-50%) translateY(0)';
+  setTimeout(() => { toast.style.transform = 'translateX(-50%) translateY(100px)'; }, 3000);
+}
+
+// =============================================
+// ACHIEVEMENT SYSTEM (3.2)
+// =============================================
+const ACHIEVEMENT_DEFS = [
+  { id: 'bench_50', icon: '🏋️', name: '50 kg Bench Press', exercise: 'DB Bench Press', target: 50, desc: '50 kg Bench Press başarımını kazan!'},
+  { id: 'deadlift_100', icon: '💪', name: '100 kg Deadlift', exercise: 'Romanian Deadlift (RDL)', target: 100, desc: '100 kg Deadlift başarımını kazan!'},
+  { id: 'squat_50', icon: '🦵', name: '50 kg Squat', exercise: 'Leg Press', target: 50, desc: '50 kg Squat/Leg Press başarımını kazan!'},
+  { id: 'streak_7', icon: '🔥', name: '7 Günlük Seri', exercise: null, target: 7, desc: '7 gün üst üste antrenman yap!'},
+];
+
+function checkAchievements(exercise, weight) {
+  if (!appData.achievements) appData.achievements = {};
+  ACHIEVEMENT_DEFS.forEach(def => {
+    if (!def.exercise) return; // streak handled separately
+    if (appData.achievements[def.id]) return; // already unlocked
+    if (def.exercise === exercise && weight >= def.target) {
+      appData.achievements[def.id] = { unlockedAt: Date.now() };
+      saveData();
+      showAchievementPopup(def);
+      renderAchievements();
+    }
+  });
+}
+
+function showAchievementPopup(def) {
+  const popup = document.getElementById('achievementPopup');
+  if (!popup) return;
+  document.getElementById('achievementIcon').textContent = def.icon;
+  document.getElementById('achievementTitle').textContent = 'Tebrikler! ' + def.name;
+  document.getElementById('achievementDesc').textContent = def.desc + ' 🎉';
+  popup.classList.add('show');
+  runConfetti();
+  // Auto-close after 5s
+  setTimeout(() => closeAchievementPopup(), 5000);
+}
+
+window.closeAchievementPopup = function() {
+  document.getElementById('achievementPopup')?.classList.remove('show');
+};
+
+function runConfetti() {
+  const canvas = document.getElementById('confettiCanvas');
+  if (!canvas) return;
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  const ctx = canvas.getContext('2d');
+  const particles = Array.from({length: 120}, () => ({
+    x: Math.random() * canvas.width,
+    y: -10,
+    w: Math.random() * 12 + 4,
+    h: Math.random() * 6 + 3,
+    color: ['#8b7cf7','#FFD700','#4ecb8d','#d96ea3','#5c8ade'][Math.floor(Math.random()*5)],
+    vx: (Math.random() - 0.5) * 4,
+    vy: Math.random() * 3 + 2,
+    angle: Math.random() * 360,
+    spin: (Math.random() - 0.5) * 8,
+    life: 1
+  }));
+  let frame;
+  function animate() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    particles.forEach(p => {
+      p.x += p.vx; p.y += p.vy; p.angle += p.spin; p.life -= 0.008;
+      ctx.save();
+      ctx.globalAlpha = Math.max(0, p.life);
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.angle * Math.PI / 180);
+      ctx.fillStyle = p.color;
+      ctx.fillRect(-p.w/2, -p.h/2, p.w, p.h);
+      ctx.restore();
+    });
+    if (particles.some(p => p.life > 0 && p.y < canvas.height)) {
+      frame = requestAnimationFrame(animate);
+    } else {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+  }
+  if (frame) cancelAnimationFrame(frame);
+  animate();
+}
+
+function renderAchievements() {
+  const grid = document.getElementById('achievementsGrid');
+  if (!grid) return;
+  if (!appData.achievements) appData.achievements = {};
+  grid.innerHTML = ACHIEVEMENT_DEFS.map(def => {
+    const unlocked = !!appData.achievements[def.id];
+    return `<div class="achievement-badge ${unlocked ? 'unlocked' : 'locked'}">
+      <div class="achievement-badge-icon">${def.icon}</div>
+      <div class="achievement-badge-name">${def.name}</div>
+      ${unlocked ? '<div style="font-size:0.65rem;color:#FFD700;margin-top:4px;">✓ Kazanıldı</div>' : '<div style="font-size:0.65rem;color:var(--text-tertiary);margin-top:4px;">Kilitli</div>'}
+    </div>`;
+  }).join('');
+}
+
+// =============================================
+// PROGRESS PHOTOS (3.1)
+// =============================================
+let _pendingPhotoBase64 = null;
+let _compareMode = false;
+
+function initProgressPhotos() {
+  // Set today's date as default for photo date picker
+  const ph = document.getElementById('photoDate');
+  if (ph) ph.value = todayStr();
+}
+
+window.handleProgressPhoto = function(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    // Compress via canvas
+    const img = new Image();
+    img.onload = () => {
+      const max = 512;
+      const canvas = document.createElement('canvas');
+      const ratio = Math.min(max / img.width, max / img.height);
+      canvas.width = img.width * ratio;
+      canvas.height = img.height * ratio;
+      canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+      _pendingPhotoBase64 = canvas.toDataURL('image/jpeg', 0.7);
+      document.getElementById('progressPhotoForm').style.display = 'block';
+      document.getElementById('photoDate').value = todayStr();
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+  event.target.value = '';
+};
+
+window.saveProgressPhoto = function() {
+  if (!_pendingPhotoBase64) return;
+  const date = document.getElementById('photoDate').value || todayStr();
+  const weight = parseFloat(document.getElementById('photoWeight').value) || 0;
+  const note = document.getElementById('photoNote').value.trim().slice(0, 280);
+  if (!date || !weight) {
+    showToast('Tarih ve kilo zorunlu!', 'error');
+    return;
+  }
+  if (!appData.progressImages) appData.progressImages = [];
+  appData.progressImages.push({ date, weight, note, image: _pendingPhotoBase64, id: Date.now() });
+  _pendingPhotoBase64 = null;
+  document.getElementById('progressPhotoForm').style.display = 'none';
+  document.getElementById('photoNote').value = '';
+  saveData();
+  renderProgressPhotos();
+  showToast('Fotoğraf kaydedildi! 📸', 'success');
+};
+
+window.toggleCompareMode = function() {
+  _compareMode = !_compareMode;
+  const btn = document.getElementById('comparePhotosBtn');
+  const compareView = document.getElementById('compareView');
+  const photosGrid = document.getElementById('progressPhotosGrid');
+  if (_compareMode) {
+    btn.textContent = 'Kapat';
+    compareView.style.display = 'grid';
+    photosGrid.style.display = 'none';
+    renderCompareView();
+  } else {
+    btn.textContent = 'Karşılaştır';
+    compareView.style.display = 'none';
+    photosGrid.style.display = 'grid';
+  }
+};
+
+function renderCompareView() {
+  const container = document.getElementById('compareView');
+  if (!container) return;
+  const photos = (appData.progressImages || []).sort((a, b) => a.date.localeCompare(b.date));
+  if (photos.length < 2) {
+    container.innerHTML = '<div class="logged-empty" style="grid-column:1/-1;">Karşılaştırmak için en az 2 fotoğraf gerekli.</div>';
+    return;
+  }
+  const first = photos[0];
+  const last = photos[photos.length - 1];
+  container.innerHTML = [
+    {label: 'Başlangıç', photo: first},
+    {label: 'Son', photo: last}
+  ].map(({label, photo}) => `
+    <div class="compare-photo-wrap">
+      <img src="${photo.image}" alt="${label}">
+      <div class="compare-photo-overlay">${label} • ${photo.date} • ${photo.weight} kg</div>
+    </div>
+  `).join('');
+}
+
+function renderProgressPhotos() {
+  const grid = document.getElementById('progressPhotosGrid');
+  if (!grid) return;
+  const photos = (appData.progressImages || []).sort((a, b) => b.date.localeCompare(a.date));
+  if (photos.length === 0) {
+    grid.innerHTML = '<div class="logged-empty" style="grid-column:1/-1;">Henüz fotoğraf eklenmedi.</div>';
+    return;
+  }
+  grid.innerHTML = photos.map(p => `
+    <div class="progress-photo-item">
+      <img src="${p.image}" alt="Progress ${p.date}" loading="lazy">
+      <div class="progress-photo-meta">
+        <strong>${p.date}</strong>
+        ${p.weight} kg${p.note ? ' • ' + p.note.slice(0, 40) + (p.note.length > 40 ? '…' : '') : ''}
+        <button onclick="deleteProgressPhoto(${p.id})" style="display:block;margin-top:6px;background:rgba(224,84,84,0.15);border:1px solid rgba(224,84,84,0.3);color:#e05454;border-radius:6px;padding:3px 8px;font-size:0.7rem;cursor:pointer;">Sil</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+window.deleteProgressPhoto = function(id) {
+  if (!confirm('Bu fotoğrafı silmek istediğine emin misin?')) return;
+  appData.progressImages = (appData.progressImages || []).filter(p => p.id !== id);
+  saveData();
+  renderProgressPhotos();
+  showToast('Fotoğraf silindi.', 'success');
+};
+
+// =============================================
+// STRENGTH PROGRESS DATA RESET (2.3)
+// =============================================
+window.resetStrengthProgress = function() {
+  if (!confirm('Tüm Güç İlerlemesi verilerini kalıcı olarak silmek istediğine emin misin?\n\nBu işlem geri alınamaz!')) return;
+  const backup = JSON.parse(JSON.stringify(appData.workoutLogs || {}));
+  try {
+    appData.workoutLogs = {};
+    saveData();
+    renderLoggedExercises();
+    renderPRTable();
+    renderProgressTracker();
+    updateStats();
+    updateMuscleMap();
+    showToast('Verileriniz sıfırlandı ✓', 'success');
+  } catch(e) {
+    appData.workoutLogs = backup;
+    console.error('Data reset failed, rolled back:', e);
+    showToast('Sıfırlama başarısız!', 'error');
+  }
+};
+
+
 // STATS TRACKER (WINDEX STYLE)
 // =============================================
 let currentTrackerCategory = '';
