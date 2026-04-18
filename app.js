@@ -525,7 +525,7 @@ function saveData(){
   localStorage.setItem('zyro_data',JSON.stringify(appData));
 }
 
-const CURRENT_PROGRAM_VERSION = 8; // Force full cache reset
+const CURRENT_PROGRAM_VERSION = 9; // Force full cache reset
 
 function enforceVersion() {
   if(appData.programVersion !== CURRENT_PROGRAM_VERSION) {
