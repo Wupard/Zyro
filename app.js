@@ -297,7 +297,12 @@ const RANKS = {
 };
 
 const CATEGORY_ICONS = {
-  'chest': '🛡️', 'shoulders': '🔱', 'back': '🦅', 'legs': '🦵', 'arms': '⚔️', 'core': '🧱'
+  'chest':     '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>',
+  'shoulders': '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>',
+  'back':      '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>',
+  'legs':      '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 4v16M18 4v16M6 12h12"/></svg>',
+  'arms':      '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6.5 6.5h11M6.5 17.5h11M12 2v4M12 18v4M4.5 8.5v7M19.5 8.5v7"/></svg>',
+  'core':      '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="4"/><path d="M3 9h18M3 15h18M9 3v18M15 3v18"/></svg>'
 };
 
 const DEFAULT_PROGRAMS = {
@@ -790,6 +795,9 @@ function navigateTo(page){
   else if(page==='progress')setTimeout(()=>{drawWeightChart();renderProgressTracker();renderPRTable();renderMonthlyTracker();},50);
   else if(page==='notes')renderNotes();
   else if(page==='comments')renderComments();
+  else if(page==='beforeafter'){renderProgressPhotos();renderProgressPhotoNav();}
+  else if(page==='achievements')renderAchievements();
+  else if(page==='profile')renderProfilePage();
 
   if(window.innerWidth<=768)document.getElementById('sidebar').classList.remove('open');
 }
@@ -1194,9 +1202,9 @@ window.completeDay = function(type, tab) {
     });
   }
   
-  // Alert
-  const msg = currentLang==='tr' ? (type==='workout'?'💪 Spor Programı Kaydedildi! Harika İş!':'🌟 Postür Programı Kaydedildi! Harika İş!') : 'Program Completed!';
-  setTimeout(() => alert(msg), 400);
+  // Toast instead of alert
+  const msg = currentLang==='tr' ? (type==='workout'?'Spor Programı Kaydedildi! 💪':'Postür Programı Kaydedildi! 🌟') : 'Program Completed!';
+  setTimeout(() => showToast(msg, 'success'), 400);
 };
 
 // =============================================
@@ -1474,8 +1482,6 @@ function renderPRTable(){
 
 window.deletePR = function(exerciseName) {
   if (!confirm(currentLang === 'tr' ? `${exerciseName} rekorunu silmek istediğine emin misin?` : `Are you sure you want to delete PR for ${exerciseName}?`)) return;
-  
-  // PRs are derived from workout logs, so we need to clear weights for this exercise across all logs
   let found = false;
   Object.entries(appData.workoutLogs).forEach(([date, logs]) => {
     const originalLength = logs.length;
@@ -1483,13 +1489,9 @@ window.deletePR = function(exerciseName) {
     if (appData.workoutLogs[date].length !== originalLength) found = true;
     if (appData.workoutLogs[date].length === 0) delete appData.workoutLogs[date];
   });
-  
   if (found) {
-    saveData();
-    renderPRTable();
-    updateStats();
-    updateMuscleMap();
-    alert(currentLang === 'tr' ? 'Rekor ve ilgili tüm antrenman kayıtları silindi.' : 'PR and related workout logs deleted.');
+    saveData(); renderPRTable(); updateStats(); updateMuscleMap();
+    showToast(currentLang === 'tr' ? 'Rekor silindi ✓' : 'PR deleted ✓', 'success');
   }
 };
 
@@ -1562,42 +1564,52 @@ function renderNotes() {
     return;
   }
   
-  const tagEmojis = { workout: '💪', mindset: '🧠', nutrition: '🥗', recovery: '😴', goal: '🎯' };
+  const TAG_SVG = {
+    'Daha sonra': '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>',
+    'Fikir': '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 1 7 7 7 7 0 0 1-4 6.32V17H9v-1.69A7.004 7.004 0 0 1 5 9a7 7 0 0 1 7-7z"/></svg>',
+    'GYM': '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6.5 6.5h11M6.5 17.5h11M12 2v4M12 18v4M4.5 8.5v7M19.5 8.5v7"/></svg>'
+  };
   
   container.innerHTML = entries.map(note => {
     const d = new Date(note.timestamp);
     const dateLabel = note.date === todayStr() ? (currentLang === 'tr' ? 'Bugün' : 'Today') : d.toLocaleDateString(currentLang === 'tr' ? 'tr-TR' : 'en-US', { weekday: 'short', month: 'short', day: 'numeric' });
-    const tagsHtml = (note.tags || []).map(tg => `<span style="font-size: 0.65rem; padding: 2px 8px; border-radius: 12px; background: var(--accent-glow); color: var(--accent-primary); font-weight: 600; margin-right: 4px;">${tagEmojis[tg] || ''} ${tg}</span>`).join('');
+    const tagsHtml = (note.tags || []).map(tg => `<span style="display:inline-flex;align-items:center;gap:3px;font-size:0.65rem;padding:2px 8px;border-radius:12px;background:var(--accent-glow);color:var(--accent-primary);font-weight:600;margin-right:4px;">${TAG_SVG[tg]||''}${tg}</span>`).join('');
     
     return `
-      <div class="note-entry" style="padding: 16px; background: var(--bg-card-alt); border-radius: 12px; margin-bottom: 12px; border: 1px solid var(--border-subtle);">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-          <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600;">${dateLabel}</span>
-          <button onclick="deleteNote('${note.id}')" style="background: none; border: none; color: #ef4444; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s;" title="Notu Sil">🗑️</button>
+      <div class="note-entry" style="padding:16px;background:var(--bg-card-alt);border-radius:12px;margin-bottom:12px;border:1px solid var(--border-subtle);">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+          <span style="font-size:0.75rem;color:var(--text-muted);font-weight:600;">${dateLabel}</span>
+          <button onclick="deleteNote('${note.id}')" style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);color:#ef4444;cursor:pointer;padding:5px 7px;border-radius:7px;transition:all 0.2s;display:flex;align-items:center;gap:4px;font-size:0.7rem;" title="Notu Sil">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+            Sil
+          </button>
         </div>
-        <div style="font-size: 0.9rem; line-height: 1.5; color: var(--text-primary); margin-bottom: 10px; white-space: pre-wrap;">${note.text}</div>
-        <div style="display: flex; flex-wrap: wrap; gap: 4px;">${tagsHtml}</div>
+        <div style="font-size:0.9rem;line-height:1.5;color:var(--text-primary);margin-bottom:10px;white-space:pre-wrap;">${note.text}</div>
+        <div style="display:flex;flex-wrap:wrap;gap:4px;">${tagsHtml}</div>
       </div>
     `;
   }).join('');
 }
 
 window.deleteNote = function(noteId) {
-  if (!confirm(currentLang === 'tr' ? 'Bu notu silmek istediğine emin misin?' : 'Are you sure you want to delete this note?')) return;
-  // 4.1: Robust note deletion with transaction-style check
-  if (appData.notes && appData.notes[noteId]) {
-    const backup = { ...appData.notes };
-    try {
-      delete appData.notes[noteId];
-      saveData();
-      renderNotes();
-      showToast('Not silindi', 'success');
-    } catch(e) {
-      // 4.1: Rollback on failure
-      appData.notes = backup;
-      console.error('Note delete failed, rolled back:', e);
-      showToast('Silme başarısız!', 'error');
+  if (!appData.notes || !appData.notes[noteId]) return;
+  const backup = { ...appData.notes };
+  try {
+    delete appData.notes[noteId];
+    // Persist locally first
+    localStorage.setItem('zyro_data', JSON.stringify(appData));
+    // Also delete from Firestore directly so onSnapshot doesn't overwrite
+    if (isFirebaseConfigured && currentUser && db) {
+      db.collection('users').doc(currentUser.uid).update({
+        [`data.notes.${noteId}`]: firebase.firestore.FieldValue.delete()
+      }).catch(e => console.error('Note Firestore delete failed:', e));
     }
+    renderNotes();
+    showToast(currentLang === 'tr' ? 'Not silindi' : 'Note deleted', 'success');
+  } catch(e) {
+    appData.notes = backup;
+    console.error('Note delete failed, rolled back:', e);
+    showToast(currentLang === 'tr' ? 'Silme basarisiz!' : 'Delete failed!', 'error');
   }
 };
 
@@ -1645,12 +1657,10 @@ function updateStats(){
   }
 
   
+  // 1. Update only streakText span — the static 🔥 in HTML is already removed
   const streakEl = document.getElementById('streakText');
   if (streakEl) {
     streakEl.textContent = `Day ${weeklyStreak}`;
-    // Animated Fire
-    const fireIcon = `<span class="fire-streak" style="display:inline-block; animation: fireBurn 1.5s ease-in-out infinite; margin-right: 4px;">🔥</span>`;
-    streakEl.innerHTML = fireIcon + `Day ${weeklyStreak}`;
   }
 }
 
@@ -1665,10 +1675,12 @@ function refreshAllViews(){
   else if(currentPage==='progress')setTimeout(()=>{
     drawWeightChart();drawStrengthChart();renderPRTable();
     renderMonthlyTracker();renderProgressTracker();
-    renderProgressPhotos();renderAchievements();
   },50);
   else if(currentPage==='notes')renderNotes();
   else if(currentPage==='comments')renderComments();
+  else if(currentPage==='beforeafter'){renderProgressPhotos();renderProgressPhotoNav();}
+  else if(currentPage==='achievements')renderAchievements();
+  else if(currentPage==='profile')renderProfilePage();
 }
 
 let resizeTimeout;
@@ -1696,6 +1708,8 @@ document.addEventListener('DOMContentLoaded',()=>{
     refreshAllViews();
     renderAchievements();
     renderProgressPhotos();
+    // Update sidebar after data load
+    if(currentUser) updateUserUI(currentUser);
   });
 });
 // ==============================================
@@ -1751,39 +1765,73 @@ function getWeeklyGoalStats() {
 }
 
 // =============================================
-// TOAST NOTIFICATIONS
+// TOAST NOTIFICATIONS (top-of-screen, 2s, premium)
 // =============================================
 function showToast(msg, type = 'success') {
   let toast = document.getElementById('zyroToast');
   if (!toast) {
     toast = document.createElement('div');
     toast.id = 'zyroToast';
-    toast.style.cssText = `
-      position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%) translateY(100px);
-      background: ${type === 'success' ? 'linear-gradient(135deg, #4ecb8d, #3aaf78)' : 'linear-gradient(135deg, #e05454, #c73e3e)'};
-      color: white; padding: 12px 24px; border-radius: 12px; font-weight: 600; font-size: 0.88rem;
-      z-index: 9999; transition: all 0.4s cubic-bezier(0.34,1.56,0.64,1);
-      box-shadow: 0 8px 24px rgba(0,0,0,0.4); white-space: nowrap; max-width: 90vw;
-      text-align: center; pointer-events: none;
-    `;
+    toast.style.cssText = [
+      'position:fixed',
+      'top:24px',
+      'left:50%',
+      'transform:translateX(-50%) translateY(-80px)',
+      'padding:12px 22px',
+      'border-radius:14px',
+      'font-weight:600',
+      'font-size:0.88rem',
+      'z-index:99999',
+      'transition:transform 0.35s cubic-bezier(0.34,1.56,0.64,1),opacity 0.35s ease',
+      'box-shadow:0 8px 32px rgba(0,0,0,0.5)',
+      'white-space:nowrap',
+      'max-width:90vw',
+      'text-align:center',
+      'pointer-events:none',
+      'display:flex',
+      'align-items:center',
+      'gap:10px',
+      'border:1px solid rgba(255,255,255,0.12)',
+      'backdrop-filter:blur(12px)',
+      'opacity:0'
+    ].join(';');
     document.body.appendChild(toast);
   }
-  toast.textContent = msg;
-  toast.style.background = type === 'success'
-    ? 'linear-gradient(135deg, #4ecb8d, #3aaf78)'
-    : 'linear-gradient(135deg, #e05454, #c73e3e)';
-  toast.style.transform = 'translateX(-50%) translateY(0)';
-  setTimeout(() => { toast.style.transform = 'translateX(-50%) translateY(100px)'; }, 3000);
+  const isSuccess = type === 'success';
+  const iconSvg = isSuccess
+    ? '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>'
+    : '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>';
+  toast.innerHTML = iconSvg + '<span>' + msg + '</span>';
+  toast.style.background = isSuccess
+    ? 'linear-gradient(135deg, rgba(34,197,94,0.95), rgba(16,185,129,0.95))'
+    : 'linear-gradient(135deg, rgba(239,68,68,0.95), rgba(220,38,38,0.95))';
+  toast.style.color = 'white';
+  // Show
+  requestAnimationFrame(() => {
+    toast.style.transform = 'translateX(-50%) translateY(0)';
+    toast.style.opacity = '1';
+  });
+  clearTimeout(toast._timer);
+  toast._timer = setTimeout(() => {
+    toast.style.transform = 'translateX(-50%) translateY(-80px)';
+    toast.style.opacity = '0';
+  }, 2000);
 }
 
 // =============================================
 // ACHIEVEMENT SYSTEM (3.2)
 // =============================================
+const ACH_ICONS = {
+  bench_50:    '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6.5 6.5h11M6.5 17.5h11M12 2v4M12 18v4M4.5 8.5v7M19.5 8.5v7"/></svg>',
+  deadlift_100:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2v20M4 12h16M4 6l8 6-8 6M20 6l-8 6 8 6"/></svg>',
+  squat_50:    '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 4v16M18 4v16M6 12h12"/></svg>',
+  streak_7:    '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/></svg>'
+};
 const ACHIEVEMENT_DEFS = [
-  { id: 'bench_50', icon: '🏋️', name: '50 kg Bench Press', exercise: 'DB Bench Press', target: 50, desc: '50 kg Bench Press başarımını kazan!'},
-  { id: 'deadlift_100', icon: '💪', name: '100 kg Deadlift', exercise: 'Romanian Deadlift (RDL)', target: 100, desc: '100 kg Deadlift başarımını kazan!'},
-  { id: 'squat_50', icon: '🦵', name: '50 kg Squat', exercise: 'Leg Press', target: 50, desc: '50 kg Squat/Leg Press başarımını kazan!'},
-  { id: 'streak_7', icon: '🔥', name: '7 Günlük Seri', exercise: null, target: 7, desc: '7 gün üst üste antrenman yap!'},
+  { id: 'bench_50',    name: '50 kg Bench Press',  exercise: 'DB Bench Press',          target: 50,  desc: '50 kg Bench Press yapınca kazanılır.' },
+  { id: 'deadlift_100',name: '100 kg Deadlift',    exercise: 'Romanian Deadlift (RDL)', target: 100, desc: '100 kg RDL yapınca kazanılır.' },
+  { id: 'squat_50',    name: '50 kg Squat',         exercise: 'Leg Press',               target: 50,  desc: '50 kg Leg Press yapınca kazanılır.' },
+  { id: 'streak_7',    name: '7 Günlük Seri',       exercise: null,                      target: 7,   desc: '7 gün üst üste antrenman yap.' },
 ];
 
 function checkAchievements(exercise, weight) {
@@ -1803,12 +1851,12 @@ function checkAchievements(exercise, weight) {
 function showAchievementPopup(def) {
   const popup = document.getElementById('achievementPopup');
   if (!popup) return;
-  document.getElementById('achievementIcon').textContent = def.icon;
+  const iconEl = document.getElementById('achievementIcon');
+  iconEl.innerHTML = ACH_ICONS[def.id] || def.id;
   document.getElementById('achievementTitle').textContent = 'Tebrikler! ' + def.name;
   document.getElementById('achievementDesc').textContent = def.desc + ' 🎉';
   popup.classList.add('show');
   runConfetti();
-  // Auto-close after 5s
   setTimeout(() => closeAchievementPopup(), 5000);
 }
 
@@ -1861,12 +1909,16 @@ function renderAchievements() {
   const grid = document.getElementById('achievementsGrid');
   if (!grid) return;
   if (!appData.achievements) appData.achievements = {};
+  const CHAIN_SVG = '<svg class="chain-lock" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2"><rect x="5" y="11" width="14" height="11" rx="3" ry="3"/><path d="M8 11V7a4 4 0 1 1 8 0v4"/></svg>';
   grid.innerHTML = ACHIEVEMENT_DEFS.map(def => {
     const unlocked = !!appData.achievements[def.id];
-    return `<div class="achievement-badge ${unlocked ? 'unlocked' : 'locked'}">
-      <div class="achievement-badge-icon">${def.icon}</div>
+    const iconSvg = ACH_ICONS[def.id] || '';
+    return `<div class="achievement-badge ${unlocked ? 'unlocked' : 'locked'}" title="${def.desc}">
+      <div class="achievement-badge-icon">${iconSvg}${!unlocked ? CHAIN_SVG : ''}</div>
       <div class="achievement-badge-name">${def.name}</div>
-      ${unlocked ? '<div style="font-size:0.65rem;color:#FFD700;margin-top:4px;">✓ Kazanıldı</div>' : '<div style="font-size:0.65rem;color:var(--text-tertiary);margin-top:4px;">Kilitli</div>'}
+      ${unlocked
+        ? '<div style="font-size:0.65rem;color:#FFD700;margin-top:4px;display:flex;align-items:center;gap:3px;"><svg width="10" height="10" viewBox="0 0 24 24" fill="#FFD700"><path d="M20 6L9 17l-5-5"/></svg> Kazanıldı</div>'
+        : '<div style="font-size:0.65rem;color:var(--text-tertiary);margin-top:4px;">Kilitli</div>'}
     </div>`;
   }).join('');
 }
@@ -2101,7 +2153,7 @@ function initComments() {
     if (isFirebaseConfigured && db) {
       try {
         await db.collection('public_comments').add(comment);
-        alert(currentLang === 'tr' ? 'Yorumunuz başarıyla gönderildi!' : 'Comment sent successfully!');
+        showToast(currentLang === 'tr' ? 'Yorum gonderildi!' : 'Comment sent!', 'success');
         document.getElementById('commentInput').value = '';
         renderComments();
         
@@ -2111,9 +2163,9 @@ function initComments() {
       } catch (e) {
         console.error('Comment Error:', e);
         if (e.message && e.message.includes('permissions')) {
-          alert('Hata: Firebase Güvenlik Kuralları bu işleme izin vermiyor. Lütfen Firestore Rules ayarlarını güncelleyin.');
+          showToast('Hata: Firebase izni yok!', 'error');
         } else {
-          alert('Yorum gönderilirken bir hata oluştu: ' + e.message);
+          showToast('Yorum gonderilemedi!', 'error');
         }
       }
     } else {
@@ -2121,7 +2173,7 @@ function initComments() {
       let localComments = JSON.parse(localStorage.getItem('zyro_local_comments') || '[]');
       localComments.unshift(comment);
       localStorage.setItem('zyro_local_comments', JSON.stringify(localComments));
-      alert('Local mode: Comment saved locally.');
+      showToast('Yorum yerel olarak kaydedildi.', 'success');
       document.getElementById('commentInput').value = '';
       renderComments();
     }
@@ -2203,16 +2255,17 @@ window.adminDeleteComment = async function(commentId) {
   
   try {
     await db.collection('public_comments').doc(commentId).delete();
+    showToast('Yorum silindi.', 'success');
     renderComments();
   } catch (e) {
     console.error('Delete Error:', e);
-    alert('Yorum silinemedi: ' + e.message);
+    showToast('Yorum silinemedi!', 'error');
   }
 };
 
 window.upvoteComment = async function(commentId) {
   if (!currentUser) {
-    alert('Beğenmek için giriş yapmalısın!');
+    showToast('Begenmek icin giris yapmalisin!', 'error');
     return;
   }
 
@@ -2792,3 +2845,484 @@ window.calcMacros = function() {
 // Ensure initCalculators is called when the app loads
 setTimeout(() => { initCalculators(); }, 500);
 
+// =============================================
+// RENDER BEFORE/AFTER PHOTO NAV (renderProgressPhotoNav)
+// =============================================
+function renderProgressPhotoNav() {
+  // No-op for now: photos already rendered via renderProgressPhotos()
+  // Could be used to update compare button state
+}
+
+// =============================================
+// FIX confirmWeeklyGoal (remove emoji from toast)
+// =============================================
+window.confirmWeeklyGoal = function() {
+  const slider = document.getElementById('weeklyGoalSlider');
+  const val = parseInt(slider.value);
+  localStorage.setItem('weeklyGoal', val);
+  appData.weeklyGoal = val;
+  document.getElementById('weeklyGoalSheet')?.classList.remove('show');
+  updateStats();
+  showToast((currentLang === 'tr' ? 'Haftalik hedef ' : 'Weekly goal set to ') + val + (currentLang === 'tr' ? ' gun olarak kaydedildi!' : ' days!'), 'success');
+};
+
+// =============================================
+// PROFILE PAGE (3.3)
+// =============================================
+function renderProfilePage() {
+  const page = document.getElementById('pageProfile');
+  if (!page) return;
+
+  const profile = appData.profile || {};
+  const displayName = profile.displayName || (currentUser ? (currentUser.displayName || 'User') : 'User');
+  const bio = profile.bio || '';
+  const hasPassword = !!profile.password;
+  const measurements = profile.measurements || {};
+  const userRankKey = appData.userRank || 'default';
+  const rank = RANKS[userRankKey] || RANKS.default;
+
+  // Achievements
+  const unlockedCount = Object.keys(appData.achievements || {}).length;
+  const achievementsHtml = ACHIEVEMENT_DEFS.map(def => {
+    const unlocked = !!(appData.achievements || {})[def.id];
+    return `<div style="display:flex;align-items:center;gap:10px;padding:10px;border-radius:10px;background:${unlocked ? 'rgba(139,124,247,0.1)' : 'rgba(255,255,255,0.02)'};border:1px solid ${unlocked ? 'rgba(139,124,247,0.3)' : 'var(--border-subtle)'};">
+      <div style="width:36px;height:36px;border-radius:10px;background:${unlocked ? 'var(--accent-glow)' : 'rgba(255,255,255,0.03)'};display:flex;align-items:center;justify-content:center;color:${unlocked ? 'var(--accent-primary)' : 'var(--text-tertiary)'};">${ACH_ICONS[def.id] || ''}</div>
+      <div>
+        <div style="font-weight:600;font-size:0.85rem;color:${unlocked ? 'var(--text-primary)' : 'var(--text-muted)'};">${def.name}</div>
+        <div style="font-size:0.7rem;color:var(--text-tertiary);">${unlocked ? 'Kazanildi' : 'Kilitli - ' + def.desc}</div>
+      </div>
+    </div>`;
+  }).join('');
+
+  // PRs
+  const prs = {};
+  Object.values(appData.workoutLogs || {}).forEach(logs => {
+    logs.forEach(l => {
+      if (!prs[l.exercise] || l.weight > prs[l.exercise]) prs[l.exercise] = l.weight;
+    });
+  });
+  const prsHtml = Object.entries(prs).length > 0
+    ? Object.entries(prs).sort((a,b) => b[1]-a[1]).slice(0,10).map(([ex, w]) =>
+        `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);">
+          <span style="font-size:0.85rem;color:var(--text-primary);">${ex}</span>
+          <span style="font-weight:700;color:var(--accent-primary);">${w} kg</span>
+        </div>`
+      ).join('')
+    : '<div style="color:var(--text-muted);font-size:0.85rem;padding:16px 0;">Henüz kayit yok.</div>';
+
+  const avatarHtml = profile.photoURL
+    ? `<img src="${profile.photoURL}" style="width:80px;height:80px;border-radius:50%;object-fit:cover;border:3px solid var(--accent-primary);" referrerpolicy="no-referrer">`
+    : `<div style="width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,var(--accent-primary),var(--accent-secondary));display:flex;align-items:center;justify-content:center;font-size:2rem;font-weight:900;color:white;border:3px solid var(--accent-primary);">${(displayName[0]||'U').toUpperCase()}</div>`;
+
+  page.innerHTML = `
+    <h2 class="page-title" style="margin-bottom:24px;">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:8px;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      Profil
+    </h2>
+
+    <!-- Profile Header Card -->
+    <section class="card" style="margin-bottom:20px;">
+      <div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap;">
+        <div style="position:relative;cursor:pointer;" onclick="document.getElementById('profilePhotoInput').click();" title="Fotografi degistir">
+          ${avatarHtml}
+          <div style="position:absolute;bottom:0;right:0;width:24px;height:24px;background:var(--accent-primary);border-radius:50%;display:flex;align-items:center;justify-content:center;border:2px solid var(--bg-card);">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          </div>
+        </div>
+        <input type="file" id="profilePhotoInput" accept="image/*" style="display:none" onchange="handleProfilePhotoChange(event)">
+        <div>
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;">
+            <span style="font-size:0.65rem;padding:3px 10px;border-radius:6px;background:${rank.bg};color:${rank.color};font-weight:900;letter-spacing:0.05em;">${rank.label}</span>
+            <h3 style="font-size:1.3rem;font-weight:700;margin:0;">${displayName}</h3>
+          </div>
+          <div style="font-size:0.8rem;color:var(--text-muted);">${currentUser ? currentUser.email || '' : 'Yerel Mod'}</div>
+          <div style="font-size:0.75rem;color:var(--accent-primary);margin-top:4px;">${unlockedCount}/${ACHIEVEMENT_DEFS.length} Basarim Kazanildi</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Name & Bio -->
+    <section class="card" style="margin-bottom:20px;">
+      <div class="card-header"><h3 class="card-title">Kisisel Bilgiler</h3></div>
+      <div class="log-field" style="margin-bottom:14px;">
+        <label>Goruntulenen Ad</label>
+        <input type="text" id="profileName" class="log-input" value="${displayName.replace(/"/g,'&quot;')}" placeholder="Adiniz" maxlength="40">
+      </div>
+      <div class="log-field" style="margin-bottom:14px;">
+        <label>Hakkimda <span style="font-size:0.7rem;color:var(--text-muted);">(maks 500 karakter)</span></label>
+        <textarea id="profileBio" class="note-input" maxlength="500" rows="3" placeholder="Kendinizi taniytin...">${bio}</textarea>
+        <div id="profileBioCount" style="font-size:0.7rem;color:var(--text-muted);text-align:right;margin-top:4px;">${bio.length}/500</div>
+      </div>
+      <button class="btn-primary" onclick="saveProfileInfo()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+        Kaydet
+      </button>
+    </section>
+
+    <!-- Password -->
+    <section class="card" style="margin-bottom:20px;">
+      <div class="card-header"><h3 class="card-title">${hasPassword ? 'Sifre Degistir' : 'Sifre Belirle'}</h3></div>
+      ${hasPassword ? `<div class="log-field" style="margin-bottom:14px;"><label>Mevcut Sifre</label><input type="password" id="profileOldPwd" class="log-input" placeholder="••••••••"></div>` : ''}
+      <div class="log-field" style="margin-bottom:14px;">
+        <label>Yeni Sifre</label>
+        <input type="password" id="profileNewPwd" class="log-input" placeholder="••••••••" minlength="6">
+      </div>
+      <div class="log-field" style="margin-bottom:14px;">
+        <label>Sifre Tekrar</label>
+        <input type="password" id="profileNewPwd2" class="log-input" placeholder="••••••••">
+      </div>
+      <button class="btn-primary" onclick="saveProfilePassword()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        ${hasPassword ? 'Sifre Degistir' : 'Sifre Olustur'}
+      </button>
+    </section>
+
+    <!-- Body Measurements -->
+    <section class="card" style="margin-bottom:20px;">
+      <div class="card-header"><h3 class="card-title">Vucut Olculeri</h3></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
+        <div class="log-field"><label>Yas</label><input type="number" id="measAge" class="log-input" placeholder="25" value="${measurements.age||''}" min="10" max="100"></div>
+        <div class="log-field"><label>Cinsiyet</label>
+          <select id="measGender" class="log-input">
+            <option value="male" ${measurements.gender==='male'?'selected':''}>Erkek</option>
+            <option value="female" ${measurements.gender==='female'?'selected':''}>Kadin</option>
+          </select>
+        </div>
+        <div class="log-field"><label>Boy (cm)</label><input type="number" id="measHeight" class="log-input" placeholder="175" value="${measurements.height||''}" min="100" max="250"></div>
+        <div class="log-field"><label>Kilo (kg)</label><input type="number" id="measWeight" class="log-input" placeholder="75" value="${measurements.weight||''}" min="20" max="300" step="0.1"></div>
+        <div class="log-field"><label>Yag Orani (%)</label><input type="number" id="measBodyFat" class="log-input" placeholder="15" value="${measurements.bodyFat||''}" min="1" max="60" step="0.1"></div>
+      </div>
+      <button class="btn-primary" onclick="saveMeasurements()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/></svg>
+        Kaydet
+      </button>
+    </section>
+
+    <!-- Lifted Weights (PRs) -->
+    <section class="card" style="margin-bottom:20px;">
+      <div class="card-header">
+        <h3 class="card-title">Kaldirilan Agirliklar</h3>
+        <span class="card-badge">${Object.keys(prs).length} egzersiz</span>
+      </div>
+      <div>${prsHtml}</div>
+    </section>
+
+    <!-- Achievements in Profile -->
+    <section class="card" style="margin-bottom:20px;">
+      <div class="card-header">
+        <h3 class="card-title">Basarimlar</h3>
+        <span class="card-badge" style="background:rgba(139,124,247,0.15);color:var(--accent-primary);">${unlockedCount}/${ACHIEVEMENT_DEFS.length}</span>
+      </div>
+      <div style="display:grid;gap:10px;">${achievementsHtml}</div>
+    </section>
+  `;
+
+  // Bio character counter
+  const bioTextarea = document.getElementById('profileBio');
+  const bioCount = document.getElementById('profileBioCount');
+  if (bioTextarea && bioCount) {
+    bioTextarea.addEventListener('input', () => {
+      bioCount.textContent = bioTextarea.value.length + '/500';
+    });
+  }
+}
+
+window.handleProfilePhotoChange = function(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const img = new Image();
+    img.onload = () => {
+      const max = 256;
+      const canvas = document.createElement('canvas');
+      const ratio = Math.min(max / img.width, max / img.height);
+      canvas.width = img.width * ratio;
+      canvas.height = img.height * ratio;
+      canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+      if (!appData.profile) appData.profile = {};
+      appData.profile.photoURL = canvas.toDataURL('image/jpeg', 0.8);
+      saveData();
+      renderProfilePage();
+      // Update sidebar avatar
+      const avatar = document.getElementById('userAvatar');
+      if (avatar) avatar.innerHTML = `<img src="${appData.profile.photoURL}" alt="Avatar" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">`;
+      showToast('Profil fotografi guncellendi', 'success');
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+  event.target.value = '';
+};
+
+window.saveProfileInfo = function() {
+  if (!appData.profile) appData.profile = {};
+  const name = document.getElementById('profileName')?.value.trim();
+  const bio = document.getElementById('profileBio')?.value.trim().slice(0, 500);
+  if (name) appData.profile.displayName = name;
+  if (bio !== undefined) appData.profile.bio = bio;
+  saveData();
+  // Update greeting
+  setGreeting();
+  const nameEl = document.getElementById('userName');
+  if (nameEl && name) nameEl.textContent = name.split(' ')[0];
+  showToast('Profil guncellendi', 'success');
+};
+
+window.saveProfilePassword = function() {
+  const profile = appData.profile || {};
+  const hasPassword = !!profile.password;
+  const oldPwd = document.getElementById('profileOldPwd')?.value || '';
+  const newPwd = document.getElementById('profileNewPwd')?.value || '';
+  const newPwd2 = document.getElementById('profileNewPwd2')?.value || '';
+  if (hasPassword && oldPwd !== profile.password) {
+    showToast('Mevcut sifre yanlis!', 'error'); return;
+  }
+  if (newPwd.length < 6) { showToast('Sifre en az 6 karakter olmali!', 'error'); return; }
+  if (newPwd !== newPwd2) { showToast('Sifreler eslesmyor!', 'error'); return; }
+  if (!appData.profile) appData.profile = {};
+  appData.profile.password = newPwd;
+  saveData();
+  renderProfilePage();
+  showToast('Sifre guncellendi', 'success');
+};
+
+window.saveMeasurements = function() {
+  if (!appData.profile) appData.profile = {};
+  appData.profile.measurements = {
+    age: parseFloat(document.getElementById('measAge')?.value) || 0,
+    gender: document.getElementById('measGender')?.value || 'male',
+    height: parseFloat(document.getElementById('measHeight')?.value) || 0,
+    weight: parseFloat(document.getElementById('measWeight')?.value) || 0,
+    bodyFat: parseFloat(document.getElementById('measBodyFat')?.value) || 0,
+  };
+  saveData();
+  showToast('Vucut olculeri kaydedildi', 'success');
+};
+
+// =============================================
+// UPDATE USER UI — Premium sidebar with rank left of name + "Senkronize" status
+// =============================================
+function updateUserUI(user){
+  const avatar=document.getElementById('userAvatar');
+  const name=document.getElementById('userName');
+  const status=document.getElementById('userStatus');
+  const signOutBtn=document.getElementById('signOutBtn');
+
+  // Use profile photo if available, else Google photo, else initial
+  const profilePhoto = appData.profile && appData.profile.photoURL;
+  const profileName = appData.profile && appData.profile.displayName;
+
+  if(profilePhoto){
+    avatar.innerHTML=`<img src="${profilePhoto}" alt="Avatar" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">`;
+  } else if(user && user.photoURL){
+    avatar.innerHTML=`<img src="${user.photoURL}" alt="Avatar" referrerpolicy="no-referrer">`;
+  } else {
+    const n = profileName || (user && user.displayName) || 'U';
+    avatar.textContent = n[0].toUpperCase();
+  }
+  const displayN = profileName || (user && user.displayName ? user.displayName.split(' ')[0] : 'User');
+  name.textContent = displayN;
+  
+  // Status: "Senkronize" when logged in
+  status.textContent = user ? 'Senkronize' : 'Yerel Mod';
+  status.style.color = user ? 'var(--green-vivid)' : 'var(--text-tertiary)';
+  
+  if (signOutBtn) signOutBtn.style.display = user ? 'block' : 'none';
+
+  // Rank Display — place badge BEFORE the name in sidebar
+  const userRankKey = appData.userRank || (user && user.email === 'wupard@gmail.com' ? 'mod' : 'default');
+  const rank = RANKS[userRankKey] || RANKS.default;
+
+  // Remove old rank badge if exists
+  const oldRank = document.getElementById('userRankInfo');
+  if (oldRank) oldRank.remove();
+
+  if (user) {
+    const rankBadge = document.createElement('span');
+    rankBadge.id = 'userRankInfo';
+    rankBadge.textContent = rank.label;
+    rankBadge.style.cssText = `font-size:0.6rem;font-weight:900;letter-spacing:0.06em;padding:2px 7px;border-radius:5px;color:${rank.color};background:${rank.bg};display:inline-block;`;
+    // Insert before name in parent
+    const userInfo = name.closest('.user-info');
+    if (userInfo) {
+      // Make user-info flex column, insert rank above name
+      userInfo.style.display = 'flex';
+      userInfo.style.flexDirection = 'column';
+      userInfo.style.gap = '2px';
+      userInfo.insertBefore(rankBadge, name);
+    }
+
+    checkUserBan(user);
+  }
+
+  // Admin Check
+  const rank2 = RANKS[userRankKey] || RANKS.default;
+  if (user && rank2.canAdmin) {
+    document.body.classList.add('is-admin');
+    const navComments = document.getElementById('nav-comments');
+    if (navComments && !navComments.querySelector('.admin-badge')) {
+      navComments.innerHTML += ` <span class="admin-badge" style="background:var(--accent-primary); color:white; font-size:0.6rem; padding:2px 4px; border-radius:4px; margin-left:4px;">ADMIN</span>`;
+    }
+    renderAdminPanel();
+  } else {
+    document.body.classList.remove('is-admin');
+  }
+
+  // Realtime rank update from Firestore
+  if (user && isFirebaseConfigured && db) {
+    db.collection('users').doc(user.uid).onSnapshot(snap => {
+      if (snap.exists) {
+        const userData = snap.data().data || {};
+        if (userData.userRank) {
+          appData.userRank = userData.userRank;
+          const updRank = RANKS[userData.userRank] || RANKS.default;
+          const rankEl = document.getElementById('userRankInfo');
+          if (rankEl) {
+            rankEl.textContent = updRank.label;
+            rankEl.style.color = updRank.color;
+            rankEl.style.background = updRank.bg;
+          }
+        }
+        // Also update profile data
+        if (userData.profile) {
+          appData.profile = { ...appData.profile, ...userData.profile };
+          const profileN = appData.profile.displayName;
+          if (profileN && document.getElementById('userName')) {
+            document.getElementById('userName').textContent = profileN.split(' ')[0];
+          }
+        }
+      }
+    });
+  }
+}
+
+// =============================================
+// ADMIN: Prevent mods from changing owner rank
+// =============================================
+window.adminSetUserRank = async function(uid, rankKey) {
+  if (!currentUser || currentUser.email !== 'wupard@gmail.com') return;
+  
+  // Prevent anyone from changing wupard's rank (owner protection)
+  const targetDoc = await db.collection('users').doc(uid).get();
+  if (targetDoc.exists) {
+    const targetData = targetDoc.data();
+    const targetEmail = targetData.email || (targetData.data && targetData.data.userEmail) || '';
+    if (targetEmail === 'wupard@gmail.com' && currentUser.email !== 'wupard@gmail.com') {
+      showToast('Bu kullanicinin ranki degistirilemez!', 'error');
+      return;
+    }
+  }
+  
+  try {
+    await db.collection('users').doc(uid).update({ 'data.userRank': rankKey });
+    showToast('Rank guncellendi: ' + RANKS[rankKey].label, 'success');
+    adminShowSection('users');
+  } catch (e) {
+    console.error('Rank Update Error:', e);
+    showToast('Rank guncellenemedi: ' + e.message, 'error');
+  }
+};
+
+// =============================================
+// ADMIN: Fix anonymous display — load user info from auth/firestore data
+// =============================================
+window.adminShowSection = async function(section) {
+  const content = document.getElementById('adminPanelContent');
+  if (!content) return;
+  
+  content.style.display = 'block';
+  content.innerHTML = '<div style="padding: 40px; text-align: center; color: var(--text-secondary);"><div class="loading-spinner" style="margin: 0 auto 16px;"></div>Veriler cekiliyor...</div>';
+  
+  document.querySelectorAll('.admin-tab-btn').forEach(btn => btn.classList.remove('active'));
+  if (section === 'users') document.getElementById('adminTabUsers')?.classList.add('active');
+  else if (section === 'comments') document.getElementById('adminTabComments')?.classList.add('active');
+
+  try {
+    if (section === 'users') {
+      if (isFirebaseConfigured && db) {
+        const snap = await db.collection('users').get();
+        let html = '<div style="padding: 16px;"><h3 style="margin:0 0 20px 0; font-size: 1.1rem; color: var(--text-primary);">Kayitli Kullanicilar</h3>';
+        
+        for (const doc of snap.docs) {
+          const rawData = doc.data();
+          const userData = rawData.data || rawData || {};
+          // Try all possible name sources
+          const displayName = (userData.profile && userData.profile.displayName)
+            || rawData.displayName || userData.userName || userData.displayName
+            || (userData.userEmail ? userData.userEmail.split('@')[0] : null)
+            || 'Kullanici ' + doc.id.slice(0,6);
+          const userEmail = rawData.email || userData.userEmail || userData.email || doc.id;
+          // Try all possible photo sources
+          const userPhoto = (userData.profile && userData.profile.photoURL)
+            || rawData.photoURL || userData.userPhoto || userData.photoURL || null;
+          
+          const userRankKey2 = userData.userRank || (userEmail === 'wupard@gmail.com' ? 'mod' : 'default');
+          const rank2 = RANKS[userRankKey2] || RANKS.default;
+          const isOwner = userEmail === 'wupard@gmail.com';
+          
+          html += `
+            <div class="admin-user-row" style="padding: 16px; border-bottom: 1px solid var(--border-subtle); display: flex; flex-direction: column; gap: 12px; border-radius: 12px; margin-bottom: 12px; background: rgba(255,255,255,0.02);">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                  ${userPhoto 
+                    ? `<img src="${userPhoto}" style="width: 40px; height: 40px; border-radius: 50%; border: 2px solid ${rank2.color}44; object-fit:cover;" referrerpolicy="no-referrer">`
+                    : `<div style="width: 40px; height: 40px; border-radius: 50%; background: ${rank2.bg}; color: ${rank2.color}; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size:1.1rem; border: 2px solid ${rank2.color}44;">${displayName[0].toUpperCase()}</div>`
+                  }
+                  <div>
+                    <div style="font-weight:600; font-size: 1rem; color: var(--text-primary); display: flex; align-items: center; gap: 8px;">
+                      <span style="font-size: 0.65rem; padding: 2px 8px; border-radius: 6px; background: ${rank2.bg}; color: ${rank2.color}; font-weight: 900;">${rank2.label}</span>
+                      ${displayName}
+                      ${isOwner ? '<span style="font-size:0.65rem;color:#FFD700;">★ Sahip</span>' : ''}
+                    </div>
+                    <div style="font-size:0.75rem; color:var(--text-tertiary); font-family: monospace;">${userEmail}</div>
+                  </div>
+                </div>
+                <div style="display: flex; gap: 8px;">
+                  <button onclick="adminViewUserNotes('${doc.id}')" class="btn-small" style="background: var(--bg-primary); border: 1px solid var(--border-subtle);">Notlar</button>
+                </div>
+              </div>
+              
+              ${!isOwner ? `
+              <div style="display: flex; flex-wrap: wrap; gap: 8px; padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.05);">
+                <div style="font-size: 0.75rem; color: var(--text-tertiary); width: 100%; margin-bottom: 4px;">Rank Ver:</div>
+                ${Object.entries(RANKS).filter(([k])=>k!=='default').map(([key, r]) => `
+                  <button onclick="adminSetUserRank('${doc.id}', '${key}')" style="font-size: 0.7rem; padding: 4px 10px; border-radius: 6px; border: 1px solid ${r.color}44; background: ${userRankKey2 === key ? r.color : 'transparent'}; color: ${userRankKey2 === key ? '#000' : r.color}; cursor: pointer; font-weight: bold;">
+                    ${r.label}
+                  </button>
+                `).join('')}
+              </div>
+              <div style="display: flex; gap: 8px; margin-top: 4px;">
+                <button onclick="adminBanUser('${doc.id}', 'normal')" style="font-size: 0.7rem; padding: 6px 12px; border-radius: 6px; border: 1px solid #ef444444; background: transparent; color: #ef4444; cursor: pointer; font-weight: bold; display:flex; align-items:center; gap:5px;">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg> Banla
+                </button>
+                <button onclick="adminBanUser('${doc.id}', 'ip')" style="font-size: 0.7rem; padding: 6px 12px; border-radius: 6px; border: 1px solid #ef4444; background: #ef444422; color: #ef4444; cursor: pointer; font-weight: bold; display:flex; align-items:center; gap:5px;">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> IP Banla
+                </button>
+                <button onclick="adminUnbanUser('${doc.id}')" style="font-size: 0.7rem; padding: 6px 12px; border-radius: 6px; border: 1px solid #22c55e44; background: transparent; color: #22c55e; cursor: pointer; font-weight: bold; display:flex; align-items:center; gap:5px;">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Bani Kaldir
+                </button>
+              </div>` : '<div style="font-size:0.75rem;color:var(--accent-primary);padding-top:8px;border-top:1px solid rgba(255,255,255,0.05);">Sistem sahibi — rank degistirilemez</div>'}
+            </div>
+          `;
+        }
+        html += '</div>';
+        content.innerHTML = html;
+      } else {
+        content.innerHTML = '<div style="padding: 40px; text-align: center; color: var(--red-vivid);">Firebase yapilandirilmamis.</div>';
+      }
+    } else if (section === 'comments') {
+      renderComments();
+      content.style.display = 'none';
+    }
+  } catch (e) {
+    console.error('Admin Section Error:', e);
+    content.innerHTML = `
+      <div style="padding: 40px; text-align: center;">
+        <div style="color: var(--red-vivid); font-weight: 600; margin-bottom: 8px;">Bir hata olustu!</div>
+        <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 20px;">${e.message}</div>
+        <button onclick="adminShowSection('${section}')" class="btn-small">Tekrar Dene</button>
+      </div>
+    `;
+  }
+};
