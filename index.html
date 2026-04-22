@@ -1,0 +1,1058 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Zyro</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <meta name="description" content="Track workouts, posture, habits, and daily progress with a beautiful personal dashboard.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css?v=2.3">
+</head>
+<body>
+
+  <!-- ========== AUTH SCREEN ========== -->
+  <div class="auth-overlay" id="authOverlay">
+    <div class="auth-bg-glow"></div>
+    <div class="auth-card">
+      <div class="auth-brand">
+        <div class="auth-logo-ring">
+          <span class="brand-icon-lg">◆</span>
+        </div>
+        <h1 class="auth-title">Zyro</h1>
+        <p class="auth-subtitle" data-i18n="authSubtitle">Personal Development Dashboard</p>
+      </div>
+      <button class="google-signin-btn" id="googleSignInBtn">
+        <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+        <span data-i18n="signInGoogle">Sign in with Google</span>
+      </button>
+      <button class="skip-auth-btn" id="skipAuthBtn" data-i18n="continueWithout">Continue without account</button>
+      <p class="auth-note" data-i18n="authNote">Sign in to sync your data across devices</p>
+    </div>
+  </div>
+
+  <!-- ========== SIDEBAR ========== -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <span class="brand-icon">◆</span>
+      <span class="brand-text">Zyro</span>
+    </div>
+    <button class="sidebar-collapse-btn" id="sidebarCollapseBtn" aria-label="Toggle Sidebar">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+    </button>
+    <nav class="sidebar-nav">
+      <a href="#" class="nav-item active" data-page="dashboard" id="nav-dashboard">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3h7v7H3z"/><path d="M14 3h7v7h-7z"/><path d="M14 14h7v7h-7z"/><path d="M3 14h7v7H3z"/></svg>
+        <span data-i18n="navDashboard">Dashboard</span>
+      </a>
+      <a href="#" class="nav-item" data-page="workouts" id="nav-workouts">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect width="4" height="12" x="2" y="6" rx="1"/>
+          <rect width="4" height="12" x="18" y="6" rx="1"/>
+          <rect width="2" height="8" x="6" y="8" rx="0.5"/>
+          <rect width="2" height="8" x="16" y="8" rx="0.5"/>
+          <path d="M8 12h8"/>
+        </svg>
+        <span data-i18n="navWorkouts">Workouts</span>
+      </a>
+      <a href="#" class="nav-item" data-page="posture" id="nav-posture">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="2"/><path d="M12 12V7"/><path d="M16 12H8"/><path d="M12 12l-4 9"/><path d="M12 12l4 9"/></svg>
+        <span data-i18n="navPosture">Posture</span>
+      </a>
+      <a href="#" class="nav-item" data-page="progress" id="nav-progress">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
+        <span data-i18n="navProgress">Progress</span>
+      </a>
+      <a href="#" class="nav-item" data-page="notes" id="nav-notes">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        <span data-i18n="navNotes">Notes</span>
+      </a>
+      <a href="#" class="nav-item" data-page="comments" id="nav-comments">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+        <span data-i18n="navComments">Comments</span>
+      </a>
+      <a href="#" class="nav-item" data-page="calculators" id="nav-calculators">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="8.01" y2="10"/><line x1="12" y1="10" x2="12.01" y2="10"/><line x1="16" y1="10" x2="16.01" y2="10"/><line x1="8" y1="14" x2="8.01" y2="14"/><line x1="12" y1="14" x2="12.01" y2="14"/><line x1="16" y1="14" x2="16.01" y2="14"/><line x1="8" y1="18" x2="8.01" y2="18"/><line x1="12" y1="18" x2="12.01" y2="18"/><line x1="16" y1="18" x2="16.01" y2="18"/></svg>
+        <span data-i18n="navCalculators">Calculators</span>
+      </a>
+      <a href="#" class="nav-item" data-page="beforeafter" id="nav-beforeafter">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="9" height="18" rx="1"/><rect x="13" y="3" width="9" height="18" rx="1"/></svg>
+        <span>Gelişim</span>
+      </a>
+      <a href="#" class="nav-item" data-page="achievements" id="nav-achievements">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>
+        <span>Başarımlar</span>
+      </a>
+      <a href="#" class="nav-item" data-page="profile" id="nav-profile">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <span>Profil</span>
+      </a>
+      <div class="sidebar-separator" style="height: 1px; background: var(--border-subtle); margin: 8px 14px; opacity: var(--sidebar-divider-opacity); box-shadow: inset 0 -1px 0 rgba(0,0,0,0.08);"></div>
+      <a href="https://wupard.xyz" class="nav-item nav-item-wupard" target="_blank" rel="noopener noreferrer">
+        <div class="wfit-icon-wrap">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12l4 6-10 12L2 9z"/><path d="M11 3 8 9l3 12"/><path d="M13 3l3 6-3 12"/><path d="M2 9h20"/></svg>
+        </div>
+        <span class="wfit-label" data-i18n="navWupard">WFIT</span>
+        <span class="wfit-arrow">›</span>
+      </a>
+    </nav>
+
+    <!-- Language Switcher -->
+    <div class="lang-switcher">
+      <button class="lang-btn active" data-lang="en">EN</button>
+      <button class="lang-btn" data-lang="tr">TR</button>
+    </div>
+
+    <div class="sidebar-footer" onclick="navigateTo('profile')" style="cursor: pointer;" title="Profile Git">
+      <div class="user-avatar" id="userAvatar">Z</div>
+      <div class="user-info">
+        <span class="user-name" id="userName">User</span>
+        <span class="user-status" id="userStatus">● Local Mode</span>
+      </div>
+      <button class="signout-btn" id="signOutBtn" title="Sign Out" style="display:none;" onclick="event.stopPropagation()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      </button>
+    </div>
+  </aside>
+
+  <!-- ========== MAIN CONTENT ========== -->
+  <main class="main-content">
+
+    <!-- Header -->
+    <header class="header">
+      <div class="header-left">
+        <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+        <div>
+          <h1 class="greeting" id="greeting">Good evening</h1>
+          <p class="date-display" id="dateDisplay"></p>
+        </div>
+      </div>
+      <div class="header-right">
+        <div class="streak-badge" id="streakBadge">
+          <div class="streak-flame">
+            <svg width="18" height="22" viewBox="0 0 100 130" fill="none" xmlns="http://www.w3.org/2000/svg" class="flame-svg">
+              <path d="M50 5 C50 5 80 40 75 70 C72 90 60 105 50 115 C40 105 28 90 25 70 C20 40 50 5 50 5Z" fill="url(#flameGrad)" opacity="0.9"/>
+              <path d="M50 40 C50 40 65 62 62 80 C60 92 55 102 50 110 C45 102 40 92 38 80 C35 62 50 40 50 40Z" fill="#FFD700" opacity="0.85"/>
+              <path d="M50 70 C50 70 58 82 56 92 C54 99 52 104 50 108 C48 104 46 99 44 92 C42 82 50 70 50 70Z" fill="#FFF" opacity="0.7"/>
+              <defs>
+                <linearGradient id="flameGrad" x1="50" y1="0" x2="50" y2="130" gradientUnits="userSpaceOnUse">
+                  <stop offset="0%" stop-color="#FF4500"/>
+                  <stop offset="60%" stop-color="#FF8C00"/>
+                  <stop offset="100%" stop-color="#FFD700"/>
+                </linearGradient>
+              </defs>
+            </svg>
+          </div>
+          <span id="streakText">Day 1</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- ============ PAGE: DASHBOARD ============ -->
+    <div class="page active" data-page="dashboard" id="pageDashboard">
+      
+      <!-- ===== GYM ATTENDANCE CALENDAR ===== -->
+      <section class="attendance-bar" id="attendanceBar">
+        <div class="attendance-header">
+          <h2 class="attendance-title" data-i18n="thisWeek">This Week</h2>
+          <div class="attendance-nav">
+            <button class="att-nav-btn" id="attPrev">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+            </button>
+            <span class="att-week-label" id="attWeekLabel"></span>
+            <button class="att-nav-btn" id="attNext">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+            </button>
+          </div>
+        </div>
+        <div class="attendance-days" id="attendanceDays"></div>
+      </section>
+      <section class="stats-grid">
+        <div class="stat-card stat-card--workout">
+          <div class="stat-icon-wrap"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6.5 6.5h11"/><path d="M6.5 17.5h11"/><path d="M12 2v4"/><path d="M12 18v4"/><path d="M4.5 8.5v7"/><path d="M19.5 8.5v7"/></svg></div>
+          <div class="stat-info"><span class="stat-value" id="statWorkoutsVal">0/6</span><span class="stat-label" data-i18n="weeklyWorkouts">Weekly Workouts</span></div>
+          <div class="stat-bar"><div class="stat-bar-fill" id="statWorkoutsBar" style="width:0%"></div></div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-top:6px;">
+            <span class="weekly-goal-ratio" id="weeklyGoalRatio">0%</span>
+            <button onclick="document.getElementById('weeklyGoalSheet').classList.add('show')" style="background:none;border:none;color:var(--text-tertiary);cursor:pointer;font-size:0.65rem;padding:0;display:flex;align-items:center;gap:4px;">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>
+              Hedef
+            </button>
+          </div>
+        </div>
+        <div class="stat-card stat-card--weight">
+          <div class="stat-icon-wrap"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="M8 12h8"/></svg></div>
+          <div class="stat-info"><span class="stat-value" id="statWeightVal">— kg</span><span class="stat-label" data-i18n="currentWeight">Current Weight</span></div>
+          <div class="stat-trend positive" id="statWeightTrend"><span>—</span></div>
+        </div>
+        <div class="stat-card stat-card--consistency">
+          <div class="stat-icon-wrap"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
+          <div class="stat-info"><span class="stat-value" id="statConsistencyVal">0%</span><span class="stat-label" data-i18n="consistency">Consistency</span></div>
+          <div class="stat-bar"><div class="stat-bar-fill bar-green" id="statConsistencyBar" style="width:0%"></div></div>
+        </div>
+      </section>
+
+      <div class="dashboard-grid">
+        <!-- Muscle Map -->
+        <section class="card body-map-card">
+          <div class="card-header">
+            <h2 class="card-title" data-i18n="muscleMap">Muscle Map</h2>
+            <span class="card-badge" data-i18n="thisWeek">This Week</span>
+          </div>
+          <div class="body-map-container">
+            <div class="body-map-visual-wrap">
+              <!-- ====== FRONT VIEW (Pure SVG) ====== -->
+              <div class="muscle-map-view" id="muscleViewFront">
+                <svg viewBox="0 0 200 480" class="muscle-svg" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+                  <defs>
+                    <radialGradient id="bodyGradFront" cx="50%" cy="30%" r="60%">
+                      <stop offset="0%" stop-color="#2a2a2e"/>
+                      <stop offset="100%" stop-color="#1c1c1e"/>
+                    </radialGradient>
+                  </defs>
+
+                  <!-- Body Silhouette -->
+                  <path class="body-silhouette" d="
+                    M100,18 
+                    C112,18 122,28 122,40 C122,52 112,62 100,62 C88,62 78,52 78,40 C78,28 88,18 100,18 Z
+                  " fill="url(#bodyGradFront)"/>
+                  <!-- Neck -->
+                  <path class="body-silhouette" d="M92,60 L92,72 L108,72 L108,60" fill="#1c1c1e"/>
+                  <!-- Torso outline -->
+                  <path class="body-silhouette" d="
+                    M92,72 L72,78 L56,86 L48,100 L46,120 L50,145 L54,165 L58,175
+                    L62,190 L68,210 L72,225 L74,240
+                    L78,260 L82,275 L84,285 L80,310
+                    L78,340 L76,370 L74,395 L72,420 L74,440 L78,455 L85,465 L95,468
+                    L100,470
+                    L105,468 L115,465 L122,455 L126,440 L128,420 L126,395 L124,370
+                    L122,340 L120,310 L116,285 L118,275 L122,260 L126,240 L128,225
+                    L132,210 L138,190 L142,175 L146,165 L150,145 L154,120 L152,100
+                    L144,86 L128,78 L108,72
+                  " fill="url(#bodyGradFront)" stroke="#252528" stroke-width="0.5"/>
+                  <!-- Arms outline -->
+                  <path class="body-silhouette" d="M56,86 L42,100 L32,130 L26,165 L22,200 L20,230 L22,260 L28,275 L34,280 L38,275 L36,260 L34,230 L36,200 L40,170 L46,140 L50,120" fill="url(#bodyGradFront)" stroke="#252528" stroke-width="0.5"/>
+                  <path class="body-silhouette" d="M144,86 L158,100 L168,130 L174,165 L178,200 L180,230 L178,260 L172,275 L166,280 L162,275 L164,260 L166,230 L164,200 L160,170 L154,140 L150,120" fill="url(#bodyGradFront)" stroke="#252528" stroke-width="0.5"/>
+
+                  <!-- ===== MUSCLE GROUPS (Front) ===== -->
+
+                  <!-- Shoulders (Front Delts) -->
+                  <path id="shoulders_front_L" data-muscle="shoulders" class="muscle-part" d="M72,78 Q58,82 50,96 Q46,108 48,122 L56,118 Q60,104 66,92 L72,82 Z"/>
+                  <path id="shoulders_front_R" data-muscle="shoulders" class="muscle-part" d="M128,78 Q142,82 150,96 Q154,108 152,122 L144,118 Q140,104 134,92 L128,82 Z"/>
+
+                  <!-- Chest -->
+                  <path id="chest_L" data-muscle="chest" class="muscle-part" d="M74,84 Q86,78 100,82 L100,122 Q88,130 74,126 L68,110 Z"/>
+                  <path id="chest_R" data-muscle="chest" class="muscle-part" d="M126,84 Q114,78 100,82 L100,122 Q112,130 126,126 L132,110 Z"/>
+
+                  <!-- Biceps -->
+                  <path id="biceps_L" data-muscle="biceps" class="muscle-part" d="M48,118 Q40,128 36,150 Q32,172 34,195 L42,192 Q44,170 44,152 Q44,134 48,120 Z"/>
+                  <path id="biceps_R" data-muscle="biceps" class="muscle-part" d="M152,118 Q160,128 164,150 Q168,172 166,195 L158,192 Q156,170 156,152 Q156,134 152,120 Z"/>
+
+                  <!-- Abs (6 blocks) -->
+                  <rect id="abs_1" data-muscle="abs" class="muscle-part" x="90" y="132" width="20" height="14" rx="3"/>
+                  <rect id="abs_2" data-muscle="abs" class="muscle-part" x="90" y="149" width="20" height="14" rx="3"/>
+                  <rect id="abs_3" data-muscle="abs" class="muscle-part" x="90" y="166" width="20" height="14" rx="3"/>
+                  <rect id="abs_4" data-muscle="abs" class="muscle-part" x="90" y="183" width="20" height="16" rx="3"/>
+
+                  <!-- Obliques -->
+                  <path id="obliques_L" data-muscle="obliques" class="muscle-part" d="M74,128 L88,134 L88,200 L72,210 Q68,175 70,148 Z"/>
+                  <path id="obliques_R" data-muscle="obliques" class="muscle-part" d="M126,128 L112,134 L112,200 L128,210 Q132,175 130,148 Z"/>
+
+                  <!-- Forearms -->
+                  <path id="forearms_L" data-muscle="forearms" class="muscle-part" d="M32,198 Q28,218 24,242 L22,262 Q24,270 28,272 L34,270 Q36,252 36,238 Q36,218 34,198 Z"/>
+                  <path id="forearms_R" data-muscle="forearms" class="muscle-part" d="M168,198 Q172,218 176,242 L178,262 Q176,270 172,272 L166,270 Q164,252 164,238 Q164,218 166,198 Z"/>
+
+                  <!-- Quads -->
+                  <path id="quads_L" data-muscle="quads" class="muscle-part" d="M80,230 Q76,260 74,300 L74,360 Q76,380 82,388 L96,390 Q100,382 100,360 L98,300 Q96,260 94,230 Z"/>
+                  <path id="quads_R" data-muscle="quads" class="muscle-part" d="M120,230 Q124,260 126,300 L126,360 Q124,380 118,388 L104,390 Q100,382 100,360 L102,300 Q104,260 106,230 Z"/>
+
+                  <!-- Calves (front) -->
+                  <path id="calves_front_L" data-muscle="calves" class="muscle-part" d="M76,395 Q74,415 74,435 L76,455 Q78,462 84,465 L92,465 Q96,460 96,450 L94,430 Q92,410 90,395 Z"/>
+                  <path id="calves_front_R" data-muscle="calves" class="muscle-part" d="M124,395 Q126,415 126,435 L124,455 Q122,462 116,465 L108,465 Q104,460 104,450 L106,430 Q108,410 110,395 Z"/>
+
+                  <!-- Body line details for definition -->
+                  <line class="body-line" x1="100" y1="82" x2="100" y2="210" stroke="#252528" stroke-width="0.4" opacity="0.5"/>
+                  <line class="body-line" x1="100" y1="230" x2="100" y2="390" stroke="#252528" stroke-width="0.3" opacity="0.3"/>
+                </svg>
+              </div>
+
+              <!-- ====== BACK VIEW (Pure SVG) ====== -->
+              <div class="muscle-map-view" id="muscleViewBack" style="display:none;">
+                <svg viewBox="0 0 200 480" class="muscle-svg" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+                  <defs>
+                    <radialGradient id="bodyGradBack" cx="50%" cy="30%" r="60%">
+                      <stop offset="0%" stop-color="#2a2a2e"/>
+                      <stop offset="100%" stop-color="#1c1c1e"/>
+                    </radialGradient>
+                  </defs>
+
+                  <!-- Body Silhouette (Back) -->
+                  <path class="body-silhouette" d="
+                    M100,18 
+                    C112,18 122,28 122,40 C122,52 112,62 100,62 C88,62 78,52 78,40 C78,28 88,18 100,18 Z
+                  " fill="url(#bodyGradBack)"/>
+                  <path class="body-silhouette" d="M92,60 L92,72 L108,72 L108,60" fill="#1c1c1e"/>
+                  <path class="body-silhouette" d="
+                    M92,72 L72,78 L56,86 L48,100 L46,120 L50,145 L54,165 L58,175
+                    L62,190 L68,210 L72,225 L74,240
+                    L78,260 L82,275 L84,285 L80,310
+                    L78,340 L76,370 L74,395 L72,420 L74,440 L78,455 L85,465 L95,468
+                    L100,470
+                    L105,468 L115,465 L122,455 L126,440 L128,420 L126,395 L124,370
+                    L122,340 L120,310 L116,285 L118,275 L122,260 L126,240 L128,225
+                    L132,210 L138,190 L142,175 L146,165 L150,145 L154,120 L152,100
+                    L144,86 L128,78 L108,72
+                  " fill="url(#bodyGradBack)" stroke="#252528" stroke-width="0.5"/>
+                  <path class="body-silhouette" d="M56,86 L42,100 L32,130 L26,165 L22,200 L20,230 L22,260 L28,275 L34,280 L38,275 L36,260 L34,230 L36,200 L40,170 L46,140 L50,120" fill="url(#bodyGradBack)" stroke="#252528" stroke-width="0.5"/>
+                  <path class="body-silhouette" d="M144,86 L158,100 L168,130 L174,165 L178,200 L180,230 L178,260 L172,275 L166,280 L162,275 L164,260 L166,230 L164,200 L160,170 L154,140 L150,120" fill="url(#bodyGradBack)" stroke="#252528" stroke-width="0.5"/>
+
+                  <!-- ===== MUSCLE GROUPS (Back) ===== -->
+
+                  <!-- Traps -->
+                  <path id="traps_L" data-muscle="traps" class="muscle-part" d="M82,68 Q90,65 100,64 L100,90 Q92,88 85,85 L78,82 Z"/>
+                  <path id="traps_R" data-muscle="traps" class="muscle-part" d="M118,68 Q110,65 100,64 L100,90 Q108,88 115,85 L122,82 Z"/>
+
+                  <!-- Rear Delts -->
+                  <path id="rear_delts_L" data-muscle="shoulders" class="muscle-part" d="M72,78 Q58,82 50,96 Q46,108 48,122 L56,118 Q60,104 66,92 L72,82 Z"/>
+                  <path id="rear_delts_R" data-muscle="shoulders" class="muscle-part" d="M128,78 Q142,82 150,96 Q154,108 152,122 L144,118 Q140,104 134,92 L128,82 Z"/>
+
+                  <!-- Lats -->
+                  <path id="lats_L" data-muscle="traps" class="muscle-part" d="M72,90 Q62,110 60,140 L62,180 Q68,195 76,205 L82,200 Q78,180 76,155 Q74,130 76,105 Z"/>
+                  <path id="lats_R" data-muscle="traps" class="muscle-part" d="M128,90 Q138,110 140,140 L138,180 Q132,195 124,205 L118,200 Q122,180 124,155 Q126,130 124,105 Z"/>
+
+                  <!-- Triceps -->
+                  <path id="triceps_L" data-muscle="triceps" class="muscle-part" d="M48,118 Q40,130 36,155 Q32,178 34,200 L44,196 Q44,175 45,155 Q46,136 50,120 Z"/>
+                  <path id="triceps_R" data-muscle="triceps" class="muscle-part" d="M152,118 Q160,130 164,155 Q168,178 166,200 L156,196 Q156,175 155,155 Q154,136 150,120 Z"/>
+
+                  <!-- Lower Back -->
+                  <path id="lower_back" data-muscle="traps" class="muscle-part" d="M84,160 Q92,155 100,154 Q108,155 116,160 L114,210 Q108,204 100,202 Q92,204 86,210 Z"/>
+
+                  <!-- Forearms (back) -->
+                  <path id="forearms_back_L" data-muscle="forearms" class="muscle-part" d="M32,202 Q28,220 24,245 L22,265 Q24,272 28,274 L34,272 Q36,255 36,242 Q36,222 34,202 Z"/>
+                  <path id="forearms_back_R" data-muscle="forearms" class="muscle-part" d="M168,202 Q172,220 176,245 L178,265 Q176,272 172,274 L166,272 Q164,255 164,242 Q164,222 166,202 Z"/>
+
+                  <!-- Glutes -->
+                  <path id="glutes_L" data-muscle="glutes" class="muscle-part" d="M80,215 Q88,225 100,228 L100,260 Q90,255 82,245 L78,232 Z"/>
+                  <path id="glutes_R" data-muscle="glutes" class="muscle-part" d="M120,215 Q112,225 100,228 L100,260 Q110,255 118,245 L122,232 Z"/>
+
+                  <!-- Hamstrings -->
+                  <path id="hamstrings_L" data-muscle="glutes" class="muscle-part" d="M80,262 Q76,290 74,320 L74,365 Q76,382 82,390 L96,392 Q100,385 98,365 L96,320 Q94,290 92,262 Z"/>
+                  <path id="hamstrings_R" data-muscle="glutes" class="muscle-part" d="M120,262 Q124,290 126,320 L126,365 Q124,382 118,390 L104,392 Q100,385 102,365 L104,320 Q106,290 108,262 Z"/>
+
+                  <!-- Calves (Back) -->
+                  <path id="calves_back_L" data-muscle="calves" class="muscle-part" d="M76,398 Q74,418 74,438 L76,456 Q78,463 84,466 L92,466 Q96,461 96,452 L94,432 Q92,412 90,398 Z"/>
+                  <path id="calves_back_R" data-muscle="calves" class="muscle-part" d="M124,398 Q126,418 126,438 L124,456 Q122,463 116,466 L108,466 Q104,461 104,452 L106,432 Q108,412 110,398 Z"/>
+
+                  <!-- Spine line -->
+                  <line class="body-line" x1="100" y1="72" x2="100" y2="220" stroke="#252528" stroke-width="0.5" opacity="0.4"/>
+                </svg>
+              </div>
+            </div>
+            <div class="body-map-legend">
+              <div class="muscle-view-toggle">
+                <label class="muscle-view-btn">
+                  <input type="radio" name="muscleView" value="front" checked onchange="updateMuscleMap()"> Ön
+                </label>
+                <label class="muscle-view-btn">
+                  <input type="radio" name="muscleView" value="back" onchange="updateMuscleMap()"> Arka
+                </label>
+              </div>
+              <h3 class="legend-title" data-i18n="intensity">Intensity</h3>
+              <div class="legend-row"><span class="legend-swatch swatch-low"></span><span data-i18n="lowVolume">Low volume</span></div>
+              <div class="legend-row"><span class="legend-swatch swatch-mid"></span><span data-i18n="medVolume">Medium volume</span></div>
+              <div class="legend-row"><span class="legend-swatch swatch-high"></span><span data-i18n="highVolume">High volume</span></div>
+              <div class="legend-row"><span class="legend-swatch swatch-none"></span><span data-i18n="notTrained">Not trained</span></div>
+              <div class="muscle-summary" id="muscleSummary"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Mini Progress Chart -->
+        <section class="card chart-card-mini">
+          <div class="card-header">
+            <h2 class="card-title" data-i18n="progressOverview">Progress Overview</h2>
+            <div class="card-tabs">
+              <button class="tab-btn active" data-chart="weight" data-i18n="weight">Weight</button>
+              <button class="tab-btn" data-chart="volume" data-i18n="volume">Volume</button>
+            </div>
+          </div>
+          <div class="chart-container"><canvas id="dashboardChart"></canvas></div>
+        </section>
+      </div>
+    </div>
+
+    <!-- ============ PAGE: WORKOUTS ============ -->
+    <div class="page" data-page="workouts" id="pageWorkouts">
+      <div class="page-header-row">
+        <h2 class="page-title" data-i18n="workoutProgram">Workout Program</h2>
+        <div class="card-tabs" style="overflow-x: auto; white-space: nowrap; -webkit-overflow-scrolling: touch;">
+          <button class="tab-btn active" data-wktab="day1" style="font-size: 0.95rem; padding: 0.6rem 1.2rem; font-weight: 700;">
+            Salı
+          </button>
+          <button class="tab-btn" data-wktab="day2" style="font-size: 0.95rem; padding: 0.6rem 1.2rem; font-weight: 700;">
+            Perşembe
+          </button>
+          <button class="tab-btn" data-wktab="day3" style="font-size: 0.95rem; padding: 0.6rem 1.2rem; font-weight: 700;">
+            Cumartesi
+          </button>
+        </div>
+      </div>
+      <section class="card">
+        <div class="workout-table-head wk-head-4col">
+          <span data-i18n="exercise">Exercise</span>
+          <span data-i18n="setsReps">Sets × Reps</span>
+          <span>Video</span>
+          <span data-i18n="done">Done</span>
+        </div>
+        <div class="workout-list" id="workoutList"></div>
+      </section>
+
+      <!-- Log Exercise Form -->
+      <section class="card log-card">
+        <div class="log-card-header">
+          <h3 class="card-title" data-i18n="logExercise">Log Exercise</h3>
+          <p class="log-subtitle" data-i18n="logSubtitle">Record what you actually did today</p>
+        </div>
+        <form class="log-form" id="logForm">
+          <div class="log-row log-row-top">
+            <div class="log-field">
+              <label for="logCategory">Kategori</label>
+              <select id="logCategory" class="log-input">
+                <option value="all">Tümü (Tüm Vücut)</option>
+                <option value="legs">Bacak &amp; Kalça</option>
+                <option value="chest">Göğüs</option>
+                <option value="back">Sırt &amp; Kanat</option>
+                <option value="shoulders">Omuz</option>
+                <option value="arms">Kollar</option>
+                <option value="core">Karın &amp; Merkez</option>
+              </select>
+            </div>
+            <div class="log-field">
+              <label for="logExercise" data-i18n="exercise">Exercise</label>
+              <select id="logExercise" class="log-input"><option value="">Select exercise...</option></select>
+            </div>
+          </div>
+          <div class="log-row">
+            <div class="log-field">
+              <label for="logWeight">Ağırlık</label>
+              <div style="display: flex; gap: 8px; align-items: flex-end;">
+                <input type="number" id="logWeight" class="log-input" placeholder="80" step="0.5" min="0" style="flex: 1;">
+                <!-- 1.5: Custom styled radio buttons for kg/lbs -->
+                <div class="unit-radio-group" role="radiogroup" aria-label="Weight unit">
+                  <label class="unit-radio-label">
+                    <input type="radio" name="logUnitRadio" id="logUnitKg" value="kg" checked aria-checked="true" role="radio">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M8 4v16M16 4v16M3 12h18"/></svg>
+                    kg
+                  </label>
+                  <label class="unit-radio-label">
+                    <input type="radio" name="logUnitRadio" id="logUnitLbs" value="lbs" aria-checked="false" role="radio">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 3v18M3 8l9-5 9 5M3 16l9 5 9-5"/></svg>
+                    lbs
+                  </label>
+                </div>
+              </div>
+            </div>
+            <div class="log-field">
+              <label for="logReps">Reps</label>
+              <input type="number" id="logReps" class="log-input" placeholder="8" min="1">
+            </div>
+            <div class="log-field">
+              <label for="logSets">Sets</label>
+              <input type="number" id="logSets" class="log-input" placeholder="4" min="1">
+            </div>
+          </div>
+          <button type="submit" class="btn-primary" id="logSubmitBtn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            <span data-i18n="saveLog">Save Log</span>
+          </button>
+        </form>
+        <button class="btn-goto-progress" id="gotoStrengthBtn" onclick="goToStrengthProgress()">
+          <div class="btn-goto-icon">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          </div>
+          <span class="btn-goto-label">Güç İlerlemesİni Gör</span>
+          <span class="btn-goto-arrow">›</span></button>
+      </section>
+
+      <section class="card">
+        <div class="card-header">
+          <h3 class="card-title" data-i18n="todaysLog">Today's Log</h3>
+          <span class="card-badge" id="logDateBadge" data-i18n="today">Today</span>
+        </div>
+        <div class="logged-exercises-table" id="loggedExercises">
+          <div class="logged-empty" data-i18n="noExercisesLogged">No exercises logged yet today.</div>
+        </div>
+      </section>
+    </div>
+
+    <!-- ============ PAGE: POSTURE ============ -->
+    <div class="page" data-page="posture" id="pagePosture">
+      <div class="page-header-row">
+        <h2 class="page-title" data-i18n="postureProgram">Posture Program</h2>
+        <div class="card-tabs" style="overflow-x: auto; white-space: nowrap; -webkit-overflow-scrolling: touch;">
+          <button class="tab-btn active" data-pstab="mon">Pzt</button>
+          <button class="tab-btn" data-pstab="tue">Sal</button>
+          <button class="tab-btn" data-pstab="wed">Çar</button>
+          <button class="tab-btn" data-pstab="thu">Per</button>
+          <button class="tab-btn" data-pstab="fri">Cum</button>
+          <button class="tab-btn" data-pstab="sat">Cmt</button>
+          <button class="tab-btn" data-pstab="sun">Paz</button>
+        </div>
+      </div>
+      <section class="card">
+        <div class="workout-table-head wk-head-4col">
+          <span data-i18n="exercise">Exercise</span>
+          <span data-i18n="setsReps">Sets × Reps</span>
+          <span>Video</span>
+          <span data-i18n="done">Done</span>
+        </div>
+        <div class="workout-list" id="postureList"></div>
+      </section>
+    </div>
+
+    <!-- ============ PAGE: PROGRESS ============ -->
+    <div class="page" data-page="progress" id="pageProgress">
+      <h2 class="page-title" data-i18n="progressTracking">Progress Tracking</h2>
+      
+      <section class="card">
+        <div class="card-header">
+          <h3 class="card-title">Aylık İlerleme Tablosu</h3>
+        </div>
+        <div class="monthly-tracker" id="monthlyTracker"></div>
+      </section>
+      <section class="card">
+        <div class="card-header">
+          <h3 class="card-title" data-i18n="bodyWeight">Body Weight</h3>
+          <div class="weight-input-group">
+            <input type="number" id="weightInput" class="log-input small" placeholder="78.2" step="0.1" min="0">
+            <button class="btn-small" id="weightSaveBtn" data-i18n="log">Log</button>
+          </div>
+        </div>
+        <div class="chart-container"><canvas id="weightChart"></canvas></div>
+      </section>
+      <section class="card stats-card-windex" id="progressTrackerCard">
+        <div class="card-header" style="margin-bottom: 16px;">
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <div class="tracker-icon-bg">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-emerald-400"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            </div>
+            <div>
+              <h3 class="card-title" data-i18n="strengthProgress" style="margin:0; font-size: 1.1rem;">Güç İlerlemesi</h3>
+              <p style="margin:0; font-size: 0.8rem; color: var(--text-muted);" data-i18n="progressOverview">Analyze your gains</p>
+            </div>
+          </div>
+          <!-- 2.3: Reset Strength Data button -->
+          <button onclick="resetStrengthProgress()" title="Güç verilerini sıfırla" style="background:rgba(224,84,84,0.1);border:1px solid rgba(224,84,84,0.25);color:#e05454;border-radius:8px;padding:6px 12px;font-size:0.72rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:5px;transition:all 0.2s;" onmouseenter="this.style.background='rgba(224,84,84,0.2)'" onmouseleave="this.style.background='rgba(224,84,84,0.1)'">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+            Sıfırla
+          </button>
+        </div>
+        <div id="progressTrackerContainer">
+          <!-- React-like component rendered from JS -->
+        </div>
+      </section>
+      <section class="card">
+        <div class="card-header" id="prTableHeader" onclick="togglePRTable()" style="cursor:pointer;user-select:none;">
+          <h3 class="card-title" data-i18n="personalRecords">Personal Records</h3>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span style="font-size:0.72rem;color:var(--text-tertiary);" id="prCountBadge"></span>
+            <svg id="prToggleIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="transition:transform 0.3s;"><polyline points="18 15 12 9 6 15"/></svg>
+          </div>
+        </div>
+        <div id="prTableWrap" class="pr-table" id="prTable">
+          <div id="prTable" class="pr-table"></div>
+        </div>
+      </section>
+    </div>
+
+    <!-- ============ PAGE: NOTES ============ -->
+    <div class="page" data-page="notes" id="pageNotes">
+      <h2 class="page-title" data-i18n="dailyNotes">Daily Notes</h2>
+      <section class="card">
+        <div class="card-header">
+          <h3 class="card-title" data-i18n="todaysEntry">Today's Entry</h3>
+          <span class="card-badge" id="noteDateBadge" data-i18n="today">Today</span>
+        </div>
+        <textarea class="note-input" id="noteInput" rows="5"></textarea>
+        <div class="note-tags">
+          <button class="tag-btn" data-tag="Daha sonra">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+            Daha Sonra
+          </button>
+          <button class="tag-btn" data-tag="Fikir">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 1 7 7 7 7 0 0 1-4 6.32V17H9v-1.69A7.004 7.004 0 0 1 5 9a7 7 0 0 1 7-7z"/></svg>
+            Fikir
+          </button>
+          <button class="tag-btn" data-tag="GYM">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6.5 6.5h11M6.5 17.5h11M12 2v4M12 18v4M4.5 8.5v7M19.5 8.5v7"/></svg>
+            GYM
+          </button>
+        </div>
+        <button class="btn-primary" id="saveNoteBtn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+          <span data-i18n="saveNote">Save Note</span>
+        </button>
+      </section>
+      <section class="card">
+        <div class="card-header"><h3 class="card-title" data-i18n="pastEntries">Past Entries</h3></div>
+        <div class="notes-history" id="notesHistory"></div>
+      </section>
+    </div>
+
+    <!-- ============ PAGE: COMMENTS ============ -->
+    <div class="page" data-page="comments" id="pageComments">
+      <h2 class="page-title" data-i18n="navComments">Yorumlar</h2>
+      <section class="card">
+        <div class="card-header">
+          <h3 class="card-title">Geri Bildirim / Yorum Bırak</h3>
+        </div>
+        <div class="comment-form-wrap">
+          <div class="comment-field" style="margin-bottom: 16px;">
+            <label style="font-size: 0.72rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.04em; font-weight: 700; display: block; margin-bottom: 8px;">Gönderme Türü</label>
+            <div class="comment-type-selector" style="display: flex; gap: 20px;">
+              <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.85rem;">
+                <input type="radio" name="commentType" value="normal" checked style="accent-color: var(--accent-primary);"> Normal
+              </label>
+              <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.85rem;">
+                <input type="radio" name="commentType" value="anonymous" style="accent-color: var(--accent-primary);"> Anonim
+              </label>
+            </div>
+          </div>
+          <textarea class="note-input" id="commentInput" rows="4" placeholder="Fikirlerini bizimle paylaş..."></textarea>
+          <button class="btn-primary" id="sendCommentBtn" style="margin-top: 16px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            <span>Gönder</span>
+          </button>
+        </div>
+      </section>
+
+      <section class="card" id="publicCommentsCard">
+        <div class="card-header">
+          <h3 class="card-title">Son Yorumlar</h3>
+        </div>
+        <div id="commentsList" class="comments-list">
+          <!-- Comments will be rendered here -->
+        </div>
+      </section>
+    </div>
+
+    <!-- ============ PAGE: CALCULATORS ============ -->
+    <div class="page" data-page="calculators" id="pageCalculators">
+      
+      <!-- Premium Calculators Header -->
+      <div class="card" style="margin-bottom: 24px; position: relative; overflow: hidden; padding: 32px 24px; border-radius: 24px; background: linear-gradient(135deg, rgba(139,124,247,0.1), transparent);">
+        <div style="position: absolute; right: -20px; top: -20px; opacity: 0.05; pointer-events: none;">
+          <svg width="200" height="200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="8.01" y2="10"/><line x1="12" y1="10" x2="12.01" y2="10"/><line x1="16" y1="10" x2="16.01" y2="10"/><line x1="8" y1="14" x2="8.01" y2="14"/><line x1="12" y1="14" x2="12.01" y2="14"/><line x1="16" y1="14" x2="16.01" y2="14"/><line x1="8" y1="18" x2="8.01" y2="18"/><line x1="12" y1="18" x2="12.01" y2="18"/><line x1="16" y1="18" x2="16.01" y2="18"/></svg>
+        </div>
+        
+        <div style="position: relative; z-index: 10; display: flex; align-items: center; gap: 16px;">
+          <div style="width: 56px; height: 56px; border-radius: 16px; background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)); display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 16px rgba(139,124,247,0.3); flex-shrink: 0;">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="8.01" y2="10"/><line x1="12" y1="10" x2="12.01" y2="10"/><line x1="16" y1="10" x2="16.01" y2="10"/><line x1="8" y1="14" x2="8.01" y2="14"/><line x1="12" y1="14" x2="12.01" y2="14"/><line x1="16" y1="14" x2="16.01" y2="14"/><line x1="8" y1="18" x2="8.01" y2="18"/><line x1="12" y1="18" x2="12.01" y2="18"/><line x1="16" y1="18" x2="16.01" y2="18"/></svg>
+          </div>
+          <div>
+            <h2 style="font-size: 2rem; font-weight: 900; margin: 0 0 4px; color: var(--text-primary); letter-spacing: -0.03em;" data-i18n="navCalculators">Hesaplayıcılar</h2>
+            <p style="font-size: 0.9rem; color: var(--text-secondary); margin: 0;">Performansını takip et ve analiz et</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="calc-container">
+        <!-- Calculator Sidebar Menu -->
+        <div class="calc-sidebar card">
+          <button class="calc-nav-btn" data-calc="1rm">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+            1RM Hesapla
+          </button>
+          <button class="calc-nav-btn active" data-calc="converter">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v18"/><rect x="4" y="6" width="6" height="4"/><rect x="14" y="14" width="6" height="4"/><path d="M7 3h10"/></svg>
+            Birim Dönüştürücü
+          </button>
+          <button class="calc-nav-btn" data-calc="bfp">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            Yağ Oranı
+          </button>
+          <button class="calc-nav-btn" data-calc="growth">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
+            Gelişim
+          </button>
+          <button class="calc-nav-btn" data-calc="macros">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+            Makro/Kalori
+          </button>
+        </div>
+
+        <!-- Calculator Content Area -->
+        <div class="calc-content">
+          <!-- Converter UI -->
+          <div class="calc-view active" id="calc-converter">
+            <div class="card calc-card">
+              <div class="calc-input-row">
+                <div class="calc-field">
+                  <label>KILOGRAM (KG)</label>
+                  <div class="calc-input-wrapper">
+                    <input type="number" id="calcKg" class="calc-input" placeholder="0">
+                    <span class="calc-unit">KG</span>
+                  </div>
+                </div>
+                <div class="calc-field">
+                  <label>POUNDS (LBS)</label>
+                  <div class="calc-input-wrapper">
+                    <input type="number" id="calcLbs" class="calc-input" placeholder="0">
+                    <span class="calc-unit">LB</span>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+          
+          <div class="calc-view" id="calc-1rm">
+            <div class="card calc-card">
+              <div class="calc-input-row">
+                <div class="calc-field">
+                  <label data-i18n="weight">Ağırlık</label>
+                  <div class="calc-input-wrapper">
+                    <input type="number" id="calc1rmW" class="calc-input" placeholder="0" min="0">
+                    <span class="calc-unit">KG</span>
+                  </div>
+                </div>
+                <div class="calc-field">
+                  <label data-i18n="repetitions">Tekrar</label>
+                  <div class="calc-input-wrapper">
+                    <input type="number" id="calc1rmR" class="calc-input" placeholder="0" min="0">
+                  </div>
+                </div>
+              </div>
+              <button class="btn-primary w-full py-4 text-lg" style="width: 100%; padding: 16px; margin-top: 16px; font-size: 1.1rem;" onclick="calc1RM()">1RM Hesapla</button>
+              
+              <div id="res-1rm" class="calc-info-box mt-4" style="display:none; flex-direction: column; align-items: center; justify-content: center; padding: 32px; background: rgba(139, 124, 247, 0.05); margin-top: 24px;">
+                <p style="font-size: 0.75rem; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.1em; font-weight: bold; margin-bottom: 8px;">TAHMİNİ 1RM</p>
+                <div style="display: flex; align-items: baseline; gap: 8px;">
+                  <span id="res-1rm-val" style="font-size: 4rem; font-weight: 900; color: var(--text-main);">0</span>
+                  <span style="font-size: 1.25rem; font-weight: bold; color: var(--accent-primary);">KG</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="calc-view" id="calc-bfp">
+            <div class="card calc-card">
+              <div style="display: flex; padding: 4px; background: var(--bg-main); border: 1px solid var(--border-color); border-radius: 12px; width: fit-content; margin: 0 auto 24px;">
+                <button id="bfp-btn-male" class="bfp-gender-btn active" style="padding: 8px 24px; border-radius: 8px; font-size: 0.85rem; font-weight: bold; border: none; background: var(--accent-primary); color: white; cursor: pointer; transition: all 0.2s;" onclick="setBfpGender('male')">Erkek</button>
+                <button id="bfp-btn-female" class="bfp-gender-btn" style="padding: 8px 24px; border-radius: 8px; font-size: 0.85rem; font-weight: bold; border: none; background: transparent; color: var(--text-muted); cursor: pointer; transition: all 0.2s;" onclick="setBfpGender('female')">Kadın</button>
+              </div>
+              <div class="calc-input-row" style="grid-template-columns: 1fr 1fr;">
+                <div class="calc-field">
+                  <label>BOY</label>
+                  <div class="calc-input-wrapper">
+                    <input type="number" id="calcBfpH" class="calc-input" placeholder="cm" min="0">
+                    <span class="calc-unit">CM</span>
+                  </div>
+                </div>
+                <div class="calc-field">
+                  <label>BEL</label>
+                  <div class="calc-input-wrapper">
+                    <input type="number" id="calcBfpW" class="calc-input" placeholder="cm" min="0">
+                    <span class="calc-unit">CM</span>
+                  </div>
+                </div>
+                <div class="calc-field">
+                  <label>BOYUN</label>
+                  <div class="calc-input-wrapper">
+                    <input type="number" id="calcBfpN" class="calc-input" placeholder="cm" min="0">
+                    <span class="calc-unit">CM</span>
+                  </div>
+                </div>
+                <div class="calc-field" id="calcBfpHipField" style="display: none;">
+                  <label>KALÇA</label>
+                  <div class="calc-input-wrapper">
+                    <input type="number" id="calcBfpHip" class="calc-input" placeholder="cm" min="0">
+                    <span class="calc-unit">CM</span>
+                  </div>
+                </div>
+              </div>
+              <button class="btn-primary" style="width: 100%; padding: 16px; margin-top: 16px; font-size: 1.1rem;" onclick="calcBFP()">Yağ Oranını Hesapla</button>
+
+              <div id="res-bfp" class="calc-info-box" style="display:none; flex-direction: column; align-items: center; justify-content: center; padding: 32px; background: rgba(139, 124, 247, 0.05); margin-top: 24px; border-radius: 16px; border: 1px solid var(--border-color);">
+                <p style="font-size: 0.75rem; color: var(--accent-primary); text-transform: uppercase; letter-spacing: 0.1em; font-weight: bold; margin-bottom: 8px;">% YAĞ ORANI</p>
+                <p id="res-bfp-val" style="font-size: 4rem; font-weight: 900; color: var(--text-main); margin: 0;">0%</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="calc-view" id="calc-growth">
+            <div class="card calc-card">
+              <div style="margin-bottom: 24px; padding-bottom: 24px; border-bottom: 1px solid var(--border-color);">
+                <h4 style="font-size: 0.75rem; font-weight: 900; color: var(--accent-primary); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 16px;">ÖNCEKİ KALDIRIŞ</h4>
+                <div class="calc-input-row" style="margin-bottom: 0;">
+                  <div class="calc-field">
+                    <label>AĞIRLIK</label>
+                    <div class="calc-input-wrapper">
+                      <input type="number" id="calcGrOldW" class="calc-input" placeholder="örn: 80" min="0">
+                    </div>
+                  </div>
+                  <div class="calc-field">
+                    <label>TEKRAR</label>
+                    <div class="calc-input-wrapper">
+                      <input type="number" id="calcGrOldR" class="calc-input" placeholder="örn: 8" min="0">
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div style="margin-bottom: 24px;">
+                <h4 style="font-size: 0.75rem; font-weight: 900; color: var(--accent-secondary); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 16px;">ŞU ANKİ KALDIRIŞ</h4>
+                <div class="calc-input-row" style="margin-bottom: 0;">
+                  <div class="calc-field">
+                    <label>AĞIRLIK</label>
+                    <div class="calc-input-wrapper">
+                      <input type="number" id="calcGrNewW" class="calc-input" placeholder="örn: 85" min="0">
+                    </div>
+                  </div>
+                  <div class="calc-field">
+                    <label>TEKRAR</label>
+                    <div class="calc-input-wrapper">
+                      <input type="number" id="calcGrNewR" class="calc-input" placeholder="örn: 10" min="0">
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <button class="btn-primary" style="width: 100%; padding: 16px; font-size: 1.1rem;" onclick="calcGrowth()">Kıyasla</button>
+
+              <div id="res-growth" class="calc-info-box" style="display:none; flex-direction: column; align-items: center; justify-content: center; padding: 32px; background: rgba(255,255,255,0.02); border: 2px solid var(--accent-primary); border-radius: 20px; margin-top: 24px;">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--accent-primary)" stroke-width="2" style="margin-bottom: 16px;"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
+                <p id="res-growth-val" style="font-size: 1.5rem; font-weight: 900; color: var(--text-main); margin-bottom: 16px; text-align: center;">Gücün %X arttı</p>
+                <div style="width: 100%; height: 8px; background: var(--bg-main); border-radius: 4px; overflow: hidden;">
+                  <div id="res-growth-bar" style="height: 100%; background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary)); width: 0%; transition: width 1s ease;"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="calc-view" id="calc-macros">
+            <div class="card calc-card">
+              <div class="calc-input-row" style="grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 16px;">
+                <div class="calc-field">
+                  <label>AĞIRLIK</label>
+                  <div class="calc-input-wrapper">
+                    <input type="number" id="calcMacW" class="calc-input" placeholder="kg" min="0">
+                  </div>
+                </div>
+                <div class="calc-field">
+                  <label>BOY</label>
+                  <div class="calc-input-wrapper">
+                    <input type="number" id="calcMacH" class="calc-input" placeholder="cm" min="0">
+                  </div>
+                </div>
+                <div class="calc-field">
+                  <label>YAŞ</label>
+                  <div class="calc-input-wrapper">
+                    <input type="number" id="calcMacA" class="calc-input" placeholder="yıl" min="0">
+                  </div>
+                </div>
+              </div>
+              <div class="calc-field" style="margin-bottom: 24px;">
+                <label>AKTİVİTE SEVİYESİ</label>
+                <div class="rich-select-container">
+                  <div class="rich-select-trigger" id="richSelectTrigger">
+                    <div class="rich-option-content">
+                      <span class="rich-option-title">Moderately Active</span>
+                      <span class="rich-option-desc">Moderate exercise (3–5 days/week)</span>
+                    </div>
+                    <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                  </div>
+                  <div class="rich-select-options" id="richOptions">
+                    <div class="rich-option-item" data-value="1.2">
+                      <div class="rich-option-content">
+                        <span class="rich-option-title">Sedentary</span>
+                        <span class="rich-option-desc">Little to no exercise</span>
+                      </div>
+                      <div class="rich-option-check">✓</div>
+                    </div>
+                    <div class="rich-option-item" data-value="1.375">
+                      <div class="rich-option-content">
+                        <span class="rich-option-title">Lightly Active</span>
+                        <span class="rich-option-desc">Light exercise (1–3 days/week)</span>
+                      </div>
+                      <div class="rich-option-check">✓</div>
+                    </div>
+                    <div class="rich-option-item selected" data-value="1.55">
+                      <div class="rich-option-content">
+                        <span class="rich-option-title">Moderately Active</span>
+                        <span class="rich-option-desc">Moderate exercise (3–5 days/week)</span>
+                      </div>
+                      <div class="rich-option-check">✓</div>
+                    </div>
+                    <div class="rich-option-item" data-value="1.725">
+                      <div class="rich-option-content">
+                        <span class="rich-option-title">Very Active</span>
+                        <span class="rich-option-desc">Intense exercise (6–7 days/week)</span>
+                      </div>
+                      <div class="rich-option-check">✓</div>
+                    </div>
+                    <div class="rich-option-item" data-value="1.9">
+                      <div class="rich-option-content">
+                        <span class="rich-option-title">Extremely Active</span>
+                        <span class="rich-option-desc">Physical job or double training</span>
+                      </div>
+                      <div class="rich-option-check">✓</div>
+                    </div>
+                  </div>
+                  <input type="hidden" id="calcMacAct" value="1.55">
+                </div>
+              </div>
+              <div style="display: flex; padding: 4px; background: var(--bg-main); border: 1px solid var(--border-color); border-radius: 12px; width: fit-content; margin: 0 auto 24px;">
+                <button id="mac-btn-male" class="mac-gender-btn active" style="padding: 8px 24px; border-radius: 8px; font-size: 0.85rem; font-weight: bold; border: none; background: var(--accent-primary); color: white; cursor: pointer; transition: all 0.2s;" onclick="setMacGender('male')">Erkek</button>
+                <button id="mac-btn-female" class="mac-gender-btn" style="padding: 8px 24px; border-radius: 8px; font-size: 0.85rem; font-weight: bold; border: none; background: transparent; color: var(--text-muted); cursor: pointer; transition: all 0.2s;" onclick="setMacGender('female')">Kadın</button>
+              </div>
+
+              <button class="btn-primary" style="width: 100%; padding: 16px; font-size: 1.1rem;" onclick="calcMacros()">Makro / Kalori Hesapla</button>
+
+              <div id="res-macros" style="display:none; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-top: 24px;">
+                <div style="grid-column: span 2; padding: 20px; background: var(--accent-glow); border: 1px solid var(--accent-primary); border-radius: 16px; text-align: center;">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-accent-primary" style="margin: 0 auto 4px; color: var(--accent-primary);"><path d="M12 2c0 0-5 3.5-5 9s5 9 5 9 5-3.5 5-9-5-9-5-9z"/></svg>
+                  <p style="font-size: 0.65rem; text-transform: uppercase; font-weight: 900; color: var(--text-muted); margin-bottom: 4px;">KALORİ</p>
+                  <p id="res-mac-kcal" style="font-size: 2.5rem; font-weight: 900; color: var(--text-main); margin: 0;">0</p>
+                </div>
+                <div style="padding: 16px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; text-align: center;">
+                  <p style="font-size: 0.65rem; text-transform: uppercase; font-weight: 900; color: var(--text-muted); margin-bottom: 4px;">PROTEİN</p>
+                  <p id="res-mac-p" style="font-size: 1.5rem; font-weight: 900; color: #60a5fa; margin: 0;">0g</p>
+                </div>
+                <div style="padding: 16px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; text-align: center;">
+                  <p style="font-size: 0.65rem; text-transform: uppercase; font-weight: 900; color: var(--text-muted); margin-bottom: 4px;">KARB</p>
+                  <p id="res-mac-c" style="font-size: 1.5rem; font-weight: 900; color: #f59e0b; margin: 0;">0g</p>
+                </div>
+                <div style="grid-column: span 2; padding: 16px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; text-align: center;">
+                  <p style="font-size: 0.65rem; text-transform: uppercase; font-weight: 900; color: var(--text-muted); margin-bottom: 4px;">YAĞ</p>
+                  <p id="res-mac-f" style="font-size: 1.5rem; font-weight: 900; color: #f43f5e; margin: 0;">0g</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- ===== ACHIEVEMENT POPUP ===== -->
+  <div class="achievement-popup" id="achievementPopup">
+    <canvas id="confettiCanvas"></canvas>
+    <div class="achievement-popup-card">
+      <div class="achievement-popup-icon" id="achievementIcon">
+        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>
+      </div>
+      <div class="achievement-popup-title" id="achievementTitle">Başarım Kazanıldı!</div>
+      <div class="achievement-popup-desc" id="achievementDesc">Harika iş çıkardın!</div>
+      <button class="achievement-popup-close" onclick="closeAchievementPopup()">Devam Et</button>
+    </div>
+  </div>
+
+  <!-- ===== WEEKLY GOAL BOTTOM SHEET ===== -->
+  <div class="weekly-goal-sheet" id="weeklyGoalSheet">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent-primary)" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      <h3 style="margin:0;">Haftalık Hedefini Belirle</h3>
+    </div>
+    <p>Bu hafta kaç gün antrenman yapmayı planlıyorsunuz?</p>
+    <div class="weekly-goal-slider-wrap">
+      <div class="weekly-goal-display" id="weeklyGoalDisplay">3</div>
+      <input type="range" class="weekly-goal-slider" id="weeklyGoalSlider" min="1" max="7" value="3" style="--fill: 42%">
+    </div>
+    <button class="weekly-goal-confirm" onclick="confirmWeeklyGoal()">Hedefi Kaydet</button>
+  </div>
+
+  <!-- ===== PAGE: BEFORE/AFTER ===== -->
+  <div class="page" data-page="beforeafter" id="pageBeforeafter" style="display:none;">
+    <h2 class="page-title">Gelişim Fotoğrafları</h2>
+    <section class="card" id="progressPhotosCardMain">
+      <div class="card-header">
+        <h3 class="card-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:6px;"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+          Fotoğraflar
+        </h3>
+        <div style="display:flex;gap:8px;">
+          <button class="btn-small" id="comparePhotosBtnMain" onclick="toggleCompareMode()" style="background:rgba(139,124,247,0.15);color:var(--accent-primary);border:1px solid rgba(139,124,247,0.3);">Karşılaştır</button>
+          <button class="btn-small" onclick="document.getElementById('progressPhotoInputMain').click()">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Yeni Fotoğraf
+          </button>
+        </div>
+      </div>
+      <input type="file" id="progressPhotoInputMain" accept="image/*" style="display:none" onchange="handleProgressPhoto(event)">
+      <div id="progressPhotoForm" style="display:none;padding:16px;background:var(--bg-input);border-radius:12px;margin-bottom:16px;border:1px solid var(--border-card);"></div>
+      <div id="compareView" class="compare-view" style="display:none;"></div>
+      <div class="progress-photos-grid" id="progressPhotosGrid">
+        <div class="logged-empty" style="grid-column:1/-1;">Henüz fotoğraf eklenmedi.</div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ===== PAGE: ACHIEVEMENTS ===== -->
+  <div class="page" data-page="achievements" id="pageAchievements" style="display:none;">
+    <h2 class="page-title">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:8px;"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>
+      Başarımlar
+    </h2>
+    <section class="card">
+      <div class="achievements-grid" id="achievementsGrid"></div>
+    </section>
+  </div>
+
+  <!-- ===== PAGE: PROFILE ===== -->
+  <div class="page" data-page="profile" id="pageProfile" style="display:none;">
+    <h2 class="page-title">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:8px;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      Profil
+    </h2>
+    <section class="card">
+      <div style="text-align: center; padding: 40px 20px;">
+        <div id="profilePageAvatar" style="width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, var(--accent-deep), var(--accent-primary)); color: white; display: flex; align-items: center; justify-content: center; font-size: 2rem; font-weight: bold; margin: 0 auto 16px; box-shadow: 0 4px 16px rgba(139,124,247,0.3); overflow:hidden;">?</div>
+        <h3 id="profilePageName" style="font-size: 1.5rem; margin-bottom: 8px;">Kullanıcı Adı</h3>
+        <p id="profilePageEmail" style="color: var(--text-secondary); margin-bottom: 24px;">kullanici@email.com</p>
+        <div id="profilePageRank" style="display: inline-flex; align-items: center; justify-content: center; padding: 6px 16px; border-radius: 20px; font-weight: bold; font-size: 0.85rem; margin-bottom: 24px;">MEMBER</div>
+        <br>
+        <button class="btn-primary" id="profileSignOutBtn" style="margin: 0 auto; min-width: 160px; justify-content: center;">Çıkış Yap</button>
+      </div>
+    </section>
+  </div>
+
+  <!-- ========== VIDEO MODAL ========== -->
+  <div class="video-modal" id="videoModal" role="dialog" aria-modal="true" aria-label="Exercise Video">
+    <div class="video-modal-content">
+      <div class="video-modal-header">
+        <div class="video-modal-title-wrap">
+          <span class="video-modal-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+          </span>
+          <span class="video-modal-title" id="videoModalTitle"></span>
+        </div>
+        <button class="video-modal-close" id="videoModalClose" aria-label="Close video">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="video-modal-player">
+        <iframe
+          id="videoModalIframe"
+          src=""
+          title="Exercise demonstration video"
+          frameborder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          allowfullscreen
+        ></iframe>
+      </div>
+      <p class="video-modal-hint">Egzersizi görmek için video oynayın · Press <kbd>Esc</kbd> to close</p>
+    </div>
+  </div>
+
+  <!-- Firebase SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <script src="firebase-config.js"></script>
+  <script src="app.js?v=2.3"></script>
+</body>
+</html>
