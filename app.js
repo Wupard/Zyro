@@ -1673,6 +1673,7 @@ function updateStats(){
   if (streakEl) {
     streakEl.textContent = `Day ${weeklyStreak}`;
   }
+  if (typeof checkStreakAchievements === 'function') checkStreakAchievements(weeklyStreak);
 }
 
 // =============================================
@@ -1832,17 +1833,39 @@ function showToast(msg, type = 'success') {
 // =============================================
 // ACHIEVEMENT SYSTEM (3.2)
 // =============================================
+
 const ACH_ICONS = {
-  bench_50:    '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6.5 6.5h11M6.5 17.5h11M12 2v4M12 18v4M4.5 8.5v7M19.5 8.5v7"/></svg>',
-  deadlift_100:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2v20M4 12h16M4 6l8 6-8 6M20 6l-8 6 8 6"/></svg>',
-  squat_50:    '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 4v16M18 4v16M6 12h12"/></svg>',
-  streak_7:    '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/></svg>'
+  barbell: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 12h20M5 9v6M19 9v6M2 10v4M22 10v4M8 8v8M16 8v8"/></svg>',
+  dumbbell: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 6h12M6 18h12M12 2v4M12 18v4M4 8v8M20 8v8"/></svg>',
+  machine: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"/><path d="M12 4v16M8 12h8M8 16h8M8 8h8"/></svg>',
+  streak: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/></svg>',
+  core: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="M12 6v12M8 10h8M8 14h8"/></svg>'
 };
+
 const ACHIEVEMENT_DEFS = [
-  { id: 'bench_50',    name: '50 kg Bench Press',  exercise: 'DB Bench Press',          target: 50,  desc: '50 kg Bench Press yapınca kazanılır.' },
-  { id: 'deadlift_100',name: '100 kg Deadlift',    exercise: 'Romanian Deadlift (RDL)', target: 100, desc: '100 kg RDL yapınca kazanılır.' },
-  { id: 'squat_50',    name: '50 kg Squat',         exercise: 'Leg Press',               target: 50,  desc: '50 kg Leg Press yapınca kazanılır.' },
-  { id: 'streak_7',    name: '7 Günlük Seri',       exercise: null,                      target: 7,   desc: '7 gün üst üste antrenman yap.' },
+  // ZORUNLU İLK 5 BAŞARIM
+  { id: 'bench_50',       name: '50 kg Bench Press',  exercise: 'Barbell Bench Press',          target: 50,  icon: 'barbell',  desc: 'Bench Press ile 50 kg ağırlık kaldır.' },
+  { id: 'lat_50',         name: '50 kg Lat Pulldown', exercise: 'Lat Pulldown',                 target: 50,  icon: 'machine',  desc: 'Lat Pulldown ile 50 kg ağırlık çek.' },
+  { id: 'deadlift_100',   name: '100 kg Deadlift',    exercise: 'Romanian Deadlift',            target: 100, icon: 'barbell',  desc: 'Deadlift (RDL) ile 100 kg ağırlık kaldır.' },
+  { id: 'squat_100',      name: '100 kg Squat',       exercise: 'Squat',                        target: 100, icon: 'barbell',  desc: 'Squat ile 100 kg ağırlık kaldır.' },
+  { id: 'hammer_25',      name: '25 kg Hammer Curl',  exercise: 'Cross-Body Hammer Curl',       target: 25,  icon: 'dumbbell', desc: 'Hammer Curl ile 25 kg ağırlık kaldır.' },
+  
+  // YENİ 15 BAŞARIM
+  { id: 'bench_80',       name: '80 kg Bench Press',  exercise: 'Barbell Bench Press',          target: 80,  icon: 'barbell',  desc: 'Bench Press ile 80 kg ağırlık kaldır.' },
+  { id: 'bench_100',      name: '100 kg Bench Press', exercise: 'Barbell Bench Press',          target: 100, icon: 'barbell',  desc: 'Bench Press ile 100 kg ağırlık kaldır.' },
+  { id: 'squat_140',      name: '140 kg Squat',       exercise: 'Squat',                        target: 140, icon: 'barbell',  desc: 'Squat ile 140 kg ağırlık kaldır.' },
+  { id: 'deadlift_150',   name: '150 kg Deadlift',    exercise: 'Romanian Deadlift',            target: 150, icon: 'barbell',  desc: 'Deadlift (RDL) ile 150 kg ağırlık kaldır.' },
+  { id: 'lat_80',         name: '80 kg Lat Pulldown', exercise: 'Lat Pulldown',                 target: 80,  icon: 'machine',  desc: 'Lat Pulldown ile 80 kg ağırlık çek.' },
+  { id: 'biceps_20',      name: '20 kg Biceps Curl',  exercise: 'Seated DB Biceps Curl',        target: 20,  icon: 'dumbbell', desc: 'Biceps Curl ile 20 kg ağırlık kaldır.' },
+  { id: 'biceps_30',      name: '30 kg Biceps Curl',  exercise: 'Seated DB Biceps Curl',        target: 30,  icon: 'dumbbell', desc: 'Biceps Curl ile 30 kg ağırlık kaldır.' },
+  { id: 'triceps_40',     name: '40 kg Pushdown',     exercise: 'V-Bar Triceps Pushdown',       target: 40,  icon: 'machine',  desc: 'Triceps Pushdown ile 40 kg ağırlık it.' },
+  { id: 'triceps_60',     name: '60 kg Pushdown',     exercise: 'V-Bar Triceps Pushdown',       target: 60,  icon: 'machine',  desc: 'Triceps Pushdown ile 60 kg ağırlık it.' },
+  { id: 'shoulder_50',    name: '50 kg Shoulder',     exercise: 'Cable Shoulder',               target: 50,  icon: 'machine',  desc: 'Cable Shoulder ile 50 kg ağırlık çek.' },
+  { id: 'crunch_60',      name: '60 kg Crunch',       exercise: 'Straight Bar Cable Crunch',    target: 60,  icon: 'core',     desc: 'Cable Crunch ile 60 kg ağırlık çek.' },
+  { id: 'farmers_walk_100',name: '100 kg Farmers Walk',exercise: 'Farmers Walk',                target: 100, icon: 'dumbbell', desc: 'Farmers Walk ile 100 kg ağırlık taşı.' },
+  { id: 'incline_bench_60',name: '60 kg İncline',     exercise: 'İncline Bench Press',          target: 60,  icon: 'barbell',  desc: 'İncline Bench Press ile 60 kg ağırlık kaldır.' },
+  { id: 'streak_3',       name: '3 Günlük Seri',      exercise: null,                           target: 3,   icon: 'streak',   desc: 'Haftada 3 gün antrenman yap.' },
+  { id: 'streak_7',       name: '7 Günlük Seri',      exercise: null,                           target: 7,   icon: 'streak',   desc: '7 gün üst üste (her gün) antrenman yap.' },
 ];
 
 function checkAchievements(exercise, weight) {
@@ -1855,6 +1878,22 @@ function checkAchievements(exercise, weight) {
       saveData();
       showAchievementPopup(def);
       renderAchievements();
+      if(typeof renderProfilePage === 'function') renderProfilePage();
+    }
+  });
+}
+
+function checkStreakAchievements(streak) {
+  if (!appData.achievements) appData.achievements = {};
+  ACHIEVEMENT_DEFS.forEach(def => {
+    if (def.exercise) return; // not a streak achievement
+    if (appData.achievements[def.id]) return; // already unlocked
+    if (streak >= def.target) {
+      appData.achievements[def.id] = { unlockedAt: Date.now() };
+      saveData();
+      showAchievementPopup(def);
+      renderAchievements();
+      if(typeof renderProfilePage === 'function') renderProfilePage();
     }
   });
 }
@@ -1863,7 +1902,7 @@ function showAchievementPopup(def) {
   const popup = document.getElementById('achievementPopup');
   if (!popup) return;
   const iconEl = document.getElementById('achievementIcon');
-  iconEl.innerHTML = ACH_ICONS[def.id] || def.id;
+  iconEl.innerHTML = ACH_ICONS[def.icon] || ACH_ICONS['streak'];
   document.getElementById('achievementTitle').textContent = 'Tebrikler! ' + def.name;
   document.getElementById('achievementDesc').textContent = def.desc + ' 🎉';
   popup.classList.add('show');
@@ -1923,7 +1962,7 @@ function renderAchievements() {
   const CHAIN_SVG = '<svg class="chain-lock" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2"><rect x="5" y="11" width="14" height="11" rx="3" ry="3"/><path d="M8 11V7a4 4 0 1 1 8 0v4"/></svg>';
   grid.innerHTML = ACHIEVEMENT_DEFS.map(def => {
     const unlocked = !!appData.achievements[def.id];
-    const iconSvg = ACH_ICONS[def.id] || '';
+    const iconSvg = ACH_ICONS[def.icon] || ACH_ICONS['streak'];
     return `<div class="achievement-badge ${unlocked ? 'unlocked' : 'locked'}" title="${def.desc}">
       <div class="achievement-badge-icon">${iconSvg}${!unlocked ? CHAIN_SVG : ''}</div>
       <div class="achievement-badge-name">${def.name}</div>
@@ -2892,18 +2931,19 @@ function renderProfilePage() {
   const userRankKey = appData.userRank || 'default';
   const rank = RANKS[userRankKey] || RANKS.default;
 
-  // Achievements
-  const unlockedCount = Object.keys(appData.achievements || {}).length;
-  const achievementsHtml = ACHIEVEMENT_DEFS.map(def => {
-    const unlocked = !!(appData.achievements || {})[def.id];
-    return `<div style="display:flex;align-items:center;gap:10px;padding:10px;border-radius:10px;background:${unlocked ? 'rgba(139,124,247,0.1)' : 'rgba(255,255,255,0.02)'};border:1px solid ${unlocked ? 'rgba(139,124,247,0.3)' : 'var(--border-subtle)'};">
-      <div style="width:36px;height:36px;border-radius:10px;background:${unlocked ? 'var(--accent-glow)' : 'rgba(255,255,255,0.03)'};display:flex;align-items:center;justify-content:center;color:${unlocked ? 'var(--accent-primary)' : 'var(--text-tertiary)'};">${ACH_ICONS[def.id] || ''}</div>
+  // Achievements (Only Unlocked ones in Profile)
+  const unlockedAchievements = ACHIEVEMENT_DEFS.filter(def => !!(appData.achievements || {})[def.id]);
+  const unlockedCount = unlockedAchievements.length;
+  const achievementsHtml = unlockedCount > 0 ? unlockedAchievements.map(def => {
+    const iconSvg = ACH_ICONS[def.icon] || ACH_ICONS['streak'];
+    return `<div style="display:flex;align-items:center;gap:10px;padding:10px;border-radius:10px;background:rgba(139,124,247,0.1);border:1px solid rgba(139,124,247,0.3);">
+      <div style="width:36px;height:36px;border-radius:10px;background:var(--accent-glow);display:flex;align-items:center;justify-content:center;color:var(--accent-primary);">${iconSvg}</div>
       <div>
-        <div style="font-weight:600;font-size:0.85rem;color:${unlocked ? 'var(--text-primary)' : 'var(--text-muted)'};">${def.name}</div>
-        <div style="font-size:0.7rem;color:var(--text-tertiary);">${unlocked ? 'Kazanildi' : 'Kilitli - ' + def.desc}</div>
+        <div style="font-weight:600;font-size:0.85rem;color:var(--text-primary);">${def.name}</div>
+        <div style="font-size:0.7rem;color:var(--text-tertiary);">Kazanıldı</div>
       </div>
     </div>`;
-  }).join('');
+  }).join('') : '<div style="font-size:0.8rem;color:var(--text-tertiary);text-align:center;padding:20px 0;">Henüz başarı kazanılmadı. İlk hedefini tamamla!</div>';
 
   // PRs
   const prs = {};
