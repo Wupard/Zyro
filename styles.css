@@ -196,7 +196,7 @@ body.sidebar-collapsed .nav-item span { opacity:0; pointer-events:none; }
 
 /* Language Switcher */
 .lang-switcher{
-  display:flex;gap:4px;padding:0 14px;margin-bottom:12px; transition:opacity var(--t-base);
+  display:flex;gap:6px;padding:0 14px;margin: 18px 0 12px; transition:opacity var(--t-base);
 }
 body.sidebar-collapsed .lang-switcher { opacity:0; pointer-events:none; }
 .lang-btn{
@@ -211,7 +211,7 @@ body.sidebar-collapsed .lang-switcher { opacity:0; pointer-events:none; }
 .lang-btn.active{background:var(--accent-glow);color:var(--text-accent);border-color:rgba(139,124,247,0.3)}
 
 /* Sidebar Footer */
-.sidebar-footer{padding:18px 18px 24px;border-top:1px solid var(--border-subtle);display:flex;align-items:center;gap:10px; white-space:nowrap; overflow:hidden;}
+.sidebar-footer{padding:16px 18px 22px;border-top:1px solid var(--border-subtle);display:flex;align-items:center;gap:12px; white-space:nowrap; overflow:hidden; margin-top: 4px;}
 .user-avatar{
   width:34px;height:34px;border-radius:50%; flex-shrink:0;
   background:linear-gradient(135deg,var(--accent-deep),var(--accent-primary));
@@ -762,7 +762,10 @@ select.log-input option {
 .comment-item:hover::after { transform: scaleX(1); }
 
 body.is-admin .sidebar { border-right: 2px solid var(--accent-primary); }
-body.is-admin .nav-item[data-page="comments"] { border: 1px dashed var(--accent-primary); }
+body.is-admin .nav-item[data-page="comments"] { 
+  border: 1.5px dashed rgba(139, 124, 247, 0.5); 
+  background: rgba(139, 124, 247, 0.04);
+}
 
 .admin-card-premium {
   padding: 0 !important;
@@ -941,7 +944,7 @@ textarea:not(.note-input) { resize: none !important; min-height: 80px; max-heigh
 
 .nav-item-wupard {
   position: relative;
-  margin-top: 6px;
+  margin-top: 14px;
   background: linear-gradient(135deg, rgba(139,124,247,0.12), rgba(208,130,247,0.08));
   border: 1px solid rgba(139,124,247,0.25);
   overflow: visible;
