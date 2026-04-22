@@ -525,20 +525,13 @@ function saveData(){
   localStorage.setItem('zyro_data',JSON.stringify(appData));
 }
 
-<<<<<<< HEAD
-const CURRENT_PROGRAM_VERSION = 9; // Force full cache reset
-=======
 const CURRENT_PROGRAM_VERSION = 10; // Force full cache reset and clear notes
->>>>>>> origin/master
 
 function enforceVersion() {
   if(appData.programVersion !== CURRENT_PROGRAM_VERSION) {
     appData.programs = null;
     appData.posturePrograms = null;
-<<<<<<< HEAD
-=======
     appData.notes = {};
->>>>>>> origin/master
     appData.programVersion = CURRENT_PROGRAM_VERSION;
     saveData();
   }
@@ -893,18 +886,11 @@ function initGestures() {
   };
 
   document.addEventListener('touchstart', e => {
-<<<<<<< HEAD
-    // Check if the target is inside a scrollable list or horizontal menu
-    if (e.target.closest('.workout-list') || 
-        e.target.closest('.card-tabs') || 
-        e.target.closest('.monthly-tracker') ||
-=======
     // Check if the target is inside a scrollable list or horizontal menu or calculator
     if (e.target.closest('.workout-list') || 
         e.target.closest('.card-tabs') || 
         e.target.closest('.monthly-tracker') ||
         e.target.closest('#pageCalculators') ||
->>>>>>> origin/master
         e.target.closest('.no-swipe')) {
       touchStartX = -1; // Ignore this swipe
       return;
@@ -1086,11 +1072,7 @@ function initLogForm(){
     
     const td=todayStr();
     if(!appData.workoutLogs[td])appData.workoutLogs[td]=[];
-<<<<<<< HEAD
-    appData.workoutLogs[td].push({exercise,weight:finalWeight,reps,sets,timestamp:Date.now()});
-=======
     appData.workoutLogs[td].push({exercise,weight:finalWeight,inputWeight:weight,unit:unit,reps,sets,timestamp:Date.now()});
->>>>>>> origin/master
     appData.attendance[td]=true;
     saveData();renderLoggedExercises();renderAttendance();updateMuscleMap();updateStats();
     // Check achievements on each log
@@ -1276,12 +1258,8 @@ function renderLoggedExercises(){
   if(logs.length===0){container.innerHTML=`<div class="logged-empty">${t('noExercisesLogged')}</div>`;return}
   let html=`<div class="logged-row logged-row-header"><span>${t('exercise')}</span><span>${t('weightLabel')}</span><span>Reps</span><span>Sets</span><span></span></div>`;
   logs.forEach((l,i)=>{
-<<<<<<< HEAD
-    html+=`<div class="logged-row" style="border-bottom: 1px solid var(--border-subtle);"><span class="logged-exercise">${l.exercise}</span><span>${l.weight} kg</span><span>${l.reps}</span><span>${l.sets}</span><button class="delete-log" data-index="${i}">×</button></div>`;
-=======
     const displayWeight = l.inputWeight && l.unit ? `${l.inputWeight}${l.unit.toUpperCase()}` : `${l.weight}kg`;
     html+=`<div class="logged-row" style="border-bottom: 1px solid var(--border-subtle);"><span class="logged-exercise">${l.exercise}</span><span>${displayWeight}</span><span>${l.reps}</span><span>${l.sets}</span><button class="delete-log" data-index="${i}">×</button></div>`;
->>>>>>> origin/master
   });
   container.innerHTML=html;
   container.querySelectorAll('.delete-log').forEach(btn=>{
