@@ -81,6 +81,23 @@ const I18N = {
     synced: '● Synced',
     localMode: '● Local Mode',
     notePlaceholder: 'How was your day? What did you learn? How do you feel?...',
+    calc1RM: 'Calculate 1RM',
+    calcConverter: 'Unit Converter',
+    calcBfp: 'Body Fat',
+    calcGrowth: 'Growth',
+    calcMacros: 'Macros/Calories',
+    catAll: 'All (Full Body)',
+    catLegs: 'Legs & Glutes',
+    catChest: 'Chest',
+    catBack: 'Back & Lats',
+    catShoulders: 'Shoulders',
+    catArms: 'Arms',
+    catCore: 'Core & Abs',
+    lblCategory: 'Category',
+    repetitions: 'Reps',
+    sets: 'Sets',
+    achievements: 'Achievements',
+    beforeAfter: 'Before/After'
   },
   tr: {
     authSubtitle: 'Kişisel Gelişim Paneli',
@@ -149,6 +166,23 @@ const I18N = {
     synced: '● Senkronize',
     localMode: '● Yerel Mod',
     notePlaceholder: 'Günün nasıldı? Ne öğrendin? Nasıl hissediyorsun?...',
+    calc1RM: '1RM Hesapla',
+    calcConverter: 'Birim Dönüştürücü',
+    calcBfp: 'Yağ Oranı',
+    calcGrowth: 'Gelişim',
+    calcMacros: 'Makro/Kalori',
+    catAll: 'Tümü (Tüm Vücut)',
+    catLegs: 'Bacak & Kalça',
+    catChest: 'Göğüs',
+    catBack: 'Sırt & Kanat',
+    catShoulders: 'Omuz',
+    catArms: 'Kollar',
+    catCore: 'Karın & Merkez',
+    lblCategory: 'Kategori',
+    repetitions: 'Tekrar',
+    sets: 'Set',
+    achievements: 'Başarımlar',
+    beforeAfter: 'Gelişim Fotoğrafları',
     // Posture Exercises
     'Warm-up: Light shoulder circles': 'Isınma: Hafif omuz daireleri ve kafa hareketleri',
     'Y-T-W Raises': 'Y-T-W Raises',
@@ -804,7 +838,15 @@ function navigateTo(page){
   else if(page==='progress')setTimeout(()=>{drawWeightChart();renderProgressTracker();renderPRTable();renderMonthlyTracker();},50);
   else if(page==='notes')renderNotes();
   else if(page==='comments')renderComments();
-  else if(page==='beforeafter'){renderProgressPhotos();renderProgressPhotoNav();}
+  else if(page==='beforeafter'){
+    renderProgressPhotos();
+    renderPRTable();
+    renderBodyMeasurements();
+    const df = document.getElementById('measFormDate');
+    if (df && !df.value) df.value = todayStr();
+    const pf = document.getElementById('photoDate');
+    if (pf && !pf.value) pf.value = todayStr();
+  }
   else if(page==='achievements')renderAchievements();
   else if(page==='profile')renderProfilePage();
 
@@ -1506,6 +1548,18 @@ window.deletePR = function(exerciseName) {
   }
 };
 
+window.togglePRTable = function() {
+  const content = document.getElementById('prTableWrap');
+  const icon = document.getElementById('prToggleIcon');
+  if (content.style.display === 'none' || content.style.display === '') {
+    content.style.display = 'block';
+    if(icon) icon.style.transform = 'rotate(180deg)';
+  } else {
+    content.style.display = 'none';
+    if(icon) icon.style.transform = 'rotate(0deg)';
+  }
+};
+
 // =============================================
 // WEIGHT LOG
 // =============================================
@@ -1685,12 +1739,12 @@ function refreshAllViews(){
   if(currentPage==='dashboard')setTimeout(drawDashboardChart,50);
   else if(currentPage==='workouts'){renderWorkout(currentWorkoutTab);renderLoggedExercises()}
   else if(currentPage==='progress')setTimeout(()=>{
-    drawWeightChart();drawStrengthChart();renderPRTable();
+    drawWeightChart();drawStrengthChart();
     renderMonthlyTracker();renderProgressTracker();
   },50);
   else if(currentPage==='notes')renderNotes();
   else if(currentPage==='comments')renderComments();
-  else if(currentPage==='beforeafter'){renderProgressPhotos();renderProgressPhotoNav();}
+  else if(currentPage==='beforeafter'){renderProgressPhotos();renderPRTable();renderBodyMeasurements();}
   else if(currentPage==='achievements')renderAchievements();
   else if(currentPage==='profile')renderProfilePage();
 }
@@ -1835,46 +1889,86 @@ function showToast(msg, type = 'success') {
 // =============================================
 
 const ACH_ICONS = {
-  barbell: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 12h20M5 9v6M19 9v6M2 10v4M22 10v4M8 8v8M16 8v8"/></svg>',
+  barbell:  '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 12h20M5 9v6M19 9v6M2 10v4M22 10v4M8 8v8M16 8v8"/></svg>',
   dumbbell: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 6h12M6 18h12M12 2v4M12 18v4M4 8v8M20 8v8"/></svg>',
-  machine: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"/><path d="M12 4v16M8 12h8M8 16h8M8 8h8"/></svg>',
-  streak: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/></svg>',
-  core: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="M12 6v12M8 10h8M8 14h8"/></svg>'
+  machine:  '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M12 4v16M8 12h8M8 16h8M8 8h8"/></svg>',
+  streak:   '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>',
+  core:     '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="M12 6v12M8 10h8M8 14h8"/></svg>',
+  star:     '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>',
 };
 
-const ACHIEVEMENT_DEFS = [
-  // ZORUNLU İLK 5 BAŞARIM
-  { id: 'bench_50',       name: '50 kg Bench Press',  exercise: 'Barbell Bench Press',          target: 50,  icon: 'barbell',  desc: 'Bench Press ile 50 kg ağırlık kaldır.' },
-  { id: 'lat_50',         name: '50 kg Lat Pulldown', exercise: 'Lat Pulldown',                 target: 50,  icon: 'machine',  desc: 'Lat Pulldown ile 50 kg ağırlık çek.' },
-  { id: 'deadlift_100',   name: '100 kg Deadlift',    exercise: 'Romanian Deadlift',            target: 100, icon: 'barbell',  desc: 'Deadlift (RDL) ile 100 kg ağırlık kaldır.' },
-  { id: 'squat_100',      name: '100 kg Squat',       exercise: 'Squat',                        target: 100, icon: 'barbell',  desc: 'Squat ile 100 kg ağırlık kaldır.' },
-  { id: 'hammer_25',      name: '25 kg Hammer Curl',  exercise: 'Cross-Body Hammer Curl',       target: 25,  icon: 'dumbbell', desc: 'Hammer Curl ile 25 kg ağırlık kaldır.' },
-  
-  // YENİ 15 BAŞARIM
-  { id: 'bench_80',       name: '80 kg Bench Press',  exercise: 'Barbell Bench Press',          target: 80,  icon: 'barbell',  desc: 'Bench Press ile 80 kg ağırlık kaldır.' },
-  { id: 'bench_100',      name: '100 kg Bench Press', exercise: 'Barbell Bench Press',          target: 100, icon: 'barbell',  desc: 'Bench Press ile 100 kg ağırlık kaldır.' },
-  { id: 'squat_140',      name: '140 kg Squat',       exercise: 'Squat',                        target: 140, icon: 'barbell',  desc: 'Squat ile 140 kg ağırlık kaldır.' },
-  { id: 'deadlift_150',   name: '150 kg Deadlift',    exercise: 'Romanian Deadlift',            target: 150, icon: 'barbell',  desc: 'Deadlift (RDL) ile 150 kg ağırlık kaldır.' },
-  { id: 'lat_80',         name: '80 kg Lat Pulldown', exercise: 'Lat Pulldown',                 target: 80,  icon: 'machine',  desc: 'Lat Pulldown ile 80 kg ağırlık çek.' },
-  { id: 'biceps_20',      name: '20 kg Biceps Curl',  exercise: 'Seated DB Biceps Curl',        target: 20,  icon: 'dumbbell', desc: 'Biceps Curl ile 20 kg ağırlık kaldır.' },
-  { id: 'biceps_30',      name: '30 kg Biceps Curl',  exercise: 'Seated DB Biceps Curl',        target: 30,  icon: 'dumbbell', desc: 'Biceps Curl ile 30 kg ağırlık kaldır.' },
-  { id: 'triceps_40',     name: '40 kg Pushdown',     exercise: 'V-Bar Triceps Pushdown',       target: 40,  icon: 'machine',  desc: 'Triceps Pushdown ile 40 kg ağırlık it.' },
-  { id: 'triceps_60',     name: '60 kg Pushdown',     exercise: 'V-Bar Triceps Pushdown',       target: 60,  icon: 'machine',  desc: 'Triceps Pushdown ile 60 kg ağırlık it.' },
-  { id: 'shoulder_50',    name: '50 kg Shoulder',     exercise: 'Cable Shoulder',               target: 50,  icon: 'machine',  desc: 'Cable Shoulder ile 50 kg ağırlık çek.' },
-  { id: 'crunch_60',      name: '60 kg Crunch',       exercise: 'Straight Bar Cable Crunch',    target: 60,  icon: 'core',     desc: 'Cable Crunch ile 60 kg ağırlık çek.' },
-  { id: 'farmers_walk_100',name: '100 kg Farmers Walk',exercise: 'Farmers Walk',                target: 100, icon: 'dumbbell', desc: 'Farmers Walk ile 100 kg ağırlık taşı.' },
-  { id: 'incline_bench_60',name: '60 kg İncline',     exercise: 'İncline Bench Press',          target: 60,  icon: 'barbell',  desc: 'İncline Bench Press ile 60 kg ağırlık kaldır.' },
-  { id: 'streak_3',       name: '3 Günlük Seri',      exercise: null,                           target: 3,   icon: 'streak',   desc: 'Haftada 3 gün antrenman yap.' },
-  { id: 'streak_7',       name: '7 Günlük Seri',      exercise: null,                           target: 7,   icon: 'streak',   desc: '7 gün üst üste (her gün) antrenman yap.' },
+// GROUPS allow expandable subsets per exercise
+const ACHIEVEMENT_GROUPS = [
+  {
+    id: 'bench_group', label: 'Bench Press', icon: 'barbell',
+    badges: [
+      { id: 'bench_50',  name: '50 kg Bench',  exercise: 'Barbell Bench Press', target: 50,  desc: 'Bench Press ile 50 kg kaldır.' },
+      { id: 'bench_80',  name: '80 kg Bench',  exercise: 'Barbell Bench Press', target: 80,  desc: 'Bench Press ile 80 kg kaldır.' },
+      { id: 'bench_100', name: '100 kg Bench', exercise: 'Barbell Bench Press', target: 100, desc: 'Bench Press ile 100 kg kaldır.' },
+    ]
+  },
+  {
+    id: 'squat_group', label: 'Squat', icon: 'barbell',
+    badges: [
+      { id: 'squat_80',  name: '80 kg Squat',  exercise: 'Squat', target: 80,  desc: 'Squat ile 80 kg kaldır.' },
+      { id: 'squat_100', name: '100 kg Squat', exercise: 'Squat', target: 100, desc: 'Squat ile 100 kg kaldır.' },
+      { id: 'squat_140', name: '140 kg Squat', exercise: 'Squat', target: 140, desc: 'Squat ile 140 kg kaldır.' },
+    ]
+  },
+  {
+    id: 'deadlift_group', label: 'Deadlift', icon: 'barbell',
+    badges: [
+      { id: 'deadlift_80',  name: '80 kg Deadlift',  exercise: 'Romanian Deadlift', target: 80,  desc: 'Deadlift ile 80 kg kaldır.' },
+      { id: 'deadlift_100', name: '100 kg Deadlift', exercise: 'Romanian Deadlift', target: 100, desc: 'Deadlift ile 100 kg kaldır.' },
+      { id: 'deadlift_150', name: '150 kg Deadlift', exercise: 'Romanian Deadlift', target: 150, desc: 'Deadlift ile 150 kg kaldır.' },
+    ]
+  },
+  {
+    id: 'lat_group', label: 'Lat Pulldown', icon: 'machine',
+    badges: [
+      { id: 'lat_50', name: '50 kg Lat',  exercise: 'Lat Pulldown', target: 50, desc: 'Lat Pulldown ile 50 kg çek.' },
+      { id: 'lat_80', name: '80 kg Lat',  exercise: 'Lat Pulldown', target: 80, desc: 'Lat Pulldown ile 80 kg çek.' },
+    ]
+  },
+  {
+    id: 'biceps_group', label: 'Biceps Curl', icon: 'dumbbell',
+    badges: [
+      { id: 'biceps_20', name: '20 kg Biceps', exercise: 'Seated DB Biceps Curl', target: 20, desc: 'Biceps Curl ile 20 kg kaldır.' },
+      { id: 'biceps_30', name: '30 kg Biceps', exercise: 'Seated DB Biceps Curl', target: 30, desc: 'Biceps Curl ile 30 kg kaldır.' },
+    ]
+  },
+  {
+    id: 'single_group', label: 'Diğer Hareketler', icon: 'dumbbell',
+    badges: [
+      { id: 'hammer_25',        name: '25 kg Hammer Curl',   exercise: 'Cross-Body Hammer Curl',     target: 25,  desc: 'Hammer Curl ile 25 kg kaldır.' },
+      { id: 'triceps_40',       name: '40 kg Pushdown',      exercise: 'V-Bar Triceps Pushdown',     target: 40,  desc: 'Triceps Pushdown ile 40 kg it.' },
+      { id: 'triceps_60',       name: '60 kg Pushdown',      exercise: 'V-Bar Triceps Pushdown',     target: 60,  desc: 'Triceps Pushdown ile 60 kg it.' },
+      { id: 'shoulder_50',      name: '50 kg Shoulder',      exercise: 'Cable Shoulder',             target: 50,  desc: 'Cable Shoulder ile 50 kg çek.' },
+      { id: 'crunch_60',        name: '60 kg Crunch',        exercise: 'Straight Bar Cable Crunch',  target: 60,  desc: 'Cable Crunch ile 60 kg çek.' },
+      { id: 'incline_bench_60', name: '60 kg İncline',       exercise: 'İncline Bench Press',        target: 60,  desc: 'İncline ile 60 kg kaldır.' },
+    ]
+  },
+  {
+    id: 'streak_group', label: 'Seri / Devam', icon: 'streak',
+    badges: [
+      { id: 'streak_3', name: '3 Günlük Seri', exercise: null, target: 3, desc: 'Haftada 3 gün antrenman yap.' },
+      { id: 'streak_7', name: '7 Günlük Seri', exercise: null, target: 7, desc: '7 gün üst üste antrenman yap.' },
+    ]
+  },
 ];
+
+// Flat list for compatibility
+const ACHIEVEMENT_DEFS = ACHIEVEMENT_GROUPS.flatMap(g => g.badges.map(b => ({...b, icon: g.icon})));
 
 function checkAchievements(exercise, weight) {
   if (!appData.achievements) appData.achievements = {};
+  let anyNew = false;
   ACHIEVEMENT_DEFS.forEach(def => {
-    if (!def.exercise) return; // streak handled separately
-    if (appData.achievements[def.id]) return; // already unlocked
+    if (!def.exercise) return;
+    if (appData.achievements[def.id]) return;
     if (def.exercise === exercise && weight >= def.target) {
       appData.achievements[def.id] = { unlockedAt: Date.now() };
+      anyNew = true;
       saveData();
       showAchievementPopup(def);
       renderAchievements();
@@ -1886,8 +1980,8 @@ function checkAchievements(exercise, weight) {
 function checkStreakAchievements(streak) {
   if (!appData.achievements) appData.achievements = {};
   ACHIEVEMENT_DEFS.forEach(def => {
-    if (def.exercise) return; // not a streak achievement
-    if (appData.achievements[def.id]) return; // already unlocked
+    if (def.exercise) return;
+    if (appData.achievements[def.id]) return;
     if (streak >= def.target) {
       appData.achievements[def.id] = { unlockedAt: Date.now() };
       saveData();
@@ -1901,18 +1995,97 @@ function checkStreakAchievements(streak) {
 function showAchievementPopup(def) {
   const popup = document.getElementById('achievementPopup');
   if (!popup) return;
-  const iconEl = document.getElementById('achievementIcon');
-  iconEl.innerHTML = ACH_ICONS[def.icon] || ACH_ICONS['streak'];
-  document.getElementById('achievementTitle').textContent = 'Tebrikler! ' + def.name;
+  document.getElementById('achievementIcon').innerHTML = ACH_ICONS[def.icon] || ACH_ICONS['star'];
+  document.getElementById('achievementTitle').textContent = '🏆 ' + def.name;
   document.getElementById('achievementDesc').textContent = def.desc + ' 🎉';
+  // Add "Go to Achievements" button
+  let goBtn = document.getElementById('achievementGoBtn');
+  if (!goBtn) {
+    goBtn = document.createElement('button');
+    goBtn.id = 'achievementGoBtn';
+    goBtn.style.cssText = 'margin-top:12px;background:var(--accent-primary);color:white;border:none;border-radius:10px;padding:8px 20px;font-size:0.85rem;font-weight:700;cursor:pointer;';
+    goBtn.textContent = currentLang === 'tr' ? 'Başarımları Gör →' : 'View Achievements →';
+    goBtn.onclick = () => { closeAchievementPopup(); switchPage('achievements'); };
+    popup.querySelector('.achievement-popup-card').appendChild(goBtn);
+  }
   popup.classList.add('show');
   runConfetti();
-  setTimeout(() => closeAchievementPopup(), 5000);
+  setTimeout(() => closeAchievementPopup(), 6000);
 }
 
 window.closeAchievementPopup = function() {
   document.getElementById('achievementPopup')?.classList.remove('show');
 };
+
+function renderAchievements() {
+  const grid = document.getElementById('achievementsGrid');
+  if (!grid) return;
+  if (!appData.achievements) appData.achievements = {};
+  const expanded = appData._achExpanded || {};
+
+  grid.innerHTML = ACHIEVEMENT_GROUPS.map(group => {
+    const totalBadges  = group.badges.length;
+    const unlockedBadges = group.badges.filter(b => appData.achievements[b.id]).length;
+    const allUnlocked  = unlockedBadges === totalBadges;
+    const anyUnlocked  = unlockedBadges > 0;
+    const isExpanded   = expanded[group.id];
+
+    const groupIcon = ACH_ICONS[group.icon] || ACH_ICONS['star'];
+    const headerColor = allUnlocked ? '#FFD700' : anyUnlocked ? 'var(--accent-primary)' : 'var(--text-muted)';
+    const headerBg    = allUnlocked
+      ? 'linear-gradient(135deg,rgba(255,215,0,0.15),rgba(255,165,0,0.08))'
+      : anyUnlocked
+        ? 'rgba(139,124,247,0.08)'
+        : 'var(--bg-card-alt)';
+
+    const badgesHtml = !isExpanded ? '' : group.badges.map(b => {
+      const unlocked = !!appData.achievements[b.id];
+      const LOCK_SVG = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="2"><rect x="5" y="11" width="14" height="11" rx="3"/><path d="M8 11V7a4 4 0 1 1 8 0v4"/></svg>';
+      const badgeBg  = unlocked
+        ? 'linear-gradient(135deg,rgba(255,215,0,0.2),rgba(255,165,0,0.1))'
+        : 'var(--bg-main)';
+      const badgeBorder = unlocked ? '1.5px solid rgba(255,215,0,0.5)' : '1px solid var(--border-subtle)';
+      const nameColor = unlocked ? '#FFD700' : 'var(--text-muted)';
+      const unlockedDate = unlocked && appData.achievements[b.id].unlockedAt
+        ? new Date(appData.achievements[b.id].unlockedAt).toLocaleDateString(currentLang==='tr'?'tr-TR':'en-US',{month:'short',day:'numeric'})
+        : null;
+
+      return `<div style="display:flex;align-items:center;gap:12px;padding:12px 14px;background:${badgeBg};border:${badgeBorder};border-radius:12px;margin-bottom:8px;transition:all 0.2s;">
+        <div style="width:40px;height:40px;border-radius:10px;background:${unlocked?'rgba(255,215,0,0.15)':'rgba(255,255,255,0.05)'};display:flex;align-items:center;justify-content:center;flex-shrink:0;color:${unlocked?'#FFD700':'var(--text-muted)'};position:relative;">
+          ${ACH_ICONS[group.icon] || ACH_ICONS['star']}
+          ${!unlocked ? `<div style="position:absolute;bottom:-2px;right:-2px;">${LOCK_SVG}</div>` : ''}
+        </div>
+        <div style="flex:1;">
+          <div style="font-weight:700;font-size:0.85rem;color:${nameColor};">${b.name}</div>
+          <div style="font-size:0.7rem;color:var(--text-tertiary);margin-top:2px;">${b.desc}</div>
+          ${unlockedDate ? `<div style="font-size:0.65rem;color:#FFD700;margin-top:3px;">✓ ${unlockedDate}</div>` : ''}
+        </div>
+        ${unlocked ? '<svg width="16" height="16" viewBox="0 0 24 24" fill="#FFD700"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>' : ''}
+      </div>`;
+    }).join('');
+
+    const toggleFn = `(function(){var e=window._achExp||(window._achExp={});e['${group.id}']=!e['${group.id}'];appData._achExpanded=e;renderAchievements();})()`;
+
+    return `<div style="margin-bottom:16px;">
+      <div onclick="${toggleFn}" style="cursor:pointer;display:flex;align-items:center;gap:12px;padding:14px 16px;background:${headerBg};border:1px solid ${allUnlocked?'rgba(255,215,0,0.3)':anyUnlocked?'rgba(139,124,247,0.3)':'var(--border-subtle)'};border-radius:14px;transition:all 0.2s;">
+        <div style="width:44px;height:44px;border-radius:12px;background:${allUnlocked?'rgba(255,215,0,0.2)':anyUnlocked?'var(--accent-glow)':'rgba(255,255,255,0.05)'};display:flex;align-items:center;justify-content:center;color:${headerColor};flex-shrink:0;">
+          ${groupIcon}
+        </div>
+        <div style="flex:1;">
+          <div style="font-weight:700;font-size:0.95rem;color:${headerColor};">${group.label}</div>
+          <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:2px;">${unlockedBadges}/${totalBadges} ${currentLang==='tr'?'rozet kazanıldı':'badges earned'}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div style="display:flex;gap:3px;">
+            ${group.badges.map(b => `<div style="width:8px;height:8px;border-radius:50%;background:${appData.achievements[b.id]?'#FFD700':'rgba(255,255,255,0.15)'}"></div>`).join('')}
+          </div>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="${headerColor}" stroke-width="2.5" style="transform:rotate(${isExpanded?'180':'0'}deg);transition:transform .3s;"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+      </div>
+      ${isExpanded ? `<div style="padding:8px 4px 0;">${badgesHtml}</div>` : ''}
+    </div>`;
+  }).join('');
+}
 
 function runConfetti() {
   const canvas = document.getElementById('confettiCanvas');
@@ -1955,23 +2128,6 @@ function runConfetti() {
   animate();
 }
 
-function renderAchievements() {
-  const grid = document.getElementById('achievementsGrid');
-  if (!grid) return;
-  if (!appData.achievements) appData.achievements = {};
-  const CHAIN_SVG = '<svg class="chain-lock" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2"><rect x="5" y="11" width="14" height="11" rx="3" ry="3"/><path d="M8 11V7a4 4 0 1 1 8 0v4"/></svg>';
-  grid.innerHTML = ACHIEVEMENT_DEFS.map(def => {
-    const unlocked = !!appData.achievements[def.id];
-    const iconSvg = ACH_ICONS[def.icon] || ACH_ICONS['streak'];
-    return `<div class="achievement-badge ${unlocked ? 'unlocked' : 'locked'}" title="${def.desc}">
-      <div class="achievement-badge-icon">${iconSvg}${!unlocked ? CHAIN_SVG : ''}</div>
-      <div class="achievement-badge-name">${def.name}</div>
-      ${unlocked
-        ? '<div style="font-size:0.65rem;color:#FFD700;margin-top:4px;display:flex;align-items:center;gap:3px;"><svg width="10" height="10" viewBox="0 0 24 24" fill="#FFD700"><path d="M20 6L9 17l-5-5"/></svg> Kazanıldı</div>'
-        : '<div style="font-size:0.65rem;color:var(--text-tertiary);margin-top:4px;">Kilitli</div>'}
-    </div>`;
-  }).join('');
-}
 
 // =============================================
 // PROGRESS PHOTOS (3.1)
@@ -2009,37 +2165,51 @@ window.handleProgressPhoto = function(event) {
   event.target.value = '';
 };
 
+window.cancelProgressPhoto = function() {
+  _pendingPhotoBase64 = null;
+  document.getElementById('progressPhotoForm').style.display = 'none';
+  document.getElementById('photoDate').value = '';
+  document.getElementById('photoWeight').value = '';
+  document.getElementById('photoHeight').value = '';
+  document.getElementById('photoFat').value = '';
+  document.getElementById('photoNote').value = '';
+};
+
 window.saveProgressPhoto = function() {
   if (!_pendingPhotoBase64) return;
   const date = document.getElementById('photoDate').value || todayStr();
   const weight = parseFloat(document.getElementById('photoWeight').value) || 0;
+  const height = parseFloat(document.getElementById('photoHeight').value) || 0;
+  const fat = parseFloat(document.getElementById('photoFat').value) || 0;
   const note = document.getElementById('photoNote').value.trim().slice(0, 280);
-  if (!date || !weight) {
-    showToast('Tarih ve kilo zorunlu!', 'error');
-    return;
-  }
+  
   if (!appData.progressImages) appData.progressImages = [];
-  appData.progressImages.push({ date, weight, note, image: _pendingPhotoBase64, id: Date.now() });
+  appData.progressImages.push({ date, weight, height, fat, note, image: _pendingPhotoBase64, id: Date.now() });
+  
   _pendingPhotoBase64 = null;
   document.getElementById('progressPhotoForm').style.display = 'none';
   document.getElementById('photoNote').value = '';
+  document.getElementById('photoWeight').value = '';
+  document.getElementById('photoHeight').value = '';
+  document.getElementById('photoFat').value = '';
+  
   saveData();
   renderProgressPhotos();
-  showToast('Fotoğraf kaydedildi! 📸', 'success');
+  showToast(currentLang === 'tr' ? 'Fotoğraf kaydedildi! 📸' : 'Photo saved! 📸', 'success');
 };
 
 window.toggleCompareMode = function() {
   _compareMode = !_compareMode;
-  const btn = document.getElementById('comparePhotosBtn');
+  const btn = document.getElementById('comparePhotosBtnMain');
   const compareView = document.getElementById('compareView');
   const photosGrid = document.getElementById('progressPhotosGrid');
   if (_compareMode) {
-    btn.textContent = 'Kapat';
+    btn.textContent = currentLang === 'tr' ? 'Kapat' : 'Close';
     compareView.style.display = 'grid';
     photosGrid.style.display = 'none';
     renderCompareView();
   } else {
-    btn.textContent = 'Karşılaştır';
+    btn.textContent = currentLang === 'tr' ? 'Karşılaştır' : 'Compare';
     compareView.style.display = 'none';
     photosGrid.style.display = 'grid';
   }
@@ -2050,18 +2220,18 @@ function renderCompareView() {
   if (!container) return;
   const photos = (appData.progressImages || []).sort((a, b) => a.date.localeCompare(b.date));
   if (photos.length < 2) {
-    container.innerHTML = '<div class="logged-empty" style="grid-column:1/-1;">Karşılaştırmak için en az 2 fotoğraf gerekli.</div>';
+    container.innerHTML = `<div class="logged-empty" style="grid-column:1/-1;">${currentLang === 'tr' ? 'Karşılaştırmak için en az 2 fotoğraf gerekli.' : 'Need at least 2 photos to compare.'}</div>`;
     return;
   }
   const first = photos[0];
   const last = photos[photos.length - 1];
   container.innerHTML = [
-    {label: 'Başlangıç', photo: first},
-    {label: 'Son', photo: last}
+    {label: currentLang === 'tr' ? 'Başlangıç' : 'Start', photo: first},
+    {label: currentLang === 'tr' ? 'Son' : 'End', photo: last}
   ].map(({label, photo}) => `
     <div class="compare-photo-wrap">
       <img src="${photo.image}" alt="${label}">
-      <div class="compare-photo-overlay">${label} • ${photo.date} • ${photo.weight} kg</div>
+      <div class="compare-photo-overlay">${label} • ${photo.date} • ${photo.weight ? photo.weight + 'kg' : ''}${photo.fat ? ' • %' + photo.fat + ' Yağ' : ''}</div>
     </div>
   `).join('');
 }
@@ -2071,7 +2241,7 @@ function renderProgressPhotos() {
   if (!grid) return;
   const photos = (appData.progressImages || []).sort((a, b) => b.date.localeCompare(a.date));
   if (photos.length === 0) {
-    grid.innerHTML = '<div class="logged-empty" style="grid-column:1/-1;">Henüz fotoğraf eklenmedi.</div>';
+    grid.innerHTML = `<div class="logged-empty" style="grid-column:1/-1;">${currentLang === 'tr' ? 'Henüz fotoğraf eklenmedi.' : 'No photos added yet.'}</div>`;
     return;
   }
   grid.innerHTML = photos.map(p => `
@@ -2079,20 +2249,122 @@ function renderProgressPhotos() {
       <img src="${p.image}" alt="Progress ${p.date}" loading="lazy">
       <div class="progress-photo-meta">
         <strong>${p.date}</strong>
-        ${p.weight} kg${p.note ? ' • ' + p.note.slice(0, 40) + (p.note.length > 40 ? '…' : '') : ''}
-        <button onclick="deleteProgressPhoto(${p.id})" style="display:block;margin-top:6px;background:rgba(224,84,84,0.15);border:1px solid rgba(224,84,84,0.3);color:#e05454;border-radius:6px;padding:3px 8px;font-size:0.7rem;cursor:pointer;">Sil</button>
+        <div style="font-size: 0.75rem; margin-top: 4px; color: var(--text-secondary);">
+          ${p.height ? p.height + ' cm • ' : ''}${p.weight ? p.weight + ' kg' : ''}${p.fat ? ' • %' + p.fat + ' Yağ' : ''}
+        </div>
+        ${p.note ? `<div style="font-size: 0.75rem; margin-top: 2px; color: var(--text-tertiary);">${p.note}</div>` : ''}
+        <button onclick="deleteProgressPhoto(${p.id})" style="display:block;margin-top:6px;background:rgba(224,84,84,0.15);border:1px solid rgba(224,84,84,0.3);color:#e05454;border-radius:6px;padding:3px 8px;font-size:0.7rem;cursor:pointer;">${currentLang === 'tr' ? 'Sil' : 'Delete'}</button>
       </div>
     </div>
   `).join('');
 }
 
 window.deleteProgressPhoto = function(id) {
-  if (!confirm('Bu fotoğrafı silmek istediğine emin misin?')) return;
+  if (!confirm(currentLang === 'tr' ? 'Bu fotoğrafı silmek istediğine emin misin?' : 'Are you sure you want to delete this photo?')) return;
   appData.progressImages = (appData.progressImages || []).filter(p => p.id !== id);
   saveData();
   renderProgressPhotos();
-  showToast('Fotoğraf silindi.', 'success');
+  showToast(currentLang === 'tr' ? 'Fotoğraf silindi.' : 'Photo deleted.', 'success');
 };
+
+// =============================================
+// BODY MEASUREMENTS TRACKER (task 8)
+// =============================================
+window.saveBodyMeasurement = function() {
+  const date = document.getElementById('measFormDate').value || todayStr();
+  const entry = {
+    id: Date.now(),
+    date,
+    weight:   parseFloat(document.getElementById('measFormWeight').value)   || 0,
+    fat:      parseFloat(document.getElementById('measFormFat').value)      || 0,
+    arm:      parseFloat(document.getElementById('measFormArm').value)      || 0,
+    chest:    parseFloat(document.getElementById('measFormChest').value)    || 0,
+    waist:    parseFloat(document.getElementById('measFormWaist').value)    || 0,
+    hip:      parseFloat(document.getElementById('measFormHip').value)      || 0,
+    leg:      parseFloat(document.getElementById('measFormLeg').value)      || 0,
+    shoulder: parseFloat(document.getElementById('measFormShoulder').value) || 0,
+  };
+  if (!appData.bodyMeasurements) appData.bodyMeasurements = [];
+  appData.bodyMeasurements.push(entry);
+  saveData();
+  document.getElementById('bodyMeasForm').style.display = 'none';
+  ['measFormDate','measFormWeight','measFormFat','measFormArm','measFormChest','measFormWaist','measFormHip','measFormLeg','measFormShoulder']
+    .forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
+  renderBodyMeasurements();
+  showToast(currentLang === 'tr' ? 'Ölçüler kaydedildi! ✓' : 'Measurements saved! ✓', 'success');
+};
+
+window.deleteBodyMeasurement = function(id) {
+  if (!confirm(currentLang === 'tr' ? 'Bu ölçümü silmek istediğine emin misin?' : 'Delete this entry?')) return;
+  appData.bodyMeasurements = (appData.bodyMeasurements || []).filter(e => e.id !== id);
+  saveData();
+  renderBodyMeasurements();
+};
+
+function renderBodyMeasurements() {
+  const container = document.getElementById('bodyMeasHistory');
+  const compareEl  = document.getElementById('bodyMeasCompare');
+  if (!container) return;
+  const entries = (appData.bodyMeasurements || []).sort((a,b) => b.date.localeCompare(a.date));
+
+  if (entries.length === 0) {
+    container.innerHTML = `<div class="logged-empty">${currentLang==='tr' ? 'Henüz ölçüm eklenmedi.' : 'No measurements yet.'}</div>`;
+    if(compareEl) compareEl.style.display = 'none';
+    return;
+  }
+
+  const FIELDS = [
+    {k:'weight',   label: currentLang==='tr'?'Kilo':'Weight',   unit:'kg'},
+    {k:'fat',      label: currentLang==='tr'?'Yağ Oranı':'Body Fat', unit:'%'},
+    {k:'arm',      label: currentLang==='tr'?'Kol':'Arm',       unit:'cm'},
+    {k:'chest',    label: currentLang==='tr'?'Göğüs':'Chest',   unit:'cm'},
+    {k:'waist',    label: currentLang==='tr'?'Bel':'Waist',     unit:'cm'},
+    {k:'hip',      label: currentLang==='tr'?'Kalça':'Hip',     unit:'cm'},
+    {k:'leg',      label: currentLang==='tr'?'Bacak':'Leg',     unit:'cm'},
+    {k:'shoulder', label: currentLang==='tr'?'Omuz':'Shoulder', unit:'cm'},
+  ];
+
+  // Comparison between oldest and newest
+  if (entries.length >= 2 && compareEl) {
+    const newest = entries[0];
+    const oldest = entries[entries.length - 1];
+    compareEl.style.display = 'block';
+    compareEl.innerHTML = `
+      <div style="background:var(--bg-card-alt);border:1px solid var(--border-subtle);border-radius:14px;padding:16px;margin-bottom:4px;">
+        <div style="font-size:0.75rem;color:var(--accent-primary);font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px;">
+          ${currentLang==='tr'?'Karşılaştırma':'Comparison'}: ${oldest.date} → ${newest.date}
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px;">
+          ${FIELDS.filter(f=>oldest[f.k]||newest[f.k]).map(f=>{
+            const diff = (newest[f.k]||0) - (oldest[f.k]||0);
+            const color = diff>0?'#4ecb8d':diff<0?'#f43f5e':'var(--text-muted)';
+            const sign  = diff>0?'+':'';
+            return `<div style="background:var(--bg-main);border-radius:10px;padding:10px;text-align:center;">
+              <div style="font-size:0.65rem;color:var(--text-tertiary);text-transform:uppercase;margin-bottom:4px;">${f.label}</div>
+              <div style="font-size:1rem;font-weight:700;color:var(--text-primary);">${newest[f.k]||'—'} <span style="font-size:.7rem;opacity:.6;">${f.unit}</span></div>
+              ${diff!==0?`<div style="font-size:0.7rem;color:${color};margin-top:2px;">${sign}${diff.toFixed(1)} ${f.unit}</div>`:''}
+            </div>`;
+          }).join('')}
+        </div>
+      </div>`;
+  }
+
+  container.innerHTML = entries.map(e => `
+    <div style="padding:14px;background:var(--bg-card-alt);border:1px solid var(--border-subtle);border-radius:12px;margin-bottom:10px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+        <strong style="color:var(--text-primary);">${e.date}</strong>
+        <button onclick="deleteBodyMeasurement(${e.id})" style="background:rgba(224,84,84,0.1);border:1px solid rgba(224,84,84,0.25);color:#e05454;border-radius:6px;padding:4px 8px;font-size:0.7rem;cursor:pointer;">Sil</button>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:8px;">
+        ${FIELDS.filter(f=>e[f.k]).map(f=>`
+          <div style="background:var(--bg-main);border-radius:8px;padding:8px;text-align:center;">
+            <div style="font-size:.6rem;color:var(--text-tertiary);text-transform:uppercase;">${f.label}</div>
+            <div style="font-size:.95rem;font-weight:700;color:var(--accent-primary);">${e[f.k]} <span style="font-size:.65rem;opacity:.7;">${f.unit}</span></div>
+          </div>`).join('')}
+      </div>
+    </div>`).join('');
+}
+
 
 // =============================================
 // STRENGTH PROGRESS DATA RESET (2.3)
@@ -2931,19 +3203,14 @@ function renderProfilePage() {
   const userRankKey = appData.userRank || 'default';
   const rank = RANKS[userRankKey] || RANKS.default;
 
-  // Achievements (Only Unlocked ones in Profile)
-  const unlockedAchievements = ACHIEVEMENT_DEFS.filter(def => !!(appData.achievements || {})[def.id]);
-  const unlockedCount = unlockedAchievements.length;
-  const achievementsHtml = unlockedCount > 0 ? unlockedAchievements.map(def => {
-    const iconSvg = ACH_ICONS[def.icon] || ACH_ICONS['streak'];
-    return `<div style="display:flex;align-items:center;gap:10px;padding:10px;border-radius:10px;background:rgba(139,124,247,0.1);border:1px solid rgba(139,124,247,0.3);">
-      <div style="width:36px;height:36px;border-radius:10px;background:var(--accent-glow);display:flex;align-items:center;justify-content:center;color:var(--accent-primary);">${iconSvg}</div>
-      <div>
-        <div style="font-weight:600;font-size:0.85rem;color:var(--text-primary);">${def.name}</div>
-        <div style="font-size:0.7rem;color:var(--text-tertiary);">Kazanıldı</div>
-      </div>
-    </div>`;
-  }).join('') : '<div style="font-size:0.8rem;color:var(--text-tertiary);text-align:center;padding:20px 0;">Henüz başarı kazanılmadı. İlk hedefini tamamla!</div>';
+  // Achievements showcase (max 3 selected by user)
+  const allUnlocked = ACHIEVEMENT_DEFS.filter(def => !!(appData.achievements || {})[def.id]);
+  const unlockedCount = allUnlocked.length;
+  const selectedIds = (appData.profile && appData.profile.showcaseBadges) || [];
+  const showcaseBadges = selectedIds
+    .map(id => ACHIEVEMENT_DEFS.find(d => d.id === id))
+    .filter(Boolean)
+    .filter(d => allUnlocked.find(u => u.id === d.id));
 
   // PRs
   const prs = {};
@@ -3061,10 +3328,42 @@ function renderProfilePage() {
     <!-- Achievements in Profile -->
     <section class="card" style="margin-bottom:20px;">
       <div class="card-header">
-        <h3 class="card-title">Basarimlar</h3>
-        <span class="card-badge" style="background:rgba(139,124,247,0.15);color:var(--accent-primary);">${unlockedCount}/${ACHIEVEMENT_DEFS.length}</span>
+    <!-- Achievements Showcase -->
+    <section class="card" style="margin-bottom:20px;">
+      <div class="card-header">
+        <h3 class="card-title">Vitrin Başarımları</h3>
+        <span class="card-badge" style="background:rgba(255,215,0,0.15);color:#FFD700;">${unlockedCount}/${ACHIEVEMENT_DEFS.length}</span>
       </div>
-      <div style="display:grid;gap:10px;">${achievementsHtml}</div>
+      <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:14px;">Profilinde göstermek istediğin 3 rozeti seç.</div>
+      <!-- Showcase Display -->
+      <div style="display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap;">
+        ${[0,1,2].map(i => {
+          const badge = showcaseBadges[i];
+          if (badge) {
+            return `<div style="flex:1;min-width:80px;background:linear-gradient(135deg,rgba(255,215,0,0.15),rgba(255,165,0,0.08));border:1.5px solid rgba(255,215,0,0.4);border-radius:14px;padding:14px;text-align:center;">
+              <div style="color:#FFD700;margin-bottom:6px;">${ACH_ICONS[badge.icon]||ACH_ICONS['star']}</div>
+              <div style="font-size:0.7rem;font-weight:700;color:#FFD700;">${badge.name}</div>
+            </div>`;
+          }
+          return `<div style="flex:1;min-width:80px;background:var(--bg-card-alt);border:1.5px dashed rgba(255,255,255,0.1);border-radius:14px;padding:14px;text-align:center;color:var(--text-muted);">
+            <div style="font-size:1.5rem;margin-bottom:4px;">🔒</div>
+            <div style="font-size:0.7rem;">Boş Slot</div>
+          </div>`;
+        }).join('')}
+      </div>
+      <!-- Badge Selector -->
+      ${allUnlocked.length > 0 ? `
+      <div style="font-size:0.72rem;color:var(--text-tertiary);text-transform:uppercase;font-weight:700;letter-spacing:.06em;margin-bottom:10px;">Kazanılan Rozetler</div>
+      <div style="display:grid;gap:8px;">
+        ${allUnlocked.map(def => {
+          const isSelected = selectedIds.includes(def.id);
+          return `<div onclick="toggleShowcaseBadge('${def.id}')" style="cursor:pointer;display:flex;align-items:center;gap:10px;padding:10px 12px;background:${isSelected?'linear-gradient(135deg,rgba(255,215,0,0.15),rgba(255,165,0,0.08))':'var(--bg-card-alt)'};border:${isSelected?'1.5px solid rgba(255,215,0,0.5)':'1px solid var(--border-subtle)'};border-radius:10px;transition:all 0.2s;">
+            <div style="width:34px;height:34px;border-radius:8px;background:${isSelected?'rgba(255,215,0,0.15)':'rgba(255,255,255,0.05)'};display:flex;align-items:center;justify-content:center;color:${isSelected?'#FFD700':'var(--text-muted)'};flex-shrink:0;">${ACH_ICONS[def.icon]||ACH_ICONS['star']}</div>
+            <div style="flex:1;font-size:0.82rem;font-weight:600;color:${isSelected?'#FFD700':'var(--text-primary)'};">${def.name}</div>
+            ${isSelected?'<svg width="16" height="16" viewBox="0 0 24 24" fill="#FFD700"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>':''}
+          </div>`;
+        }).join('')}
+      </div>` : '<div style="font-size:0.8rem;color:var(--text-tertiary);text-align:center;padding:16px 0;">Henüz rozet kazanılmadı. Egzersiz log et!</div>'}
     </section>
   `;
 
@@ -3077,6 +3376,24 @@ function renderProfilePage() {
     });
   }
 }
+
+window.toggleShowcaseBadge = function(id) {
+  if (!appData.profile) appData.profile = {};
+  const list = appData.profile.showcaseBadges ? [...appData.profile.showcaseBadges] : [];
+  const idx = list.indexOf(id);
+  if (idx >= 0) {
+    list.splice(idx, 1);
+  } else {
+    if (list.length >= 3) {
+      showToast(currentLang === 'tr' ? 'En fazla 3 rozet seçebilirsin!' : 'Max 3 badges allowed!', 'error');
+      return;
+    }
+    list.push(id);
+  }
+  appData.profile.showcaseBadges = list;
+  saveData();
+  renderProfilePage();
+};
 
 window.handleProfilePhotoChange = function(event) {
   const file = event.target.files[0];
@@ -3181,29 +3498,23 @@ function updateUserUI(user){
   
   if (signOutBtn) signOutBtn.style.display = user ? 'block' : 'none';
 
-  // Rank Display — place badge BEFORE the name in sidebar
+  // Rank Display
   const userRankKey = appData.userRank || (user && user.email === 'wupard@gmail.com' ? 'mod' : 'default');
   const rank = RANKS[userRankKey] || RANKS.default;
 
-  // Remove old rank badge if exists
-  const oldRank = document.getElementById('userRankInfo');
-  if (oldRank) oldRank.remove();
+  const rankBadge = document.getElementById('userRank');
+  if (rankBadge) {
+    if (user) {
+      rankBadge.style.display = 'inline-block';
+      rankBadge.textContent = rank.label;
+      rankBadge.style.color = rank.color;
+      rankBadge.style.background = rank.bg;
+    } else {
+      rankBadge.style.display = 'none';
+    }
+  }
 
   if (user) {
-    const rankBadge = document.createElement('span');
-    rankBadge.id = 'userRankInfo';
-    rankBadge.textContent = rank.label;
-    rankBadge.style.cssText = `font-size:0.6rem;font-weight:900;letter-spacing:0.06em;padding:2px 7px;border-radius:5px;color:${rank.color};background:${rank.bg};display:inline-block;`;
-    // Insert before name in parent
-    const userInfo = name.closest('.user-info');
-    if (userInfo) {
-      // Make user-info flex column, insert rank above name
-      userInfo.style.display = 'flex';
-      userInfo.style.flexDirection = 'column';
-      userInfo.style.gap = '2px';
-      userInfo.insertBefore(rankBadge, name);
-    }
-
     checkUserBan(user);
   }
 

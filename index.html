@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=2.4">
+  <link rel="stylesheet" href="styles.css?v=2.5">
 </head>
 <body>
 
@@ -79,11 +79,11 @@
       </a>
       <a href="#" class="nav-item" data-page="beforeafter" id="nav-beforeafter">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="9" height="18" rx="1"/><rect x="13" y="3" width="9" height="18" rx="1"/></svg>
-        <span>Gelişim</span>
+        <span data-i18n="beforeAfter">Gelişim</span>
       </a>
       <a href="#" class="nav-item" data-page="achievements" id="nav-achievements">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>
-        <span>Başarımlar</span>
+        <span data-i18n="achievements">Başarımlar</span>
       </a>
       <div class="sidebar-separator" style="height: 1px; background: var(--border-subtle); margin: 12px 14px; opacity: var(--sidebar-divider-opacity); box-shadow: inset 0 -1px 0 rgba(0,0,0,0.08);"></div>
       <a href="https://wupard.xyz" class="nav-item nav-item-wupard" target="_blank" rel="noopener noreferrer">
@@ -102,13 +102,18 @@
     </div>
 
     <div class="sidebar-footer" id="sidebar-footer" style="cursor:pointer;" onclick="switchPage('profile'); document.getElementById('sidebar').classList.remove('open');">
-      <div class="user-avatar" id="userAvatar">Z</div>
-      <div class="user-info">
-        <span class="user-name" id="userName">User</span>
-        <span class="user-status" id="userStatus">● Local Mode</span>
+      <div style="display:flex; align-items:center; flex:1; gap: 10px; overflow: hidden;">
+        <div class="user-avatar" id="userAvatar" style="flex-shrink:0;">Z</div>
+        <div class="user-info" style="display:flex; flex-direction:column; align-items:flex-start; overflow: hidden;">
+          <div style="display:flex; align-items:center; gap: 6px; width: 100%;">
+            <span class="user-rank" id="userRank" style="font-size: 0.65rem; background: var(--accent-primary); color: white; padding: 2px 6px; border-radius: 4px; font-weight: bold; text-transform: uppercase; flex-shrink:0;">Üye</span>
+            <span class="user-name" id="userName" style="font-size: 0.95rem; font-weight: bold; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">User</span>
+          </div>
+          <span class="user-status" id="userStatus" style="font-size: 0.75rem; color: var(--text-muted); display:flex; align-items:center; gap: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">● Local Mode</span>
+        </div>
       </div>
-      <button class="signout-btn" id="signOutBtn" title="Sign Out" style="display:none;">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      <button class="signout-btn" id="signOutBtn" title="Sign Out" style="display:none; flex-shrink:0; background: none; border: none; color: var(--text-muted); cursor: pointer; padding: 6px; border-radius: 8px; margin-left: auto;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
       </button>
     </div>
   </aside>
@@ -415,15 +420,15 @@
         <form class="log-form" id="logForm">
           <div class="log-row log-row-top">
             <div class="log-field">
-              <label for="logCategory">Kategori</label>
+              <label for="logCategory" data-i18n="lblCategory">Kategori</label>
               <select id="logCategory" class="log-input">
-                <option value="all">Tümü (Tüm Vücut)</option>
-                <option value="legs">Bacak &amp; Kalça</option>
-                <option value="chest">Göğüs</option>
-                <option value="back">Sırt &amp; Kanat</option>
-                <option value="shoulders">Omuz</option>
-                <option value="arms">Kollar</option>
-                <option value="core">Karın &amp; Merkez</option>
+                <option value="all" data-i18n="catAll">Tümü (Tüm Vücut)</option>
+                <option value="legs" data-i18n="catLegs">Bacak &amp; Kalça</option>
+                <option value="chest" data-i18n="catChest">Göğüs</option>
+                <option value="back" data-i18n="catBack">Sırt &amp; Kanat</option>
+                <option value="shoulders" data-i18n="catShoulders">Omuz</option>
+                <option value="arms" data-i18n="catArms">Kollar</option>
+                <option value="core" data-i18n="catCore">Karın &amp; Merkez</option>
               </select>
             </div>
             <div class="log-field">
@@ -433,7 +438,7 @@
           </div>
           <div class="log-row">
             <div class="log-field">
-              <label for="logWeight">Ağırlık</label>
+              <label for="logWeight" data-i18n="weightLabel">Ağırlık</label>
               <div style="display: flex; gap: 8px; align-items: flex-end;">
                 <input type="number" id="logWeight" class="log-input" placeholder="80" step="0.5" min="0" style="flex: 1;">
                 <!-- 1.5: Custom styled radio buttons for kg/lbs -->
@@ -452,11 +457,11 @@
               </div>
             </div>
             <div class="log-field">
-              <label for="logReps">Reps</label>
+              <label for="logReps" data-i18n="repetitions">Reps</label>
               <input type="number" id="logReps" class="log-input" placeholder="8" min="1">
             </div>
             <div class="log-field">
-              <label for="logSets">Sets</label>
+              <label for="logSets" data-i18n="sets">Sets</label>
               <input type="number" id="logSets" class="log-input" placeholder="4" min="1">
             </div>
           </div>
@@ -550,18 +555,7 @@
           <!-- React-like component rendered from JS -->
         </div>
       </section>
-      <section class="card">
-        <div class="card-header" id="prTableHeader" onclick="togglePRTable()" style="cursor:pointer;user-select:none;">
-          <h3 class="card-title" data-i18n="personalRecords">Personal Records</h3>
-          <div style="display:flex;align-items:center;gap:8px;">
-            <span style="font-size:0.72rem;color:var(--text-tertiary);" id="prCountBadge"></span>
-            <svg id="prToggleIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="transition:transform 0.3s;"><polyline points="18 15 12 9 6 15"/></svg>
-          </div>
-        </div>
-        <div id="prTableWrap" class="pr-table" id="prTable">
-          <div id="prTable" class="pr-table"></div>
-        </div>
-      </section>
+
     </div>
 
     <!-- ============ PAGE: NOTES ============ -->
@@ -658,23 +652,23 @@
       <div class="calc-container">
         <!-- Calculator Sidebar Menu -->
         <div class="calc-sidebar card">
-          <button class="calc-nav-btn" data-calc="1rm">
+          <button class="calc-nav-btn" data-calc="1rm" data-i18n="calc1RM">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
             1RM Hesapla
           </button>
-          <button class="calc-nav-btn active" data-calc="converter">
+          <button class="calc-nav-btn active" data-calc="converter" data-i18n="calcConverter">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v18"/><rect x="4" y="6" width="6" height="4"/><rect x="14" y="14" width="6" height="4"/><path d="M7 3h10"/></svg>
             Birim Dönüştürücü
           </button>
-          <button class="calc-nav-btn" data-calc="bfp">
+          <button class="calc-nav-btn" data-calc="bfp" data-i18n="calcBfp">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
             Yağ Oranı
           </button>
-          <button class="calc-nav-btn" data-calc="growth">
+          <button class="calc-nav-btn" data-calc="growth" data-i18n="calcGrowth">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
             Gelişim
           </button>
-          <button class="calc-nav-btn" data-calc="macros">
+          <button class="calc-nav-btn" data-calc="macros" data-i18n="calcMacros">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
             Makro/Kalori
           </button>
@@ -977,11 +971,90 @@
         </div>
       </div>
       <input type="file" id="progressPhotoInputMain" accept="image/*" style="display:none" onchange="handleProgressPhoto(event)">
-      <div id="progressPhotoForm" style="display:none;padding:16px;background:var(--bg-input);border-radius:12px;margin-bottom:16px;border:1px solid var(--border-card);"></div>
+      <div id="progressPhotoForm" style="display:none;padding:16px;background:var(--bg-input);border-radius:12px;margin-bottom:16px;border:1px solid var(--border-card);">
+        <div class="log-row">
+          <div class="log-field">
+            <label>Tarih</label>
+            <input type="date" id="photoDate" class="log-input">
+          </div>
+          <div class="log-field">
+            <label>Boy (cm)</label>
+            <input type="number" id="photoHeight" class="log-input" placeholder="örn: 180">
+          </div>
+          <div class="log-field">
+            <label>Kilo (kg)</label>
+            <input type="number" id="photoWeight" class="log-input" placeholder="örn: 80">
+          </div>
+        </div>
+        <div class="log-row">
+          <div class="log-field">
+            <label>Yağ Oranı (%)</label>
+            <input type="number" id="photoFat" class="log-input" placeholder="örn: 15">
+          </div>
+          <div class="log-field">
+            <label>Vücut Ölçüleri (Not)</label>
+            <input type="text" id="photoNote" class="log-input" placeholder="Kol: 38cm, Bel: 85cm...">
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:12px;">
+          <button class="btn-primary" style="flex:1;" onclick="saveProgressPhoto()">Kaydet</button>
+          <button class="btn-small" style="background:var(--bg-card);color:var(--text-primary);border:1px solid var(--border-subtle);" onclick="cancelProgressPhoto()">İptal</button>
+        </div>
+      </div>
       <div id="compareView" class="compare-view" style="display:none;"></div>
       <div class="progress-photos-grid" id="progressPhotosGrid">
         <div class="logged-empty" style="grid-column:1/-1;">Henüz fotoğraf eklenmedi.</div>
       </div>
+    </section>
+
+    <section class="card">
+      <div class="card-header" id="prTableHeader" onclick="togglePRTable()" style="cursor:pointer;user-select:none;">
+        <h3 class="card-title" data-i18n="personalRecords">Personal Records</h3>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span style="font-size:0.72rem;color:var(--text-tertiary);" id="prCountBadge"></span>
+          <svg id="prToggleIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="transition:transform 0.3s;"><polyline points="18 15 12 9 6 15"/></svg>
+        </div>
+      </div>
+      <div id="prTableWrap" class="pr-table" style="display:none; transition: all 0.3s ease;">
+        <div id="prTable" class="pr-table-content"></div>
+      </div>
+    </section>
+
+    <!-- Body Measurements Tracker -->
+    <section class="card">
+      <div class="card-header">
+        <h3 class="card-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:6px;"><path d="M2 12h5l2 9 4-18 2 9h5"/></svg>
+          Vücut Ölçüleri
+        </h3>
+        <button class="btn-small" onclick="document.getElementById('bodyMeasForm').style.display = document.getElementById('bodyMeasForm').style.display === 'none' ? 'block' : 'none'">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Ölçü Ekle
+        </button>
+      </div>
+      <div id="bodyMeasForm" style="display:none; padding:16px; background:var(--bg-input); border-radius:12px; margin-bottom:16px; border:1px solid var(--border-card);">
+        <div class="log-row">
+          <div class="log-field"><label>Tarih</label><input type="date" id="measFormDate" class="log-input"></div>
+          <div class="log-field"><label>Kilo (kg)</label><input type="number" id="measFormWeight" class="log-input" placeholder="80" step="0.1"></div>
+          <div class="log-field"><label>Yağ Oranı (%)</label><input type="number" id="measFormFat" class="log-input" placeholder="15" step="0.1"></div>
+        </div>
+        <div class="log-row">
+          <div class="log-field"><label>Kol (cm)</label><input type="number" id="measFormArm" class="log-input" placeholder="38" step="0.1"></div>
+          <div class="log-field"><label>Göğüs (cm)</label><input type="number" id="measFormChest" class="log-input" placeholder="100" step="0.1"></div>
+          <div class="log-field"><label>Bel (cm)</label><input type="number" id="measFormWaist" class="log-input" placeholder="85" step="0.1"></div>
+        </div>
+        <div class="log-row">
+          <div class="log-field"><label>Kalça (cm)</label><input type="number" id="measFormHip" class="log-input" placeholder="100" step="0.1"></div>
+          <div class="log-field"><label>Bacak (cm)</label><input type="number" id="measFormLeg" class="log-input" placeholder="58" step="0.1"></div>
+          <div class="log-field"><label>Omuz (cm)</label><input type="number" id="measFormShoulder" class="log-input" placeholder="115" step="0.1"></div>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:12px;">
+          <button class="btn-primary" style="flex:1;" onclick="saveBodyMeasurement()">Kaydet</button>
+          <button class="btn-small" style="background:var(--bg-card);color:var(--text-primary);border:1px solid var(--border-subtle);" onclick="document.getElementById('bodyMeasForm').style.display='none'">İptal</button>
+        </div>
+      </div>
+      <div id="bodyMeasCompare" style="display:none; margin-bottom:16px;"></div>
+      <div id="bodyMeasHistory"></div>
     </section>
   </div>
 
@@ -1033,6 +1106,6 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
   <script src="firebase-config.js"></script>
-  <script src="app.js?v=2.3"></script>
+  <script src="app.js?v=2.4"></script>
 </body>
 </html>
