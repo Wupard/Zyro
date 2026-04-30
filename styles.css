@@ -112,7 +112,7 @@ h1,h2,h3,h4{font-family:'Space Grotesk','Inter',sans-serif;font-weight:600;lette
 @keyframes logoRingSpin{from{border-color:rgba(139,124,247,0.3)}50%{border-color:rgba(208,150,247,0.3)}to{border-color:rgba(139,124,247,0.3)}}
 
 .brand-icon-lg{font-size:1.6rem;color:var(--accent-primary);filter:drop-shadow(0 0 10px rgba(139,124,247,0.4))}
-.auth-title{font-size:2.2rem;font-weight:700;margin-bottom:6px;background:linear-gradient(135deg,var(--text-primary),var(--text-accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.auth-title{font-size:2.2rem;font-weight:700;margin-bottom:6px;background:linear-gradient(135deg,var(--text-primary),var(--text-accent));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
 .auth-subtitle{color:var(--text-secondary);font-size:.85rem;margin-bottom:34px}
 
 .google-signin-btn{
@@ -261,7 +261,7 @@ body.sidebar-collapsed .signout-btn { display:none; }
 
 .header{display:flex;flex-direction:column;align-items:flex-start;margin-bottom:22px;padding-bottom:16px;border-bottom:1px solid var(--border-subtle);width:100%}
 .header-left{display:flex;align-items:center;gap:16px}
-.greeting{font-size:1.6rem;font-weight:700;line-height:1.2;background:linear-gradient(135deg,var(--text-primary),var(--text-accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.greeting{font-size:1.6rem;font-weight:700;line-height:1.2;background:linear-gradient(135deg,var(--text-primary),var(--text-accent));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
 .date-display{font-size:.82rem;color:var(--text-secondary);margin-top:3px}
 
 .streak-badge{
@@ -346,7 +346,7 @@ body.sidebar-collapsed .signout-btn { display:none; }
 .page.active{display:block}
 @keyframes pageIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 
-.page-title{font-size:1.4rem;font-weight:700;margin-bottom:22px;background:linear-gradient(135deg,var(--text-primary),var(--text-accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.page-title{font-size:1.4rem;font-weight:700;margin-bottom:22px;background:linear-gradient(135deg,var(--text-primary),var(--text-accent));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
 .page-header-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
 
 /* ===========================
@@ -428,14 +428,14 @@ body.sidebar-collapsed .signout-btn { display:none; }
 /* ===========================
    MUSCLE BODY MAP (Pure SVG Vector)
    =========================== */
-.body-map-container{display:flex;gap:28px;align-items:flex-start}
+.body-map-container{display:flex;gap:20px;align-items:flex-start}
 .body-map-visual-wrap{
   flex-shrink:0;
-  width: 240px;
+  width: 200px;
   background: linear-gradient(145deg, #111115, #0d0d12);
   border-radius:var(--radius-md);
-  padding:20px 16px;
-  display:flex;align-items:center;justify-content:center;
+  padding:16px 12px;
+  display:flex;flex-direction:column;align-items:center;
   border:1px solid rgba(255,255,255,0.06);
   box-shadow: inset 0 2px 8px rgba(0,0,0,0.4);
 }
@@ -471,18 +471,21 @@ body.sidebar-collapsed .signout-btn { display:none; }
 
 .intensity-high {
   fill: #EF5350 !important;
-  filter: drop-shadow(0 0 8px rgba(239, 83, 80, 0.6)) !important;
-  stroke: rgba(239, 83, 80, 0.4) !important;
+  filter: drop-shadow(0 0 7px rgba(239, 83, 80, 0.65)) !important;
+  stroke: rgba(239, 83, 80, 0.5) !important;
+  stroke-width: 0.6 !important;
 }
 .intensity-mid {
-  fill: #FFA726 !important;
-  filter: drop-shadow(0 0 6px rgba(255, 167, 38, 0.5)) !important;
-  stroke: rgba(255, 167, 38, 0.3) !important;
+  fill: #FF7043 !important;
+  filter: drop-shadow(0 0 5px rgba(255, 112, 67, 0.55)) !important;
+  stroke: rgba(255, 112, 67, 0.35) !important;
+  stroke-width: 0.5 !important;
 }
 .intensity-low {
   fill: #FFD54F !important;
-  filter: drop-shadow(0 0 4px rgba(255, 213, 79, 0.4)) !important;
-  stroke: rgba(255, 213, 79, 0.25) !important;
+  filter: drop-shadow(0 0 4px rgba(255, 213, 79, 0.45)) !important;
+  stroke: rgba(255, 213, 79, 0.3) !important;
+  stroke-width: 0.4 !important;
 }
 
 .body-map-legend{flex:1;padding-top:8px}
@@ -1149,7 +1152,7 @@ textarea:not(.note-input) { resize: none !important; min-height: 80px; max-heigh
   font-family: 'Space Grotesk', sans-serif;
   font-size: 1.4rem; font-weight: 800; margin-bottom: 8px;
   background: linear-gradient(135deg, #FFD700, #FFA500);
-  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
 }
 .achievement-popup-desc { color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 24px; }
 .achievement-popup-close {
@@ -1183,6 +1186,7 @@ textarea:not(.note-input) { resize: none !important; min-height: 80px; max-heigh
 .weekly-goal-slider {
   width: 100%; height: 6px;
   -webkit-appearance: none;
+  appearance: none;
   background: linear-gradient(90deg, var(--accent-primary) var(--fill), var(--border-card) var(--fill));
   border-radius: 3px; outline: none; cursor: pointer;
 }
@@ -1715,4 +1719,35 @@ html {
   .stat-card { padding: 12px; }
   .stat-icon-wrap { margin-bottom: 8px; }
   .stat-value { font-size: 1.1rem; }
+}
+
+/* ===========================
+   ACHIEVEMENT PAGE — Professional Redesign
+   =========================== */
+
+/* PC: 2-column grid for achievement groups */
+@media (min-width: 900px) {
+  #achievementsGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+}
+
+/* Mobile: single column stack */
+@media (max-width: 899px) {
+  #achievementsGrid {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+}
+
+/* Subtle hover lift on each group card */
+#achievementsGrid > div {
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+#achievementsGrid > div:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 28px rgba(0,0,0,0.35);
 }

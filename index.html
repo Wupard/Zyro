@@ -197,12 +197,182 @@
       </section>
 
       <div class="dashboard-grid">
-        <!-- Muscle Map -->
-        <section class="card body-map-card">
-          <div class="card-header">
-            <h2 class="card-title" data-i18n="muscleMap">Muscle Map</h2>
-            <span class="card-badge" data-i18n="thisWeek">This Week</span>
+        <!-- Muscle Map — Premium Redesign -->
+        <section class="card body-map-card" style="padding:0;overflow:hidden;">
+          <!-- Header -->
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:18px 20px 14px;">
+            <h2 class="card-title" style="margin:0;" data-i18n="muscleMap">Kas Haritası</h2>
+            <!-- Today / Week toggle -->
+            <div style="display:flex;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:3px;gap:2px;">
+              <button id="mmBtnToday" onclick="setMuscleRange('today')" style="font-size:0.72rem;font-weight:700;padding:4px 12px;border-radius:6px;border:none;cursor:pointer;background:var(--accent-primary);color:#fff;transition:all 0.2s;">Bugün</button>
+              <button id="mmBtnWeek" onclick="setMuscleRange('week')" style="font-size:0.72rem;font-weight:700;padding:4px 12px;border-radius:6px;border:none;cursor:pointer;background:transparent;color:var(--text-muted);transition:all 0.2s;">Bu Hafta</button>
+            </div>
           </div>
+
+          <div class="body-map-container" style="padding:0 20px 20px;">
+            <!-- SVG Panel -->
+            <div class="body-map-visual-wrap">
+              <!-- Front / Back toggle (pill style) -->
+              <div style="display:flex;justify-content:center;margin-bottom:12px;">
+                <div style="display:flex;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:20px;padding:3px;gap:2px;">
+                  <label style="cursor:pointer;">
+                    <input type="radio" name="muscleView" value="front" checked onchange="updateMuscleMap()" style="display:none;">
+                    <span id="mvLabelFront" style="display:block;font-size:0.75rem;font-weight:700;padding:5px 18px;border-radius:16px;background:var(--accent-primary);color:#fff;transition:all 0.2s;">Ön</span>
+                  </label>
+                  <label style="cursor:pointer;">
+                    <input type="radio" name="muscleView" value="back" onchange="updateMuscleMap()" style="display:none;">
+                    <span id="mvLabelBack" style="display:block;font-size:0.75rem;font-weight:700;padding:5px 18px;border-radius:16px;background:transparent;color:var(--text-muted);transition:all 0.2s;">Arka</span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- FRONT VIEW SVG -->
+              <div class="muscle-map-view" id="muscleViewFront">
+                <svg viewBox="0 0 160 360" class="muscle-svg" xmlns="http://www.w3.org/2000/svg">
+                  <defs>
+                    <radialGradient id="bodyGF" cx="50%" cy="35%" r="55%">
+                      <stop offset="0%" stop-color="#2e2e36"/>
+                      <stop offset="100%" stop-color="#1a1a22"/>
+                    </radialGradient>
+                    <!-- Glow filters per intensity -->
+                    <filter id="glowLow"><feGaussianBlur stdDeviation="2" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+                    <filter id="glowMid"><feGaussianBlur stdDeviation="3" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+                    <filter id="glowHigh"><feGaussianBlur stdDeviation="4" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+                  </defs>
+
+                  <!-- ── BODY SILHOUETTE ── -->
+                  <!-- Head -->
+                  <ellipse cx="80" cy="16" rx="13" ry="15" fill="url(#bodyGF)" stroke="#2a2a34" stroke-width="1"/>
+                  <!-- Neck -->
+                  <rect x="74" y="29" width="12" height="9" rx="3" fill="#1e1e26"/>
+                  <!-- Torso -->
+                  <path d="M54,38 L42,46 L36,60 L34,80 L36,110 L40,130 L46,148 L52,165 L60,175 L68,180 L80,182 L92,180 L100,175 L108,165 L114,148 L120,130 L124,110 L126,80 L124,60 L118,46 L106,38 Z" fill="url(#bodyGF)" stroke="#2a2a34" stroke-width="0.8"/>
+                  <!-- Left Arm -->
+                  <path d="M36,60 L24,70 L18,92 L16,118 L18,142 L22,155 L28,158 L32,155 L30,132 L28,108 L30,84 L36,68 Z" fill="url(#bodyGF)" stroke="#2a2a34" stroke-width="0.8"/>
+                  <!-- Right Arm -->
+                  <path d="M124,60 L136,70 L142,92 L144,118 L142,142 L138,155 L132,158 L128,155 L130,132 L132,108 L130,84 L124,68 Z" fill="url(#bodyGF)" stroke="#2a2a34" stroke-width="0.8"/>
+                  <!-- Left Leg -->
+                  <path d="M60,180 L54,210 L52,245 L54,280 L56,305 L58,332 L60,350 L66,355 L72,352 L74,335 L72,305 L70,275 L72,245 L76,210 L80,182 Z" fill="url(#bodyGF)" stroke="#2a2a34" stroke-width="0.8"/>
+                  <!-- Right Leg -->
+                  <path d="M100,180 L104,210 L108,245 L110,275 L108,305 L106,335 L108,352 L114,355 L120,350 L122,332 L124,305 L126,280 L128,245 L126,210 L120,182 Z" fill="url(#bodyGF)" stroke="#2a2a34" stroke-width="0.8"/>
+
+                  <!-- ── FRONT MUSCLES ── -->
+                  <!-- Chest L -->
+                  <path id="mf_chest_L" data-muscle="chest" class="muscle-part" d="M56,44 Q66,38 80,42 L80,70 Q70,76 56,70 L50,56 Z" rx="4"/>
+                  <!-- Chest R -->
+                  <path id="mf_chest_R" data-muscle="chest" class="muscle-part" d="M104,44 Q94,38 80,42 L80,70 Q90,76 104,70 L110,56 Z" rx="4"/>
+                  <!-- Front Delt L -->
+                  <ellipse id="mf_fdelt_L" data-muscle="shoulders" class="muscle-part" cx="42" cy="56" rx="10" ry="8"/>
+                  <!-- Front Delt R -->
+                  <ellipse id="mf_fdelt_R" data-muscle="shoulders" class="muscle-part" cx="118" cy="56" rx="10" ry="8"/>
+                  <!-- Biceps L -->
+                  <rect id="mf_bicep_L" data-muscle="biceps" class="muscle-part" x="18" y="76" width="15" height="38" rx="7"/>
+                  <!-- Biceps R -->
+                  <rect id="mf_bicep_R" data-muscle="biceps" class="muscle-part" x="127" y="76" width="15" height="38" rx="7"/>
+                  <!-- Forearms L -->
+                  <rect id="mf_fore_L" data-muscle="forearms" class="muscle-part" x="17" y="120" width="13" height="32" rx="6"/>
+                  <!-- Forearms R -->
+                  <rect id="mf_fore_R" data-muscle="forearms" class="muscle-part" x="130" y="120" width="13" height="32" rx="6"/>
+                  <!-- Abs top -->
+                  <rect id="mf_abs1L" data-muscle="abs" class="muscle-part" x="72" y="76" width="7" height="11" rx="3"/>
+                  <rect id="mf_abs1R" data-muscle="abs" class="muscle-part" x="81" y="76" width="7" height="11" rx="3"/>
+                  <!-- Abs mid -->
+                  <rect id="mf_abs2L" data-muscle="abs" class="muscle-part" x="71" y="90" width="7" height="11" rx="3"/>
+                  <rect id="mf_abs2R" data-muscle="abs" class="muscle-part" x="82" y="90" width="7" height="11" rx="3"/>
+                  <!-- Abs lower -->
+                  <rect id="mf_abs3L" data-muscle="abs" class="muscle-part" x="71" y="104" width="7" height="11" rx="3"/>
+                  <rect id="mf_abs3R" data-muscle="abs" class="muscle-part" x="82" y="104" width="7" height="11" rx="3"/>
+                  <!-- Obliques L -->
+                  <path id="mf_obl_L" data-muscle="obliques" class="muscle-part" d="M56,72 L70,76 L70,130 L56,138 Q50,110 52,90 Z"/>
+                  <!-- Obliques R -->
+                  <path id="mf_obl_R" data-muscle="obliques" class="muscle-part" d="M104,72 L90,76 L90,130 L104,138 Q110,110 108,90 Z"/>
+                  <!-- Quads L -->
+                  <path id="mf_quad_L" data-muscle="quads" class="muscle-part" d="M58,184 Q54,215 54,250 L56,285 Q60,300 66,304 L74,302 Q78,288 76,255 L74,218 L72,184 Z"/>
+                  <!-- Quads R -->
+                  <path id="mf_quad_R" data-muscle="quads" class="muscle-part" d="M102,184 Q106,215 106,250 L104,285 Q100,300 94,304 L86,302 Q82,288 84,255 L86,218 L88,184 Z"/>
+                  <!-- Calves L -->
+                  <path id="mf_calf_L" data-muscle="calves" class="muscle-part" d="M56,310 Q54,328 55,344 L58,355 L66,357 L72,354 L72,340 L70,320 L66,310 Z"/>
+                  <!-- Calves R -->
+                  <path id="mf_calf_R" data-muscle="calves" class="muscle-part" d="M104,310 Q106,328 105,344 L102,355 L94,357 L88,354 L88,340 L90,320 L94,310 Z"/>
+                </svg>
+              </div>
+
+              <!-- BACK VIEW SVG -->
+              <div class="muscle-map-view" id="muscleViewBack" style="display:none;">
+                <svg viewBox="0 0 160 360" class="muscle-svg" xmlns="http://www.w3.org/2000/svg">
+                  <defs>
+                    <radialGradient id="bodyGB" cx="50%" cy="35%" r="55%">
+                      <stop offset="0%" stop-color="#2e2e36"/>
+                      <stop offset="100%" stop-color="#1a1a22"/>
+                    </radialGradient>
+                  </defs>
+                  <!-- ── BODY SILHOUETTE (back) ── -->
+                  <ellipse cx="80" cy="16" rx="13" ry="15" fill="url(#bodyGB)" stroke="#2a2a34" stroke-width="1"/>
+                  <rect x="74" y="29" width="12" height="9" rx="3" fill="#1e1e26"/>
+                  <path d="M54,38 L42,46 L36,60 L34,80 L36,110 L40,130 L46,148 L52,165 L60,175 L68,180 L80,182 L92,180 L100,175 L108,165 L114,148 L120,130 L124,110 L126,80 L124,60 L118,46 L106,38 Z" fill="url(#bodyGB)" stroke="#2a2a34" stroke-width="0.8"/>
+                  <path d="M36,60 L24,70 L18,92 L16,118 L18,142 L22,155 L28,158 L32,155 L30,132 L28,108 L30,84 L36,68 Z" fill="url(#bodyGB)" stroke="#2a2a34" stroke-width="0.8"/>
+                  <path d="M124,60 L136,70 L142,92 L144,118 L142,142 L138,155 L132,158 L128,155 L130,132 L132,108 L130,84 L124,68 Z" fill="url(#bodyGB)" stroke="#2a2a34" stroke-width="0.8"/>
+                  <path d="M60,180 L54,210 L52,245 L54,280 L56,305 L58,332 L60,350 L66,355 L72,352 L74,335 L72,305 L70,275 L72,245 L76,210 L80,182 Z" fill="url(#bodyGB)" stroke="#2a2a34" stroke-width="0.8"/>
+                  <path d="M100,180 L104,210 L108,245 L110,275 L108,305 L106,335 L108,352 L114,355 L120,350 L122,332 L124,305 L126,280 L128,245 L126,210 L120,182 Z" fill="url(#bodyGB)" stroke="#2a2a34" stroke-width="0.8"/>
+
+                  <!-- ── BACK MUSCLES ── -->
+                  <!-- Traps (upper centre) -->
+                  <path id="mb_trap_L" data-muscle="traps" class="muscle-part" d="M62,38 Q71,34 80,32 L80,58 Q74,56 66,52 L60,46 Z"/>
+                  <path id="mb_trap_R" data-muscle="traps" class="muscle-part" d="M98,38 Q89,34 80,32 L80,58 Q86,56 94,52 L100,46 Z"/>
+                  <!-- Rear Delts L -->
+                  <ellipse id="mb_rdelt_L" data-muscle="shoulders" class="muscle-part" cx="42" cy="56" rx="10" ry="8"/>
+                  <!-- Rear Delts R -->
+                  <ellipse id="mb_rdelt_R" data-muscle="shoulders" class="muscle-part" cx="118" cy="56" rx="10" ry="8"/>
+                  <!-- Lats L -->
+                  <path id="mb_lat_L" data-muscle="traps" class="muscle-part" d="M52,62 Q44,80 42,108 L44,140 L50,155 L58,160 L62,152 L58,126 L56,98 L58,74 Z"/>
+                  <!-- Lats R -->
+                  <path id="mb_lat_R" data-muscle="traps" class="muscle-part" d="M108,62 Q116,80 118,108 L116,140 L110,155 L102,160 L98,152 L102,126 L104,98 L102,74 Z"/>
+                  <!-- Lower Back -->
+                  <path id="mb_lback" data-muscle="traps" class="muscle-part" d="M64,126 Q72,120 80,118 Q88,120 96,126 L94,162 Q88,156 80,154 Q72,156 66,162 Z"/>
+                  <!-- Triceps L -->
+                  <rect id="mb_tri_L" data-muscle="triceps" class="muscle-part" x="18" y="72" width="15" height="42" rx="7"/>
+                  <!-- Triceps R -->
+                  <rect id="mb_tri_R" data-muscle="triceps" class="muscle-part" x="127" y="72" width="15" height="42" rx="7"/>
+                  <!-- Forearms back L -->
+                  <rect id="mb_fore_L" data-muscle="forearms" class="muscle-part" x="17" y="120" width="13" height="32" rx="6"/>
+                  <!-- Forearms back R -->
+                  <rect id="mb_fore_R" data-muscle="forearms" class="muscle-part" x="130" y="120" width="13" height="32" rx="6"/>
+                  <!-- Glutes L -->
+                  <path id="mb_glute_L" data-muscle="glutes" class="muscle-part" d="M60,178 Q68,188 80,192 L80,215 Q70,210 62,200 L58,190 Z"/>
+                  <!-- Glutes R -->
+                  <path id="mb_glute_R" data-muscle="glutes" class="muscle-part" d="M100,178 Q92,188 80,192 L80,215 Q90,210 98,200 L102,190 Z"/>
+                  <!-- Hamstrings L -->
+                  <path id="mb_ham_L" data-muscle="glutes" class="muscle-part" d="M58,218 Q54,248 54,278 L56,305 Q60,316 66,318 L74,316 Q78,305 76,278 L74,248 L72,218 Z"/>
+                  <!-- Hamstrings R -->
+                  <path id="mb_ham_R" data-muscle="glutes" class="muscle-part" d="M102,218 Q106,248 106,278 L104,305 Q100,316 94,318 L86,316 Q82,305 84,278 L86,248 L88,218 Z"/>
+                  <!-- Calves back L -->
+                  <path id="mb_calf_L" data-muscle="calves" class="muscle-part" d="M56,322 Q54,338 55,350 L58,357 L66,359 L72,356 L72,346 L70,328 L66,322 Z"/>
+                  <!-- Calves back R -->
+                  <path id="mb_calf_R" data-muscle="calves" class="muscle-part" d="M104,322 Q106,338 105,350 L102,357 L94,359 L88,356 L88,346 L90,328 L94,322 Z"/>
+                  <!-- Spine detail -->
+                  <line x1="80" y1="38" x2="80" y2="170" stroke="#25252f" stroke-width="0.5" opacity="0.6"/>
+                </svg>
+              </div>
+            </div>
+
+            <!-- Right Panel: Intensity Legend + Muscle Stats -->
+            <div class="body-map-legend">
+              <!-- Intensity scale -->
+              <div style="margin-bottom:14px;">
+                <div style="font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);margin-bottom:8px;">YOĞUNLUK</div>
+                <div style="display:flex;flex-direction:column;gap:5px;">
+                  <div style="display:flex;align-items:center;gap:8px;"><span style="width:12px;height:12px;border-radius:3px;background:#FFD54F;box-shadow:0 0 6px #FFD54F66;flex-shrink:0;display:block;"></span><span style="font-size:0.75rem;color:var(--text-secondary);">Düşük</span></div>
+                  <div style="display:flex;align-items:center;gap:8px;"><span style="width:12px;height:12px;border-radius:3px;background:#FF7043;box-shadow:0 0 6px #FF704366;flex-shrink:0;display:block;"></span><span style="font-size:0.75rem;color:var(--text-secondary);">Orta</span></div>
+                  <div style="display:flex;align-items:center;gap:8px;"><span style="width:12px;height:12px;border-radius:3px;background:#EF5350;box-shadow:0 0 8px #EF535066;flex-shrink:0;display:block;"></span><span style="font-size:0.75rem;color:var(--text-secondary);">Yüksek</span></div>
+                  <div style="display:flex;align-items:center;gap:8px;"><span style="width:12px;height:12px;border-radius:3px;background:rgba(255,255,255,0.08);flex-shrink:0;display:block;"></span><span style="font-size:0.75rem;color:var(--text-secondary);">Çalışılmadı</span></div>
+                </div>
+              </div>
+              <!-- Volume Stats -->
+              <div class="muscle-summary" id="muscleSummary"></div>
+            </div>
+          </div>
+        </section>
+
           <div class="body-map-container">
             <div class="body-map-visual-wrap">
               <!-- ====== FRONT VIEW (Pure SVG) ====== -->
@@ -1060,12 +1230,25 @@
 
   <!-- ===== PAGE: ACHIEVEMENTS ===== -->
   <div class="page" data-page="achievements" id="pageAchievements">
-    <h2 class="page-title">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:8px;"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>
-      Başarımlar
-    </h2>
-    <section class="card">
-      <div class="achievements-grid" id="achievementsGrid"></div>
+    <div class="page-header-row" style="margin-bottom:18px;">
+      <h2 class="page-title" style="margin:0;">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:8px;"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>
+        Başarımlar
+      </h2>
+    </div>
+    <section class="card" style="padding:0;overflow:hidden;">
+      <div style="padding:20px 24px 16px;border-bottom:1px solid var(--border-subtle);background:linear-gradient(135deg,rgba(139,124,247,0.06),transparent);">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+          <span style="font-size:0.78rem;color:var(--text-secondary);font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">Toplam İlerleme</span>
+          <span id="achOverallCount" style="font-size:0.78rem;font-weight:700;color:var(--accent-primary);">—</span>
+        </div>
+        <div style="height:5px;background:rgba(255,255,255,0.06);border-radius:4px;overflow:hidden;">
+          <div id="achOverallBar" style="height:100%;width:0%;background:linear-gradient(90deg,var(--accent-deep),var(--accent-primary));border-radius:4px;transition:width 0.8s ease;"></div>
+        </div>
+      </div>
+      <div style="padding:16px;">
+        <div id="achievementsGrid"></div>
+      </div>
     </section>
   </div>
 

@@ -277,10 +277,10 @@ const EXERCISE_MUSCLES = {
   'Face Pull': ['shoulders', 'traps'],
   'Seated Dumbbell Rear Delt Fly': ['shoulders', 'traps'],
   
-  // Sırt
-  'Lat Pulldown': ['traps', 'biceps'],
-  'Close-Grip V-Bar Pulldown': ['traps', 'biceps'],
-  'Seated Row Machine': ['traps', 'biceps'],
+  // Sırt — Sırt egzersizleri sadece traps/lats'ı primary gösterir; biceps secondary sayılmaz
+  'Lat Pulldown': ['traps'],
+  'Close-Grip V-Bar Pulldown': ['traps'],
+  'Seated Row Machine': ['traps'],
   'Smith Machine Shrug': ['traps'],
   'DB Shrug': ['traps'],
   
@@ -1315,84 +1315,107 @@ function renderLoggedExercises(){
 }
 
 // =============================================
-// MUSCLE MAP (Pure SVG Vector System)
+// =============================================
+// MUSCLE MAP — Premium Redesign
 // =============================================
 
-// Intensity color mapping
-const MUSCLE_INTENSITY_COLORS = {
-  low:    '#FFD54F',
-  medium: '#FFA726',
-  high:   '#EF5350'
-};
+let _muscleRange = 'today'; // 'today' | 'week'
 
-/**
- * Highlight a specific muscle by its data-muscle attribute or element ID.
- * @param {string} muscleId - The muscle group name (e.g., 'chest', 'traps') or element ID
- * @param {'low'|'medium'|'high'|'none'} intensityLevel - Intensity level
- */
-function highlightMuscle(muscleId, intensityLevel) {
-  // Try by data-muscle attribute first, then by element ID
-  let elements = document.querySelectorAll(`[data-muscle="${muscleId}"]`);
-  if (elements.length === 0) {
-    const el = document.getElementById(muscleId);
-    if (el) elements = [el];
+window.setMuscleRange = function(range) {
+  _muscleRange = range;
+  // Update toggle button styles
+  const btnToday = document.getElementById('mmBtnToday');
+  const btnWeek  = document.getElementById('mmBtnWeek');
+  if (btnToday && btnWeek) {
+    const on  = 'background:var(--accent-primary);color:#fff;';
+    const off = 'background:transparent;color:var(--text-muted);';
+    btnToday.style.cssText += range === 'today' ? on : off;
+    btnWeek.style.cssText  += range === 'week'  ? on : off;
   }
-
-  elements.forEach(el => {
-    el.classList.remove('intensity-low', 'intensity-mid', 'intensity-high');
-    if (intensityLevel === 'low') el.classList.add('intensity-low');
-    else if (intensityLevel === 'medium') el.classList.add('intensity-mid');
-    else if (intensityLevel === 'high') el.classList.add('intensity-high');
-    // 'none' = remove all classes (back to default #2c2c2e)
-  });
-}
+  updateMuscleMap();
+};
 
 function updateMuscleMap() {
   const muscleVolume = {};
-  const monday = getMonday(new Date());
-  for (let i = 0; i < 7; i++) {
-    const d = new Date(monday);
-    d.setDate(d.getDate() + i);
-    const ds = dateStr(d);
-    (appData.workoutLogs[ds] || []).forEach(log => {
+
+  // Collect logs: today only OR full week
+  if (_muscleRange === 'today') {
+    const td = todayStr();
+    (appData.workoutLogs[td] || []).forEach(log => {
       const muscles = EXERCISE_MUSCLES[log.exercise] || [];
       const vol = parseInt(log.sets) || 0;
-      muscles.forEach(m => { muscleVolume[m] = (muscleVolume[m] || 0) + vol });
+      muscles.forEach(m => { muscleVolume[m] = (muscleVolume[m] || 0) + vol; });
     });
+  } else {
+    const monday = getMonday(new Date());
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(monday);
+      d.setDate(d.getDate() + i);
+      const ds = dateStr(d);
+      (appData.workoutLogs[ds] || []).forEach(log => {
+        const muscles = EXERCISE_MUSCLES[log.exercise] || [];
+        const vol = parseInt(log.sets) || 0;
+        muscles.forEach(m => { muscleVolume[m] = (muscleVolume[m] || 0) + vol; });
+      });
+    }
   }
 
   const volumes = Object.values(muscleVolume);
   const maxVol = Math.max(...volumes, 1);
+
+  // Handle front/back view visibility + label styling
   const view = document.querySelector('input[name="muscleView"]:checked')?.value || 'front';
-
-  // Toggle front/back view containers
   const frontView = document.getElementById('muscleViewFront');
-  const backView = document.getElementById('muscleViewBack');
+  const backView  = document.getElementById('muscleViewBack');
   if (frontView) frontView.style.display = view === 'front' ? 'block' : 'none';
-  if (backView) backView.style.display = view === 'back' ? 'block' : 'none';
+  if (backView)  backView.style.display  = view === 'back'  ? 'block' : 'none';
 
-  // Apply intensity to ALL muscle-part elements in BOTH views (so switching preserves state)
+  // Update Ön/Arka pill label styles
+  const lFront = document.getElementById('mvLabelFront');
+  const lBack  = document.getElementById('mvLabelBack');
+  if (lFront) { lFront.style.background = view === 'front' ? 'var(--accent-primary)' : 'transparent'; lFront.style.color = view === 'front' ? '#fff' : 'var(--text-muted)'; }
+  if (lBack)  { lBack.style.background  = view === 'back'  ? 'var(--accent-primary)' : 'transparent'; lBack.style.color  = view === 'back'  ? '#fff' : 'var(--text-muted)'; }
+
+  // Apply intensity classes to all muscle-part elements
   document.querySelectorAll('.muscle-part').forEach(el => {
-    const m = el.dataset.muscle;
+    const m   = el.dataset.muscle;
     const vol = muscleVolume[m] || 0;
     el.classList.remove('intensity-low', 'intensity-mid', 'intensity-high');
     if (vol > 0) {
       const r = vol / maxVol;
-      if (r > 0.5) el.classList.add('intensity-high');
-      else if (r > 0.2) el.classList.add('intensity-mid');
-      else el.classList.add('intensity-low');
+      if (r > 0.55)      el.classList.add('intensity-high');
+      else if (r > 0.2)  el.classList.add('intensity-mid');
+      else               el.classList.add('intensity-low');
     }
   });
 
+  // Update muscle summary stats
   const summary = document.getElementById('muscleSummary');
-  if (summary) {
-    const sorted = Object.entries(muscleVolume).sort((a, b) => b[1] - a[1]);
-    if (sorted.length > 0) {
-      summary.innerHTML = `<div style="margin-top:4px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.05);font-size:.7rem;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px">${currentLang === 'tr' ? 'Haftalık Set Hacmi' : 'Weekly Set Volume'}</div>` +
-        sorted.slice(0, 6).map(([m, v]) => `<div class="muscle-summary-item"><span class="muscle-name">${m.replace('_back','')}</span><span class="muscle-vol">${Math.round(v)} set</span></div>`).join('');
-    } else {
-      summary.innerHTML = `<p style="font-size:.75rem;color:var(--text-tertiary);margin-top:12px">${t('noWorkoutsWeek')}</p>`;
-    }
+  if (!summary) return;
+  const sorted = Object.entries(muscleVolume).sort((a, b) => b[1] - a[1]);
+  const rangeLabel = _muscleRange === 'today'
+    ? (currentLang === 'tr' ? 'Bugünkü Set Hacmi' : "Today's Volume")
+    : (currentLang === 'tr' ? 'Haftalık Set Hacmi' : 'Weekly Set Volume');
+
+  if (sorted.length > 0) {
+    const maxSumVol = sorted[0][1];
+    summary.innerHTML =
+      `<div style="padding-top:10px;border-top:1px solid rgba(255,255,255,0.06);font-size:.65rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">${rangeLabel}</div>` +
+      sorted.slice(0, 7).map(([m, v]) => {
+        const pct = Math.round((v / maxSumVol) * 100);
+        const barColor = pct > 60 ? '#EF5350' : pct > 30 ? '#FF7043' : '#FFD54F';
+        return `<div style="margin-bottom:7px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px;">
+            <span style="font-size:0.75rem;color:var(--text-secondary);text-transform:capitalize;">${m}</span>
+            <span style="font-size:0.72rem;font-weight:700;color:${barColor};">${Math.round(v)} set</span>
+          </div>
+          <div style="height:3px;background:rgba(255,255,255,0.06);border-radius:2px;overflow:hidden;">
+            <div style="height:100%;width:${pct}%;background:${barColor};border-radius:2px;transition:width 0.5s ease;"></div>
+          </div>
+        </div>`;
+      }).join('');
+  } else {
+    summary.innerHTML = `<div style="padding-top:10px;border-top:1px solid rgba(255,255,255,0.06);"><p style="font-size:.75rem;color:var(--text-muted);margin:8px 0;">${_muscleRange === 'today' ? (currentLang==='tr' ? 'Bugün egzersiz yok.' : 'No exercises today.') : t('noWorkoutsWeek')}</p></div>`;
   }
 }
 
@@ -2005,7 +2028,7 @@ function showAchievementPopup(def) {
     goBtn.id = 'achievementGoBtn';
     goBtn.style.cssText = 'margin-top:12px;background:var(--accent-primary);color:white;border:none;border-radius:10px;padding:8px 20px;font-size:0.85rem;font-weight:700;cursor:pointer;';
     goBtn.textContent = currentLang === 'tr' ? 'Başarımları Gör →' : 'View Achievements →';
-    goBtn.onclick = () => { closeAchievementPopup(); switchPage('achievements'); };
+    goBtn.onclick = () => { closeAchievementPopup(); navigateTo('achievements'); };
     popup.querySelector('.achievement-popup-card').appendChild(goBtn);
   }
   popup.classList.add('show');
@@ -2023,69 +2046,87 @@ function renderAchievements() {
   if (!appData.achievements) appData.achievements = {};
   const expanded = appData._achExpanded || {};
 
-  grid.innerHTML = ACHIEVEMENT_GROUPS.map(group => {
-    const totalBadges  = group.badges.length;
-    const unlockedBadges = group.badges.filter(b => appData.achievements[b.id]).length;
-    const allUnlocked  = unlockedBadges === totalBadges;
-    const anyUnlocked  = unlockedBadges > 0;
-    const isExpanded   = expanded[group.id];
+  // Update overall progress bar
+  const totalAll = ACHIEVEMENT_DEFS.length;
+  const unlockedAll = ACHIEVEMENT_DEFS.filter(b => appData.achievements[b.id]).length;
+  const overallPct = totalAll > 0 ? Math.round((unlockedAll / totalAll) * 100) : 0;
+  const achBar = document.getElementById('achOverallBar');
+  const achCount = document.getElementById('achOverallCount');
+  if (achBar) achBar.style.width = overallPct + '%';
+  if (achCount) achCount.textContent = `${unlockedAll} / ${totalAll} rozet · ${overallPct}%`;
 
+  grid.innerHTML = ACHIEVEMENT_GROUPS.map(group => {
+    const totalBadges = group.badges.length;
+    const unlockedBadges = group.badges.filter(b => appData.achievements[b.id]).length;
+    const allUnlocked = unlockedBadges === totalBadges;
+    const anyUnlocked = unlockedBadges > 0;
+    const isExpanded = expanded[group.id];
     const groupIcon = ACH_ICONS[group.icon] || ACH_ICONS['star'];
-    const headerColor = allUnlocked ? '#FFD700' : anyUnlocked ? 'var(--accent-primary)' : 'var(--text-muted)';
-    const headerBg    = allUnlocked
-      ? 'linear-gradient(135deg,rgba(255,215,0,0.15),rgba(255,165,0,0.08))'
-      : anyUnlocked
-        ? 'rgba(139,124,247,0.08)'
-        : 'var(--bg-card-alt)';
+    const progressPct = totalBadges > 0 ? Math.round((unlockedBadges / totalBadges) * 100) : 0;
+
+    const headerBorder = allUnlocked
+      ? 'rgba(255,215,0,0.4)'
+      : anyUnlocked ? 'rgba(139,124,247,0.35)' : 'rgba(255,255,255,0.07)';
+    const headerBg = allUnlocked
+      ? 'linear-gradient(135deg,rgba(255,215,0,0.1),rgba(255,165,0,0.06))'
+      : anyUnlocked ? 'rgba(139,124,247,0.07)' : 'rgba(255,255,255,0.02)';
+    const iconBg = allUnlocked
+      ? 'rgba(255,215,0,0.18)'
+      : anyUnlocked ? 'rgba(139,124,247,0.15)' : 'rgba(255,255,255,0.05)';
+    const iconColor = allUnlocked ? '#FFD700' : anyUnlocked ? 'var(--accent-primary)' : 'var(--text-muted)';
+    const labelColor = allUnlocked ? '#FFD700' : anyUnlocked ? 'var(--text-primary)' : 'var(--text-secondary)';
+    const progressBarColor = allUnlocked ? '#FFD700' : anyUnlocked ? 'var(--accent-primary)' : 'rgba(255,255,255,0.12)';
 
     const badgesHtml = !isExpanded ? '' : group.badges.map(b => {
       const unlocked = !!appData.achievements[b.id];
-      const LOCK_SVG = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="2"><rect x="5" y="11" width="14" height="11" rx="3"/><path d="M8 11V7a4 4 0 1 1 8 0v4"/></svg>';
-      const badgeBg  = unlocked
-        ? 'linear-gradient(135deg,rgba(255,215,0,0.2),rgba(255,165,0,0.1))'
-        : 'var(--bg-main)';
-      const badgeBorder = unlocked ? '1.5px solid rgba(255,215,0,0.5)' : '1px solid var(--border-subtle)';
-      const nameColor = unlocked ? '#FFD700' : 'var(--text-muted)';
       const unlockedDate = unlocked && appData.achievements[b.id].unlockedAt
         ? new Date(appData.achievements[b.id].unlockedAt).toLocaleDateString(currentLang==='tr'?'tr-TR':'en-US',{month:'short',day:'numeric'})
         : null;
-
-      return `<div style="display:flex;align-items:center;gap:12px;padding:12px 14px;background:${badgeBg};border:${badgeBorder};border-radius:12px;margin-bottom:8px;transition:all 0.2s;">
-        <div style="width:40px;height:40px;border-radius:10px;background:${unlocked?'rgba(255,215,0,0.15)':'rgba(255,255,255,0.05)'};display:flex;align-items:center;justify-content:center;flex-shrink:0;color:${unlocked?'#FFD700':'var(--text-muted)'};position:relative;">
-          ${ACH_ICONS[group.icon] || ACH_ICONS['star']}
-          ${!unlocked ? `<div style="position:absolute;bottom:-2px;right:-2px;">${LOCK_SVG}</div>` : ''}
-        </div>
-        <div style="flex:1;">
-          <div style="font-weight:700;font-size:0.85rem;color:${nameColor};">${b.name}</div>
-          <div style="font-size:0.7rem;color:var(--text-tertiary);margin-top:2px;">${b.desc}</div>
-          ${unlockedDate ? `<div style="font-size:0.65rem;color:#FFD700;margin-top:3px;">✓ ${unlockedDate}</div>` : ''}
-        </div>
-        ${unlocked ? '<svg width="16" height="16" viewBox="0 0 24 24" fill="#FFD700"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>' : ''}
-      </div>`;
+      return `
+        <div style="display:flex;align-items:center;gap:12px;padding:12px 14px;background:${unlocked?'rgba(255,215,0,0.07)':'rgba(255,255,255,0.02)'};border:1px solid ${unlocked?'rgba(255,215,0,0.25)':'rgba(255,255,255,0.05)'};border-radius:12px;margin-bottom:8px;transition:all 0.2s;">
+          <div style="width:36px;height:36px;flex-shrink:0;border-radius:10px;display:flex;align-items:center;justify-content:center;background:${unlocked?'rgba(255,215,0,0.15)':'rgba(255,255,255,0.04)'};color:${unlocked?'#FFD700':'var(--text-muted)'};">
+            ${ACH_ICONS[group.icon]||ACH_ICONS['star']}
+          </div>
+          <div style="flex:1;min-width:0;">
+            <div style="font-weight:600;font-size:0.85rem;color:${unlocked?'#FFD700':'var(--text-primary)'};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${b.name}</div>
+            <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:2px;line-height:1.4;">${b.desc}</div>
+            ${unlockedDate ? `<div style="font-size:0.65rem;color:#FFD700;margin-top:4px;font-weight:600;">✓ ${unlockedDate}</div>` : ''}
+          </div>
+          <div style="flex-shrink:0;">
+            ${unlocked
+              ? '<svg width="18" height="18" viewBox="0 0 24 24" fill="#FFD700"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>'
+              : '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="2"><rect x="5" y="11" width="14" height="11" rx="3"/><path d="M8 11V7a4 4 0 1 1 8 0v4"/></svg>'
+            }
+          </div>
+        </div>`;
     }).join('');
 
-    const toggleFn = `(function(){var e=window._achExp||(window._achExp={});e['${group.id}']=!e['${group.id}'];appData._achExpanded=e;renderAchievements();})()`;
+    const toggleFn = `(function(){var e=window._achExp||(window._achExp={});e['${group.id}']=!e['${group.id}'];appData._achExpanded=e;renderAchievements();})()`; 
 
-    return `<div style="margin-bottom:16px;">
-      <div onclick="${toggleFn}" style="cursor:pointer;display:flex;align-items:center;gap:12px;padding:14px 16px;background:${headerBg};border:1px solid ${allUnlocked?'rgba(255,215,0,0.3)':anyUnlocked?'rgba(139,124,247,0.3)':'var(--border-subtle)'};border-radius:14px;transition:all 0.2s;">
-        <div style="width:44px;height:44px;border-radius:12px;background:${allUnlocked?'rgba(255,215,0,0.2)':anyUnlocked?'var(--accent-glow)':'rgba(255,255,255,0.05)'};display:flex;align-items:center;justify-content:center;color:${headerColor};flex-shrink:0;">
-          ${groupIcon}
-        </div>
-        <div style="flex:1;">
-          <div style="font-weight:700;font-size:0.95rem;color:${headerColor};">${group.label}</div>
-          <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:2px;">${unlockedBadges}/${totalBadges} ${currentLang==='tr'?'rozet kazanıldı':'badges earned'}</div>
-        </div>
-        <div style="display:flex;align-items:center;gap:8px;">
-          <div style="display:flex;gap:3px;">
-            ${group.badges.map(b => `<div style="width:8px;height:8px;border-radius:50%;background:${appData.achievements[b.id]?'#FFD700':'rgba(255,255,255,0.15)'}"></div>`).join('')}
+    return `
+      <div style="background:${headerBg};border:1px solid ${headerBorder};border-radius:16px;margin-bottom:10px;overflow:hidden;transition:all 0.25s;">
+        <div onclick="${toggleFn}" style="display:flex;align-items:center;gap:14px;padding:16px 18px;cursor:pointer;user-select:none;">
+          <div style="width:44px;height:44px;flex-shrink:0;border-radius:12px;background:${iconBg};display:flex;align-items:center;justify-content:center;color:${iconColor};">
+            ${groupIcon}
           </div>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="${headerColor}" stroke-width="2.5" style="transform:rotate(${isExpanded?'180':'0'}deg);transition:transform .3s;"><polyline points="6 9 12 15 18 9"/></svg>
+          <div style="flex:1;min-width:0;">
+            <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:0.95rem;color:${labelColor};margin-bottom:4px;">${group.label}</div>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <div style="flex:1;height:4px;background:rgba(255,255,255,0.06);border-radius:4px;overflow:hidden;">
+                <div style="height:100%;width:${progressPct}%;background:${progressBarColor};border-radius:4px;transition:width 0.5s ease;"></div>
+              </div>
+              <span style="font-size:0.68rem;font-weight:600;color:${labelColor};white-space:nowrap;opacity:0.8;">${unlockedBadges}/${totalBadges}</span>
+            </div>
+          </div>
+          <div style="color:${iconColor};transition:transform 0.3s;transform:rotate(${isExpanded?'180':'0'}deg);flex-shrink:0;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
         </div>
-      </div>
-      ${isExpanded ? `<div style="padding:8px 4px 0;">${badgesHtml}</div>` : ''}
-    </div>`;
+        ${isExpanded ? `<div style="padding:0 14px 14px;">${badgesHtml}</div>` : ''}
+      </div>`;
   }).join('');
 }
+
 
 function runConfetti() {
   const canvas = document.getElementById('confettiCanvas');
