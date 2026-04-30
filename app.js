@@ -2101,7 +2101,7 @@ function renderAchievements() {
         </div>`;
     }).join('');
 
-    const toggleFn = `(function(){var e=window._achExp||(window._achExp={});e['${group.id}']=!e['${group.id}'];appData._achExpanded=e;renderAchievements();})()`; 
+    const toggleFn = `(function(){if(!appData._achExpanded)appData._achExpanded={};appData._achExpanded['${group.id}']=!appData._achExpanded['${group.id}'];renderAchievements();})()`;
 
     return `
       <div style="background:${headerBg};border:1px solid ${headerBorder};border-radius:16px;margin-bottom:10px;overflow:hidden;transition:all 0.25s;">
