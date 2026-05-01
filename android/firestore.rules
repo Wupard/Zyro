@@ -1,0 +1,21 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Users collection
+    match /users/{userId} {
+      // Only the authenticated user can read/write their own profile
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+
+      // Weight logs subcollection
+      match /weightLogs/{logId} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+
+      // Progress photos metadata subcollection
+      match /progressPhotos/{photoId} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+    }
+  }
+}

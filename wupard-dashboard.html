@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WUPARD — Fitness Dashboard</title>
+  <meta name="description" content="WUPARD — Professional fitness tracking dashboard. Monitor your workouts, body composition, and strength progress.">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="stylesheet" href="wupard-dashboard.css">
+</head>
+<body>
+
+  <!-- ========== MOBILE OVERLAY ========== -->
+  <div class="wp-overlay" id="wpOverlay"></div>
+
+  <!-- ========== SIDEBAR ========== -->
+  <aside class="wp-sidebar" id="wpSidebar">
+    <div class="wp-sidebar-brand">
+      <h1>WUPARD</h1>
+      <span>Fitness Tracker</span>
+    </div>
+
+    <nav class="wp-sidebar-nav">
+      <a class="wp-nav-item active" data-page="dashboard" id="navDashboard">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        <span>Dashboard</span>
+      </a>
+      <a class="wp-nav-item" data-page="training" id="navTraining">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 6.5h11"/><path d="M6.5 17.5h11"/><path d="M12 2v4"/><path d="M12 18v4"/><path d="M4.5 8.5v7"/><path d="M19.5 8.5v7"/></svg>
+        <span>Training Logs</span>
+      </a>
+      <a class="wp-nav-item" data-page="profile" id="navProfile">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <span>User Profile</span>
+      </a>
+      <a class="wp-nav-item" data-page="settings" id="navSettings">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        <span>Settings</span>
+      </a>
+    </nav>
+
+    <div class="wp-sidebar-footer">
+      <div class="wp-avatar" id="sidebarAvatar">YK</div>
+      <div class="wp-user-info">
+        <div class="wp-user-name" id="sidebarUserName">Yusuf K.</div>
+        <div class="wp-user-status">● Online</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ========== MAIN ========== -->
+  <main class="wp-main">
+
+    <!-- Top Bar -->
+    <header class="wp-topbar">
+      <div class="wp-topbar-left">
+        <button class="wp-mobile-toggle" id="mobileToggle" aria-label="Menu">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+        <h2 class="wp-topbar-greeting">Hi, <span>Yusuf</span>!</h2>
+      </div>
+      <div class="wp-topbar-right">
+        <div class="wp-search">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" placeholder="Search..." aria-label="Search">
+        </div>
+        <button class="wp-icon-btn" title="Notifications" id="notifBtn">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          <span class="wp-notif-dot"></span>
+        </button>
+        <div class="wp-topbar-avatar" id="topbarAvatar">
+          <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:0.7rem;color:var(--accent);background:var(--accent-bg);">YK</div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Content -->
+    <div class="wp-content">
+
+      <!-- STAT CARDS ROW -->
+      <div class="wp-grid-stats">
+        <div class="wp-card wp-stat wp-card-interactive" id="statSessions">
+          <div class="wp-stat-label">Current Week Sessions</div>
+          <div class="wp-stat-value">4<span class="unit">/6</span></div>
+          <div class="wp-stat-trend up">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg>
+            +33% vs last week
+          </div>
+        </div>
+        <div class="wp-card wp-stat wp-card-interactive" id="statAvgReps">
+          <div class="wp-stat-label">Avg Reps / Set</div>
+          <div class="wp-stat-value">10.4</div>
+          <div class="wp-stat-trend up">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg>
+            +1.2 reps
+          </div>
+        </div>
+        <div class="wp-card wp-stat wp-card-interactive" id="statVolume">
+          <div class="wp-stat-label">Total Volume</div>
+          <div class="wp-stat-value">12,480<span class="unit">kg</span></div>
+          <div class="wp-stat-trend down">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+            -4% vs last week
+          </div>
+        </div>
+      </div>
+
+      <!-- MAIN GRID: Summary + Right Panel -->
+      <div class="wp-grid-main">
+
+        <!-- LEFT: Summary Card -->
+        <div class="wp-card" id="summaryCard" style="animation-delay: 0.2s">
+          <div class="wp-card-header">
+            <div>
+              <div class="wp-summary-title">WUPARD SUMMARY: <span>JULY 2024</span></div>
+            </div>
+            <button class="wp-card-action">Export ↗</button>
+          </div>
+
+          <div class="wp-summary-stats">
+            <div class="wp-summary-stat-item">
+              <div class="val">18</div>
+              <div class="lbl">Sessions</div>
+            </div>
+            <div class="wp-summary-stat-item">
+              <div class="val">86</div>
+              <div class="lbl">Total Sets</div>
+            </div>
+            <div class="wp-summary-stat-item">
+              <div class="val">892</div>
+              <div class="lbl">Total Reps</div>
+            </div>
+            <div class="wp-summary-stat-item">
+              <div class="val">48.6<span style="font-size:0.8rem;color:var(--text-muted)">k</span></div>
+              <div class="lbl">Volume (kg)</div>
+            </div>
+          </div>
+
+          <!-- Latest Sets Table -->
+          <div class="wp-card-title" style="margin-bottom: 14px;">Latest Sets Tracked</div>
+          <div style="overflow-x: auto;">
+            <table class="wp-table" id="setsTable">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Exercise</th>
+                  <th>Sets</th>
+                  <th>Reps</th>
+                  <th>Weight</th>
+                  <th>Fatigue</th>
+                </tr>
+              </thead>
+              <tbody id="setsTableBody">
+                <!-- Populated by JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- RIGHT COLUMN -->
+        <div style="display:flex;flex-direction:column;gap:20px;">
+
+          <!-- Weekly Progress Graph -->
+          <div class="wp-card" style="animation-delay: 0.25s">
+            <div class="wp-card-header">
+              <div class="wp-card-title accent">Weekly Progress</div>
+              <div class="wp-card-title">Sets Trained</div>
+            </div>
+            <div class="wp-chart-container">
+              <canvas id="weeklyChart"></canvas>
+            </div>
+          </div>
+
+          <!-- Body Composition Progress -->
+          <div class="wp-card" style="animation-delay: 0.3s">
+            <div class="wp-card-header">
+              <div class="wp-card-title accent">Body Composition</div>
+              <button class="wp-card-action">Details</button>
+            </div>
+            <div class="wp-progress-ring-wrap">
+              <div class="wp-progress-ring">
+                <svg width="140" height="140" viewBox="0 0 140 140">
+                  <circle class="ring-bg" cx="70" cy="70" r="60"/>
+                  <circle class="ring-fill" cx="70" cy="70" r="60"
+                    stroke-dasharray="377"
+                    stroke-dashoffset="117" id="bodyFatRing"/>
+                </svg>
+                <div class="wp-progress-ring-text">
+                  <div class="wp-progress-ring-val" id="bodyFatVal">14.2</div>
+                  <div class="wp-progress-ring-label">Body Fat %</div>
+                </div>
+              </div>
+              <div style="display:flex;gap:24px;margin-top:16px;">
+                <div style="text-align:center">
+                  <div style="font-size:1.1rem;font-weight:800;color:var(--green)">-1.8%</div>
+                  <div style="font-size:0.6rem;color:var(--text-muted);text-transform:uppercase;font-weight:700;letter-spacing:0.08em;margin-top:2px">This Month</div>
+                </div>
+                <div style="text-align:center">
+                  <div style="font-size:1.1rem;font-weight:800;color:var(--text-white)">78.4 <span style="font-size:0.7rem;color:var(--text-muted)">kg</span></div>
+                  <div style="font-size:0.6rem;color:var(--text-muted);text-transform:uppercase;font-weight:700;letter-spacing:0.08em;margin-top:2px">Weight</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- BOTTOM GRID: Goals + Activities -->
+      <div class="wp-grid-bottom">
+
+        <!-- Monthly Goals -->
+        <div class="wp-card" style="animation-delay: 0.35s">
+          <div class="wp-card-header">
+            <div class="wp-card-title accent">Monthly Goals</div>
+            <div class="wp-card-title">July 2024</div>
+          </div>
+          <div id="goalsContainer">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+
+        <!-- Recent Activities -->
+        <div class="wp-card" style="animation-delay: 0.4s">
+          <div class="wp-card-header">
+            <div class="wp-card-title accent">Recent Activities</div>
+            <button class="wp-card-action">View All</button>
+          </div>
+          <div id="activitiesContainer">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="wupard-dashboard.js"></script>
+</body>
+</html>
