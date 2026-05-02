@@ -818,7 +818,7 @@ select.log-input option {
 }
 
 /* Reply form slide-in */
-#[id^="replyForm_"] {
+[id^="replyForm_"] {
   animation: replyFormIn 0.2s ease both;
 }
 @keyframes replyFormIn {
