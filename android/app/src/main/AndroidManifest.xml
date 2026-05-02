@@ -20,7 +20,7 @@
         android:theme="@style/Theme.Zyro">
 
         <activity
-            android:name="com.zyro.app.MainActivity"
+            android:name=".MainActivity"
             android:exported="true"
             android:theme="@style/Theme.Zyro">
             <intent-filter>

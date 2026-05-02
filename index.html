@@ -150,8 +150,56 @@
             </div>
           </div>
         </div>
+        <!-- Notification Bell -->
+        <div class="notif-bell-wrap" id="notifBellWrap">
+          <button class="notif-bell-btn" id="notifBellBtn" title="Bildirimler" aria-label="Bildirimler">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+              <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+            </svg>
+            <span class="notif-badge" id="notifBadge" style="display:none;">0</span>
+          </button>
+        </div>
       </div>
     </header>
+
+    <!-- Notification Drawer -->
+    <div class="notif-drawer" id="notifDrawer">
+      <div class="notif-drawer-inner">
+        <div class="notif-drawer-header">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent-primary)" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+            <h3 style="margin:0;font-size:1rem;font-weight:700;">Bildirimler</h3>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <button id="markAllReadBtn" style="font-size:0.72rem;color:var(--accent-primary);background:none;border:none;cursor:pointer;font-weight:600;padding:4px 8px;border-radius:6px;transition:all 0.2s;" onmouseenter="this.style.background='var(--accent-glow)'" onmouseleave="this.style.background='none'">Tümünü Oku</button>
+            <button onclick="document.getElementById('notifDrawer').classList.remove('open')" style="background:none;border:none;color:var(--text-muted);cursor:pointer;padding:4px;border-radius:6px;transition:all 0.2s;" onmouseenter="this.style.color='var(--text-primary)'" onmouseleave="this.style.color='var(--text-muted)'">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+          </div>
+        </div>
+        <div class="notif-list" id="notifList">
+          <div class="notif-empty">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="opacity:0.3;"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+            <p>Henüz bildirim yok</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Notif Drawer Backdrop -->
+    <div class="notif-backdrop" id="notifBackdrop" onclick="document.getElementById('notifDrawer').classList.remove('open');document.getElementById('notifBackdrop').classList.remove('visible');"></div>
+
+    <!-- New Notification Banner -->
+    <div class="notif-banner" id="notifBanner" style="display:none;">
+      <div class="notif-banner-icon">🔔</div>
+      <div class="notif-banner-text">
+        <strong id="notifBannerTitle">Yeni bildiriminiz var!</strong>
+        <span id="notifBannerBody">Tıklayarak görüntüleyin.</span>
+      </div>
+      <button class="notif-banner-close" onclick="closeNotifBanner()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
 
     <!-- ============ PAGE: DASHBOARD ============ -->
     <div class="page active" data-page="dashboard" id="pageDashboard">
@@ -620,6 +668,40 @@
           <button class="btn-primary" id="sendCommentBtn" style="margin-top: 16px;">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
             <span>Gönder</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- Admin Notification Panel (hidden for non-admins via JS) -->
+      <section class="card admin-notif-panel" id="adminNotifPanel" style="display:none; border-color: rgba(255,215,0,0.2); background: linear-gradient(145deg, rgba(255,215,0,0.03), var(--bg-card));">
+        <div class="card-header">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <span style="font-size:1.2rem;">🔔</span>
+            <h3 class="card-title" style="color:#FFD700;">Bildirim Gönder</h3>
+          </div>
+          <span style="font-size:0.65rem;background:rgba(255,215,0,0.15);color:#FFD700;padding:3px 8px;border-radius:6px;font-weight:800;letter-spacing:0.05em;">ADMIN</span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:16px;">
+          <div style="display:flex;flex-direction:column;gap:6px;">
+            <label style="font-size:0.72rem;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.04em;font-weight:700;">Bildirim Türü</label>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;" id="notifTypeSelector">
+              <label class="notif-type-label active" data-type="announcement"><input type="radio" name="notifType" value="announcement" checked style="display:none;"><span>📢 Duyuru</span></label>
+              <label class="notif-type-label" data-type="update"><input type="radio" name="notifType" value="update" style="display:none;"><span>🆕 Güncelleme</span></label>
+              <label class="notif-type-label" data-type="maintenance"><input type="radio" name="notifType" value="maintenance" style="display:none;"><span>🔧 Bakım</span></label>
+              <label class="notif-type-label" data-type="info"><input type="radio" name="notifType" value="info" style="display:none;"><span>💡 Bilgi</span></label>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:6px;">
+            <label style="font-size:0.72rem;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.04em;font-weight:700;">Başlık</label>
+            <input type="text" id="notifTitleInput" class="log-input" placeholder="Bildirim başlığı..." maxlength="80">
+          </div>
+          <div style="display:flex;flex-direction:column;gap:6px;">
+            <label style="font-size:0.72rem;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.04em;font-weight:700;">Mesaj</label>
+            <textarea class="note-input" id="notifMessageInput" rows="3" placeholder="Bildirim içeriği..."></textarea>
+          </div>
+          <button class="btn-primary" id="sendNotifBtn" style="background:linear-gradient(135deg,#b8860b,#FFD700);color:#000;font-weight:800;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+            Tüm Kullanıcılara Gönder
           </button>
         </div>
       </section>

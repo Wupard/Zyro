@@ -554,7 +554,12 @@ function formatDateLong(d){return d.toLocaleDateString(currentLang==='tr'?'tr-TR
 // =============================================
 function saveData(){
   if(isFirebaseConfigured&&currentUser&&db){
-    db.collection('users').doc(currentUser.uid).set({data:appData},{merge:true}).catch(e=>console.error('Save:',e));
+    db.collection('users').doc(currentUser.uid).set({
+      data:appData,
+      email: currentUser.email || '',
+      displayName: currentUser.displayName || '',
+      photoURL: currentUser.photoURL || ''
+    },{merge:true}).catch(e=>console.error('Save:',e));
   }
   localStorage.setItem('zyro_data',JSON.stringify(appData));
 }
@@ -594,7 +599,12 @@ function loadData(cb){
          refreshAllViews();
       } else {
          // Eğer sunucuda (hesapta) hiç veri yoksa, ilk giriş demektir: Local veriyi sunucuya gönder
-         docRef.set({ data: appData }, { merge: true });
+         docRef.set({ 
+           data: appData,
+           email: currentUser.email || '',
+           displayName: currentUser.displayName || '',
+           photoURL: currentUser.photoURL || ''
+         }, { merge: true });
          if(cb) cb();
          refreshAllViews();
       }
@@ -624,6 +634,12 @@ function initAuth(){
         currentUser=user;
         overlay.classList.add('hidden');
         updateUserUI(user);
+        // Ensure backend always has latest auth data
+        db.collection('users').doc(user.uid).set({
+          email: user.email || '',
+          displayName: user.displayName || '',
+          photoURL: user.photoURL || ''
+        }, { merge: true }).catch(e => console.error('Silent user info update error:', e));
         loadData(()=>refreshAllViews());
       } else {
         console.log('No user signed in');
@@ -1789,7 +1805,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   initWorkoutTabs();initLogForm();initWeightLog();
   initPostureTabs();initVideoModal();
   initNotes();initDashboardChartTabs();
-  initComments();
+  initComments(); initNotifications();
   populateExerciseDropdown();renderAttendance();
   initWeeklyGoalSheet();
   initProgressPhotos();
@@ -2579,6 +2595,36 @@ function displayComments(comments) {
     const upvotes = c.upvotes || 0;
     const upvotedBy = c.upvotedBy || [];
     const hasUpvoted = currentUser && upvotedBy.includes(currentUser.uid);
+    // Kendi yorumuna upvote atamaz
+    const canUpvote = !isOwnComment;
+
+    // Replies
+    const replies = c.replies || [];
+    const repliesHtml = replies.length > 0 ? `
+      <div class="comment-replies" style="margin-top: 12px; padding-left: 34px; border-left: 2px solid var(--border-subtle); margin-left: 34px;">
+        ${replies.map(r => {
+          const rPhoto = !r.isAnonymous && r.userPhoto;
+          const rRank = RANKS[r.rank || 'default'] || RANKS.default;
+          const rIsWupard = r.userEmail === 'wupard@gmail.com';
+          return `
+            <div style="padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.04); display: flex; gap: 8px;">
+              ${rPhoto 
+                ? `<img src="${r.userPhoto}" style="width: 20px; height: 20px; border-radius: 50%; border: 1px solid var(--accent-primary); flex-shrink: 0; margin-top: 1px;" referrerpolicy="no-referrer">` 
+                : `<div style="width: 20px; height: 20px; border-radius: 50%; background: var(--bg-primary); display: flex; align-items: center; justify-content: center; font-size: 0.6rem; color: var(--text-tertiary); border: 1px solid var(--border-subtle); flex-shrink: 0;">?</div>`
+              }
+              <div style="flex: 1;">
+                <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 3px;">
+                  <span style="font-weight: 700; font-size: 0.8rem; color: ${rIsWupard ? '#FFD700' : 'var(--accent-primary)'}">${r.userName}</span>
+                  <span style="font-size: 0.55rem; padding: 1px 5px; border-radius: 4px; background: ${rRank.bg}; color: ${rRank.color}; font-weight: 800;">${rRank.label}</span>
+                  <span style="font-size: 0.68rem; color: var(--text-muted);">${new Date(r.timestamp).toLocaleDateString()}</span>
+                </div>
+                <p style="margin: 0; font-size: 0.85rem; line-height: 1.5; color: var(--text-secondary);">${r.text}</p>
+              </div>
+            </div>
+          `;
+        }).join('')}
+      </div>
+    ` : '';
 
     return `
       <div class="comment-item" style="padding: 16px; border-bottom: 1px solid var(--border-subtle); background: var(--bg-card-alt); border-radius: 12px; margin-bottom: 12px; position: relative;">
@@ -2601,12 +2647,33 @@ function displayComments(comments) {
           </div>
         </div>
         <p style="margin: 0; font-size: 0.9rem; line-height: 1.5; color: var(--text-primary); padding-left: 34px;">${c.text}</p>
-        <div style="margin-top: 12px; display: flex; gap: 16px; padding-left: 34px;">
-          <button onclick="upvoteComment('${c.id}')" style="background:${hasUpvoted ? 'var(--accent-glow)' : 'transparent'}; border:1px solid ${hasUpvoted ? 'var(--accent-primary)' : 'transparent'}; color:${hasUpvoted ? 'var(--accent-primary)' : 'var(--text-muted)'}; font-size:0.8rem; cursor:pointer; display:flex; align-items:center; gap:4px; padding: 4px 8px; border-radius: 6px; transition: all 0.2s;">
+        <div style="margin-top: 12px; display: flex; gap: 12px; align-items: center; padding-left: 34px;">
+          <button onclick="${canUpvote ? `upvoteComment('${c.id}')` : `showToast('${currentLang === 'tr' ? 'Kendi yorumuna oy veremezsin!' : 'You cannot upvote your own comment!'}', 'error')`}" 
+            title="${isOwnComment ? (currentLang === 'tr' ? 'Kendi yorumuna oy veremezsin' : 'Cannot upvote your own comment') : ''}"
+            style="background:${hasUpvoted ? 'var(--accent-glow)' : 'transparent'}; border:1px solid ${hasUpvoted ? 'var(--accent-primary)' : 'transparent'}; color:${isOwnComment ? 'var(--text-muted)' : hasUpvoted ? 'var(--accent-primary)' : 'var(--text-muted)'}; font-size:0.8rem; cursor:${isOwnComment ? 'not-allowed' : 'pointer'}; display:flex; align-items:center; gap:4px; padding: 4px 8px; border-radius: 6px; transition: all 0.2s; opacity: ${isOwnComment ? '0.4' : '1'};">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg>
             <span style="font-weight: bold;">${upvotes}</span>
           </button>
+          ${currentUser ? `
+            <button onclick="toggleReplyForm('${c.id}')" 
+              style="background: transparent; border: 1px solid transparent; color: var(--text-muted); font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; gap: 4px; padding: 4px 8px; border-radius: 6px; transition: all 0.2s;"
+              onmouseenter="this.style.color='var(--accent-primary)'; this.style.borderColor='rgba(139,124,247,0.3)'; this.style.background='rgba(139,124,247,0.08)'"
+              onmouseleave="this.style.color='var(--text-muted)'; this.style.borderColor='transparent'; this.style.background='transparent'">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+              ${currentLang === 'tr' ? 'Yanıtla' : 'Reply'}${replies.length > 0 ? ` <span style="font-size:0.7rem;background:rgba(139,124,247,0.15);color:var(--accent-primary);padding:1px 5px;border-radius:10px;">${replies.length}</span>` : ''}
+            </button>
+          ` : ''}
         </div>
+        <!-- Reply Form (hidden by default) -->
+        <div id="replyForm_${c.id}" style="display: none; margin-top: 12px; padding-left: 34px;">
+          <div style="display: flex; gap: 8px; align-items: flex-end;">
+            <textarea id="replyInput_${c.id}" rows="2" placeholder="${currentLang === 'tr' ? 'Yanıtını yaz...' : 'Write your reply...'}" style="flex: 1; background: var(--bg-input, var(--bg-main)); border: 1px solid var(--border-subtle); border-radius: 8px; padding: 8px 12px; font-size: 0.85rem; color: var(--text-primary); resize: none; font-family: inherit; outline: none; transition: border-color 0.2s;"></textarea>
+            <button onclick="sendReply('${c.id}')" style="background: var(--accent-primary); border: none; color: white; border-radius: 8px; padding: 8px 14px; font-size: 0.8rem; font-weight: 700; cursor: pointer; transition: opacity 0.2s; white-space: nowrap;" onmouseenter="this.style.opacity='0.85'" onmouseleave="this.style.opacity='1'">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="vertical-align: middle;"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            </button>
+          </div>
+        </div>
+        ${repliesHtml}
       </div>
     `;
   }).join('');
@@ -2628,7 +2695,7 @@ window.adminDeleteComment = async function(commentId) {
 
 window.upvoteComment = async function(commentId) {
   if (!currentUser) {
-    showToast('Begenmek icin giris yapmalisin!', 'error');
+    showToast(currentLang === 'tr' ? 'Beğenmek için giriş yapmalısın!' : 'Sign in to upvote!', 'error');
     return;
   }
 
@@ -2637,6 +2704,13 @@ window.upvoteComment = async function(commentId) {
     const doc = await docRef.get();
     if (doc.exists) {
       const data = doc.data();
+
+      // Kendi yorumuna upvote atamasın
+      if (data.userId === currentUser.uid) {
+        showToast(currentLang === 'tr' ? 'Kendi yorumuna oy veremezsin!' : 'You cannot upvote your own comment!', 'error');
+        return;
+      }
+
       const upvotedBy = data.upvotedBy || [];
       
       if (upvotedBy.includes(currentUser.uid)) {
@@ -2652,6 +2726,72 @@ window.upvoteComment = async function(commentId) {
           upvotedBy: firebase.firestore.FieldValue.arrayUnion(currentUser.uid)
         });
       }
+      renderComments();
+    }
+  }
+};
+
+window.toggleReplyForm = function(commentId) {
+  const form = document.getElementById('replyForm_' + commentId);
+  if (!form) return;
+  const isVisible = form.style.display !== 'none';
+  form.style.display = isVisible ? 'none' : 'block';
+  if (!isVisible) {
+    const textarea = document.getElementById('replyInput_' + commentId);
+    if (textarea) setTimeout(() => textarea.focus(), 50);
+  }
+};
+
+window.sendReply = async function(commentId) {
+  if (!currentUser) {
+    showToast(currentLang === 'tr' ? 'Yanıtlamak için giriş yapmalısın!' : 'Sign in to reply!', 'error');
+    return;
+  }
+
+  const textarea = document.getElementById('replyInput_' + commentId);
+  if (!textarea) return;
+  const text = textarea.value.trim();
+  if (!text) return;
+
+  const reply = {
+    text,
+    userId: currentUser.uid,
+    userName: currentUser.displayName || 'Kullanıcı',
+    userEmail: currentUser.email || null,
+    userPhoto: currentUser.photoURL || null,
+    isAnonymous: false,
+    timestamp: Date.now(),
+    rank: (currentUser.email === 'wupard@gmail.com') ? 'mod' : (appData.userRank || 'default')
+  };
+
+  if (isFirebaseConfigured && db) {
+    try {
+      const docRef = db.collection('public_comments').doc(commentId);
+      const doc = await docRef.get();
+      if (doc.exists) {
+        const existing = doc.data().replies || [];
+        existing.push(reply);
+        await docRef.update({ replies: existing });
+        textarea.value = '';
+        document.getElementById('replyForm_' + commentId).style.display = 'none';
+        showToast(currentLang === 'tr' ? 'Yanıt gönderildi! 💬' : 'Reply sent! 💬', 'success');
+        renderComments();
+      }
+    } catch(e) {
+      console.error('Reply Error:', e);
+      showToast(currentLang === 'tr' ? 'Yanıt gönderilemedi!' : 'Failed to send reply!', 'error');
+    }
+  } else {
+    // Local mode
+    let localComments = JSON.parse(localStorage.getItem('zyro_local_comments') || '[]');
+    const idx = localComments.findIndex(c => c.id === commentId || c.timestamp === parseInt(commentId));
+    if (idx > -1) {
+      if (!localComments[idx].replies) localComments[idx].replies = [];
+      localComments[idx].replies.push(reply);
+      localStorage.setItem('zyro_local_comments', JSON.stringify(localComments));
+      textarea.value = '';
+      document.getElementById('replyForm_' + commentId).style.display = 'none';
+      showToast(currentLang === 'tr' ? 'Yanıt kaydedildi.' : 'Reply saved.', 'success');
       renderComments();
     }
   }
@@ -3729,3 +3869,285 @@ window.adminShowSection = async function(section) {
     `;
   }
 };
+
+// =============================================
+// NOTIFICATION SYSTEM
+// =============================================
+
+const NOTIF_ICONS = {
+  announcement: '📢',
+  update:       '🆕',
+  maintenance:  '🔧',
+  info:         '💡',
+};
+
+const NOTIF_COLORS = {
+  announcement: '#8b7cf7',
+  update:       '#4ecb8d',
+  maintenance:  '#e0943a',
+  info:         '#5c8ade',
+};
+
+function initNotifications() {
+  const bellBtn  = document.getElementById('notifBellBtn');
+  const drawer   = document.getElementById('notifDrawer');
+  const backdrop = document.getElementById('notifBackdrop');
+  const markAllBtn = document.getElementById('markAllReadBtn');
+
+  if (!bellBtn) return;
+
+  bellBtn.addEventListener('click', () => {
+    const isOpen = drawer.classList.contains('open');
+    if (isOpen) {
+      drawer.classList.remove('open');
+      backdrop.classList.remove('visible');
+    } else {
+      drawer.classList.add('open');
+      backdrop.classList.add('visible');
+      renderNotifDrawer();
+    }
+  });
+
+  if (markAllBtn) markAllBtn.addEventListener('click', markAllNotificationsRead);
+
+  // Type selector toggle
+  document.querySelectorAll('.notif-type-label').forEach(label => {
+    label.addEventListener('click', () => {
+      document.querySelectorAll('.notif-type-label').forEach(l => l.classList.remove('active'));
+      label.classList.add('active');
+    });
+  });
+
+  // Send notification button
+  const sendNotifBtn = document.getElementById('sendNotifBtn');
+  if (sendNotifBtn) sendNotifBtn.addEventListener('click', sendAdminNotification);
+
+  loadAndCheckNotifications();
+  requestPushPermission();
+}
+
+async function loadAndCheckNotifications() {
+  if (!isFirebaseConfigured || !db) return;
+  const readIds = getReadNotifIds();
+  try {
+    db.collection('notifications').orderBy('timestamp', 'desc').limit(30).onSnapshot(snap => {
+      const notifs = [];
+      snap.forEach(doc => notifs.push({ id: doc.id, ...doc.data() }));
+      const unread = notifs.filter(n => !readIds.has(n.id));
+      updateNotifBadge(unread.length);
+      if (unread.length > 0) showNotifBanner(unread[0], unread.length);
+    });
+  } catch(e) { console.error('Notification load error:', e); }
+}
+
+async function renderNotifDrawer() {
+  const list = document.getElementById('notifList');
+  if (!list) return;
+  list.innerHTML = `<div style="padding:20px;text-align:center;color:var(--text-muted);"><div class="loading-spinner" style="margin:0 auto 10px;"></div>Yükleniyor...</div>`;
+
+  if (!isFirebaseConfigured || !db) {
+    list.innerHTML = `<div class="notif-empty"><p>Firebase bağlı değil</p></div>`;
+    return;
+  }
+  try {
+    const snap = await db.collection('notifications').orderBy('timestamp', 'desc').limit(20).get();
+    const readIds = getReadNotifIds();
+    if (snap.empty) {
+      list.innerHTML = `<div class="notif-empty"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="opacity:0.3;"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><p>Henüz bildirim yok</p></div>`;
+      return;
+    }
+    list.innerHTML = '';
+    snap.forEach(doc => {
+      const n = { id: doc.id, ...doc.data() };
+      const isRead = readIds.has(n.id);
+      const icon   = NOTIF_ICONS[n.type] || '🔔';
+      const color  = NOTIF_COLORS[n.type] || 'var(--accent-primary)';
+      const item   = document.createElement('div');
+      item.className = `notif-item ${isRead ? 'read' : 'unread'}`;
+      item.dataset.id = n.id;
+      item.innerHTML = `
+        <div class="notif-item-icon" style="background:${color}22;color:${color};">${icon}</div>
+        <div class="notif-item-body">
+          <div class="notif-item-title">${n.title || 'Bildirim'}</div>
+          <div class="notif-item-msg">${n.message || ''}</div>
+          <div class="notif-item-time">${formatTimeAgo(n.timestamp)}</div>
+        </div>
+        ${!isRead ? `<div class="notif-unread-dot"></div>` : ''}
+      `;
+      item.addEventListener('click', () => {
+        markNotificationRead(n.id);
+        item.classList.replace('unread','read');
+        item.querySelector('.notif-unread-dot')?.remove();
+      });
+      list.appendChild(item);
+    });
+  } catch(e) {
+    console.error('Notif render error:', e);
+    list.innerHTML = `<div class="notif-empty"><p style="color:var(--red-vivid);">Yükleme hatası</p></div>`;
+  }
+}
+
+async function sendAdminNotification() {
+  if (!currentUser || currentUser.email !== 'wupard@gmail.com') {
+    showToast('Yalnızca adminler bildirim gönderebilir!', 'error');
+    return;
+  }
+  const title   = document.getElementById('notifTitleInput')?.value.trim();
+  const message = document.getElementById('notifMessageInput')?.value.trim();
+  const type    = document.querySelector('input[name="notifType"]:checked')?.value || 'announcement';
+  if (!title || !message) { showToast('Başlık ve mesaj zorunludur!', 'error'); return; }
+  if (!isFirebaseConfigured || !db) { showToast('Firebase bağlı değil!', 'error'); return; }
+
+  const sendBtn = document.getElementById('sendNotifBtn');
+  if (sendBtn) { sendBtn.disabled = true; sendBtn.textContent = 'Gönderiliyor...'; }
+
+  try {
+    await db.collection('notifications').add({
+      title, message, type,
+      sentBy: currentUser.displayName || 'Admin',
+      timestamp: Date.now(),
+    });
+    showToast('✅ Bildirim tüm kullanıcılara gönderildi!', 'success');
+    if (document.getElementById('notifTitleInput'))   document.getElementById('notifTitleInput').value = '';
+    if (document.getElementById('notifMessageInput')) document.getElementById('notifMessageInput').value = '';
+  } catch(e) {
+    showToast('Bildirim gönderilemedi: ' + e.message, 'error');
+  } finally {
+    if (sendBtn) {
+      sendBtn.disabled = false;
+      sendBtn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg> Tüm Kullanıcılara Gönder`;
+    }
+  }
+}
+
+function updateNotifBadge(count) {
+  const badge = document.getElementById('notifBadge');
+  if (!badge) return;
+  if (count > 0) {
+    badge.textContent = count > 99 ? '99+' : count;
+    badge.style.display = 'flex';
+    document.getElementById('notifBellBtn')?.classList.add('has-notif');
+  } else {
+    badge.style.display = 'none';
+    document.getElementById('notifBellBtn')?.classList.remove('has-notif');
+  }
+}
+
+let _bannerTimeout = null;
+function showNotifBanner(notif, totalUnread) {
+  const banner = document.getElementById('notifBanner');
+  const titleEl= document.getElementById('notifBannerTitle');
+  const bodyEl = document.getElementById('notifBannerBody');
+  if (!banner || !titleEl || !bodyEl) return;
+  if (document.getElementById('notifDrawer')?.classList.contains('open')) return;
+
+  const icon = NOTIF_ICONS[notif.type] || '🔔';
+  titleEl.textContent = `${icon} ${notif.title || 'Yeni bildirim'}`;
+  bodyEl.textContent  = totalUnread > 1
+    ? `${totalUnread} okunmamış bildiriminiz var`
+    : (notif.message || 'Tıklayarak görüntüleyin.');
+
+  banner.style.display = 'flex';
+  banner.classList.remove('notif-banner-out');
+  setTimeout(() => banner.classList.add('notif-banner-in'), 10);
+
+  banner.onclick = (e) => {
+    if (e.target.closest('.notif-banner-close')) return;
+    closeNotifBanner();
+    document.getElementById('notifDrawer')?.classList.add('open');
+    document.getElementById('notifBackdrop')?.classList.add('visible');
+    renderNotifDrawer();
+  };
+
+  // Also send browser push notification
+  sendBrowserPushNotif(
+    (NOTIF_ICONS[notif.type] || '🔔') + ' ' + (notif.title || 'Zyro Bildirimi'),
+    notif.message || '',
+    '/favicon.svg'
+  );
+
+  if (_bannerTimeout) clearTimeout(_bannerTimeout);
+  _bannerTimeout = setTimeout(() => closeNotifBanner(), 6000);
+}
+
+window.closeNotifBanner = function() {
+  const banner = document.getElementById('notifBanner');
+  if (!banner) return;
+  banner.classList.remove('notif-banner-in');
+  banner.classList.add('notif-banner-out');
+  setTimeout(() => { banner.style.display = 'none'; banner.classList.remove('notif-banner-out'); }, 380);
+};
+
+function getReadNotifIds() {
+  const key = `zyro_read_notifs_${currentUser?.uid || 'local'}`;
+  try { return new Set(JSON.parse(localStorage.getItem(key) || '[]')); }
+  catch { return new Set(); }
+}
+
+function markNotificationRead(id) {
+  const key = `zyro_read_notifs_${currentUser?.uid || 'local'}`;
+  const ids = getReadNotifIds();
+  ids.add(id);
+  localStorage.setItem(key, JSON.stringify([...ids]));
+  refreshNotifBadge();
+}
+
+async function markAllNotificationsRead() {
+  if (!isFirebaseConfigured || !db) return;
+  try {
+    const snap = await db.collection('notifications').orderBy('timestamp', 'desc').limit(30).get();
+    const ids = getReadNotifIds();
+    snap.forEach(doc => ids.add(doc.id));
+    localStorage.setItem(`zyro_read_notifs_${currentUser?.uid || 'local'}`, JSON.stringify([...ids]));
+    updateNotifBadge(0);
+    renderNotifDrawer();
+    showToast('Tüm bildirimler okundu işaretlendi ✓', 'success');
+  } catch(e) { console.error('Mark all read error:', e); }
+}
+
+async function refreshNotifBadge() {
+  if (!isFirebaseConfigured || !db) return;
+  const readIds = getReadNotifIds();
+  try {
+    const snap = await db.collection('notifications').orderBy('timestamp', 'desc').limit(30).get();
+    let unread = 0;
+    snap.forEach(doc => { if (!readIds.has(doc.id)) unread++; });
+    updateNotifBadge(unread);
+  } catch(e) {}
+}
+
+function formatTimeAgo(ts) {
+  const diff  = Date.now() - ts;
+  const mins  = Math.floor(diff / 60000);
+  const hours = Math.floor(diff / 3600000);
+  const days  = Math.floor(diff / 86400000);
+  if (mins < 1)   return 'Az önce';
+  if (mins < 60)  return `${mins} dakika önce`;
+  if (hours < 24) return `${hours} saat önce`;
+  return `${days} gün önce`;
+}
+
+async function requestPushPermission() {
+  if (!('Notification' in window) || !('serviceWorker' in navigator)) return;
+  if (Notification.permission === 'default') {
+    setTimeout(async () => {
+      try { await Notification.requestPermission(); } catch(e) {}
+    }, 5000);
+  }
+}
+
+function sendBrowserPushNotif(title, body, icon) {
+  if (!('Notification' in window)) return;
+  if (Notification.permission === 'granted') {
+    try {
+      new Notification(title, { body, icon: icon || '/favicon.svg', badge: '/favicon.svg', tag: 'zyro-notif' });
+    } catch(e) { console.warn('Push notif failed:', e); }
+  }
+}
+
+function showAdminNotifPanel() {
+  const panel = document.getElementById('adminNotifPanel');
+  if (panel && currentUser && currentUser.email === 'wupard@gmail.com') {
+    panel.style.display = 'block';
+  }
+}

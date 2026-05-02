@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="ic_launcher_background">#0D0D14</color>
+    <string name="add_entry">Add Entry</string>
+    <string name="after">After</string>
+    <string name="after_photo">After</string>
+    <string name="app_name">Zyro</string>
+    <string name="before">Before</string>
+    <string name="before_photo">Before</string>
+    <string name="camera">Camera</string>
+    <string name="cancel">Cancel</string>
+    <string name="current_weight">Current Weight</string>
+    <string name="dashboard">Dashboard</string>
+    <string name="date">Date</string>
+    <string name="default_web_client_id" translatable="false">909109062896-r9rm44n06ftdamo7q395rjp6a90e6d2c.apps.googleusercontent.com</string>
+    <string name="gallery">Gallery</string>
+    <string name="gcm_defaultSenderId" translatable="false">909109062896</string>
+    <string name="google_api_key" translatable="false">AIzaSyA8ayOjgr7ue3fede45AwC86mh7hRhSF_s</string>
+    <string name="google_app_id" translatable="false">1:909109062896:android:bd493bccec1d7cc4446635</string>
+    <string name="google_crash_reporting_api_key" translatable="false">AIzaSyA8ayOjgr7ue3fede45AwC86mh7hRhSF_s</string>
+    <string name="google_storage_bucket" translatable="false">zyro-d98d6.firebasestorage.app</string>
+    <string name="kg">kg</string>
+    <string name="log_weight">Log Weight</string>
+    <string name="notes">Notes</string>
+    <string name="photo_type">Photo Type</string>
+    <string name="profile">Profile</string>
+    <string name="progress_photos">Progress Photos</string>
+    <string name="progress_to_goal">Progress to Goal</string>
+    <string name="project_id" translatable="false">zyro-d98d6</string>
+    <string name="save">Save</string>
+    <string name="select_photo_source">Select Photo Source</string>
+    <string name="sign_in_with_google">Sign in with Google</string>
+    <string name="sign_out">Sign Out</string>
+    <string name="target_weight">Target Weight</string>
+    <string name="upload_photo">Upload Photo</string>
+    <string name="weight">Weight</string>
+    <string name="weight_history">Weight History</string>
+    <string name="weight_log">Weight Log</string>
+    <string name="welcome_back">Welcome back</string>
+    <style name="Theme.Zyro" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:statusBarColor">@android:color/transparent</item>
+    </style>
+</resources>
