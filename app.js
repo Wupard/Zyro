@@ -769,10 +769,18 @@ function updateUserUI(user){
       navComments.innerHTML += ` <span class="admin-badge" style="background:var(--accent-primary); color:white; font-size:0.6rem; padding:2px 4px; border-radius:4px; margin-left:4px;">ADMIN</span>`;
     }
     renderAdminPanel();
-    if(document.getElementById('adminNotifPanel')) document.getElementById('adminNotifPanel').style.display = 'block';
+    if(document.getElementById('notifAdminForm')) {
+      document.getElementById('notifAdminForm').style.display = 'block';
+      // Recipient selector listener
+      const rec = document.getElementById('notifRecipient');
+      const target = document.getElementById('notifTargetUid');
+      if (rec && target) {
+        rec.onchange = () => target.style.display = rec.value === 'user' ? 'block' : 'none';
+      }
+    }
   } else {
     document.body.classList.remove('is-admin');
-    if(document.getElementById('adminNotifPanel')) document.getElementById('adminNotifPanel').style.display = 'none';
+    if(document.getElementById('notifAdminForm')) document.getElementById('notifAdminForm').style.display = 'none';
   }
 
   // Update current user rank from Firestore in real-time
@@ -3932,9 +3940,16 @@ async function loadAndCheckNotifications() {
   if (!isFirebaseConfigured || !db) return;
   const readIds = getReadNotifIds();
   try {
-    db.collection('notifications').orderBy('timestamp', 'desc').limit(30).onSnapshot(snap => {
-      const notifs = [];
-      snap.forEach(doc => notifs.push({ id: doc.id, ...doc.data() }));
+    db.collection('notifications').orderBy('timestamp', 'desc').limit(50).onSnapshot(snap => {
+      const readIds = getReadNotifIds();
+      const now = Date.now();
+      const notifs = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }))
+        .filter(n => {
+          if (n.expiresAt && now > n.expiresAt) return false;
+          if (!n.recipient || n.recipient === 'all') return true;
+          if (n.recipient === 'user' && currentUser && n.targetUid === currentUser.uid) return true;
+          return false;
+        });
       const unread = notifs.filter(n => !readIds.has(n.id));
       updateNotifBadge(unread.length);
       if (unread.length > 0) showNotifBanner(unread[0], unread.length);
@@ -3952,15 +3967,23 @@ async function renderNotifDrawer() {
     return;
   }
   try {
-    const snap = await db.collection('notifications').orderBy('timestamp', 'desc').limit(20).get();
+    const snap = await db.collection('notifications').orderBy('timestamp', 'desc').limit(40).get();
     const readIds = getReadNotifIds();
-    if (snap.empty) {
+    const now = Date.now();
+    const notifs = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }))
+      .filter(n => {
+        if (n.expiresAt && now > n.expiresAt) return false;
+        if (!n.recipient || n.recipient === 'all') return true;
+        if (n.recipient === 'user' && currentUser && n.targetUid === currentUser.uid) return true;
+        return false;
+      });
+
+    if (notifs.length === 0) {
       list.innerHTML = `<div class="notif-empty"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="opacity:0.3;"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><p>Henüz bildirim yok</p></div>`;
       return;
     }
     list.innerHTML = '';
-    snap.forEach(doc => {
-      const n = { id: doc.id, ...doc.data() };
+    notifs.forEach(n => {
       const isRead = readIds.has(n.id);
       const icon   = NOTIF_ICONS[n.type] || '🔔';
       const color  = NOTIF_COLORS[n.type] || 'var(--accent-primary)';
@@ -3972,7 +3995,10 @@ async function renderNotifDrawer() {
         <div class="notif-item-body">
           <div class="notif-item-title">${n.title || 'Bildirim'}</div>
           <div class="notif-item-msg">${n.message || ''}</div>
-          <div class="notif-item-time">${formatTimeAgo(n.timestamp)}</div>
+          <div class="notif-item-footer" style="display:flex; justify-content:space-between; align-items:center; margin-top:8px; font-size:0.65rem; color:var(--text-muted); opacity:0.7;">
+            <span>${n.sentBy || 'Admin'} • ${formatTimeAgo(n.timestamp)}</span>
+            ${n.expiresAt ? `<span>Süre: ${Math.round((n.expiresAt - Date.now()) / 86400000)} gün</span>` : ''}
+          </div>
         </div>
         ${!isRead ? `<div class="notif-unread-dot"></div>` : ''}
       `;
@@ -3994,30 +4020,46 @@ async function sendAdminNotification() {
     showToast('Yalnızca adminler bildirim gönderebilir!', 'error');
     return;
   }
-  const title   = document.getElementById('notifTitleInput')?.value.trim();
-  const message = document.getElementById('notifMessageInput')?.value.trim();
-  const type    = document.querySelector('input[name="notifType"]:checked')?.value || 'announcement';
+  const title       = document.getElementById('notifTitleInput')?.value.trim();
+  const message     = document.getElementById('notifMessageInput')?.value.trim();
+  const recipient   = document.getElementById('notifRecipient')?.value || 'all';
+  const targetUid   = document.getElementById('notifTargetUid')?.value.trim();
+  const expiryDays  = parseInt(document.getElementById('notifExpiryDays')?.value) || 7;
+  
   if (!title || !message) { showToast('Başlık ve mesaj zorunludur!', 'error'); return; }
+  if (recipient === 'user' && !targetUid) { showToast('Kullanıcı UID zorunludur!', 'error'); return; }
   if (!isFirebaseConfigured || !db) { showToast('Firebase bağlı değil!', 'error'); return; }
 
   const sendBtn = document.getElementById('sendNotifBtn');
   if (sendBtn) { sendBtn.disabled = true; sendBtn.textContent = 'Gönderiliyor...'; }
 
   try {
+    const timestamp = Date.now();
+    const expiresAt = timestamp + (expiryDays * 86400000);
+    
     await db.collection('notifications').add({
-      title, message, type,
-      sentBy: currentUser.displayName || 'Admin',
-      timestamp: Date.now(),
+      title, 
+      message, 
+      type: 'announcement',
+      recipient,
+      targetUid: recipient === 'user' ? targetUid : null,
+      expiresAt,
+      sentBy: currentUser.displayName || currentUser.email,
+      timestamp,
     });
-    showToast('✅ Bildirim tüm kullanıcılara gönderildi!', 'success');
+    
+    showToast('✅ Bildirim başarıyla gönderildi!', 'success');
     if (document.getElementById('notifTitleInput'))   document.getElementById('notifTitleInput').value = '';
     if (document.getElementById('notifMessageInput')) document.getElementById('notifMessageInput').value = '';
+    if (document.getElementById('notifTargetUid'))    document.getElementById('notifTargetUid').value = '';
+    
+    renderNotifDrawer(); // Refresh list
   } catch(e) {
     showToast('Bildirim gönderilemedi: ' + e.message, 'error');
   } finally {
     if (sendBtn) {
       sendBtn.disabled = false;
-      sendBtn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg> Tüm Kullanıcılara Gönder`;
+      sendBtn.textContent = 'Gönder';
     }
   }
 }

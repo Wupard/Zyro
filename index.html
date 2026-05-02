@@ -147,8 +147,8 @@
                 </svg>
               </div>
               <span id="streakText">Day 1</span>
-            </div>
           </div>
+        </div>
       </div>
       <!-- Notification Bell -->
       <div class="header-right">
@@ -167,6 +167,43 @@
     <!-- Notification Drawer -->
     <div class="notif-drawer" id="notifDrawer">
       <div class="notif-drawer-inner">
+        <!-- Admin Notification Form (Hidden by default, shown for admins) -->
+        <div class="notif-admin-form" id="notifAdminForm" style="display:none; padding:16px; background:rgba(139,124,247,0.05); border-bottom:1px solid var(--border-subtle);">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+            <div style="display:flex; align-items:center; gap:8px;">
+              <span style="font-size:1rem;">📢</span>
+              <h4 style="margin:0; font-size:0.85rem; font-weight:700; color:var(--accent-primary);">Bildirim Gönder</h4>
+            </div>
+            <span style="font-size:0.6rem; background:rgba(139,124,247,0.2); color:var(--accent-primary); padding:2px 6px; border-radius:4px; font-weight:800;">ADMIN</span>
+          </div>
+          
+          <div style="display:flex; flex-direction:column; gap:10px;">
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
+              <div style="display:flex; flex-direction:column; gap:4px;">
+                <label style="font-size:0.65rem; color:var(--text-muted); font-weight:600;">ALICI</label>
+                <select id="notifRecipient" class="log-input" style="height:32px; font-size:0.75rem; padding:0 8px;">
+                  <option value="all">Tüm Kullanıcılar</option>
+                  <option value="user">Özel Kullanıcı (UID)</option>
+                </select>
+              </div>
+              <div style="display:flex; flex-direction:column; gap:4px;">
+                <label style="font-size:0.65rem; color:var(--text-muted); font-weight:600;">SÜRE (GÜN)</label>
+                <input type="number" id="notifExpiryDays" class="log-input" value="7" min="1" max="365" style="height:32px; font-size:0.75rem; padding:0 8px;">
+              </div>
+            </div>
+            
+            <input type="text" id="notifTargetUid" class="log-input" placeholder="Kullanıcı UID yapıştırın..." style="display:none; height:32px; font-size:0.75rem; padding:0 8px;">
+            
+            <input type="text" id="notifTitleInput" class="log-input" placeholder="Başlık..." style="height:32px; font-size:0.75rem; padding:0 8px;">
+            <textarea id="notifMessageInput" class="note-input" rows="2" placeholder="Mesaj içeriği..." style="font-size:0.75rem; padding:8px;"></textarea>
+            
+            <div style="display:flex; gap:8px;">
+              <button class="btn-primary" id="sendNotifBtn" style="flex:1; padding:8px; font-size:0.75rem; font-weight:700;">
+                Gönder
+              </button>
+            </div>
+          </div>
+        </div>
         <div class="notif-drawer-header">
           <div style="display:flex;align-items:center;gap:10px;">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent-primary)" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
@@ -673,39 +710,7 @@
         </div>
       </section>
 
-      <!-- Admin Notification Panel (hidden for non-admins via JS) -->
-      <section class="card admin-notif-panel" id="adminNotifPanel" style="display:none; border-color: rgba(255,215,0,0.2); background: linear-gradient(145deg, rgba(255,215,0,0.03), var(--bg-card));">
-        <div class="card-header">
-          <div style="display:flex;align-items:center;gap:10px;">
-            <span style="font-size:1.2rem;">🔔</span>
-            <h3 class="card-title" style="color:#FFD700;">Bildirim Gönder</h3>
-          </div>
-          <span style="font-size:0.65rem;background:rgba(255,215,0,0.15);color:#FFD700;padding:3px 8px;border-radius:6px;font-weight:800;letter-spacing:0.05em;">ADMIN</span>
-        </div>
-        <div style="display:flex;flex-direction:column;gap:16px;">
-          <div style="display:flex;flex-direction:column;gap:6px;">
-            <label style="font-size:0.72rem;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.04em;font-weight:700;">Bildirim Türü</label>
-            <div style="display:flex;gap:10px;flex-wrap:wrap;" id="notifTypeSelector">
-              <label class="notif-type-label active" data-type="announcement"><input type="radio" name="notifType" value="announcement" checked style="display:none;"><span>📢 Duyuru</span></label>
-              <label class="notif-type-label" data-type="update"><input type="radio" name="notifType" value="update" style="display:none;"><span>🆕 Güncelleme</span></label>
-              <label class="notif-type-label" data-type="maintenance"><input type="radio" name="notifType" value="maintenance" style="display:none;"><span>🔧 Bakım</span></label>
-              <label class="notif-type-label" data-type="info"><input type="radio" name="notifType" value="info" style="display:none;"><span>💡 Bilgi</span></label>
-            </div>
-          </div>
-          <div style="display:flex;flex-direction:column;gap:6px;">
-            <label style="font-size:0.72rem;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.04em;font-weight:700;">Başlık</label>
-            <input type="text" id="notifTitleInput" class="log-input" placeholder="Bildirim başlığı..." maxlength="80">
-          </div>
-          <div style="display:flex;flex-direction:column;gap:6px;">
-            <label style="font-size:0.72rem;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.04em;font-weight:700;">Mesaj</label>
-            <textarea class="note-input" id="notifMessageInput" rows="3" placeholder="Bildirim içeriği..."></textarea>
-          </div>
-          <button class="btn-primary" id="sendNotifBtn" style="background:linear-gradient(135deg,#b8860b,#FFD700);color:#000;font-weight:800;">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-            Tüm Kullanıcılara Gönder
-          </button>
-        </div>
-      </section>
+      <!-- Admin Notification Panel Moved to Drawer -->
 
       <section class="card" id="publicCommentsCard">
         <div class="card-header">
