@@ -1842,20 +1842,275 @@ document.addEventListener('DOMContentLoaded',()=>{
   
   const notifBellBtn = document.getElementById('notifBellBtn');
   const notifDrawer = document.getElementById('notifDrawer');
+  const notifBackdrop = document.getElementById('notifBackdrop');
   if (notifBellBtn && notifDrawer) {
     notifBellBtn.addEventListener('click', () => {
       notifDrawer.classList.add('open');
+      if (notifBackdrop) notifBackdrop.classList.add('visible');
     });
+  }
+
+  if (notifBackdrop && notifDrawer) {
+    notifBackdrop.addEventListener('click', () => {
+      notifDrawer.classList.remove('open');
+      notifBackdrop.classList.remove('visible');
+    });
+  }
+
+  const markAllReadBtn = document.getElementById('markAllReadBtn');
+  if (markAllReadBtn) {
+    markAllReadBtn.addEventListener('click', markAllNotificationsAsRead);
   }
 
   loadData(()=>{
     refreshAllViews();
     renderAchievements();
     renderProgressPhotos();
+    initNotifications(); // 2.5: Initialize notifications system
     // Update sidebar after data load
     if(currentUser) updateUserUI(currentUser);
   });
 });
+
+// =============================================
+// NOTIFICATIONS (2.5) — Banner & Admin
+// =============================================
+let activeNotifications = [];
+let notifUnsubscribe = null;
+
+function initNotifications() {
+  if (!currentUser) return;
+
+  const isAdmin = currentUser.email === 'admin@zyro.com' || currentUser.uid === 'ADMIN_UID_HERE'; 
+
+  // Cleanup old listener
+  if (notifUnsubscribe) notifUnsubscribe();
+
+  const notifList = document.getElementById('notifList');
+  const badge = document.getElementById('notifBadge');
+  const banner = document.getElementById('notifBanner');
+
+  // 1. System/Broadcast Notifications (Real-time)
+  const broadcastsRef = db.collection('broadcasts').orderBy('timestamp', 'desc').limit(20);
+  
+  // 2. Personal Notifications (Real-time)
+  const personalRef = db.collection(`users/${currentUser.uid}/notifications`).orderBy('timestamp', 'desc').limit(20);
+
+  // Combine and listen
+  const syncNotifs = () => {
+    Promise.all([broadcastsRef.get(), personalRef.get()]).then(([bSnap, pSnap]) => {
+      const all = [];
+      bSnap.forEach(doc => all.push({ id: doc.id, ...doc.data(), scope: 'broadcast' }));
+      pSnap.forEach(doc => all.push({ id: doc.id, ...doc.data(), scope: 'personal' }));
+      
+      // Sort by timestamp
+      all.sort((a, b) => b.timestamp - a.timestamp);
+      activeNotifications = all;
+      renderNotificationList();
+      updateNotifBadge();
+      if (isAdmin) renderAdminHistory();
+    });
+  };
+
+  // Set up listeners for real-time updates
+  const unsub1 = broadcastsRef.onSnapshot(snap => {
+    // Check for NEW system broadcast to auto-open
+    snap.docChanges().forEach(change => {
+      if (change.type === 'added') {
+        const data = change.doc.data();
+        const isNew = (Date.now() - data.timestamp) < 5000; // Last 5 seconds
+        if (isNew && data.type === 'broadcast') {
+          showSystemNotification(data);
+        }
+      }
+    });
+    syncNotifs();
+  });
+
+  const unsub2 = personalRef.onSnapshot(() => syncNotifs());
+  notifUnsubscribe = () => { unsub1(); unsub2(); };
+
+  // Admin Panel Visibility
+  const adminPanel = document.getElementById('adminBroadcastPanel');
+  if (adminPanel) {
+    adminPanel.style.display = isAdmin ? 'block' : 'none';
+  }
+}
+
+function renderAdminHistory() {
+  const historyContainer = document.getElementById('adminNotifHistory');
+  if (!historyContainer) return;
+
+  // Show only last 5 sent by current user or broadcasts
+  const history = activeNotifications.slice(0, 5);
+  
+  if (history.length === 0) {
+    historyContainer.innerHTML = '<div style="font-size:0.7rem; color:var(--text-tertiary);">Geçmiş bulunamadı.</div>';
+    return;
+  }
+
+  historyContainer.innerHTML = history.map(h => `
+    <div style="padding: 6px 10px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); border-radius: 6px; display: flex; align-items: center; justify-content: space-between;">
+      <div style="overflow: hidden;">
+        <div style="font-size: 0.72rem; font-weight: 700; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${h.title}</div>
+        <div style="font-size: 0.62rem; color: var(--text-tertiary);">${new Date(h.timestamp).toLocaleDateString()}</div>
+      </div>
+      <button onclick="deleteNotification('${h.id}', '${h.scope}')" style="background: none; border: none; color: var(--text-muted); cursor: pointer; padding: 4px;">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+      </button>
+    </div>
+  `).join('');
+}
+
+window.deleteNotification = function(id, scope) {
+  if (!confirm('Bu bildirimi silmek istediğinize emin misiniz?')) return;
+  const path = scope === 'broadcast' ? `broadcasts/${id}` : `users/${currentUser.uid}/notifications/${id}`;
+  db.doc(path).delete().then(() => {
+    showToast('Bildirim silindi.', 'success');
+  }).catch(e => console.error('Delete notif failed:', e));
+};
+
+window.markAllNotificationsAsRead = function() {
+  if (!currentUser || activeNotifications.length === 0) return;
+  
+  const unread = activeNotifications.filter(n => !n.read);
+  if (unread.length === 0) {
+    showToast('Tüm bildirimler zaten okundu.', 'info');
+    return;
+  }
+
+  const batch = db.batch();
+  unread.forEach(n => {
+    const path = n.scope === 'broadcast' ? `broadcasts/${n.id}` : `users/${currentUser.uid}/notifications/${n.id}`;
+    batch.update(db.doc(path), { read: true });
+  });
+
+  batch.commit().then(() => {
+    showToast('Tüm bildirimler okundu olarak işaretlendi.', 'success');
+  }).catch(e => console.error('Batch read mark failed:', e));
+};
+
+function renderNotificationList() {
+  const container = document.getElementById('notifList');
+  if (!container) return;
+
+  if (activeNotifications.length === 0) {
+    container.innerHTML = `<div class="notif-empty">
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="opacity:0.3;"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+      <p>Henüz bildirim yok</p>
+    </div>`;
+    return;
+  }
+
+  container.innerHTML = activeNotifications.map(n => {
+    const isUnread = !n.read;
+    const date = new Date(n.timestamp).toLocaleDateString(currentLang === 'tr' ? 'tr-TR' : 'en-US', { hour: '2-digit', minute: '2-digit' });
+    const icon = n.type === 'broadcast' ? '📢' : '🔔';
+    
+    return `
+      <div class="notif-item ${isUnread ? 'unread' : ''}" onclick="markAsRead('${n.id}', '${n.scope}')">
+        <div class="notif-item-icon">${icon}</div>
+        <div class="notif-item-body">
+          <div class="notif-item-title">${n.title}</div>
+          <div class="notif-item-msg">${n.body}</div>
+          <div class="notif-item-time">${date}</div>
+        </div>
+        ${isUnread ? '<div class="notif-unread-dot"></div>' : ''}
+      </div>
+    `;
+  }).join('');
+}
+
+function updateNotifBadge() {
+  const badge = document.getElementById('notifBadge');
+  if (!badge) return;
+  const unreadCount = activeNotifications.filter(n => !n.read).length;
+  if (unreadCount > 0) {
+    badge.textContent = unreadCount;
+    badge.style.display = 'flex';
+  } else {
+    badge.style.display = 'none';
+  }
+}
+
+function showSystemNotification(data) {
+  const banner = document.getElementById('notifBanner');
+  const title = document.getElementById('notifBannerTitle');
+  const body = document.getElementById('notifBannerBody');
+  if (!banner || !title || !body) return;
+
+  title.textContent = data.title;
+  body.textContent = data.body;
+  banner.style.display = 'flex';
+  
+  // Auto-hide after 10s
+  setTimeout(() => {
+    banner.style.display = 'none';
+  }, 10000);
+}
+
+window.markAsRead = function(id, scope) {
+  if (!currentUser) return;
+  const path = scope === 'broadcast' ? `broadcasts/${id}` : `users/${currentUser.uid}/notifications/${id}`;
+  
+  // Note: Broadcast read status is usually per-user, but for simplicity here we mark the doc
+  // In a real app, you'd store read status in user's profile
+  db.doc(path).update({ read: true }).catch(e => console.error('Mark read failed:', e));
+};
+
+window.closeNotifBanner = function() {
+  const banner = document.getElementById('notifBanner');
+  if (banner) banner.style.display = 'none';
+};
+
+window.sendAdminBroadcast = function() {
+  const btn = document.getElementById('adminSendNotifBtn');
+  const btnText = btn.querySelector('.btn-text');
+  const loader = btn.querySelector('.btn-loader');
+  
+  const title = document.getElementById('adminNotifTitle').value;
+  const msg = document.getElementById('adminNotifMessage').value;
+  const recipient = document.getElementById('adminNotifRecipient').value;
+  const uid = document.getElementById('adminNotifUid').value;
+  const expiryDays = parseInt(document.getElementById('adminNotifExpiry').value) || 7;
+
+  if (!title || !msg) {
+    showToast('Lütfen başlık ve mesaj girin.', 'error');
+    return;
+  }
+
+  // Loading state
+  btn.disabled = true;
+  btnText.style.opacity = '0.5';
+  loader.style.display = 'block';
+
+  const notifData = {
+    title,
+    body: msg,
+    timestamp: Date.now(),
+    expiry: Date.now() + (expiryDays * 24 * 60 * 60 * 1000),
+    read: false,
+    type: recipient === 'all' ? 'broadcast' : 'personal',
+    sender: currentUser ? currentUser.displayName || 'Admin' : 'Admin'
+  };
+
+  const collection = recipient === 'all' ? 'broadcasts' : `users/${uid}/notifications`;
+  
+  db.collection(collection).add(notifData).then(() => {
+    showToast('Bildirim başarıyla gönderildi!', 'success');
+    document.getElementById('adminNotifTitle').value = '';
+    document.getElementById('adminNotifMessage').value = '';
+    document.getElementById('adminNotifUid').value = '';
+  }).catch(err => {
+    console.error('Broadcast error:', err);
+    showToast('Bildirim gönderilemedi.', 'error');
+  }).finally(() => {
+    btn.disabled = false;
+    btnText.style.opacity = '1';
+    loader.style.display = 'none';
+  });
+};
+
 // ==============================================
 // WEEKLY GOAL (2.5) — Bottom Sheet
 // =============================================

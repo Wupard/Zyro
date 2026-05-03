@@ -173,7 +173,7 @@
           </div>
           <div style="display:flex;gap:8px;align-items:center;">
             <button id="markAllReadBtn" style="font-size:0.72rem;color:var(--accent-primary);background:none;border:none;cursor:pointer;font-weight:600;padding:4px 8px;border-radius:6px;transition:all 0.2s;" onmouseenter="this.style.background='var(--accent-glow)'" onmouseleave="this.style.background='none'">Tümünü Oku</button>
-            <button onclick="document.getElementById('notifDrawer').classList.remove('open')" style="background:none;border:none;color:var(--text-muted);cursor:pointer;padding:4px;border-radius:6px;transition:all 0.2s;" onmouseenter="this.style.color='var(--text-primary)'" onmouseleave="this.style.color='var(--text-muted)'">
+            <button onclick="document.getElementById('notifDrawer').classList.remove('open');document.getElementById('notifBackdrop').classList.remove('visible');" style="background:none;border:none;color:var(--text-muted);cursor:pointer;padding:4px;border-radius:6px;transition:all 0.2s;" onmouseenter="this.style.color='var(--text-primary)'" onmouseleave="this.style.color='var(--text-muted)'">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
             </button>
           </div>
@@ -185,53 +185,53 @@
           </div>
         </div>
         <!-- Admin Broadcast Panel — Bottom, admins only -->
-        <div id="adminBroadcastPanel" style="display:none; flex-shrink:0; border-top:1px solid rgba(139,124,247,0.2); background:linear-gradient(180deg,rgba(139,124,247,0.04) 0%,rgba(139,124,247,0.08) 100%); padding:20px 16px 24px;">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+        <div id="adminBroadcastPanel" style="display:none; flex-shrink:0; border-top:1px solid rgba(139,124,247,0.2); background:linear-gradient(180deg,rgba(139,124,247,0.04) 0%,rgba(139,124,247,0.08) 100%); padding:16px 16px 20px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
             <div style="display:flex;align-items:center;gap:8px;">
-              <div style="width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,rgba(139,124,247,0.25),rgba(139,124,247,0.1));border:1px solid rgba(139,124,247,0.3);display:flex;align-items:center;justify-content:center;">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--accent-primary)" stroke-width="2.2"><path d="M3 11l19-9-9 19-2-8-8-2z"/></svg>
+              <div style="width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,rgba(139,124,247,0.25),rgba(139,124,247,0.1));border:1px solid rgba(139,124,247,0.3);display:flex;align-items:center;justify-content:center;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent-primary)" stroke-width="2.2"><path d="M3 11l19-9-9 19-2-8-8-2z"/></svg>
               </div>
               <div>
-                <div style="font-size:0.85rem;font-weight:700;color:var(--text-primary);">Bildirim Gönder</div>
-                <div style="font-size:0.65rem;color:var(--text-muted);">Tüm kullanıcılara veya belirli kişilere</div>
+                <div style="font-size:0.8rem;font-weight:700;color:var(--text-primary);">Bildirim Gönder</div>
               </div>
             </div>
-            <span style="font-size:0.58rem;font-weight:800;letter-spacing:0.06em;background:linear-gradient(135deg,rgba(139,124,247,0.3),rgba(139,124,247,0.1));color:var(--accent-primary);border:1px solid rgba(139,124,247,0.3);padding:3px 8px;border-radius:6px;">ADMIN</span>
+            <span style="font-size:0.55rem;font-weight:800;letter-spacing:0.06em;background:linear-gradient(135deg,rgba(139,124,247,0.3),rgba(139,124,247,0.1));color:var(--accent-primary);border:1px solid rgba(139,124,247,0.3);padding:2px 6px;border-radius:6px;">ADMIN</span>
           </div>
 
-          <div style="display:flex;flex-direction:column;gap:10px;">
-            <div style="display:grid;grid-template-columns:1.2fr 0.8fr;gap:8px;">
-              <div style="display:flex;flex-direction:column;gap:4px;">
-                <label style="font-size:0.62rem;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:0.06em;">Alıcı</label>
-                <select id="adminNotifRecipient" class="log-input" style="height:34px;font-size:0.78rem;padding:0 10px;border-radius:8px;" onchange="document.getElementById('adminNotifUid').style.display=this.value==='user'?'block':'none'">
-                  <option value="all">🌐 Tüm Kullanıcılar</option>
-                  <option value="user">👤 Özel UID</option>
-                </select>
-              </div>
-              <div style="display:flex;flex-direction:column;gap:4px;">
-                <label style="font-size:0.62rem;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:0.06em;">Süre (gün)</label>
-                <input type="number" id="adminNotifExpiry" class="log-input" value="7" min="1" max="365" style="height:34px;font-size:0.78rem;padding:0 10px;border-radius:8px;">
-              </div>
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+              <select id="adminNotifRecipient" class="log-input" style="height:32px;font-size:0.75rem;padding:0 8px;border-radius:6px;" onchange="document.getElementById('adminNotifUid').style.display=this.value==='user'?'block':'none'">
+                <option value="all">🌐 Genel (Otomatik)</option>
+                <option value="user">👤 Özel (Manuel)</option>
+              </select>
+              <input type="number" id="adminNotifExpiry" class="log-input" value="7" min="1" max="365" style="height:32px;font-size:0.75rem;padding:0 8px;border-radius:6px;" title="Süre (gün)">
             </div>
-            <input type="text" id="adminNotifUid" class="log-input" placeholder="Kullanıcı UID..." style="display:none;height:34px;font-size:0.78rem;padding:0 10px;border-radius:8px;" />
-            <div style="display:flex;flex-direction:column;gap:4px;">
-              <label style="font-size:0.62rem;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:0.06em;">Başlık</label>
-              <input type="text" id="adminNotifTitle" class="log-input" placeholder="Bildirim başlığı..." style="height:34px;font-size:0.78rem;padding:0 10px;border-radius:8px;">
-            </div>
-            <div style="display:flex;flex-direction:column;gap:4px;">
-              <label style="font-size:0.62rem;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:0.06em;">Mesaj</label>
-              <textarea id="adminNotifMessage" class="note-input" rows="3" placeholder="Bildirim içeriği..." style="font-size:0.78rem;padding:10px;border-radius:8px;resize:none;"></textarea>
-            </div>
-            <button id="adminSendNotifBtn" onclick="sendAdminBroadcast()" style="display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:11px;background:linear-gradient(135deg,var(--accent-deep),var(--accent-primary));border:none;border-radius:10px;color:white;font-size:0.82rem;font-weight:700;cursor:pointer;transition:all 0.2s;font-family:'Inter',sans-serif;" onmouseenter="this.style.transform='translateY(-1px)';this.style.boxShadow='0 6px 18px rgba(139,124,247,0.35)'" onmouseleave="this.style.transform='';this.style.boxShadow=''">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l19-9-9 19-2-8-8-2z"/></svg>
-              Bildirimi Gönder
+            <input type="text" id="adminNotifUid" class="log-input" placeholder="Kullanıcı UID..." style="display:none;height:32px;font-size:0.75rem;padding:0 8px;border-radius:6px;" />
+            <input type="text" id="adminNotifTitle" class="log-input" placeholder="Başlık..." style="height:32px;font-size:0.75rem;padding:0 8px;border-radius:6px;">
+            <textarea id="adminNotifMessage" class="note-input" rows="2" placeholder="Mesaj içeriği..." style="font-size:0.75rem;padding:8px;border-radius:6px;resize:none;"></textarea>
+            
+            <button id="adminSendNotifBtn" onclick="sendAdminBroadcast()" style="display:flex;align-items:center;justify-content:center;gap:6px;width:100%;padding:10px;background:linear-gradient(135deg,var(--accent-deep),var(--accent-primary));border:none;border-radius:8px;color:white;font-size:0.8rem;font-weight:700;cursor:pointer;transition:all 0.2s;position:relative;overflow:hidden;">
+              <span class="btn-text" style="display:flex;align-items:center;gap:6px;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l19-9-9 19-2-8-8-2z"/></svg>
+                Gönder
+              </span>
+              <div class="btn-loader" style="display:none; width:16px; height:16px; border:2px solid rgba(255,255,255,0.3); border-top-color:#fff; border-radius:50%; animation: spin 0.8s linear infinite;"></div>
             </button>
           </div>
+          
+          <!-- Admin History Section -->
+          <div style="margin-top: 16px; border-top: 1px solid rgba(139,124,247,0.1); padding-top: 12px;">
+            <div style="font-size: 0.65rem; color: var(--text-tertiary); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px;">Gönderilenler (Son 5)</div>
+            <div id="adminNotifHistory" style="display: flex; flex-direction: column; gap: 6px;">
+              <!-- Populated by JS -->
+            </div>
+          </div>
+        </div>
         </div>
       </div>
     </div>
     <!-- Notif Drawer Backdrop -->
-    <div class="notif-backdrop" id="notifBackdrop" onclick="document.getElementById('notifDrawer').classList.remove('open');document.getElementById('notifBackdrop').classList.remove('visible');"></div>
+    <div class="notif-backdrop" id="notifBackdrop"></div>
 
     <!-- New Notification Banner -->
     <div class="notif-banner" id="notifBanner" style="display:none;">

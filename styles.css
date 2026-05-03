@@ -1948,26 +1948,30 @@ html {
   font-size: 1.2rem;
   flex-shrink: 0;
 }
+.notif-item-title {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
 .notif-item-body {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 4px;
-}
-.notif-item-title {
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: var(--text-primary);
+  gap: 2px;
 }
 .notif-item-msg {
   font-size: 0.8rem;
   color: var(--text-secondary);
-  line-height: 1.4;
+  line-height: 1.3;
 }
 .notif-item-time {
   font-size: 0.7rem;
   color: var(--text-tertiary);
-  margin-top: 4px;
+  margin-top: 2px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }
 .notif-unread-dot {
   position: absolute;
