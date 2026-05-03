@@ -1753,37 +1753,41 @@ function updateStats(){
   }
   if (typeof checkStreakAchievements === 'function') checkStreakAchievements(weeklyStreak);
 
-  // ── Weekly Volume (4th stat card) ──
-  let weeklyVolume = 0;
-  for (let i = 0; i < 7; i++) {
-    const d = new Date(monday);
-    d.setDate(d.getDate() + i);
-    const key = dateStr(d);
-    const logs = appData.workoutLogs?.[key] || [];
-    logs.forEach(l => { weeklyVolume += (l.weight || 0) * (l.reps || 0) * (l.sets || 0); });
-  }
-  // All-time max week volume for bar scaling
-  let maxWeekVol = parseInt(localStorage.getItem('zyro_maxWeekVol') || '0');
-  if (weeklyVolume > maxWeekVol) {
-    maxWeekVol = weeklyVolume;
-    localStorage.setItem('zyro_maxWeekVol', maxWeekVol);
-  }
+  // ── Strength Progress (4th stat card) — Top PR ──
   const volEl = document.getElementById('statVolumeVal');
   const volBar = document.getElementById('statVolumeBar');
   const volDetail = document.getElementById('statVolumeDetail');
+  let topPR = { exercise: '', weight: 0, date: '' };
+  let allTimePRMax = 0;
+  Object.entries(appData.workoutLogs || {}).forEach(([date, logs]) => {
+    logs.forEach(l => {
+      if ((l.weight || 0) > topPR.weight) {
+        topPR = { exercise: l.exercise, weight: l.weight, date };
+      }
+      if ((l.weight || 0) > allTimePRMax) allTimePRMax = l.weight;
+    });
+  });
   if (volEl) {
-    volEl.textContent = weeklyVolume >= 1000
-      ? `${(weeklyVolume/1000).toFixed(1)}t`
-      : `${weeklyVolume.toLocaleString()} kg`;
+    volEl.textContent = topPR.weight > 0 ? `${topPR.weight} kg` : '— kg';
   }
-  if (volBar) volBar.style.width = maxWeekVol > 0 ? `${Math.min(weeklyVolume/maxWeekVol*100,100)}%` : '0%';
+  if (volBar) {
+    const storedMax = parseFloat(localStorage.getItem('zyro_prMax') || '0');
+    if (allTimePRMax > storedMax) localStorage.setItem('zyro_prMax', allTimePRMax);
+    const barMax = Math.max(allTimePRMax, storedMax, 1);
+    volBar.style.width = `${Math.min((topPR.weight / barMax) * 100, 100)}%`;
+  }
   if (volDetail) {
-    const daysWithWorkout = Array.from({length:7},(_,i)=>{const d=new Date(monday);d.setDate(d.getDate()+i);return dateStr(d);})
-      .filter(k=>(appData.workoutLogs?.[k]||[]).length>0).length;
-    volDetail.textContent = daysWithWorkout > 0
-      ? `${daysWithWorkout} günde ${weeklyVolume >= 1000 ? (weeklyVolume/1000).toFixed(1)+'t' : weeklyVolume.toLocaleString()+' kg'} kaldırıldı`
-      : 'Bu hafta henüz antrenman yok';
-    volDetail.style.color = weeklyVolume > 0 ? 'var(--orange-vivid)' : 'var(--text-tertiary)';
+    if (topPR.weight > 0) {
+      const prDate = new Date(topPR.date + 'T00:00:00');
+      const daysDiff = Math.round((new Date() - prDate) / 86400000);
+      const ago = daysDiff === 0 ? 'bugün' : daysDiff === 1 ? 'dün' : `${daysDiff} gün önce`;
+      const exShort = topPR.exercise.length > 18 ? topPR.exercise.substring(0, 17) + '…' : topPR.exercise;
+      volDetail.textContent = `${exShort} · ${ago}`;
+      volDetail.style.color = 'var(--orange-vivid)';
+    } else {
+      volDetail.textContent = 'Henüz egzersiz kaydı yok';
+      volDetail.style.color = 'var(--text-tertiary)';
+    }
   }
 }
 
