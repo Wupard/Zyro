@@ -1373,140 +1373,60 @@ window.setMuscleRange = function(range) {
   updateMuscleMap();
 };
 
-window.switchMuscleView = function(view) {
-  _muscleView = view;
-  document.getElementById('mmBtnFront')?.classList.toggle('active', view === 'front');
-  document.getElementById('mmBtnBack')?.classList.toggle('active', view === 'back');
-  const front = document.getElementById('muscleViewFront');
-  const back  = document.getElementById('muscleViewBack');
-  if (front) { front.classList.toggle('mm-visible', view === 'front'); front.classList.toggle('mm-hidden', view === 'back'); }
-  if (back)  { back.classList.toggle('mm-visible', view === 'back');  back.classList.toggle('mm-hidden', view === 'front'); }
-  closeMuscleTooltip();
-};
+window.switchMuscleView = function(view) {}; // Deprecated but kept to prevent errors if called
 
 function updateMuscleMap() {
   const vol = buildMuscleVolume();
 
-  // Apply intensity classes — ABSOLUTE thresholds (not relative)
-  document.querySelectorAll('.muscle-part').forEach(el => {
-    const m = el.dataset.muscle;
-    const sets = (vol[m] || {}).sets || 0;
-    el.classList.remove('intensity-low','intensity-mid','intensity-high','intensity-extreme');
-    if      (sets >= 16) el.classList.add('intensity-extreme');
-    else if (sets >= 11) el.classList.add('intensity-high');
-    else if (sets >= 6)  el.classList.add('intensity-mid');
-    else if (sets >= 1)  el.classList.add('intensity-low');
+  const totalSetsEl = document.getElementById('mmTotalSets');
+  const totalBarEl = document.getElementById('mmTotalBar2');
+  const exCountEl = document.getElementById('mmExCount');
+  const summary = document.getElementById('muscleSummary');
+
+  if (!totalSetsEl || !summary) return;
+
+  let totalSets = 0;
+  let allExercises = [];
+  
+  Object.values(vol).forEach(data => {
+    totalSets += data.sets;
+    data.exercises.forEach(ex => {
+      const existing = allExercises.find(e => e.name === ex.name);
+      if (existing) {
+        existing.sets += ex.sets;
+      } else {
+        allExercises.push({ name: ex.name, sets: ex.sets });
+      }
+    });
   });
 
-  // Ensure correct view classes
-  const front = document.getElementById('muscleViewFront');
-  const back  = document.getElementById('muscleViewBack');
-  if (front) { front.classList.toggle('mm-visible', _muscleView==='front'); front.classList.toggle('mm-hidden', _muscleView!=='front'); }
-  if (back)  { back.classList.toggle('mm-visible',  _muscleView==='back');  back.classList.toggle('mm-hidden',  _muscleView!=='back'); }
+  totalSetsEl.innerText = totalSets;
+  exCountEl.innerText = allExercises.length;
 
-  // Attach click listeners (once)
-  if (!document._mmClicksAttached) {
-    document._mmClicksAttached = true;
-    document.addEventListener('click', (e) => {
-      const mp = e.target.closest('.muscle-part');
-      if (mp) { e.stopPropagation(); showMuscleTooltip(mp, e); return; }
-      const tip = e.target.closest('.mm-tooltip');
-      if (!tip) closeMuscleTooltip();
-    });
+  if (totalBarEl) {
+    const maxTarget = _muscleRange === 'today' ? 30 : 150;
+    const pct = Math.min(100, Math.round((totalSets / maxTarget) * 100));
+    totalBarEl.style.width = pct + '%';
   }
 
-  // Render stats panel
-  renderMuscleStats(vol);
-}
-
-function renderMuscleStats(vol) {
-  const summary = document.getElementById('muscleSummary');
-  if (!summary) return;
-  const sorted = Object.entries(vol).sort((a,b) => b[1].sets - a[1].sets);
-  const label = document.getElementById('mmStatsLabel');
-  if (label) label.textContent = _muscleRange === 'today' ? 'BUGÜNKÜ KAS' : 'HAFTALIK KAS';
-  if (!sorted.length) {
-    summary.innerHTML = `<div class="mm-no-data"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="opacity:0.3"><path d="M6.5 6.5h11M6.5 17.5h11M12 2v4M12 18v4M4.5 8.5v7M19.5 8.5v7"/></svg><span>${_muscleRange==='today'?'Bugün egzersiz yok.':'Bu hafta egzersiz yok.'}</span></div>`;
+  if (allExercises.length === 0) {
+    summary.innerHTML = `<div class="mm-no-data" style="text-align:center;color:var(--text-muted);padding:20px 0;"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="opacity:0.3;margin-bottom:8px;"><path d="M6.5 6.5h11M6.5 17.5h11M12 2v4M12 18v4M4.5 8.5v7M19.5 8.5v7"/></svg><br><span>${_muscleRange==='today'?'Bugün egzersiz yok.':'Bu hafta egzersiz yok.'}</span></div>`;
     return;
   }
-  const maxSets = sorted[0][1].sets;
-  summary.innerHTML = sorted.slice(0,8).map(([m, data]) => {
-    const pct = Math.round((data.sets / maxSets) * 100);
-    const color = getMuscleColor(data.sets) || 'rgba(255,255,255,0.2)';
-    const label = MUSCLE_LABELS[m] || m;
-    return `<div class="mm-muscle-row" onclick="showMuscleTooltipByName('${m}')">
-      <span class="mm-muscle-dot" style="background:${color};box-shadow:0 0 6px ${color}55;"></span>
-      <span class="mm-muscle-name">${label}</span>
-      <span class="mm-muscle-count" style="color:${color}">${data.sets} set</span>
-      <div style="width:100%;" class="mm-muscle-bar-wrap"><div class="mm-muscle-bar" style="width:${pct}%;background:${color}"></div></div>
+
+  // Sort exercises by sets descending
+  allExercises.sort((a,b) => b.sets - a.sets);
+
+  summary.innerHTML = allExercises.map(ex => {
+    return `<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.05);border-radius:10px;">
+      <span style="font-size:0.85rem;color:var(--text-secondary);font-weight:500;">${ex.name}</span>
+      <span style="font-size:0.85rem;color:var(--accent-primary);font-weight:700;font-family:'Space Grotesk',sans-serif;">${ex.sets} set</span>
     </div>`;
   }).join('');
 }
 
-function showMuscleTooltip(el, event) {
-  const m = el.dataset.muscle;
-  const vol = buildMuscleVolume();
-  const data = vol[m] || { sets: 0, exercises: [] };
-  _renderMuscleTooltip(m, data, event?.clientX, event?.clientY);
-  document.querySelectorAll('.muscle-part.mm-active').forEach(e => e.classList.remove('mm-active'));
-  document.querySelectorAll(`.muscle-part[data-muscle="${m}"]`).forEach(e => e.classList.add('mm-active'));
-  _activeMuscleTip = m;
-}
+// Removed tooltip rendering and stats rendering functions completely
 
-window.showMuscleTooltipByName = function(m) {
-  const vol = buildMuscleVolume();
-  const data = vol[m] || { sets: 0, exercises: [] };
-  // Position near the stats panel
-  const statsEl = document.getElementById('muscleSummary');
-  const rect = statsEl?.getBoundingClientRect();
-  _renderMuscleTooltip(m, data, rect ? rect.left + 20 : window.innerWidth/2, rect ? rect.top : window.innerHeight/2);
-  document.querySelectorAll('.muscle-part.mm-active').forEach(e => e.classList.remove('mm-active'));
-  document.querySelectorAll(`.muscle-part[data-muscle="${m}"]`).forEach(e => e.classList.add('mm-active'));
-  _activeMuscleTip = m;
-};
-
-function _renderMuscleTooltip(m, data, cx, cy) {
-  const tip = document.getElementById('mmTooltip');
-  if (!tip) return;
-  const color = getMuscleColor(data.sets) || 'rgba(255,255,255,0.3)';
-  const maxPossible = 20;
-  const pct = Math.min(Math.round((data.sets / maxPossible) * 100), 100);
-  const label = MUSCLE_LABELS[m] || m;
-  const exHtml = data.exercises.length
-    ? data.exercises.sort((a,b)=>b.sets-a.sets).map(ex =>
-        `<div class="mm-tooltip-ex"><span class="mm-tooltip-ex-name">${ex.name}</span><span class="mm-tooltip-ex-sets">${ex.sets} set</span></div>`
-      ).join('')
-    : `<div style="font-size:0.78rem;color:var(--text-muted);text-align:center;padding:6px 0;">Veri yok</div>`;
-  tip.innerHTML = `
-    <div class="mm-tooltip-header">
-      <span class="mm-tooltip-name">${label}</span>
-      <button class="mm-tooltip-close" onclick="closeMuscleTooltip()">×</button>
-    </div>
-    <div class="mm-tooltip-sets-row">
-      <span class="mm-tooltip-sets">${data.sets}</span>
-      <span class="mm-tooltip-sets-label">set</span>
-    </div>
-    <div class="mm-tooltip-bar"><div class="mm-tooltip-bar-fill" style="width:${pct}%;background:${color}"></div></div>
-    <div class="mm-tooltip-exercises-title">Egzersizler</div>
-    <div class="mm-tooltip-exercises">${exHtml}</div>`;
-  tip.style.display = 'block';
-  // Smart positioning
-  requestAnimationFrame(() => {
-    const tw = tip.offsetWidth, th = tip.offsetHeight;
-    let x = (cx || window.innerWidth/2) + 14, y = (cy || window.innerHeight/2) - 20;
-    if (x + tw > window.innerWidth - 16) x = (cx || 0) - tw - 14;
-    if (y + th > window.innerHeight - 16) y = window.innerHeight - th - 16;
-    if (y < 8) y = 8;
-    tip.style.left = x + 'px'; tip.style.top = y + 'px';
-  });
-}
-
-window.closeMuscleTooltip = function() {
-  const tip = document.getElementById('mmTooltip');
-  if (tip) tip.style.display = 'none';
-  document.querySelectorAll('.muscle-part.mm-active').forEach(e => e.classList.remove('mm-active'));
-  _activeMuscleTip = null;
-};
 
 
 // =============================================
@@ -1919,6 +1839,15 @@ document.addEventListener('DOMContentLoaded',()=>{
   populateExerciseDropdown();renderAttendance();
   initWeeklyGoalSheet();
   initProgressPhotos();
+  
+  const notifBellBtn = document.getElementById('notifBellBtn');
+  const notifDrawer = document.getElementById('notifDrawer');
+  if (notifBellBtn && notifDrawer) {
+    notifBellBtn.addEventListener('click', () => {
+      notifDrawer.classList.add('open');
+    });
+  }
+
   loadData(()=>{
     refreshAllViews();
     renderAchievements();
