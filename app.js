@@ -554,12 +554,7 @@ function formatDateLong(d){return d.toLocaleDateString(currentLang==='tr'?'tr-TR
 // =============================================
 function saveData(){
   if(isFirebaseConfigured&&currentUser&&db){
-    db.collection('users').doc(currentUser.uid).set({
-      data:appData,
-      email: currentUser.email || '',
-      displayName: currentUser.displayName || '',
-      photoURL: currentUser.photoURL || ''
-    },{merge:true}).catch(e=>console.error('Save:',e));
+    db.collection('users').doc(currentUser.uid).set({data:appData},{merge:true}).catch(e=>console.error('Save:',e));
   }
   localStorage.setItem('zyro_data',JSON.stringify(appData));
 }
@@ -599,12 +594,7 @@ function loadData(cb){
          refreshAllViews();
       } else {
          // Eğer sunucuda (hesapta) hiç veri yoksa, ilk giriş demektir: Local veriyi sunucuya gönder
-         docRef.set({ 
-           data: appData,
-           email: currentUser.email || '',
-           displayName: currentUser.displayName || '',
-           photoURL: currentUser.photoURL || ''
-         }, { merge: true });
+         docRef.set({ data: appData }, { merge: true });
          if(cb) cb();
          refreshAllViews();
       }
@@ -634,12 +624,6 @@ function initAuth(){
         currentUser=user;
         overlay.classList.add('hidden');
         updateUserUI(user);
-        // Ensure backend always has latest auth data
-        db.collection('users').doc(user.uid).set({
-          email: user.email || '',
-          displayName: user.displayName || '',
-          photoURL: user.photoURL || ''
-        }, { merge: true }).catch(e => console.error('Silent user info update error:', e));
         loadData(()=>refreshAllViews());
       } else {
         console.log('No user signed in');
@@ -769,18 +753,8 @@ function updateUserUI(user){
       navComments.innerHTML += ` <span class="admin-badge" style="background:var(--accent-primary); color:white; font-size:0.6rem; padding:2px 4px; border-radius:4px; margin-left:4px;">ADMIN</span>`;
     }
     renderAdminPanel();
-    if(document.getElementById('notifAdminForm')) {
-      document.getElementById('notifAdminForm').style.display = 'block';
-      // Recipient selector listener
-      const rec = document.getElementById('notifRecipient');
-      const target = document.getElementById('notifTargetUid');
-      if (rec && target) {
-        rec.onchange = () => target.style.display = rec.value === 'user' ? 'block' : 'none';
-      }
-    }
   } else {
     document.body.classList.remove('is-admin');
-    if(document.getElementById('notifAdminForm')) document.getElementById('notifAdminForm').style.display = 'none';
   }
 
   // Update current user rank from Firestore in real-time
@@ -1402,14 +1376,15 @@ function updateMuscleMap() {
   if (lFront) { lFront.style.background = view === 'front' ? 'var(--accent-primary)' : 'transparent'; lFront.style.color = view === 'front' ? '#fff' : 'var(--text-muted)'; }
   if (lBack)  { lBack.style.background  = view === 'back'  ? 'var(--accent-primary)' : 'transparent'; lBack.style.color  = view === 'back'  ? '#fff' : 'var(--text-muted)'; }
 
-  // Apply intensity classes to all muscle-part elements
+  // Apply intensity classes to all muscle-part elements (4 levels)
   document.querySelectorAll('.muscle-part').forEach(el => {
     const m   = el.dataset.muscle;
     const vol = muscleVolume[m] || 0;
-    el.classList.remove('intensity-low', 'intensity-mid', 'intensity-high');
+    el.classList.remove('intensity-low', 'intensity-mid', 'intensity-high', 'intensity-extreme');
     if (vol > 0) {
       const r = vol / maxVol;
-      if (r > 0.55)      el.classList.add('intensity-high');
+      if (r > 0.8)       el.classList.add('intensity-extreme');
+      else if (r > 0.5)  el.classList.add('intensity-high');
       else if (r > 0.2)  el.classList.add('intensity-mid');
       else               el.classList.add('intensity-low');
     }
@@ -1429,7 +1404,7 @@ function updateMuscleMap() {
       `<div style="padding-top:10px;border-top:1px solid rgba(255,255,255,0.06);font-size:.65rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">${rangeLabel}</div>` +
       sorted.slice(0, 7).map(([m, v]) => {
         const pct = Math.round((v / maxSumVol) * 100);
-        const barColor = pct > 60 ? '#EF5350' : pct > 30 ? '#FF7043' : '#FFD54F';
+        const barColor = pct > 80 ? '#B388FF' : pct > 50 ? '#EF5350' : pct > 25 ? '#FF7043' : '#FFD54F';
         return `<div style="margin-bottom:7px;">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px;">
             <span style="font-size:0.75rem;color:var(--text-secondary);text-transform:capitalize;">${m}</span>
@@ -1593,7 +1568,7 @@ window.deletePR = function(exerciseName) {
   });
   if (found) {
     saveData(); renderPRTable(); updateStats(); updateMuscleMap();
-    showToast(currentLang === 'tr' ? 'Rekor silindi ✓' : 'PR deleted ✓', 'success');
+    showToast(currentLang === 'tr' ? 'Rekor silindi' : 'PR deleted', 'success');
   }
 };
 
@@ -1663,7 +1638,7 @@ function initNotes() {
     input.value = '';
     document.querySelectorAll('#pageNotes .tag-btn.active').forEach(b => b.classList.remove('active'));
     
-    showToast(currentLang === 'tr' ? 'Not kaydedildi! ✓' : 'Note saved! ✓', 'success');
+    showToast(currentLang === 'tr' ? 'Not kaydedildi!' : 'Note saved!', 'success');
     renderNotes();
   });
 }
@@ -1777,6 +1752,39 @@ function updateStats(){
     streakEl.textContent = `Day ${weeklyStreak}`;
   }
   if (typeof checkStreakAchievements === 'function') checkStreakAchievements(weeklyStreak);
+
+  // ── Weekly Volume (4th stat card) ──
+  let weeklyVolume = 0;
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(monday);
+    d.setDate(d.getDate() + i);
+    const key = dateStr(d);
+    const logs = appData.workoutLogs?.[key] || [];
+    logs.forEach(l => { weeklyVolume += (l.weight || 0) * (l.reps || 0) * (l.sets || 0); });
+  }
+  // All-time max week volume for bar scaling
+  let maxWeekVol = parseInt(localStorage.getItem('zyro_maxWeekVol') || '0');
+  if (weeklyVolume > maxWeekVol) {
+    maxWeekVol = weeklyVolume;
+    localStorage.setItem('zyro_maxWeekVol', maxWeekVol);
+  }
+  const volEl = document.getElementById('statVolumeVal');
+  const volBar = document.getElementById('statVolumeBar');
+  const volDetail = document.getElementById('statVolumeDetail');
+  if (volEl) {
+    volEl.textContent = weeklyVolume >= 1000
+      ? `${(weeklyVolume/1000).toFixed(1)}t`
+      : `${weeklyVolume.toLocaleString()} kg`;
+  }
+  if (volBar) volBar.style.width = maxWeekVol > 0 ? `${Math.min(weeklyVolume/maxWeekVol*100,100)}%` : '0%';
+  if (volDetail) {
+    const daysWithWorkout = Array.from({length:7},(_,i)=>{const d=new Date(monday);d.setDate(d.getDate()+i);return dateStr(d);})
+      .filter(k=>(appData.workoutLogs?.[k]||[]).length>0).length;
+    volDetail.textContent = daysWithWorkout > 0
+      ? `${daysWithWorkout} günde ${weeklyVolume >= 1000 ? (weeklyVolume/1000).toFixed(1)+'t' : weeklyVolume.toLocaleString()+' kg'} kaldırıldı`
+      : 'Bu hafta henüz antrenman yok';
+    volDetail.style.color = weeklyVolume > 0 ? 'var(--orange-vivid)' : 'var(--text-tertiary)';
+  }
 }
 
 // =============================================
@@ -1815,7 +1823,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   initWorkoutTabs();initLogForm();initWeightLog();
   initPostureTabs();initVideoModal();
   initNotes();initDashboardChartTabs();
-  initComments(); initNotifications();
+  initComments();
   populateExerciseDropdown();renderAttendance();
   initWeeklyGoalSheet();
   initProgressPhotos();
@@ -1892,45 +1900,52 @@ function showToast(msg, type = 'success') {
       'top:24px',
       'left:50%',
       'transform:translateX(-50%) translateY(-80px)',
-      'padding:12px 22px',
-      'border-radius:14px',
+      'padding:14px 24px',
+      'border-radius:100px',
       'font-weight:600',
-      'font-size:0.88rem',
+      'font-size:0.9rem',
       'z-index:99999',
-      'transition:transform 0.35s cubic-bezier(0.34,1.56,0.64,1),opacity 0.35s ease',
-      'box-shadow:0 8px 32px rgba(0,0,0,0.5)',
+      'transition:all 0.4s cubic-bezier(0.34,1.56,0.64,1)',
+      'box-shadow:0 12px 36px rgba(0,0,0,0.6)',
       'white-space:nowrap',
       'max-width:90vw',
       'text-align:center',
       'pointer-events:none',
       'display:flex',
       'align-items:center',
-      'gap:10px',
-      'border:1px solid rgba(255,255,255,0.12)',
-      'backdrop-filter:blur(12px)',
+      'gap:12px',
+      'backdrop-filter:blur(16px)',
+      '-webkit-backdrop-filter:blur(16px)',
       'opacity:0'
     ].join(';');
     document.body.appendChild(toast);
   }
   const isSuccess = type === 'success';
+  const iconContainerStyle = 'display:flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;';
+  const successIconBg = 'background:rgba(34,197,94,0.2);color:#4ade80;';
+  const errorIconBg = 'background:rgba(239,68,68,0.2);color:#f87171;';
+  
   const iconSvg = isSuccess
-    ? '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>'
-    : '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>';
-  toast.innerHTML = iconSvg + '<span>' + msg + '</span>';
+    ? `<div style="${iconContainerStyle}${successIconBg}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>`
+    : `<div style="${iconContainerStyle}${errorIconBg}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div>`;
+  
+  toast.innerHTML = iconSvg + `<span style="letter-spacing:0.3px;">${msg}</span>`;
   toast.style.background = isSuccess
-    ? 'linear-gradient(135deg, rgba(34,197,94,0.95), rgba(16,185,129,0.95))'
-    : 'linear-gradient(135deg, rgba(239,68,68,0.95), rgba(220,38,38,0.95))';
-  toast.style.color = 'white';
+    ? 'rgba(20, 25, 20, 0.85)'
+    : 'rgba(25, 20, 20, 0.85)';
+  toast.style.border = isSuccess ? '1px solid rgba(34,197,94,0.3)' : '1px solid rgba(239,68,68,0.3)';
+  toast.style.color = isSuccess ? '#4ade80' : '#f87171';
+  
   // Show
   requestAnimationFrame(() => {
-    toast.style.transform = 'translateX(-50%) translateY(0)';
+    toast.style.transform = 'translateX(-50%) translateY(0) scale(1)';
     toast.style.opacity = '1';
   });
   clearTimeout(toast._timer);
   toast._timer = setTimeout(() => {
-    toast.style.transform = 'translateX(-50%) translateY(-80px)';
+    toast.style.transform = 'translateX(-50%) translateY(-80px) scale(0.9)';
     toast.style.opacity = '0';
-  }, 2000);
+  }, 2500);
 }
 
 // =============================================
@@ -2358,7 +2373,7 @@ window.saveBodyMeasurement = function() {
   ['measFormDate','measFormWeight','measFormFat','measFormArm','measFormChest','measFormWaist','measFormHip','measFormLeg','measFormShoulder']
     .forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
   renderBodyMeasurements();
-  showToast(currentLang === 'tr' ? 'Ölçüler kaydedildi! ✓' : 'Measurements saved! ✓', 'success');
+  showToast(currentLang === 'tr' ? 'Ölçüler kaydedildi!' : 'Measurements saved!', 'success');
 };
 
 window.deleteBodyMeasurement = function(id) {
@@ -2447,7 +2462,7 @@ window.resetStrengthProgress = function() {
     renderProgressTracker();
     updateStats();
     updateMuscleMap();
-    showToast('Verileriniz sıfırlandı ✓', 'success');
+    showToast('Verileriniz sıfırlandı', 'success');
   } catch(e) {
     appData.workoutLogs = backup;
     console.error('Data reset failed, rolled back:', e);
@@ -2605,36 +2620,6 @@ function displayComments(comments) {
     const upvotes = c.upvotes || 0;
     const upvotedBy = c.upvotedBy || [];
     const hasUpvoted = currentUser && upvotedBy.includes(currentUser.uid);
-    // Kendi yorumuna upvote atamaz
-    const canUpvote = !isOwnComment;
-
-    // Replies
-    const replies = c.replies || [];
-    const repliesHtml = replies.length > 0 ? `
-      <div class="comment-replies" style="margin-top: 12px; padding-left: 34px; border-left: 2px solid var(--border-subtle); margin-left: 34px;">
-        ${replies.map(r => {
-          const rPhoto = !r.isAnonymous && r.userPhoto;
-          const rRank = RANKS[r.rank || 'default'] || RANKS.default;
-          const rIsWupard = r.userEmail === 'wupard@gmail.com';
-          return `
-            <div style="padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.04); display: flex; gap: 8px;">
-              ${rPhoto 
-                ? `<img src="${r.userPhoto}" style="width: 20px; height: 20px; border-radius: 50%; border: 1px solid var(--accent-primary); flex-shrink: 0; margin-top: 1px;" referrerpolicy="no-referrer">` 
-                : `<div style="width: 20px; height: 20px; border-radius: 50%; background: var(--bg-primary); display: flex; align-items: center; justify-content: center; font-size: 0.6rem; color: var(--text-tertiary); border: 1px solid var(--border-subtle); flex-shrink: 0;">?</div>`
-              }
-              <div style="flex: 1;">
-                <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 3px;">
-                  <span style="font-weight: 700; font-size: 0.8rem; color: ${rIsWupard ? '#FFD700' : 'var(--accent-primary)'}">${r.userName}</span>
-                  <span style="font-size: 0.55rem; padding: 1px 5px; border-radius: 4px; background: ${rRank.bg}; color: ${rRank.color}; font-weight: 800;">${rRank.label}</span>
-                  <span style="font-size: 0.68rem; color: var(--text-muted);">${new Date(r.timestamp).toLocaleDateString()}</span>
-                </div>
-                <p style="margin: 0; font-size: 0.85rem; line-height: 1.5; color: var(--text-secondary);">${r.text}</p>
-              </div>
-            </div>
-          `;
-        }).join('')}
-      </div>
-    ` : '';
 
     return `
       <div class="comment-item" style="padding: 16px; border-bottom: 1px solid var(--border-subtle); background: var(--bg-card-alt); border-radius: 12px; margin-bottom: 12px; position: relative;">
@@ -2657,33 +2642,12 @@ function displayComments(comments) {
           </div>
         </div>
         <p style="margin: 0; font-size: 0.9rem; line-height: 1.5; color: var(--text-primary); padding-left: 34px;">${c.text}</p>
-        <div style="margin-top: 12px; display: flex; gap: 12px; align-items: center; padding-left: 34px;">
-          <button onclick="${canUpvote ? `upvoteComment('${c.id}')` : `showToast('${currentLang === 'tr' ? 'Kendi yorumuna oy veremezsin!' : 'You cannot upvote your own comment!'}', 'error')`}" 
-            title="${isOwnComment ? (currentLang === 'tr' ? 'Kendi yorumuna oy veremezsin' : 'Cannot upvote your own comment') : ''}"
-            style="background:${hasUpvoted ? 'var(--accent-glow)' : 'transparent'}; border:1px solid ${hasUpvoted ? 'var(--accent-primary)' : 'transparent'}; color:${isOwnComment ? 'var(--text-muted)' : hasUpvoted ? 'var(--accent-primary)' : 'var(--text-muted)'}; font-size:0.8rem; cursor:${isOwnComment ? 'not-allowed' : 'pointer'}; display:flex; align-items:center; gap:4px; padding: 4px 8px; border-radius: 6px; transition: all 0.2s; opacity: ${isOwnComment ? '0.4' : '1'};">
+        <div style="margin-top: 12px; display: flex; gap: 16px; padding-left: 34px;">
+          <button onclick="upvoteComment('${c.id}')" style="background:${hasUpvoted ? 'var(--accent-glow)' : 'transparent'}; border:1px solid ${hasUpvoted ? 'var(--accent-primary)' : 'transparent'}; color:${hasUpvoted ? 'var(--accent-primary)' : 'var(--text-muted)'}; font-size:0.8rem; cursor:pointer; display:flex; align-items:center; gap:4px; padding: 4px 8px; border-radius: 6px; transition: all 0.2s;">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg>
             <span style="font-weight: bold;">${upvotes}</span>
           </button>
-          ${currentUser ? `
-            <button onclick="toggleReplyForm('${c.id}')" 
-              style="background: transparent; border: 1px solid transparent; color: var(--text-muted); font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; gap: 4px; padding: 4px 8px; border-radius: 6px; transition: all 0.2s;"
-              onmouseenter="this.style.color='var(--accent-primary)'; this.style.borderColor='rgba(139,124,247,0.3)'; this.style.background='rgba(139,124,247,0.08)'"
-              onmouseleave="this.style.color='var(--text-muted)'; this.style.borderColor='transparent'; this.style.background='transparent'">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-              ${currentLang === 'tr' ? 'Yanıtla' : 'Reply'}${replies.length > 0 ? ` <span style="font-size:0.7rem;background:rgba(139,124,247,0.15);color:var(--accent-primary);padding:1px 5px;border-radius:10px;">${replies.length}</span>` : ''}
-            </button>
-          ` : ''}
         </div>
-        <!-- Reply Form (hidden by default) -->
-        <div id="replyForm_${c.id}" style="display: none; margin-top: 12px; padding-left: 34px;">
-          <div style="display: flex; gap: 8px; align-items: flex-end;">
-            <textarea id="replyInput_${c.id}" rows="2" placeholder="${currentLang === 'tr' ? 'Yanıtını yaz...' : 'Write your reply...'}" style="flex: 1; background: var(--bg-input, var(--bg-main)); border: 1px solid var(--border-subtle); border-radius: 8px; padding: 8px 12px; font-size: 0.85rem; color: var(--text-primary); resize: none; font-family: inherit; outline: none; transition: border-color 0.2s;"></textarea>
-            <button onclick="sendReply('${c.id}')" style="background: var(--accent-primary); border: none; color: white; border-radius: 8px; padding: 8px 14px; font-size: 0.8rem; font-weight: 700; cursor: pointer; transition: opacity 0.2s; white-space: nowrap;" onmouseenter="this.style.opacity='0.85'" onmouseleave="this.style.opacity='1'">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="vertical-align: middle;"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-            </button>
-          </div>
-        </div>
-        ${repliesHtml}
       </div>
     `;
   }).join('');
@@ -2705,7 +2669,7 @@ window.adminDeleteComment = async function(commentId) {
 
 window.upvoteComment = async function(commentId) {
   if (!currentUser) {
-    showToast(currentLang === 'tr' ? 'Beğenmek için giriş yapmalısın!' : 'Sign in to upvote!', 'error');
+    showToast('Begenmek icin giris yapmalisin!', 'error');
     return;
   }
 
@@ -2714,13 +2678,6 @@ window.upvoteComment = async function(commentId) {
     const doc = await docRef.get();
     if (doc.exists) {
       const data = doc.data();
-
-      // Kendi yorumuna upvote atamasın
-      if (data.userId === currentUser.uid) {
-        showToast(currentLang === 'tr' ? 'Kendi yorumuna oy veremezsin!' : 'You cannot upvote your own comment!', 'error');
-        return;
-      }
-
       const upvotedBy = data.upvotedBy || [];
       
       if (upvotedBy.includes(currentUser.uid)) {
@@ -2736,72 +2693,6 @@ window.upvoteComment = async function(commentId) {
           upvotedBy: firebase.firestore.FieldValue.arrayUnion(currentUser.uid)
         });
       }
-      renderComments();
-    }
-  }
-};
-
-window.toggleReplyForm = function(commentId) {
-  const form = document.getElementById('replyForm_' + commentId);
-  if (!form) return;
-  const isVisible = form.style.display !== 'none';
-  form.style.display = isVisible ? 'none' : 'block';
-  if (!isVisible) {
-    const textarea = document.getElementById('replyInput_' + commentId);
-    if (textarea) setTimeout(() => textarea.focus(), 50);
-  }
-};
-
-window.sendReply = async function(commentId) {
-  if (!currentUser) {
-    showToast(currentLang === 'tr' ? 'Yanıtlamak için giriş yapmalısın!' : 'Sign in to reply!', 'error');
-    return;
-  }
-
-  const textarea = document.getElementById('replyInput_' + commentId);
-  if (!textarea) return;
-  const text = textarea.value.trim();
-  if (!text) return;
-
-  const reply = {
-    text,
-    userId: currentUser.uid,
-    userName: currentUser.displayName || 'Kullanıcı',
-    userEmail: currentUser.email || null,
-    userPhoto: currentUser.photoURL || null,
-    isAnonymous: false,
-    timestamp: Date.now(),
-    rank: (currentUser.email === 'wupard@gmail.com') ? 'mod' : (appData.userRank || 'default')
-  };
-
-  if (isFirebaseConfigured && db) {
-    try {
-      const docRef = db.collection('public_comments').doc(commentId);
-      const doc = await docRef.get();
-      if (doc.exists) {
-        const existing = doc.data().replies || [];
-        existing.push(reply);
-        await docRef.update({ replies: existing });
-        textarea.value = '';
-        document.getElementById('replyForm_' + commentId).style.display = 'none';
-        showToast(currentLang === 'tr' ? 'Yanıt gönderildi! 💬' : 'Reply sent! 💬', 'success');
-        renderComments();
-      }
-    } catch(e) {
-      console.error('Reply Error:', e);
-      showToast(currentLang === 'tr' ? 'Yanıt gönderilemedi!' : 'Failed to send reply!', 'error');
-    }
-  } else {
-    // Local mode
-    let localComments = JSON.parse(localStorage.getItem('zyro_local_comments') || '[]');
-    const idx = localComments.findIndex(c => c.id === commentId || c.timestamp === parseInt(commentId));
-    if (idx > -1) {
-      if (!localComments[idx].replies) localComments[idx].replies = [];
-      localComments[idx].replies.push(reply);
-      localStorage.setItem('zyro_local_comments', JSON.stringify(localComments));
-      textarea.value = '';
-      document.getElementById('replyForm_' + commentId).style.display = 'none';
-      showToast(currentLang === 'tr' ? 'Yanıt kaydedildi.' : 'Reply saved.', 'success');
       renderComments();
     }
   }
@@ -3879,319 +3770,3 @@ window.adminShowSection = async function(section) {
     `;
   }
 };
-
-// =============================================
-// NOTIFICATION SYSTEM
-// =============================================
-
-const NOTIF_ICONS = {
-  announcement: '📢',
-  update:       '🆕',
-  maintenance:  '🔧',
-  info:         '💡',
-};
-
-const NOTIF_COLORS = {
-  announcement: '#8b7cf7',
-  update:       '#4ecb8d',
-  maintenance:  '#e0943a',
-  info:         '#5c8ade',
-};
-
-function initNotifications() {
-  const bellBtn  = document.getElementById('notifBellBtn');
-  const drawer   = document.getElementById('notifDrawer');
-  const backdrop = document.getElementById('notifBackdrop');
-  const markAllBtn = document.getElementById('markAllReadBtn');
-
-  if (!bellBtn) return;
-
-  bellBtn.addEventListener('click', () => {
-    const isOpen = drawer.classList.contains('open');
-    if (isOpen) {
-      drawer.classList.remove('open');
-      backdrop.classList.remove('visible');
-    } else {
-      drawer.classList.add('open');
-      backdrop.classList.add('visible');
-      renderNotifDrawer();
-    }
-  });
-
-  if (markAllBtn) markAllBtn.addEventListener('click', markAllNotificationsRead);
-
-  // Type selector toggle
-  document.querySelectorAll('.notif-type-label').forEach(label => {
-    label.addEventListener('click', () => {
-      document.querySelectorAll('.notif-type-label').forEach(l => l.classList.remove('active'));
-      label.classList.add('active');
-    });
-  });
-
-  // Send notification button
-  const sendNotifBtn = document.getElementById('sendNotifBtn');
-  if (sendNotifBtn) sendNotifBtn.addEventListener('click', sendAdminNotification);
-
-  loadAndCheckNotifications();
-  requestPushPermission();
-}
-
-async function loadAndCheckNotifications() {
-  if (!isFirebaseConfigured || !db) return;
-  const readIds = getReadNotifIds();
-  try {
-    db.collection('notifications').orderBy('timestamp', 'desc').limit(50).onSnapshot(snap => {
-      const readIds = getReadNotifIds();
-      const now = Date.now();
-      const notifs = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }))
-        .filter(n => {
-          if (n.expiresAt && now > n.expiresAt) return false;
-          if (!n.recipient || n.recipient === 'all') return true;
-          if (n.recipient === 'user' && currentUser && n.targetUid === currentUser.uid) return true;
-          return false;
-        });
-      const unread = notifs.filter(n => !readIds.has(n.id));
-      updateNotifBadge(unread.length);
-      if (unread.length > 0) showNotifBanner(unread[0], unread.length);
-    });
-  } catch(e) { console.error('Notification load error:', e); }
-}
-
-async function renderNotifDrawer() {
-  const list = document.getElementById('notifList');
-  if (!list) return;
-  list.innerHTML = `<div style="padding:20px;text-align:center;color:var(--text-muted);"><div class="loading-spinner" style="margin:0 auto 10px;"></div>Yükleniyor...</div>`;
-
-  if (!isFirebaseConfigured || !db) {
-    list.innerHTML = `<div class="notif-empty"><p>Firebase bağlı değil</p></div>`;
-    return;
-  }
-  try {
-    const snap = await db.collection('notifications').orderBy('timestamp', 'desc').limit(40).get();
-    const readIds = getReadNotifIds();
-    const now = Date.now();
-    const notifs = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }))
-      .filter(n => {
-        if (n.expiresAt && now > n.expiresAt) return false;
-        if (!n.recipient || n.recipient === 'all') return true;
-        if (n.recipient === 'user' && currentUser && n.targetUid === currentUser.uid) return true;
-        return false;
-      });
-
-    if (notifs.length === 0) {
-      list.innerHTML = `<div class="notif-empty"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="opacity:0.3;"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><p>Henüz bildirim yok</p></div>`;
-      return;
-    }
-    list.innerHTML = '';
-    notifs.forEach(n => {
-      const isRead = readIds.has(n.id);
-      const icon   = NOTIF_ICONS[n.type] || '🔔';
-      const color  = NOTIF_COLORS[n.type] || 'var(--accent-primary)';
-      const item   = document.createElement('div');
-      item.className = `notif-item ${isRead ? 'read' : 'unread'}`;
-      item.dataset.id = n.id;
-      item.innerHTML = `
-        <div class="notif-item-icon" style="background:${color}22;color:${color};">${icon}</div>
-        <div class="notif-item-body">
-          <div class="notif-item-title">${n.title || 'Bildirim'}</div>
-          <div class="notif-item-msg">${n.message || ''}</div>
-          <div class="notif-item-footer" style="display:flex; justify-content:space-between; align-items:center; margin-top:8px; font-size:0.65rem; color:var(--text-muted); opacity:0.7;">
-            <span>${n.sentBy || 'Admin'} • ${formatTimeAgo(n.timestamp)}</span>
-            ${n.expiresAt ? `<span>Süre: ${Math.round((n.expiresAt - Date.now()) / 86400000)} gün</span>` : ''}
-          </div>
-        </div>
-        ${!isRead ? `<div class="notif-unread-dot"></div>` : ''}
-      `;
-      item.addEventListener('click', () => {
-        markNotificationRead(n.id);
-        item.classList.replace('unread','read');
-        item.querySelector('.notif-unread-dot')?.remove();
-      });
-      list.appendChild(item);
-    });
-  } catch(e) {
-    console.error('Notif render error:', e);
-    list.innerHTML = `<div class="notif-empty"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="opacity:0.3;margin-bottom:10px;"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><p>Şu anlık bildirim yok</p></div>`;
-  }
-}
-
-async function sendAdminNotification() {
-  if (!currentUser || currentUser.email !== 'wupard@gmail.com') {
-    showToast('Yalnızca adminler bildirim gönderebilir!', 'error');
-    return;
-  }
-  const title       = document.getElementById('notifTitleInput')?.value.trim();
-  const message     = document.getElementById('notifMessageInput')?.value.trim();
-  const recipient   = document.getElementById('notifRecipient')?.value || 'all';
-  const targetUid   = document.getElementById('notifTargetUid')?.value.trim();
-  const expiryDays  = parseInt(document.getElementById('notifExpiryDays')?.value) || 7;
-  
-  if (!title || !message) { showToast('Başlık ve mesaj zorunludur!', 'error'); return; }
-  if (recipient === 'user' && !targetUid) { showToast('Kullanıcı UID zorunludur!', 'error'); return; }
-  if (!isFirebaseConfigured || !db) { showToast('Firebase bağlı değil!', 'error'); return; }
-
-  const sendBtn = document.getElementById('sendNotifBtn');
-  if (sendBtn) { sendBtn.disabled = true; sendBtn.textContent = 'Gönderiliyor...'; }
-
-  try {
-    const timestamp = Date.now();
-    const expiresAt = timestamp + (expiryDays * 86400000);
-    
-    await db.collection('notifications').add({
-      title, 
-      message, 
-      type: 'announcement',
-      recipient,
-      targetUid: recipient === 'user' ? targetUid : null,
-      expiresAt,
-      sentBy: currentUser.displayName || currentUser.email,
-      timestamp,
-    });
-    
-    showToast('✅ Bildirim başarıyla gönderildi!', 'success');
-    if (document.getElementById('notifTitleInput'))   document.getElementById('notifTitleInput').value = '';
-    if (document.getElementById('notifMessageInput')) document.getElementById('notifMessageInput').value = '';
-    if (document.getElementById('notifTargetUid'))    document.getElementById('notifTargetUid').value = '';
-    
-    renderNotifDrawer(); // Refresh list
-  } catch(e) {
-    showToast('Bildirim gönderilemedi: ' + e.message, 'error');
-  } finally {
-    if (sendBtn) {
-      sendBtn.disabled = false;
-      sendBtn.textContent = 'Gönder';
-    }
-  }
-}
-
-function updateNotifBadge(count) {
-  const badge = document.getElementById('notifBadge');
-  if (!badge) return;
-  if (count > 0) {
-    badge.textContent = count > 99 ? '99+' : count;
-    badge.style.display = 'flex';
-    document.getElementById('notifBellBtn')?.classList.add('has-notif');
-  } else {
-    badge.style.display = 'none';
-    document.getElementById('notifBellBtn')?.classList.remove('has-notif');
-  }
-}
-
-let _bannerTimeout = null;
-function showNotifBanner(notif, totalUnread) {
-  const banner = document.getElementById('notifBanner');
-  const titleEl= document.getElementById('notifBannerTitle');
-  const bodyEl = document.getElementById('notifBannerBody');
-  if (!banner || !titleEl || !bodyEl) return;
-  if (document.getElementById('notifDrawer')?.classList.contains('open')) return;
-
-  const icon = NOTIF_ICONS[notif.type] || '🔔';
-  titleEl.textContent = `${icon} ${notif.title || 'Yeni bildirim'}`;
-  bodyEl.textContent  = totalUnread > 1
-    ? `${totalUnread} okunmamış bildiriminiz var`
-    : (notif.message || 'Tıklayarak görüntüleyin.');
-
-  banner.style.display = 'flex';
-  banner.classList.remove('notif-banner-out');
-  setTimeout(() => banner.classList.add('notif-banner-in'), 10);
-
-  banner.onclick = (e) => {
-    if (e.target.closest('.notif-banner-close')) return;
-    closeNotifBanner();
-    document.getElementById('notifDrawer')?.classList.add('open');
-    document.getElementById('notifBackdrop')?.classList.add('visible');
-    renderNotifDrawer();
-  };
-
-  // Also send browser push notification
-  sendBrowserPushNotif(
-    (NOTIF_ICONS[notif.type] || '🔔') + ' ' + (notif.title || 'Zyro Bildirimi'),
-    notif.message || '',
-    '/favicon.svg'
-  );
-
-  if (_bannerTimeout) clearTimeout(_bannerTimeout);
-  _bannerTimeout = setTimeout(() => closeNotifBanner(), 6000);
-}
-
-window.closeNotifBanner = function() {
-  const banner = document.getElementById('notifBanner');
-  if (!banner) return;
-  banner.classList.remove('notif-banner-in');
-  banner.classList.add('notif-banner-out');
-  setTimeout(() => { banner.style.display = 'none'; banner.classList.remove('notif-banner-out'); }, 380);
-};
-
-function getReadNotifIds() {
-  const key = `zyro_read_notifs_${currentUser?.uid || 'local'}`;
-  try { return new Set(JSON.parse(localStorage.getItem(key) || '[]')); }
-  catch { return new Set(); }
-}
-
-function markNotificationRead(id) {
-  const key = `zyro_read_notifs_${currentUser?.uid || 'local'}`;
-  const ids = getReadNotifIds();
-  ids.add(id);
-  localStorage.setItem(key, JSON.stringify([...ids]));
-  refreshNotifBadge();
-}
-
-async function markAllNotificationsRead() {
-  if (!isFirebaseConfigured || !db) return;
-  try {
-    const snap = await db.collection('notifications').orderBy('timestamp', 'desc').limit(30).get();
-    const ids = getReadNotifIds();
-    snap.forEach(doc => ids.add(doc.id));
-    localStorage.setItem(`zyro_read_notifs_${currentUser?.uid || 'local'}`, JSON.stringify([...ids]));
-    updateNotifBadge(0);
-    renderNotifDrawer();
-    showToast('Tüm bildirimler okundu işaretlendi ✓', 'success');
-  } catch(e) { console.error('Mark all read error:', e); }
-}
-
-async function refreshNotifBadge() {
-  if (!isFirebaseConfigured || !db) return;
-  const readIds = getReadNotifIds();
-  try {
-    const snap = await db.collection('notifications').orderBy('timestamp', 'desc').limit(30).get();
-    let unread = 0;
-    snap.forEach(doc => { if (!readIds.has(doc.id)) unread++; });
-    updateNotifBadge(unread);
-  } catch(e) {}
-}
-
-function formatTimeAgo(ts) {
-  const diff  = Date.now() - ts;
-  const mins  = Math.floor(diff / 60000);
-  const hours = Math.floor(diff / 3600000);
-  const days  = Math.floor(diff / 86400000);
-  if (mins < 1)   return 'Az önce';
-  if (mins < 60)  return `${mins} dakika önce`;
-  if (hours < 24) return `${hours} saat önce`;
-  return `${days} gün önce`;
-}
-
-async function requestPushPermission() {
-  if (!('Notification' in window) || !('serviceWorker' in navigator)) return;
-  if (Notification.permission === 'default') {
-    setTimeout(async () => {
-      try { await Notification.requestPermission(); } catch(e) {}
-    }, 5000);
-  }
-}
-
-function sendBrowserPushNotif(title, body, icon) {
-  if (!('Notification' in window)) return;
-  if (Notification.permission === 'granted') {
-    try {
-      new Notification(title, { body, icon: icon || '/favicon.svg', badge: '/favicon.svg', tag: 'zyro-notif' });
-    } catch(e) { console.warn('Push notif failed:', e); }
-  }
-}
-
-function showAdminNotifPanel() {
-  const panel = document.getElementById('adminNotifPanel');
-  if (panel && currentUser && currentUser.email === 'wupard@gmail.com') {
-    panel.style.display = 'block';
-  }
-}

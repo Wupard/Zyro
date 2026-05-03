@@ -150,17 +150,19 @@ h1,h2,h3,h4{font-family:'Space Grotesk','Inter',sans-serif;font-weight:600;lette
   right: -14px;
   width: 28px;
   height: 28px;
-  background: var(--bg-card);
-  border: 1px solid var(--border-subtle);
+  background: #1e1e2e;
+  border: 1.5px solid rgba(139, 124, 247, 0.45);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--text-secondary);
+  color: var(--accent-primary);
   cursor: pointer;
   z-index: 101;
   transition: all var(--t-base);
+  box-shadow: 0 0 10px rgba(139,124,247,0.2), 0 2px 8px rgba(0,0,0,0.5);
 }
+
 .sidebar-collapse-btn:hover {
   background: var(--bg-card-hover);
   color: var(--text-primary);
@@ -356,9 +358,10 @@ body.sidebar-collapsed .signout-btn { display:none; }
 .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px}
 
 .stat-card{
-  background:var(--bg-card);border:1px solid var(--border-card);border-radius:var(--radius-md);
-  padding:20px;transition:border-color var(--t-base), box-shadow var(--t-base);position:relative;overflow:hidden;
+  background:var(--bg-card);border:1.5px solid transparent;border-radius:var(--radius-md);
+  padding:20px;transition:all var(--t-base);position:relative;overflow:hidden;
   animation:cardIn .5s ease both;
+  background-clip:padding-box;
 }
 .stat-card:nth-child(1){animation-delay:.05s}
 .stat-card:nth-child(2){animation-delay:.1s}
@@ -366,21 +369,30 @@ body.sidebar-collapsed .signout-btn { display:none; }
 .stat-card:nth-child(4){animation-delay:.2s}
 @keyframes cardIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
 
+/* Full colored border using ::before as the gradient background layer */
 .stat-card::before{
-  content:'';position:absolute;top:0;left:0;right:0;height:3px;
-  border-radius:var(--radius-md) var(--radius-md) 0 0;opacity:.8;
-  transition:all var(--t-base);
+  content:'';position:absolute;inset:0;
+  border-radius:var(--radius-md);
+  padding:1.5px;
+  z-index:0;
+  pointer-events:none;
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  opacity:0.75;
+  transition:opacity var(--t-base);
 }
-.stat-card--workout::before{background:linear-gradient(90deg,var(--accent-primary),var(--blue-vivid))}
-.stat-card--weight::before{background:linear-gradient(90deg,var(--pink-vivid),var(--orange-vivid))}
-.stat-card--volume::before{background:linear-gradient(90deg,var(--orange-vivid),var(--red-vivid))}
-.stat-card--consistency::before{background:linear-gradient(90deg,var(--green-vivid),var(--blue-vivid))}
+.stat-card--workout::before{background:linear-gradient(135deg,var(--accent-primary),var(--blue-vivid),var(--accent-primary))}
+.stat-card--weight::before{background:linear-gradient(135deg,var(--pink-vivid),var(--orange-vivid),var(--pink-vivid))}
+.stat-card--volume::before{background:linear-gradient(135deg,var(--orange-vivid),var(--red-vivid),var(--orange-vivid))}
+.stat-card--consistency::before{background:linear-gradient(135deg,var(--green-vivid),var(--blue-vivid),var(--green-vivid))}
 
+.stat-card:hover::before, .stat-card:focus-within::before { opacity:1; }
 .stat-card:hover, .stat-card:focus-within {
-  border-color: var(--accent-primary);
-  box-shadow: 0 0 0 1px var(--accent-primary);
+  transform:translateY(-2px);
+  box-shadow:0 8px 24px rgba(0,0,0,0.3);
 }
-.stat-card:hover::before { height: 3px; opacity: 0.8; } /* Keep original top bar state */
 
 .stat-icon-wrap{margin-bottom:12px;color:var(--accent-primary);opacity:.8}
 .stat-card--weight .stat-icon-wrap{color:var(--pink-vivid)}
@@ -469,7 +481,12 @@ body.sidebar-collapsed .signout-btn { display:none; }
   stroke: rgba(255,255,255,0.12);
   stroke-width: 0.5;
 }
-
+.intensity-extreme {
+  fill: #B388FF !important;
+  filter: drop-shadow(0 0 10px rgba(179, 136, 255, 0.75)) !important;
+  stroke: rgba(179, 136, 255, 0.6) !important;
+  stroke-width: 0.7 !important;
+}
 .intensity-high {
   fill: #EF5350 !important;
   filter: drop-shadow(0 0 7px rgba(239, 83, 80, 0.65)) !important;
