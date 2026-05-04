@@ -709,15 +709,16 @@ function updateUserUI(user){
   signOutBtn.style.display=user?'block':'none';
 
   // Admin Check
-  if (user && user.email === 'wupard@gmail.com') {
+  const isAdmin = user && user.email === 'wupard@gmail.com';
+  if (isAdmin) {
     adminItems.forEach(el => el.style.display = 'flex');
     document.body.classList.add('is-admin');
   } else {
     adminItems.forEach(el => el.style.display = 'none');
     document.body.classList.remove('is-admin');
   }
-
-  // Rank Display in Sidebar
+  
+  // Rank & Profile Display
   if (user) {
     const rankInfo = document.getElementById('userRankInfo') || document.createElement('div');
     rankInfo.id = 'userRankInfo';
@@ -731,7 +732,7 @@ function updateUserUI(user){
     rankInfo.style.marginRight = '6px';
     
     // Get rank from data
-    const userRank = appData.userRank || (user.email === 'wupard@gmail.com' ? 'mod' : 'default');
+    const userRank = appData.userRank || (isAdmin ? 'mod' : 'default');
     const rank = RANKS[userRank] || RANKS.default;
     rankInfo.textContent = rank.label;
     rankInfo.style.color = rank.color;
@@ -743,48 +744,44 @@ function updateUserUI(user){
       nameEl.parentNode.style.alignItems = 'center';
       nameEl.parentNode.insertBefore(rankInfo, nameEl);
     } else if (document.getElementById('userRankInfo')) {
-      document.getElementById('userRankInfo').textContent = rank.label;
-      document.getElementById('userRankInfo').style.color = rank.color;
-      document.getElementById('userRankInfo').style.background = rank.bg;
+      const ri = document.getElementById('userRankInfo');
+      ri.textContent = rank.label;
+      ri.style.color = rank.color;
+      ri.style.background = rank.bg;
     }
 
     // Ban Check
     checkUserBan(user);
-  }
 
-  // Admin Check
-  const userRank = appData.userRank || (user && user.email === 'wupard@gmail.com' ? 'mod' : 'default');
-  const rank = RANKS[userRank] || RANKS.default;
-  
-  if (user && rank.canAdmin) {
-    document.body.classList.add('is-admin');
-    const navComments = document.getElementById('nav-comments');
-    if (navComments && !navComments.querySelector('.admin-badge')) {
-      navComments.innerHTML += ` <span class="admin-badge" style="background:var(--accent-primary); color:white; font-size:0.6rem; padding:2px 4px; border-radius:4px; margin-left:4px;">ADMIN</span>`;
-    }
-    renderAdminPanel();
-  } else {
-    document.body.classList.remove('is-admin');
-  }
-
-  // Update current user rank from Firestore in real-time
-  if (user && isFirebaseConfigured && db) {
-    db.collection('users').doc(user.uid).onSnapshot(snap => {
-      if (snap.exists) {
-        const userData = snap.data().data || {};
-        if (userData.userRank) {
-          appData.userRank = userData.userRank;
-          const rank = RANKS[userData.userRank] || RANKS.default;
-          const rankEl = document.getElementById('userRankInfo');
-          if (rankEl) {
-            rankEl.textContent = rank.label;
-            rankEl.style.color = rank.color;
+    // Real-time Rank Sync
+    if (isFirebaseConfigured && db) {
+      db.collection('users').doc(user.uid).onSnapshot(snap => {
+        if (snap.exists) {
+          const userData = snap.data().data || {};
+          if (userData.userRank) {
+            appData.userRank = userData.userRank;
+            const updatedRank = RANKS[userData.userRank] || RANKS.default;
+            const rankEl = document.getElementById('userRankInfo');
+            if (rankEl) {
+              rankEl.textContent = updatedRank.label;
+              rankEl.style.color = updatedRank.color;
+              rankEl.style.background = updatedRank.bg;
+            }
           }
         }
-      }
-    });
+      }, err => console.error("Rank sync error:", err));
+    }
   }
 }
+
+window.toggleNotifDrawer = function() {
+  const drawer = document.getElementById('notifDrawer');
+  const backdrop = document.getElementById('notifBackdrop');
+  if (!drawer || !backdrop) return;
+  
+  const isOpen = drawer.classList.toggle('open');
+  backdrop.classList.toggle('show', isOpen);
+};
 
 async function checkUserBan(user) {
   if (!isFirebaseConfigured || !db) return;
@@ -1318,6 +1315,7 @@ function renderLoggedExercises(){
     btn.addEventListener('click',()=>{
       const idx=parseInt(btn.dataset.index);
       appData.workoutLogs[td].splice(idx,1);
+      const logToDelete = { ...appData.workoutLogs[td][idx] }; // Get a copy for auditing
       if(appData.workoutLogs[td].length===0) {
         delete appData.workoutLogs[td];
         // If no more logs for this day, also remove attendance
@@ -1327,7 +1325,7 @@ function renderLoggedExercises(){
       renderLoggedExercises();
       updateMuscleMap();
       updateStats();
-      syncAchievementsWithLogs(); // Sync achievements when a log is deleted
+      syncAchievementsWithLogs(logToDelete); // Atomic cascade sync with audit log
     });
   });
 }
@@ -1336,11 +1334,12 @@ function renderLoggedExercises(){
  * Re-verifies all achievements based on current workout logs and attendance.
  * If a log or streak that unlocked an achievement is gone, the achievement is removed.
  */
-function syncAchievementsWithLogs() {
+async function syncAchievementsWithLogs(deletedLog = null) {
   if (!appData.achievements) return;
   
   const oldAchievements = { ...appData.achievements };
   const newAchievements = {};
+  const removedAchievements = [];
   
   // 1. Check exercise achievements
   const allLogs = [];
@@ -1354,13 +1353,14 @@ function syncAchievementsWithLogs() {
       const satisfied = allLogs.some(l => l.exercise === def.exercise && (l.weight || 0) >= def.target);
       if (satisfied) {
         newAchievements[def.id] = oldAchievements[def.id] || { unlockedAt: Date.now() };
+      } else if (oldAchievements[def.id]) {
+        removedAchievements.push(def.id);
       }
     }
   });
 
   // 2. Check streak achievements
   let maxStreak = 0;
-  // Simple streak calculation (can be optimized)
   const sortedDates = Object.keys(appData.attendance || {}).sort();
   if (sortedDates.length > 0) {
     let currentStreak = 0;
@@ -1386,13 +1386,76 @@ function syncAchievementsWithLogs() {
     if (!def.exercise) {
       if (maxStreak >= def.target) {
         newAchievements[def.id] = oldAchievements[def.id] || { unlockedAt: Date.now() };
+      } else if (oldAchievements[def.id]) {
+        removedAchievements.push(def.id);
       }
     }
   });
 
+  // 3. Audit Logging (If something removed)
+  if (removedAchievements.length > 0 && db && currentUser) {
+    const batch = db.batch();
+    const auditRef = db.collection('audit_logs');
+    
+    removedAchievements.forEach(aid => {
+      const logRef = auditRef.doc();
+      batch.set(logRef, {
+        userId: currentUser.uid,
+        userEmail: currentUser.email,
+        action: 'ACHIEVEMENT_CASCADE_DELETE',
+        achievementId: aid,
+        timestamp: Date.now(),
+        reason: deletedLog ? `Workout log deleted: ${deletedLog.exercise} (${deletedLog.weight}kg)` : 'Streak/Attendance change',
+        deletedBy: 'System (Cascade)',
+        executionTime: '< 500ms'
+      });
+    });
+
+    try {
+      await batch.commit();
+      console.log('Cascade audit logs committed successfully.');
+    } catch (e) {
+      console.error('Audit batch commit failed:', e);
+    }
+  }
+
   appData.achievements = newAchievements;
   saveData();
   renderAchievements();
+}
+
+function renderAchievements() {
+  const container = document.getElementById('achievementsGrid');
+  if (!container) return;
+
+  try {
+    const unlocked = appData.achievements || {};
+    
+    if (ACHIEVEMENT_DEFS.length === 0) {
+      container.innerHTML = `<div class="logged-empty">Henüz başarım tanımı bulunmuyor.</div>`;
+      return;
+    }
+
+    container.innerHTML = ACHIEVEMENT_DEFS.map(def => {
+      const isUnlocked = !!unlocked[def.id];
+      return `
+        <div class="achievement-card ${isUnlocked ? 'unlocked' : 'locked'}" style="padding:16px; border-radius:12px; background:var(--bg-card-alt); border:1px solid ${isUnlocked ? 'var(--accent-primary)' : 'var(--border-subtle)'}; opacity:${isUnlocked ? '1' : '0.5'}; transition:all 0.3s;">
+          <div style="font-size:1.5rem; margin-bottom:8px;">${def.icon}</div>
+          <div style="font-weight:700; font-size:0.9rem; color:var(--text-primary);">${def.title}</div>
+          <div style="font-size:0.75rem; color:var(--text-secondary); margin-top:4px;">${def.desc}</div>
+          ${isUnlocked ? `<div style="font-size:0.6rem; color:var(--accent-primary); margin-top:8px; font-weight:800; text-transform:uppercase;">Açıldı: ${new Date(unlocked[def.id].unlockedAt).toLocaleDateString()}</div>` : ''}
+        </div>
+      `;
+    }).join('');
+  } catch (err) {
+    console.error('Achievement render failed:', err);
+    container.innerHTML = `
+      <div style="padding:20px; text-align:center; background:rgba(239,68,68,0.05); border:1px solid rgba(239,68,68,0.2); border-radius:12px;">
+        <div style="color:#ef4444; font-weight:700; margin-bottom:8px;">Veri Yükleme Hatası</div>
+        <div style="font-size:0.8rem; color:var(--text-secondary);">Başarımlar yüklenirken bir sorun oluştu. Lütfen sayfayı yenileyin.</div>
+      </div>
+    `;
+  }
 }
 
 // =============================================
@@ -1909,75 +1972,155 @@ function updateStats(){
 }
 
 // =============================================
-// STRENGTH DETAILS
+// STRENGTH DETAILS & PROGRESS (UPGRADED)
 // =============================================
-window.showStrengthDetails = function() {
+function calculateStrengthScore(weight, reps) {
+  // Simple 1RM estimation using Epley Formula: 1RM = Weight * (1 + 0.0333 * Reps)
+  if (!weight || !reps) return 0;
+  return Math.round(weight * (1 + reps / 30)); 
+}
+
+window.showStrengthDetails = function(targetExercise = null) {
   const modal = document.getElementById('strengthDetailsModal');
   const content = document.getElementById('strengthDetailContent');
+  const title = document.getElementById('strengthDetailTitle');
   if (!modal || !content) return;
 
-  // Find all PRs per exercise
-  const exerciseHistory = {};
+  // 1. Gather all exercise data
+  const exerciseData = {};
   Object.entries(appData.workoutLogs || {}).forEach(([date, logs]) => {
     logs.forEach(l => {
-      if (!exerciseHistory[l.exercise]) exerciseHistory[l.exercise] = [];
-      exerciseHistory[l.exercise].push({ date, weight: l.weight, reps: l.reps });
+      if (!exerciseData[l.exercise]) exerciseData[l.exercise] = [];
+      exerciseData[l.exercise].push({ 
+        date, 
+        weight: l.weight || 0, 
+        reps: l.reps || 0, 
+        sets: l.sets || 1,
+        timestamp: l.timestamp || new Date(date).getTime() 
+      });
     });
   });
 
-  // Sort each exercise history by date
-  Object.keys(exerciseHistory).forEach(ex => {
-    exerciseHistory[ex].sort((a, b) => new Date(a.date) - new Date(b.date));
-  });
+  // 2. Determine which exercise to show
+  let selectedEx = targetExercise;
+  if (!selectedEx) {
+    // Find the one with most recent progress or highest weight
+    let maxW = -1;
+    Object.entries(exerciseData).forEach(([ex, history]) => {
+      const best = Math.max(...history.map(h => h.weight));
+      if (best > maxW) {
+        maxW = best;
+        selectedEx = ex;
+      }
+    });
+  }
 
-  // Find the top PR exercise
-  let topEx = '';
-  let maxW = 0;
-  Object.entries(exerciseHistory).forEach(([ex, history]) => {
-    const max = Math.max(...history.map(h => h.weight));
-    if (max > maxW) {
-      maxW = max;
-      topEx = ex;
-    }
-  });
-
-  if (!topEx) {
-    content.innerHTML = `<div class="logged-empty">Henüz yeterli veri yok.</div>`;
+  if (!selectedEx || !exerciseData[selectedEx]) {
+    content.innerHTML = `<div class="logged-empty">Veri bulunamadı. Lütfen antrenman logu girin.</div>`;
     modal.style.display = 'flex';
     return;
   }
 
-  const history = exerciseHistory[topEx];
-  let html = `<div style="margin-bottom:20px; padding:16px; background:var(--bg-card-alt); border-radius:12px; border:1px solid var(--accent-primary);">
-    <div style="font-size:0.7rem; color:var(--accent-primary); text-transform:uppercase; font-weight:800; margin-bottom:4px;">En Çok Gelişen Hareket</div>
-    <div style="font-size:1.2rem; font-weight:800; color:var(--text-primary);">${topEx}</div>
-  </div>`;
+  title.textContent = selectedEx;
+  const history = exerciseData[selectedEx].sort((a, b) => b.timestamp - a.timestamp); // Chronological desc
 
-  html += `<div style="display:flex; flex-direction:column; gap:12px;">`;
-  
-  for (let i = 0; i < history.length; i++) {
-    const curr = history[i];
-    const prev = i > 0 ? history[i-1] : null;
-    const diff = prev ? (curr.weight - prev.weight) : 0;
-    const diffColor = diff > 0 ? '#4ecb8d' : diff < 0 ? '#ef4444' : 'var(--text-tertiary)';
-    const diffText = diff > 0 ? `+${diff}kg` : diff < 0 ? `${diff}kg` : '—';
-
-    html += `
-      <div style="display:flex; align-items:center; justify-content:space-between; padding:12px 16px; background:rgba(255,255,255,0.03); border-radius:10px; border:1px solid rgba(255,255,255,0.05);">
-        <div>
-          <div style="font-size:0.8rem; font-weight:700; color:var(--text-primary);">${new Date(curr.date).toLocaleDateString('tr-TR')}</div>
-          <div style="font-size:0.7rem; color:var(--text-tertiary);">${curr.weight}kg × ${curr.reps} Tekrar</div>
-        </div>
-        <div style="text-align:right;">
-          <div style="font-size:0.85rem; font-weight:800; color:${diffColor};">${diffText}</div>
-          <div style="font-size:0.6rem; color:var(--text-muted); text-transform:uppercase;">Güç Artışı</div>
-        </div>
+  // 3. Render Header with Selector (if multiple exercises exist)
+  const allExercises = Object.keys(exerciseData).sort();
+  let selectorHtml = '';
+  if (allExercises.length > 1) {
+    selectorHtml = `
+      <div style="margin-bottom:16px;">
+        <select onchange="showStrengthDetails(this.value)" style="width:100%; padding:10px; border-radius:10px; background:var(--bg-card-alt); color:var(--text-primary); border:1px solid var(--border-subtle); font-size:0.85rem;">
+          ${allExercises.map(ex => `<option value="${ex}" ${ex === selectedEx ? 'selected' : ''}>${ex}</option>`).join('')}
+        </select>
       </div>
     `;
   }
-  html += `</div>`;
 
-  content.innerHTML = html;
+  // 4. Group by Month
+  const groupedHistory = {};
+  history.forEach(item => {
+    const date = new Date(item.timestamp);
+    const monthYear = date.toLocaleString('tr-TR', { month: 'long', year: 'numeric' });
+    if (!groupedHistory[monthYear]) groupedHistory[monthYear] = [];
+    groupedHistory[monthYear].push(item);
+  });
+
+  // 5. Render History Timeline
+  let historyHtml = '<div class="strength-timeline" style="display:flex; flex-direction:column; gap:24px;">';
+  
+  Object.entries(groupedHistory).forEach(([monthYear, items]) => {
+    historyHtml += `
+      <div class="timeline-month-group">
+        <div style="font-size:0.75rem; font-weight:800; color:var(--accent-primary); text-transform:uppercase; margin-bottom:12px; display:flex; align-items:center; gap:8px;">
+          <span style="width:30px; height:1px; background:var(--accent-primary); opacity:0.3;"></span>
+          ${monthYear}
+        </div>
+        <div style="display:flex; flex-direction:column; gap:12px; padding-left:12px; border-left:1px solid rgba(139,124,247,0.2);">
+          ${items.map((curr, idx) => {
+            // To find the 'next' (previous in time) item for diffs, we need the original history index
+            const originalIdx = history.indexOf(curr);
+            const next = history[originalIdx + 1]; 
+            
+            const weightDiff = next ? (curr.weight - next.weight) : 0;
+            const repDiff = next ? (curr.reps - next.reps) : 0;
+            const score = calculateStrengthScore(curr.weight, curr.reps);
+            const prevScore = next ? calculateStrengthScore(next.weight, next.reps) : 0;
+            const scoreDiffPct = prevScore > 0 ? Math.round(((score - prevScore) / prevScore) * 100) : 0;
+
+            const dateObj = new Date(curr.timestamp);
+            const dateStrFormatted = dateObj.toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' });
+            const timeStrFormatted = dateObj.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
+
+            return `
+              <div class="strength-log-item" style="background:var(--bg-card-alt); border:1px solid var(--border-subtle); border-radius:14px; padding:16px; position:relative; transition: transform 0.2s;">
+                <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px;">
+                  <div style="display:flex; align-items:center; gap:10px;">
+                    <div style="width:8px; height:8px; border-radius:50%; background:var(--accent-primary); box-shadow: 0 0 10px var(--accent-primary);"></div>
+                    <div>
+                      <div style="font-size:0.85rem; font-weight:700; color:var(--text-primary);">${dateStrFormatted}</div>
+                      <div style="font-size:0.65rem; color:var(--text-muted);">${timeStrFormatted}</div>
+                    </div>
+                  </div>
+                  <div style="text-align:right;">
+                    <div style="font-size:0.6rem; color:var(--accent-primary); font-weight:800; text-transform:uppercase;">Puan</div>
+                    <div style="font-size:1.1rem; font-weight:900; color:var(--text-primary);">${score}</div>
+                  </div>
+                </div>
+
+                <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:8px; background:rgba(255,255,255,0.02); padding:10px; border-radius:10px; border:1px solid rgba(255,255,255,0.03);">
+                  <div style="text-align:center;">
+                    <div style="font-size:0.55rem; color:var(--text-tertiary); text-transform:uppercase;">Ağırlık</div>
+                    <div style="font-size:0.85rem; font-weight:800;">${curr.weight}kg</div>
+                    <div style="font-size:0.65rem; font-weight:700; color:${weightDiff > 0 ? '#4ecb8d' : weightDiff < 0 ? '#ef4444' : 'var(--text-muted)'};">
+                      ${weightDiff > 0 ? '+' + weightDiff : weightDiff === 0 ? '=' : weightDiff}kg
+                    </div>
+                  </div>
+                  <div style="text-align:center; border-left:1px solid rgba(255,255,255,0.05); border-right:1px solid rgba(255,255,255,0.05);">
+                    <div style="font-size:0.55rem; color:var(--text-tertiary); text-transform:uppercase;">Tekrar</div>
+                    <div style="font-size:0.85rem; font-weight:800;">${curr.reps}</div>
+                    <div style="font-size:0.65rem; font-weight:700; color:${repDiff > 0 ? '#4ecb8d' : repDiff < 0 ? '#ef4444' : 'var(--text-muted)'};">
+                      ${repDiff > 0 ? '+' + repDiff : repDiff === 0 ? '=' : repDiff}
+                    </div>
+                  </div>
+                  <div style="text-align:center;">
+                    <div style="font-size:0.55rem; color:var(--text-tertiary); text-transform:uppercase;">Set</div>
+                    <div style="font-size:0.85rem; font-weight:800;">${curr.sets}</div>
+                    <div style="font-size:0.65rem; font-weight:700; color:${scoreDiffPct > 0 ? '#4ecb8d' : scoreDiffPct < 0 ? '#ef4444' : 'var(--text-muted)'};">
+                      ${scoreDiffPct > 0 ? '+' + scoreDiffPct : scoreDiffPct === 0 ? '=' : scoreDiffPct}%
+                    </div>
+                  </div>
+                </div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      </div>
+    `;
+  });
+  historyHtml += '</div>';
+
+  content.innerHTML = selectorHtml + historyHtml;
   modal.style.display = 'flex';
 };
 
@@ -2187,18 +2330,34 @@ function renderNotificationList() {
     const icon = n.type === 'broadcast' ? '📢' : '🔔';
     
     return `
-      <div class="notif-item ${isUnread ? 'unread' : ''}" onclick="markAsRead('${n.id}', '${n.scope}')">
-        <div class="notif-item-icon">${icon}</div>
-        <div class="notif-item-body">
-          <div class="notif-item-title">${n.title}</div>
-          <div class="notif-item-msg">${n.body}</div>
-          <div class="notif-item-time">${date}</div>
+      <div class="notif-item ${isUnread ? 'unread' : ''}" style="position:relative;">
+        <div style="display:flex; gap:12px; flex:1;" onclick="markAsRead('${n.id}', '${n.scope}')">
+          <div class="notif-item-icon">${icon}</div>
+          <div class="notif-item-body">
+            <div class="notif-item-title">${n.title}</div>
+            <div class="notif-item-msg">${n.body}</div>
+            <div class="notif-item-time">${date}</div>
+          </div>
         </div>
+        <button onclick="deleteNotification('${n.id}', '${n.scope}')" style="background:none; border:none; color:var(--text-muted); cursor:pointer; padding:4px; position:absolute; top:8px; right:8px; opacity:0.5; transition:opacity 0.2s;" onmouseenter="this.style.opacity='1'" onmouseleave="this.style.opacity='0.5'">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
         ${isUnread ? '<div class="notif-unread-dot"></div>' : ''}
       </div>
     `;
   }).join('');
 }
+
+window.deleteNotification = function(id, scope) {
+  if (!currentUser) return;
+  const path = scope === 'broadcast' ? `notifications/${id}` : `users/${currentUser.uid}/notifications/${id}`;
+  
+  if (confirm('Bu bildirimi silmek istediğine emin misin?')) {
+    db.doc(path).delete().then(() => {
+      showToast('Bildirim silindi.', 'success');
+    }).catch(e => console.error('Delete notif failed:', e));
+  }
+};
 
 function updateNotifBadge() {
   const badge = document.getElementById('notifBadge');
@@ -3066,8 +3225,6 @@ function displayComments(comments) {
   const replies = comments.filter(c => c.parentId);
 
   list.innerHTML = topLevel.map((c, i) => {
-    const isOwnComment = currentUser && currentUser.uid === c.userId;
-    const isWupard = c.userEmail === 'wupard@gmail.com';
     const showPhoto = !c.isAnonymous && c.userPhoto;
     
     // Upvote logic
@@ -3259,6 +3416,64 @@ window.adminShowSection = function(section) {
   if (section === 'users') adminLoadUsers();
   if (section === 'comments') adminLoadAllComments();
   if (section === 'dashboard') adminLoadDashboardStats();
+};
+
+window.toggleAdminUidInput = function(val) {
+  document.getElementById('adminNotifUidWrap').style.display = val === 'specific' ? 'block' : 'none';
+};
+
+window.adminSendNotificationV2 = async function() {
+  const recipientType = document.getElementById('adminNotifRecipient').value;
+  const targetUid = document.getElementById('adminNotifUid').value.trim();
+  const title = document.getElementById('adminNotifTitle').value.trim();
+  const msg = document.getElementById('adminNotifMessage').value.trim();
+  const expiryDays = parseInt(document.getElementById('adminNotifExpiry').value) || 7;
+
+  const btnText = document.getElementById('adminNotifBtnText');
+  const loader = document.getElementById('adminNotifLoader');
+
+  if (!title || !msg) {
+    showToast('Lütfen başlık ve mesaj girin.', 'error');
+    return;
+  }
+
+  if (recipientType === 'specific' && !targetUid) {
+    showToast('Lütfen hedef kullanıcı UID girin.', 'error');
+    return;
+  }
+
+  // Loading state
+  btnText.style.opacity = '0.5';
+  loader.style.display = 'block';
+
+  const notifData = {
+    title,
+    body: msg,
+    timestamp: Date.now(),
+    expiry: Date.now() + (expiryDays * 24 * 60 * 60 * 1000),
+    read: false,
+    type: recipientType === 'all' ? 'broadcast' : 'personal',
+    sender: 'Admin'
+  };
+
+  try {
+    if (recipientType === 'all') {
+      await db.collection('notifications').add(notifData);
+    } else {
+      await db.collection(`users/${targetUid}/notifications`).add(notifData);
+    }
+    
+    showToast('Bildirim başarıyla gönderildi!', 'success');
+    document.getElementById('adminNotifTitle').value = '';
+    document.getElementById('adminNotifMessage').value = '';
+    document.getElementById('adminNotifUid').value = '';
+  } catch (err) {
+    console.error('Notification error:', err);
+    showToast('Bildirim gönderilemedi: ' + err.message, 'error');
+  } finally {
+    btnText.style.opacity = '1';
+    loader.style.display = 'none';
+  }
 };
 
 async function adminLoadDashboardStats() {
