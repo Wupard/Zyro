@@ -827,6 +827,12 @@ select.log-input option {
 }
 
 /* Reply thread styling */
+/* Mobile Optimizations for Comments */
+@media (max-width: 600px) {
+  .comment-item { padding: 12px !important; }
+  .comment-item p, .comment-item div[id^="replyForm_"], .comment-item .comment-replies { padding-left: 28px !important; }
+}
+
 .comment-replies {
   animation: replyIn 0.25s ease both;
 }

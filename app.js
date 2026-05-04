@@ -696,6 +696,7 @@ function updateUserUI(user){
   const name=document.getElementById('userName');
   const status=document.getElementById('userStatus');
   const signOutBtn=document.getElementById('signOutBtn');
+  const adminItems = document.querySelectorAll('.admin-only');
 
   if(user&&user.photoURL){
     avatar.innerHTML=`<img src="${user.photoURL}" alt="Avatar" referrerpolicy="no-referrer">`;
@@ -706,6 +707,15 @@ function updateUserUI(user){
   status.textContent=user?t('synced'):t('localMode');
   status.style.color=user?'var(--green-vivid)':'var(--text-tertiary)';
   signOutBtn.style.display=user?'block':'none';
+
+  // Admin Check
+  if (user && user.email === 'wupard@gmail.com') {
+    adminItems.forEach(el => el.style.display = 'flex');
+    document.body.classList.add('is-admin');
+  } else {
+    adminItems.forEach(el => el.style.display = 'none');
+    document.body.classList.remove('is-admin');
+  }
 
   // Rank Display in Sidebar
   if (user) {
@@ -1308,10 +1318,81 @@ function renderLoggedExercises(){
     btn.addEventListener('click',()=>{
       const idx=parseInt(btn.dataset.index);
       appData.workoutLogs[td].splice(idx,1);
-      if(appData.workoutLogs[td].length===0)delete appData.workoutLogs[td];
-      saveData();renderLoggedExercises();updateMuscleMap();updateStats();
+      if(appData.workoutLogs[td].length===0) {
+        delete appData.workoutLogs[td];
+        // If no more logs for this day, also remove attendance
+        delete appData.attendance[td];
+      }
+      saveData();
+      renderLoggedExercises();
+      updateMuscleMap();
+      updateStats();
+      syncAchievementsWithLogs(); // Sync achievements when a log is deleted
     });
   });
+}
+
+/**
+ * Re-verifies all achievements based on current workout logs and attendance.
+ * If a log or streak that unlocked an achievement is gone, the achievement is removed.
+ */
+function syncAchievementsWithLogs() {
+  if (!appData.achievements) return;
+  
+  const oldAchievements = { ...appData.achievements };
+  const newAchievements = {};
+  
+  // 1. Check exercise achievements
+  const allLogs = [];
+  Object.values(appData.workoutLogs || {}).forEach(dayLogs => {
+    allLogs.push(...dayLogs);
+  });
+
+  ACHIEVEMENT_DEFS.forEach(def => {
+    if (def.exercise) {
+      // Find if any log satisfies this achievement
+      const satisfied = allLogs.some(l => l.exercise === def.exercise && (l.weight || 0) >= def.target);
+      if (satisfied) {
+        newAchievements[def.id] = oldAchievements[def.id] || { unlockedAt: Date.now() };
+      }
+    }
+  });
+
+  // 2. Check streak achievements
+  let maxStreak = 0;
+  // Simple streak calculation (can be optimized)
+  const sortedDates = Object.keys(appData.attendance || {}).sort();
+  if (sortedDates.length > 0) {
+    let currentStreak = 0;
+    let lastDate = null;
+    sortedDates.forEach(dateStr => {
+      const d = new Date(dateStr);
+      if (lastDate) {
+        const diff = (d - lastDate) / 86400000;
+        if (diff === 1) {
+          currentStreak++;
+        } else if (diff > 1) {
+          currentStreak = 1;
+        }
+      } else {
+        currentStreak = 1;
+      }
+      lastDate = d;
+      if (currentStreak > maxStreak) maxStreak = currentStreak;
+    });
+  }
+
+  ACHIEVEMENT_DEFS.forEach(def => {
+    if (!def.exercise) {
+      if (maxStreak >= def.target) {
+        newAchievements[def.id] = oldAchievements[def.id] || { unlockedAt: Date.now() };
+      }
+    }
+  });
+
+  appData.achievements = newAchievements;
+  saveData();
+  renderAchievements();
 }
 
 // =============================================
@@ -1653,14 +1734,18 @@ function initNotes() {
 
 function renderNotes() {
   const container = document.getElementById('notesHistory');
+  const bulkBtn = document.getElementById('bulkDeleteNotesBtn');
   if (!container) return;
   
   const entries = Object.values(appData.notes || {}).sort((a, b) => b.timestamp - a.timestamp);
   if (entries.length === 0) {
     container.innerHTML = `<div class="logged-empty">${currentLang === 'tr' ? 'Henüz not yok.' : 'No notes yet.'}</div>`;
+    if (bulkBtn) bulkBtn.style.display = 'none';
     return;
   }
   
+  if (bulkBtn) bulkBtn.style.display = 'flex';
+
   const TAG_SVG = {
     'Daha sonra': '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>',
     'Fikir': '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 1 7 7 7 7 0 0 1-4 6.32V17H9v-1.69A7.004 7.004 0 0 1 5 9a7 7 0 0 1 7-7z"/></svg>',
@@ -1673,20 +1758,44 @@ function renderNotes() {
     const tagsHtml = (note.tags || []).map(tg => `<span style="display:inline-flex;align-items:center;gap:3px;font-size:0.65rem;padding:2px 8px;border-radius:12px;background:var(--accent-glow);color:var(--accent-primary);font-weight:600;margin-right:4px;">${TAG_SVG[tg]||''}${tg}</span>`).join('');
     
     return `
-      <div class="note-entry" style="padding:16px;background:var(--bg-card-alt);border-radius:12px;margin-bottom:12px;border:1px solid var(--border-subtle);">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-          <span style="font-size:0.75rem;color:var(--text-muted);font-weight:600;">${dateLabel}</span>
-          <button onclick="deleteNote('${note.id}')" style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);color:#ef4444;cursor:pointer;padding:5px 7px;border-radius:7px;transition:all 0.2s;display:flex;align-items:center;gap:4px;font-size:0.7rem;" title="Notu Sil">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-            Sil
-          </button>
+      <div class="note-entry" style="padding:16px;background:var(--bg-card-alt);border-radius:12px;margin-bottom:12px;border:1px solid var(--border-subtle); display:flex; gap:12px;">
+        <div style="padding-top:2px;">
+          <input type="checkbox" class="note-checkbox" value="${note.id}" style="width:18px; height:18px; accent-color:var(--accent-primary); cursor:pointer;">
         </div>
-        <div style="font-size:0.9rem;line-height:1.5;color:var(--text-primary);margin-bottom:10px;white-space:pre-wrap;">${note.text}</div>
-        <div style="display:flex;flex-wrap:wrap;gap:4px;">${tagsHtml}</div>
+        <div style="flex:1;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+            <span style="font-size:0.75rem;color:var(--text-muted);font-weight:600;">${dateLabel}</span>
+            <button onclick="deleteNote('${note.id}')" style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);color:#ef4444;cursor:pointer;padding:5px 7px;border-radius:7px;transition:all 0.2s;display:flex;align-items:center;gap:4px;font-size:0.7rem;" title="Notu Sil">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+              Sil
+            </button>
+          </div>
+          <div style="font-size:0.9rem;line-height:1.5;color:var(--text-primary);margin-bottom:10px;white-space:pre-wrap;">${note.text}</div>
+          <div style="display:flex;flex-wrap:wrap;gap:4px;">${tagsHtml}</div>
+        </div>
       </div>
     `;
   }).join('');
 }
+
+window.bulkDeleteNotes = function() {
+  const checkboxes = document.querySelectorAll('.note-checkbox:checked');
+  if (checkboxes.length === 0) {
+    showToast('Lütfen silmek istediğiniz notları seçin.', 'error');
+    return;
+  }
+  
+  if (!confirm(`${checkboxes.length} adet notu silmek istediğinize emin misiniz?`)) return;
+  
+  const idsToDelete = Array.from(checkboxes).map(cb => cb.value);
+  idsToDelete.forEach(id => {
+    delete appData.notes[id];
+  });
+  
+  saveData();
+  renderNotes();
+  showToast(`${idsToDelete.length} not silindi.`, 'success');
+};
 
 window.deleteNote = function(noteId) {
   if (!appData.notes || !appData.notes[noteId]) return;
@@ -1800,6 +1909,83 @@ function updateStats(){
 }
 
 // =============================================
+// STRENGTH DETAILS
+// =============================================
+window.showStrengthDetails = function() {
+  const modal = document.getElementById('strengthDetailsModal');
+  const content = document.getElementById('strengthDetailContent');
+  if (!modal || !content) return;
+
+  // Find all PRs per exercise
+  const exerciseHistory = {};
+  Object.entries(appData.workoutLogs || {}).forEach(([date, logs]) => {
+    logs.forEach(l => {
+      if (!exerciseHistory[l.exercise]) exerciseHistory[l.exercise] = [];
+      exerciseHistory[l.exercise].push({ date, weight: l.weight, reps: l.reps });
+    });
+  });
+
+  // Sort each exercise history by date
+  Object.keys(exerciseHistory).forEach(ex => {
+    exerciseHistory[ex].sort((a, b) => new Date(a.date) - new Date(b.date));
+  });
+
+  // Find the top PR exercise
+  let topEx = '';
+  let maxW = 0;
+  Object.entries(exerciseHistory).forEach(([ex, history]) => {
+    const max = Math.max(...history.map(h => h.weight));
+    if (max > maxW) {
+      maxW = max;
+      topEx = ex;
+    }
+  });
+
+  if (!topEx) {
+    content.innerHTML = `<div class="logged-empty">Henüz yeterli veri yok.</div>`;
+    modal.style.display = 'flex';
+    return;
+  }
+
+  const history = exerciseHistory[topEx];
+  let html = `<div style="margin-bottom:20px; padding:16px; background:var(--bg-card-alt); border-radius:12px; border:1px solid var(--accent-primary);">
+    <div style="font-size:0.7rem; color:var(--accent-primary); text-transform:uppercase; font-weight:800; margin-bottom:4px;">En Çok Gelişen Hareket</div>
+    <div style="font-size:1.2rem; font-weight:800; color:var(--text-primary);">${topEx}</div>
+  </div>`;
+
+  html += `<div style="display:flex; flex-direction:column; gap:12px;">`;
+  
+  for (let i = 0; i < history.length; i++) {
+    const curr = history[i];
+    const prev = i > 0 ? history[i-1] : null;
+    const diff = prev ? (curr.weight - prev.weight) : 0;
+    const diffColor = diff > 0 ? '#4ecb8d' : diff < 0 ? '#ef4444' : 'var(--text-tertiary)';
+    const diffText = diff > 0 ? `+${diff}kg` : diff < 0 ? `${diff}kg` : '—';
+
+    html += `
+      <div style="display:flex; align-items:center; justify-content:space-between; padding:12px 16px; background:rgba(255,255,255,0.03); border-radius:10px; border:1px solid rgba(255,255,255,0.05);">
+        <div>
+          <div style="font-size:0.8rem; font-weight:700; color:var(--text-primary);">${new Date(curr.date).toLocaleDateString('tr-TR')}</div>
+          <div style="font-size:0.7rem; color:var(--text-tertiary);">${curr.weight}kg × ${curr.reps} Tekrar</div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:0.85rem; font-weight:800; color:${diffColor};">${diffText}</div>
+          <div style="font-size:0.6rem; color:var(--text-muted); text-transform:uppercase;">Güç Artışı</div>
+        </div>
+      </div>
+    `;
+  }
+  html += `</div>`;
+
+  content.innerHTML = html;
+  modal.style.display = 'flex';
+};
+
+window.closeStrengthDetails = function() {
+  document.getElementById('strengthDetailsModal').style.display = 'none';
+};
+
+// =============================================
 // REFRESH
 // =============================================
 function refreshDashboard(){updateStats();updateMuscleMap();setTimeout(drawDashboardChart,50)}
@@ -1881,7 +2067,7 @@ let notifUnsubscribe = null;
 function initNotifications() {
   if (!currentUser) return;
 
-  const isAdmin = currentUser.email === 'admin@zyro.com' || currentUser.uid === 'ADMIN_UID_HERE'; 
+  const isAdmin = currentUser.email === 'wupard@gmail.com'; 
 
   // Cleanup old listener
   if (notifUnsubscribe) notifUnsubscribe();
@@ -1891,7 +2077,7 @@ function initNotifications() {
   const banner = document.getElementById('notifBanner');
 
   // 1. System/Broadcast Notifications (Real-time)
-  const broadcastsRef = db.collection('broadcasts').orderBy('timestamp', 'desc').limit(20);
+  const broadcastsRef = db.collection('notifications').orderBy('timestamp', 'desc').limit(20);
   
   // 2. Personal Notifications (Real-time)
   const personalRef = db.collection(`users/${currentUser.uid}/notifications`).orderBy('timestamp', 'desc').limit(20);
@@ -1908,7 +2094,6 @@ function initNotifications() {
       activeNotifications = all;
       renderNotificationList();
       updateNotifBadge();
-      if (isAdmin) renderAdminHistory();
     });
   };
 
@@ -1919,7 +2104,7 @@ function initNotifications() {
       if (change.type === 'added') {
         const data = change.doc.data();
         const isNew = (Date.now() - data.timestamp) < 5000; // Last 5 seconds
-        if (isNew && data.type === 'broadcast') {
+        if (isNew) {
           showSystemNotification(data);
         }
       }
@@ -1929,12 +2114,6 @@ function initNotifications() {
 
   const unsub2 = personalRef.onSnapshot(() => syncNotifs());
   notifUnsubscribe = () => { unsub1(); unsub2(); };
-
-  // Admin Panel Visibility
-  const adminPanel = document.getElementById('adminBroadcastPanel');
-  if (adminPanel) {
-    adminPanel.style.display = isAdmin ? 'block' : 'none';
-  }
 }
 
 function renderAdminHistory() {
@@ -2837,9 +3016,8 @@ function initComments() {
         document.getElementById('commentInput').value = '';
         renderComments();
         
-        // "Mail'e gelsin" part: For a real app, this would be a Cloud Function.
-        // As a workaround, we can provide a mailto link if the user wants to trigger it manually,
-        // but saving to Firestore is the more reliable way for an "admin panel".
+        // Notification
+        sendCommentEmailNotification(text, comment.userName);
       } catch (e) {
         console.error('Comment Error:', e);
         if (e.message && e.message.includes('permissions')) {
@@ -2883,22 +3061,25 @@ function displayComments(comments) {
     return;
   }
   
-  list.innerHTML = comments.map((c, i) => {
-    const isAdmin = currentUser && currentUser.email === 'wupard@gmail.com';
+  // Separate top-level comments and replies
+  const topLevel = comments.filter(c => !c.parentId);
+  const replies = comments.filter(c => c.parentId);
+
+  list.innerHTML = topLevel.map((c, i) => {
     const isOwnComment = currentUser && currentUser.uid === c.userId;
     const isWupard = c.userEmail === 'wupard@gmail.com';
     const showPhoto = !c.isAnonymous && c.userPhoto;
-    
-    const userRank = c.rank || (isWupard ? 'mod' : 'default');
-    const rank = RANKS[userRank] || RANKS.default;
     
     // Upvote logic
     const upvotes = c.upvotes || 0;
     const upvotedBy = c.upvotedBy || [];
     const hasUpvoted = currentUser && upvotedBy.includes(currentUser.uid);
 
+    // Get replies for this comment
+    const commentReplies = replies.filter(r => r.parentId === c.id).sort((a,b) => a.timestamp - b.timestamp);
+
     return `
-      <div class="comment-item" style="padding: 16px; border-bottom: 1px solid var(--border-subtle); background: var(--bg-card-alt); border-radius: 12px; margin-bottom: 12px; position: relative;">
+      <div class="comment-item" id="comment_${c.id}" style="padding: 16px; border-bottom: 1px solid var(--border-subtle); background: var(--bg-card-alt); border-radius: 12px; margin-bottom: 12px; position: relative;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
           <div style="display: flex; align-items: center; gap: 10px;">
             ${showPhoto ? 
@@ -2906,27 +3087,112 @@ function displayComments(comments) {
               `<div style="width: 24px; height: 24px; border-radius: 50%; background: var(--bg-primary); display: flex; align-items: center; justify-content: center; font-size: 0.7rem; color: var(--text-tertiary); border: 1px solid var(--border-subtle);">?</div>`
             }
             <div>
-              <div style="display: flex; align-items: center; gap: 6px;">
-                <span style="font-weight: 600; font-size: 0.9rem; color: ${isWupard ? '#FFD700' : 'var(--accent-primary)'};">${c.userName}</span>
-                <span style="font-size: 0.6rem; padding: 1px 6px; border-radius: 4px; background: ${rank.bg}; color: ${rank.color}; font-weight: 800;">${rank.label}</span>
-              </div>
+              <span style="font-weight: 600; font-size: 0.9rem; color: var(--accent-primary);">${c.userName}</span>
             </div>
           </div>
-          <div style="display: flex; align-items: center; gap: 12px;">
-            <span style="font-size: 0.75rem; color: var(--text-muted);">${new Date(c.timestamp).toLocaleDateString()}</span>
-            ${isAdmin ? `<button onclick="adminDeleteComment('${c.id}')" style="background: none; border: none; color: #ef4444; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.2s;" title="Yorumu Sil">🗑️</button>` : ''}
-          </div>
+          <span style="font-size: 0.75rem; color: var(--text-muted);">${new Date(c.timestamp).toLocaleDateString()}</span>
         </div>
         <p style="margin: 0; font-size: 0.9rem; line-height: 1.5; color: var(--text-primary); padding-left: 34px;">${c.text}</p>
+        
         <div style="margin-top: 12px; display: flex; gap: 16px; padding-left: 34px;">
           <button onclick="upvoteComment('${c.id}')" style="background:${hasUpvoted ? 'var(--accent-glow)' : 'transparent'}; border:1px solid ${hasUpvoted ? 'var(--accent-primary)' : 'transparent'}; color:${hasUpvoted ? 'var(--accent-primary)' : 'var(--text-muted)'}; font-size:0.8rem; cursor:pointer; display:flex; align-items:center; gap:4px; padding: 4px 8px; border-radius: 6px; transition: all 0.2s;">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg>
             <span style="font-weight: bold;">${upvotes}</span>
           </button>
+          <button onclick="showReplyForm('${c.id}')" style="background:transparent; border:none; color:var(--text-muted); font-size:0.8rem; cursor:pointer; display:flex; align-items:center; gap:4px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            <span>Cevapla</span>
+          </button>
         </div>
+
+        <div id="replyForm_${c.id}" style="display:none; margin-top:12px; padding-left:34px;">
+          <textarea id="replyInput_${c.id}" class="note-input" rows="2" placeholder="Cevabını yaz..." style="margin-bottom:8px; font-size:0.85rem;"></textarea>
+          <div style="display:flex; gap:8px;">
+            <button class="btn-primary" style="padding:6px 16px; font-size:0.8rem;" onclick="submitReply('${c.id}')">Gönder</button>
+            <button class="btn-small" onclick="showReplyForm('${c.id}')">İptal</button>
+          </div>
+        </div>
+
+        ${commentReplies.length > 0 ? `
+          <div class="comment-replies" style="margin-top:12px; padding-left:34px; border-left: 2px solid var(--border-subtle);">
+            ${commentReplies.map(r => `
+              <div style="margin-top:12px; padding:10px; background:rgba(255,255,255,0.02); border-radius:8px;">
+                <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
+                  ${r.userPhoto ? `<img src="${r.userPhoto}" style="width:18px; height:18px; border-radius:50%;" referrerpolicy="no-referrer">` : `<div style="width:18px; height:18px; border-radius:50%; background:var(--bg-primary); display:flex; align-items:center; justify-content:center; font-size:0.6rem;">?</div>`}
+                  <span style="font-weight:600; font-size:0.8rem; color:var(--accent-primary);">${r.userName}</span>
+                  <span style="font-size:0.65rem; color:var(--text-muted); margin-left:auto;">${new Date(r.timestamp).toLocaleDateString()}</span>
+                </div>
+                <p style="margin:0; font-size:0.85rem; color:var(--text-primary);">${r.text}</p>
+              </div>
+            `).join('')}
+          </div>
+        ` : ''}
       </div>
     `;
   }).join('');
+}
+
+window.showReplyForm = function(commentId) {
+  const form = document.getElementById(`replyForm_${commentId}`);
+  if (form) form.style.display = form.style.display === 'none' ? 'block' : 'none';
+};
+
+window.submitReply = async function(parentId) {
+  const input = document.getElementById(`replyInput_${parentId}`);
+  const text = input.value.trim();
+  if (!text) return;
+
+  if (!currentUser) {
+    showToast('Cevap yazmak için giriş yapmalısın!', 'error');
+    return;
+  }
+
+  const reply = {
+    text,
+    parentId,
+    userId: currentUser.uid,
+    userName: currentUser.displayName || 'User',
+    userEmail: currentUser.email,
+    userPhoto: currentUser.photoURL,
+    timestamp: Date.now(),
+    date: todayStr(),
+    upvotes: 0,
+    upvotedBy: []
+  };
+
+  if (isFirebaseConfigured && db) {
+    try {
+      await db.collection('public_comments').add(reply);
+      showToast('Cevabın gönderildi!', 'success');
+      input.value = '';
+      document.getElementById(`replyForm_${parentId}`).style.display = 'none';
+      renderComments();
+      
+      // Notification
+      sendCommentEmailNotification(text, currentUser.displayName || currentUser.email, true);
+    } catch (e) {
+      showToast('Hata: ' + e.message, 'error');
+    }
+  }
+};
+
+function sendCommentEmailNotification(text, userName, isReply = false) {
+  // Since we don't have a backend to send emails directly, 
+  // we can use a "system notification" in Firestore that the admin will see.
+  // The user asked for an email to wupard@gmail.com.
+  // A common trick is to use a mailto link or a third-party service,
+  // but for a Firebase app, Cloud Functions are best. 
+  // Without Cloud Functions, we can just log it to a special 'admin_notifications' collection.
+  
+  if (db) {
+    db.collection('admin_notifications').add({
+      type: isReply ? 'reply' : 'comment',
+      text: text,
+      from: userName,
+      timestamp: Date.now(),
+      target: 'wupard@gmail.com'
+    }).catch(e => console.error('Admin notification failed:', e));
+  }
 }
 
 window.adminDeleteComment = async function(commentId) {
@@ -2977,49 +3243,114 @@ window.upvoteComment = async function(commentId) {
 // =============================================
 // ADMIN PANEL (Special for Wupard)
 // =============================================
-function renderAdminPanel() {
-  if (!currentUser || currentUser.email !== 'wupard@gmail.com') return;
-  
-  // Show Admin Section
-  const pageComments = document.getElementById('pageComments');
-  if (!pageComments) return;
-  
-  // Add Admin Header
-  if (!document.getElementById('adminPanelHeader')) {
-    const adminHeader = document.createElement('div');
-    adminHeader.id = 'adminPanelHeader';
-    adminHeader.className = 'card admin-card-premium';
-    adminHeader.innerHTML = `
-      <div class="admin-header-main">
-        <div class="admin-brand-section">
-          <div class="admin-crown-icon">👑</div>
-          <div>
-            <h2 class="admin-title">Yönetim Merkezi</h2>
-            <p class="admin-subtitle">Hoş geldin Wupard. Sisteme tam erişim sağlandı.</p>
-          </div>
-        </div>
-        <div class="admin-status-badge">Süper Yetkili</div>
-      </div>
-      <div class="admin-nav-tabs">
-        <button onclick="adminShowSection('users')" class="admin-tab-btn" id="adminTabUsers">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-          Kullanıcılar
-        </button>
-        <button onclick="adminShowSection('comments')" class="admin-tab-btn" id="adminTabComments">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
-          Tüm Yorumlar
-        </button>
-      </div>
-    `;
-    pageComments.prepend(adminHeader);
+// =============================================
+// ADMIN PANEL (Special for Wupard)
+// =============================================
+window.adminShowSection = function(section) {
+  const sections = ['dashboard', 'notifications', 'users', 'comments'];
+  sections.forEach(s => {
+    const el = document.getElementById(`admin${s.charAt(0).toUpperCase() + s.slice(1)}Section`);
+    if (el) el.style.display = s === section ? 'block' : 'none';
     
-    const adminContent = document.createElement('div');
-    adminContent.id = 'adminPanelContent';
-    adminContent.className = 'card';
-    adminContent.style.display = 'none';
-    pageComments.insertBefore(adminContent, document.getElementById('publicCommentsCard'));
-  }
+    const btn = document.getElementById(`adminTab${s.charAt(0).toUpperCase() + s.slice(1)}`);
+    if (btn) btn.classList.toggle('active', s === section);
+  });
+  
+  if (section === 'users') adminLoadUsers();
+  if (section === 'comments') adminLoadAllComments();
+  if (section === 'dashboard') adminLoadDashboardStats();
+};
+
+async function adminLoadDashboardStats() {
+  if (!db) return;
+  try {
+    const usersSnap = await db.collection('users').get();
+    const uCount = document.getElementById('adminTotalUsers');
+    if (uCount) uCount.textContent = usersSnap.size;
+    
+    const commentsSnap = await db.collection('public_comments')
+      .where('date', '==', todayStr())
+      .get();
+    const cCount = document.getElementById('adminTodayComments');
+    if (cCount) cCount.textContent = commentsSnap.size;
+  } catch(e) { console.error('Admin stats failed:', e); }
 }
+
+window.adminSendNotification = async function() {
+  const title = document.getElementById('adminNotifTitle').value.trim();
+  const text = document.getElementById('adminNotifText').value.trim();
+  if (!title || !text) return;
+  
+  if (db) {
+    try {
+      await db.collection('notifications').add({
+        title,
+        text,
+        timestamp: Date.now(),
+        date: todayStr(),
+        type: 'admin'
+      });
+      showToast('Bildirim yayınlandı!', 'success');
+      document.getElementById('adminNotifTitle').value = '';
+      document.getElementById('adminNotifText').value = '';
+    } catch (e) {
+      showToast('Hata: ' + e.message, 'error');
+    }
+  }
+};
+
+async function adminLoadUsers() {
+  const list = document.getElementById('adminUsersList');
+  if (!list || !db) return;
+  list.innerHTML = '<div class="logged-empty">Yükleniyor...</div>';
+  
+  try {
+    const snap = await db.collection('users').get();
+    let html = '';
+    snap.forEach(doc => {
+      const data = doc.data().data || {};
+      html += `
+        <div style="padding:12px; border-bottom:1px solid var(--border-subtle); display:flex; justify-content:space-between; align-items:center;">
+          <div>
+            <div style="font-weight:700; font-size:0.85rem;">${doc.id}</div>
+            <div style="font-size:0.7rem; color:var(--text-tertiary);">Rank: ${data.userRank || 'Üye'}</div>
+          </div>
+          <button class="btn-small" onclick="adminViewUserDetails('${doc.id}')">Detay</button>
+        </div>
+      `;
+    });
+    list.innerHTML = html || '<div class="logged-empty">Kullanıcı bulunamadı.</div>';
+  } catch(e) { list.innerHTML = 'Hata: ' + e.message; }
+}
+
+async function adminLoadAllComments() {
+  const list = document.getElementById('adminAllCommentsList');
+  if (!list || !db) return;
+  list.innerHTML = '<div class="logged-empty">Yükleniyor...</div>';
+  
+  try {
+    const snap = await db.collection('public_comments').orderBy('timestamp', 'desc').limit(50).get();
+    let html = '';
+    snap.forEach(doc => {
+      const c = doc.data();
+      html += `
+        <div style="padding:12px; border-bottom:1px solid var(--border-subtle); margin-bottom:8px; background:var(--bg-card-alt); border-radius:8px;">
+          <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+            <span style="font-weight:700; font-size:0.8rem;">${c.userName}</span>
+            <span style="font-size:0.7rem; color:var(--text-tertiary);">${c.date}</span>
+          </div>
+          <div style="font-size:0.85rem; margin-bottom:8px;">${c.text}</div>
+          <button class="btn-small" style="color:#ef4444;" onclick="adminDeleteComment('${doc.id}')">Sil</button>
+        </div>
+      `;
+    });
+    list.innerHTML = html || '<div class="logged-empty">Yorum bulunamadı.</div>';
+  } catch(e) { list.innerHTML = 'Hata: ' + e.message; }
+}
+
+window.adminViewUserDetails = function(uid) {
+  alert('Kullanıcı Detayları: ' + uid);
+};
 
 window.adminShowSection = async function(section) {
   const content = document.getElementById('adminPanelContent');
