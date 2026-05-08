@@ -4926,3 +4926,329 @@ if (document.readyState === 'loading') {
 } else {
   initializeEnhancements();
 }
+
+
+// =============================================
+// FEATURE 5: PROFILE SYSTEM
+// =============================================
+
+let selectedProfileAchievements = [];
+
+window.switchProfileTab = function(tab) {
+  // Hide all tabs
+  document.getElementById('profileTabBio').style.display = 'none';
+  document.getElementById('profileTabAchievements').style.display = 'none';
+  document.getElementById('profileTabSecurity').style.display = 'none';
+  
+  // Update buttons
+  document.querySelectorAll('.profile-tab-btn').forEach(btn => {
+    btn.style.color = 'var(--text-muted)';
+    btn.style.borderBottomColor = 'transparent';
+  });
+  
+  // Show selected tab
+  document.getElementById('profileTab' + tab.charAt(0).toUpperCase() + tab.slice(1)).style.display = 'block';
+  event.target.style.color = 'var(--text-primary)';
+  event.target.style.borderBottomColor = 'var(--accent-primary)';
+  
+  // Load security tab content if needed
+  if (tab === 'security') {
+    renderPasswordSection();
+  }
+  
+  // Load achievements if needed
+  if (tab === 'achievements') {
+    renderProfileAchievementsSelector();
+  }
+};
+
+window.loadProfileData = function() {
+  if (!currentUser) return;
+  
+  // Load from Firestore
+  if (isFirebaseConfigured && db) {
+    db.collection('users').doc(currentUser.uid).get().then(doc => {
+      if (doc.exists) {
+        const userData = doc.data().data || {};
+        const profile = userData.profile || {};
+        
+        // Fill form
+        document.getElementById('profileDisplayName').value = profile.displayName || currentUser.displayName || '';
+        document.getElementById('profileEmail').value = currentUser.email || '';
+        document.getElementById('profileBio').value = profile.bio || '';
+        document.getElementById('profileHeight').value = profile.height || '';
+        document.getElementById('profileWeight').value = profile.weight || '';
+        document.getElementById('profileAge').value = profile.age || '';
+        document.getElementById('profileGender').value = profile.gender || '';
+        
+        // Load avatar
+        if (profile.photoURL) {
+          document.getElementById('profileAvatarLarge').style.backgroundImage = `url('${profile.photoURL}')`;
+          document.getElementById('profileAvatarLarge').style.backgroundSize = 'cover';
+          document.getElementById('profileAvatarLarge').style.backgroundPosition = 'center';
+          document.getElementById('profileAvatarLarge').textContent = '';
+        }
+        
+        // Load selected achievements
+        selectedProfileAchievements = profile.selectedAchievements || [];
+        
+        // Load rank
+        const rank = RANKS[userData.userRank] || RANKS.default;
+        document.getElementById('profileRank').textContent = rank.label;
+        document.getElementById('profileRank').style.color = rank.color;
+      }
+    });
+  }
+};
+
+window.handleProfilePhotoUpload = async function(event) {
+  const file = event.target.files[0];
+  if (!file || !currentUser) return;
+  
+  const reader = new FileReader();
+  reader.onload = async (e) => {
+    const photoURL = e.target.result;
+    
+    // Update UI immediately
+    document.getElementById('profileAvatarLarge').style.backgroundImage = `url('${photoURL}')`;
+    document.getElementById('profileAvatarLarge').style.backgroundSize = 'cover';
+    document.getElementById('profileAvatarLarge').style.backgroundPosition = 'center';
+    document.getElementById('profileAvatarLarge').textContent = '';
+    
+    // Save to Firestore
+    if (isFirebaseConfigured && db) {
+      try {
+        await db.collection('users').doc(currentUser.uid).update({
+          'data.profile.photoURL': photoURL
+        });
+        showToast('Profil fotoğrafı güncellendi!', 'success');
+      } catch (err) {
+        console.error('Photo upload error:', err);
+        showToast('Fotoğraf yüklenemedi: ' + err.message, 'error');
+      }
+    }
+  };
+  reader.readAsDataURL(file);
+};
+
+window.saveProfileBio = async function() {
+  if (!currentUser) return;
+  
+  const displayName = document.getElementById('profileDisplayName').value.trim();
+  const bio = document.getElementById('profileBio').value.trim();
+  const height = document.getElementById('profileHeight').value;
+  const weight = document.getElementById('profileWeight').value;
+  const age = document.getElementById('profileAge').value;
+  const gender = document.getElementById('profileGender').value;
+  
+  if (!displayName) {
+    showToast('Lütfen ad soyad girin.', 'error');
+    return;
+  }
+  
+  if (isFirebaseConfigured && db) {
+    try {
+      await db.collection('users').doc(currentUser.uid).update({
+        'data.profile': {
+          displayName,
+          bio,
+          height: height ? parseInt(height) : null,
+          weight: weight ? parseFloat(weight) : null,
+          age: age ? parseInt(age) : null,
+          gender,
+          selectedAchievements: selectedProfileAchievements
+        }
+      });
+      
+      // Update sidebar
+      document.getElementById('userName').textContent = displayName.split(' ')[0];
+      
+      showToast('Profil bilgileri kaydedildi!', 'success');
+    } catch (err) {
+      console.error('Profile save error:', err);
+      showToast('Profil kaydedilemedi: ' + err.message, 'error');
+    }
+  }
+};
+
+window.renderProfileAchievementsSelector = function() {
+  const grid = document.getElementById('profileAchievementsGrid');
+  if (!grid) return;
+  
+  grid.innerHTML = ACHIEVEMENT_DEFS.map(badge => {
+    const isSelected = selectedProfileAchievements.includes(badge.id);
+    const unlocked = appData.achievements && appData.achievements[badge.id];
+    
+    if (!unlocked) return '';
+    
+    return `
+      <div style="padding:12px; background:${isSelected ? 'rgba(139,124,247,0.2)' : 'rgba(255,255,255,0.03)'}; border:2px solid ${isSelected ? 'var(--accent-primary)' : 'rgba(139,124,247,0.1)'}; border-radius:12px; cursor:pointer; transition:all 0.2s; display:flex; flex-direction:column; align-items:center; gap:8px;" onclick="toggleProfileAchievement('${badge.id}')">
+        <div style="font-size:2rem;">⭐</div>
+        <div style="font-size:0.7rem; font-weight:600; text-align:center; color:${isSelected ? 'var(--accent-primary)' : 'var(--text-primary)'};">${badge.name}</div>
+        ${isSelected ? '<div style="font-size:0.65rem; color:var(--accent-primary); font-weight:700;">✓ SEÇİLİ</div>' : ''}
+      </div>
+    `;
+  }).join('');
+};
+
+window.toggleProfileAchievement = function(achievementId) {
+  const idx = selectedProfileAchievements.indexOf(achievementId);
+  if (idx > -1) {
+    selectedProfileAchievements.splice(idx, 1);
+  } else {
+    if (selectedProfileAchievements.length < 3) {
+      selectedProfileAchievements.push(achievementId);
+    } else {
+      showToast('Maksimum 3 başarım seçebilirsiniz.', 'info');
+      return;
+    }
+  }
+  renderProfileAchievementsSelector();
+};
+
+window.saveProfileAchievements = async function() {
+  if (!currentUser) return;
+  
+  if (isFirebaseConfigured && db) {
+    try {
+      const profile = (await db.collection('users').doc(currentUser.uid).get()).data().data.profile || {};
+      await db.collection('users').doc(currentUser.uid).update({
+        'data.profile.selectedAchievements': selectedProfileAchievements
+      });
+      showToast('Başarımlar kaydedildi!', 'success');
+    } catch (err) {
+      console.error('Achievement save error:', err);
+      showToast('Başarımlar kaydedilemedi: ' + err.message, 'error');
+    }
+  }
+};
+
+window.renderPasswordSection = function() {
+  const section = document.getElementById('passwordSection');
+  if (!section || !currentUser) return;
+  
+  const hasPassword = currentUser.providerData && currentUser.providerData.some(p => p.providerId === 'password');
+  
+  if (hasPassword) {
+    section.innerHTML = `
+      <div>
+        <label style="font-size:0.75rem; font-weight:700; color:var(--text-muted); display:block; margin-bottom:6px;">Mevcut Şifre</label>
+        <input type="password" id="currentPassword" class="log-input" placeholder="Mevcut şifreniz">
+      </div>
+      <div>
+        <label style="font-size:0.75rem; font-weight:700; color:var(--text-muted); display:block; margin-bottom:6px;">Yeni Şifre</label>
+        <input type="password" id="newPassword" class="log-input" placeholder="Yeni şifre (min 6 karakter)">
+      </div>
+      <div>
+        <label style="font-size:0.75rem; font-weight:700; color:var(--text-muted); display:block; margin-bottom:6px;">Yeni Şifre (Tekrar)</label>
+        <input type="password" id="confirmPassword" class="log-input" placeholder="Şifreyi tekrar girin">
+      </div>
+      <button class="btn-primary" onclick="changePassword()" style="width:100%; margin-top:12px;">Şifreyi Değiştir</button>
+    `;
+  } else {
+    section.innerHTML = `
+      <div style="padding:16px; background:rgba(76,203,141,0.1); border:1px solid rgba(76,203,141,0.2); border-radius:10px; margin-bottom:16px;">
+        <div style="font-size:0.85rem; color:var(--green-vivid); font-weight:600; margin-bottom:8px;">ℹ️ Bilgi</div>
+        <div style="font-size:0.8rem; color:var(--text-secondary);">Google ile giriş yaptığınız için şu anda şifreniz yok. Aşağıdan bir şifre belirleyebilirsiniz.</div>
+      </div>
+      <div>
+        <label style="font-size:0.75rem; font-weight:700; color:var(--text-muted); display:block; margin-bottom:6px;">Yeni Şifre</label>
+        <input type="password" id="newPassword" class="log-input" placeholder="Şifre belirleyin (min 6 karakter)">
+      </div>
+      <div>
+        <label style="font-size:0.75rem; font-weight:700; color:var(--text-muted); display:block; margin-bottom:6px;">Yeni Şifre (Tekrar)</label>
+        <input type="password" id="confirmPassword" class="log-input" placeholder="Şifreyi tekrar girin">
+      </div>
+      <button class="btn-primary" onclick="setNewPassword()" style="width:100%; margin-top:12px;\">Şifre Belirle</button>
+    `;
+  }
+};
+
+window.changePassword = async function() {
+  const currentPass = document.getElementById('currentPassword').value;
+  const newPass = document.getElementById('newPassword').value;
+  const confirmPass = document.getElementById('confirmPassword').value;
+  
+  if (!currentPass || !newPass || !confirmPass) {
+    showToast('Lütfen tüm alanları doldurun.', 'error');
+    return;
+  }
+  
+  if (newPass !== confirmPass) {
+    showToast('Yeni şifreler eşleşmiyor.', 'error');
+    return;
+  }
+  
+  if (newPass.length < 6) {
+    showToast('Şifre en az 6 karakter olmalıdır.', 'error');
+    return;
+  }
+  
+  try {
+    // Re-authenticate first
+    const credential = firebase.auth.EmailAuthProvider.credential(currentUser.email, currentPass);
+    await currentUser.reauthenticateWithCredential(credential);
+    
+    // Update password
+    await currentUser.updatePassword(newPass);
+    
+    document.getElementById('currentPassword').value = '';
+    document.getElementById('newPassword').value = '';
+    document.getElementById('confirmPassword').value = '';
+    
+    showToast('Şifre başarıyla değiştirildi!', 'success');
+  } catch (err) {
+    console.error('Password change error:', err);
+    showToast('Şifre değiştirilemedi: ' + err.message, 'error');
+  }
+};
+
+window.setNewPassword = async function() {
+  const newPass = document.getElementById('newPassword').value;
+  const confirmPass = document.getElementById('confirmPassword').value;
+  
+  if (!newPass || !confirmPass) {
+    showToast('Lütfen tüm alanları doldurun.', 'error');
+    return;
+  }
+  
+  if (newPass !== confirmPass) {
+    showToast('Şifreler eşleşmiyor.', 'error');
+    return;
+  }
+  
+  if (newPass.length < 6) {
+    showToast('Şifre en az 6 karakter olmalıdır.', 'error');
+    return;
+  }
+  
+  try {
+    await currentUser.updatePassword(newPass);
+    
+    document.getElementById('newPassword').value = '';
+    document.getElementById('confirmPassword').value = '';
+    
+    showToast('Şifre başarıyla belirlendi!', 'success');
+  } catch (err) {
+    console.error('Password set error:', err);
+    showToast('Şifre belirlenemedi: ' + err.message, 'error');
+  }
+};
+
+// Load profile data when switching to profile page
+const originalSwitchPage = window.switchPage;
+window.switchPage = function(page) {
+  originalSwitchPage(page);
+  if (page === 'profile') {
+    setTimeout(() => loadProfileData(), 100);
+  }
+};
+
+// Initialize profile on auth change
+const originalHandleAuthStateChange = window.handleAuthStateChange;
+window.handleAuthStateChange = function(user) {
+  originalHandleAuthStateChange(user);
+  if (user && document.getElementById('pageProfile')) {
+    loadProfileData();
+  }
+};

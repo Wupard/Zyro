@@ -85,6 +85,10 @@
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>
         <span data-i18n="achievements">Başarımlar</span>
       </a>
+      <a href="#" class="nav-item" data-page="profile" id="nav-profile">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <span>Profil</span>
+      </a>
       <!-- Admin Section -->
       <div class="admin-only" style="display:none; flex-direction:column; gap:4px; margin-top:8px;">
         <div style="font-size: 0.65rem; font-weight: 800; color: var(--accent-primary); margin: 0 14px 4px; text-transform: uppercase; letter-spacing: 1px; opacity: 0.7;">Yönetici Paneli</div>
@@ -962,6 +966,114 @@
         <div class="logged-empty">Henüz ölçü eklenmedi.</div>
       </div>
     </section>
+
+    <!-- ============ PAGE: PROFILE ============ -->
+    <div class="page" data-page="profile" id="pageProfile">
+      <div style="background:linear-gradient(135deg,rgba(139,124,247,0.15),rgba(217,110,163,0.1)); border-radius:20px; padding:32px 24px; margin-bottom:24px; border:1px solid rgba(139,124,247,0.2); position:relative; overflow:hidden;">
+        <!-- Background decoration -->
+        <div style="position:absolute; top:-50px; right:-50px; width:200px; height:200px; background:radial-gradient(circle,rgba(139,124,247,0.1),transparent); border-radius:50%; pointer-events:none;"></div>
+        
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:32px; align-items:start; position:relative; z-index:1;">
+          <!-- Left: Profile Picture -->
+          <div style="display:flex; flex-direction:column; align-items:center; gap:16px;">
+            <div id="profileAvatarLarge" style="width:140px; height:140px; border-radius:20px; background:linear-gradient(135deg,var(--accent-primary),var(--accent-secondary)); display:flex; align-items:center; justify-content:center; font-size:3rem; font-weight:700; color:white; cursor:pointer; transition:all 0.3s; border:3px solid rgba(139,124,247,0.3); position:relative; overflow:hidden;" onclick="document.getElementById('profilePhotoInput').click();">Z</div>
+            <button class="btn-small" onclick="document.getElementById('profilePhotoInput').click()" style="background:var(--accent-primary); color:white; border:none;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-right:4px;"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+              Fotoğraf Değiştir
+            </button>
+            <input type="file" id="profilePhotoInput" accept="image/*" style="display:none;" onchange="handleProfilePhotoUpload(event)">
+          </div>
+          
+          <!-- Right: Basic Info -->
+          <div style="display:flex; flex-direction:column; gap:16px;">
+            <div>
+              <label style="font-size:0.75rem; font-weight:700; color:var(--text-muted); display:block; margin-bottom:6px;">Ad Soyad</label>
+              <input type="text" id="profileDisplayName" class="log-input" placeholder="Adınızı girin" style="font-size:1rem; font-weight:600;">
+            </div>
+            <div>
+              <label style="font-size:0.75rem; font-weight:700; color:var(--text-muted); display:block; margin-bottom:6px;">E-Mail</label>
+              <input type="email" id="profileEmail" class="log-input" placeholder="E-mail" readonly style="opacity:0.7;">
+            </div>
+            <div>
+              <label style="font-size:0.75rem; font-weight:700; color:var(--text-muted); display:block; margin-bottom:6px;">Rank</label>
+              <div id="profileRank" style="padding:10px; background:rgba(139,124,247,0.1); border:1px solid rgba(139,124,247,0.2); border-radius:10px; font-weight:600; color:var(--accent-primary);">Üye</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div style="display:flex; gap:8px; margin-bottom:24px; border-bottom:1px solid var(--border-subtle); overflow-x:auto;">
+        <button class="profile-tab-btn active" onclick="switchProfileTab('bio')" style="padding:12px 20px; border:none; background:none; color:var(--text-primary); font-weight:600; cursor:pointer; border-bottom:3px solid var(--accent-primary); transition:all 0.2s;">Biyografi</button>
+        <button class="profile-tab-btn" onclick="switchProfileTab('achievements')" style="padding:12px 20px; border:none; background:none; color:var(--text-muted); font-weight:600; cursor:pointer; border-bottom:3px solid transparent; transition:all 0.2s;">Başarımlar</button>
+        <button class="profile-tab-btn" onclick="switchProfileTab('security')" style="padding:12px 20px; border:none; background:none; color:var(--text-muted); font-weight:600; cursor:pointer; border-bottom:3px solid transparent; transition:all 0.2s;">Güvenlik</button>
+      </div>
+
+      <!-- Tab Content: Bio -->
+      <div id="profileTabBio" style="display:block;">
+        <section class="card">
+          <div class="card-header">
+            <h3 class="card-title">Hakkında</h3>
+          </div>
+          <div style="padding:20px; display:flex; flex-direction:column; gap:16px;">
+            <div>
+              <label style="font-size:0.75rem; font-weight:700; color:var(--text-muted); display:block; margin-bottom:6px;">Biyografi</label>
+              <textarea id="profileBio" class="note-input" rows="4" placeholder="Kendiniz hakkında yazın..."></textarea>
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+              <div>
+                <label style="font-size:0.75rem; font-weight:700; color:var(--text-muted); display:block; margin-bottom:6px;">Boy (cm)</label>
+                <input type="number" id="profileHeight" class="log-input" placeholder="180" step="1">
+              </div>
+              <div>
+                <label style="font-size:0.75rem; font-weight:700; color:var(--text-muted); display:block; margin-bottom:6px;">Kilo (kg)</label>
+                <input type="number" id="profileWeight" class="log-input" placeholder="80" step="0.1">
+              </div>
+              <div>
+                <label style="font-size:0.75rem; font-weight:700; color:var(--text-muted); display:block; margin-bottom:6px;">Yaş</label>
+                <input type="number" id="profileAge" class="log-input" placeholder="25" step="1">
+              </div>
+              <div>
+                <label style="font-size:0.75rem; font-weight:700; color:var(--text-muted); display:block; margin-bottom:6px;">Cinsiyet</label>
+                <select id="profileGender" class="log-input" style="background:var(--bg-input);">
+                  <option value="">Seçin</option>
+                  <option value="male">Erkek</option>
+                  <option value="female">Kadın</option>
+                  <option value="other">Diğer</option>
+                </select>
+              </div>
+            </div>
+            <button class="btn-primary" onclick="saveProfileBio()" style="width:100%; margin-top:12px;">Kaydet</button>
+          </div>
+        </section>
+      </div>
+
+      <!-- Tab Content: Achievements -->
+      <div id="profileTabAchievements" style="display:none;">
+        <section class="card">
+          <div class="card-header">
+            <h3 class="card-title">Seçili Başarımlar (3 Tane)</h3>
+            <p style="font-size:0.75rem; color:var(--text-tertiary); margin:0; margin-top:4px;">Profilde gösterilecek 3 başarımı seçin</p>
+          </div>
+          <div style="padding:20px;">
+            <div id="profileAchievementsGrid" style="display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:12px; margin-bottom:20px;"></div>
+            <button class="btn-primary" onclick="saveProfileAchievements()" style="width:100%;">Başarımları Kaydet</button>
+          </div>
+        </section>
+      </div>
+
+      <!-- Tab Content: Security -->
+      <div id="profileTabSecurity" style="display:none;">
+        <section class="card">
+          <div class="card-header">
+            <h3 class="card-title">Şifre Yönetimi</h3>
+          </div>
+          <div style="padding:20px; display:flex; flex-direction:column; gap:16px;" id="passwordSection">
+            <!-- Will be rendered by JavaScript -->
+          </div>
+        </section>
+      </div>
+    </div>
 
     <!-- ============ PAGE: ADMIN ============ -->
     <div class="page" data-page="admin" id="pageAdmin">
