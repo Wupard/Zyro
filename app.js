@@ -1932,6 +1932,9 @@ function updateStats(){
     streakEl.textContent = `Day ${weeklyStreak}`;
   }
   if (typeof checkStreakAchievements === 'function') checkStreakAchievements(weeklyStreak);
+  
+  // Update flame animation
+  if (typeof updateStreakFlame === 'function') updateStreakFlame();
 
   // ── Strength Progress (4th stat card) — Top PR ──
   const volEl = document.getElementById('statVolumeVal');
@@ -1962,7 +1965,7 @@ function updateStats(){
       const daysDiff = Math.round((new Date() - prDate) / 86400000);
       const ago = daysDiff === 0 ? 'bugün' : daysDiff === 1 ? 'dün' : `${daysDiff} gün önce`;
       const exShort = topPR.exercise.length > 18 ? topPR.exercise.substring(0, 17) + '…' : topPR.exercise;
-      volDetail.textContent = `${exShort} · ${ago}`;
+      volDetail.innerHTML = `<span style='cursor:pointer;' onmouseenter="this.style.color='var(--accent-primary)'" onmouseleave="this.style.color='var(--orange-vivid)'" onclick="showStrengthDetailsEnhanced('${topPR.exercise}')">${exShort} · ${ago}</span>`;
       volDetail.style.color = 'var(--orange-vivid)';
     } else {
       volDetail.textContent = 'Henüz egzersiz kaydı yok';
@@ -4592,3 +4595,334 @@ window.adminShowSection = async function(section) {
     `;
   }
 };
+
+
+// =============================================
+// FEATURE 1: ADVANCED FIRE ANIMATION (Day 0-7)
+// =============================================
+function updateStreakFlame() {
+  const streakEl = document.getElementById('streakText');
+  const flameContent = document.getElementById('streakFlameContent');
+  if (!streakEl || !flameContent) return;
+
+  const dayText = streakEl.textContent;
+  const dayMatch = dayText.match(/Day (\d+)/);
+  const dayNum = dayMatch ? parseInt(dayMatch[1]) : 0;
+
+  if (dayNum === 0) {
+    // Day 0: No flame
+    flameContent.style.display = 'none';
+  } else if (dayNum === 1) {
+    // Day 1: Small flame
+    flameContent.innerHTML = '🔥';
+    flameContent.style.fontSize = '1rem';
+    flameContent.style.opacity = '0.8';
+    flameContent.style.animation = 'flameFlicker 0.6s ease-in-out infinite';
+  } else if (dayNum <= 3) {
+    // Day 2-3: Medium flame
+    flameContent.innerHTML = '🔥';
+    flameContent.style.fontSize = '1.2rem';
+    flameContent.style.opacity = '1';
+    flameContent.style.animation = 'flameFlicker 0.5s ease-in-out infinite';
+  } else if (dayNum <= 7) {
+    // Day 4-7: Large flame with glow
+    flameContent.innerHTML = '🔥';
+    flameContent.style.fontSize = '1.4rem';
+    flameContent.style.opacity = '1';
+    flameContent.style.animation = 'flameFlickerIntense 0.4s ease-in-out infinite';
+    flameContent.style.textShadow = '0 0 8px rgba(255, 69, 0, 0.6), 0 0 16px rgba(255, 140, 0, 0.3)';
+  } else {
+    // Day 8+: Legendary flame
+    flameContent.innerHTML = '🔥';
+    flameContent.style.fontSize = '1.5rem';
+    flameContent.style.opacity = '1';
+    flameContent.style.animation = 'flameLegendary 0.3s ease-in-out infinite';
+    flameContent.style.textShadow = '0 0 12px rgba(255, 69, 0, 0.8), 0 0 24px rgba(255, 215, 0, 0.5)';
+  }
+}
+
+// Add CSS animations for flame
+const flameStyleSheet = document.createElement('style');
+flameStyleSheet.textContent = `
+  @keyframes flameFlicker {
+    0%, 100% { transform: scale(1) rotate(0deg); }
+    25% { transform: scale(1.05) rotate(-2deg); }
+    50% { transform: scale(0.95) rotate(2deg); }
+    75% { transform: scale(1.05) rotate(-1deg); }
+  }
+  
+  @keyframes flameFlickerIntense {
+    0%, 100% { transform: scale(1) rotate(0deg); }
+    20% { transform: scale(1.1) rotate(-3deg); }
+    40% { transform: scale(0.9) rotate(3deg); }
+    60% { transform: scale(1.1) rotate(-2deg); }
+    80% { transform: scale(0.95) rotate(2deg); }
+  }
+  
+  @keyframes flameLegendary {
+    0%, 100% { transform: scale(1) rotate(0deg); }
+    15% { transform: scale(1.15) rotate(-4deg); }
+    30% { transform: scale(0.85) rotate(4deg); }
+    45% { transform: scale(1.15) rotate(-3deg); }
+    60% { transform: scale(0.9) rotate(3deg); }
+    75% { transform: scale(1.1) rotate(-2deg); }
+  }
+`;
+document.head.appendChild(flameStyleSheet);
+
+// =============================================
+// FEATURE 2: ENHANCED ADMIN NOTIFICATION SYSTEM
+// =============================================
+window.adminSendNotificationV2Enhanced = async function() {
+  const recipientType = document.getElementById('adminNotifRecipient').value;
+  const targetUid = document.getElementById('adminNotifUid').value.trim();
+  const category = document.getElementById('adminNotifCategory').value;
+  const title = document.getElementById('adminNotifTitle').value.trim();
+  const msg = document.getElementById('adminNotifMessage').value.trim();
+  const expiryDays = parseInt(document.getElementById('adminNotifExpiry').value) || 7;
+
+  const btnText = document.getElementById('adminNotifBtnText');
+  const loader = document.getElementById('adminNotifLoader');
+
+  if (!title || !msg) {
+    showToast('Lütfen başlık ve mesaj girin.', 'error');
+    return;
+  }
+
+  if (recipientType === 'specific' && !targetUid) {
+    showToast('Lütfen hedef kullanıcı UID girin.', 'error');
+    return;
+  }
+
+  // Loading state
+  btnText.style.opacity = '0.5';
+  loader.style.display = 'block';
+
+  const categoryIcons = {
+    system: '🔧',
+    announcement: '📢',
+    feature: '✨',
+    maintenance: '🔨',
+    urgent: '⚠️'
+  };
+
+  const notifData = {
+    title,
+    body: msg,
+    timestamp: Date.now(),
+    expiry: Date.now() + (expiryDays * 24 * 60 * 60 * 1000),
+    read: false,
+    type: recipientType === 'all' ? 'broadcast' : 'personal',
+    sender: 'Admin',
+    category: category,
+    icon: categoryIcons[category] || '📢'
+  };
+
+  try {
+    if (recipientType === 'all') {
+      await db.collection('notifications').add(notifData);
+    } else {
+      await db.collection(`users/${targetUid}/notifications`).add(notifData);
+    }
+    
+    showToast('Bildirim başarıyla gönderildi!', 'success');
+    document.getElementById('adminNotifTitle').value = '';
+    document.getElementById('adminNotifMessage').value = '';
+    document.getElementById('adminNotifUid').value = '';
+    
+    // Update history
+    renderAdminNotificationHistory();
+  } catch (err) {
+    console.error('Notification error:', err);
+    showToast('Bildirim gönderilemedi: ' + err.message, 'error');
+  } finally {
+    btnText.style.opacity = '1';
+    loader.style.display = 'none';
+  }
+};
+
+function renderAdminNotificationHistory() {
+  const historyEl = document.getElementById('adminNotifHistory');
+  if (!historyEl) return;
+
+  const history = activeNotifications.slice(0, 5);
+  
+  if (history.length === 0) {
+    historyEl.innerHTML = '<div style="font-size:0.7rem; color:var(--text-tertiary); text-align:center; padding:12px;">Geçmiş bulunamadı</div>';
+    return;
+  }
+
+  historyEl.innerHTML = history.map(h => {
+    const categoryIcons = {
+      system: '🔧',
+      announcement: '📢',
+      feature: '✨',
+      maintenance: '🔨',
+      urgent: '⚠️'
+    };
+    const icon = categoryIcons[h.category] || h.icon || '📢';
+    const date = new Date(h.timestamp).toLocaleDateString('tr-TR', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+    
+    return `
+      <div style="padding:8px 12px; background:rgba(139,124,247,0.08); border:1px solid rgba(139,124,247,0.15); border-radius:8px; display:flex; align-items:center; justify-content:space-between; gap:8px;">
+        <div style="display:flex; align-items:center; gap:8px; flex:1; min-width:0;">
+          <span style="font-size:1rem;">${icon}</span>
+          <div style="min-width:0;">
+            <div style="font-size:0.7rem; font-weight:600; color:var(--text-primary); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${h.title}</div>
+            <div style="font-size:0.65rem; color:var(--text-tertiary);">${date}</div>
+          </div>
+        </div>
+        <button onclick="deleteNotification('${h.id}', '${h.scope}')" style="background:none; border:none; color:var(--text-muted); cursor:pointer; padding:4px; flex-shrink:0;">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+        </button>
+      </div>
+    `;
+  }).join('');
+}
+
+// Override the original function
+window.adminSendNotificationV2 = window.adminSendNotificationV2Enhanced;
+
+// =============================================
+// FEATURE 3: ENHANCED STRENGTH DETAILS MODAL
+// =============================================
+window.showStrengthDetailsEnhanced = function(targetExercise = null) {
+  const modal = document.getElementById('strengthDetailsModal');
+  const content = document.getElementById('strengthDetailContent');
+  const title = document.getElementById('strengthDetailTitle');
+  if (!modal || !content) return;
+
+  // 1. Gather all exercise data
+  const exerciseData = {};
+  Object.entries(appData.workoutLogs || {}).forEach(([date, logs]) => {
+    logs.forEach(l => {
+      if (!exerciseData[l.exercise]) exerciseData[l.exercise] = [];
+      exerciseData[l.exercise].push({ 
+        date, 
+        weight: l.weight || 0, 
+        reps: l.reps || 0, 
+        sets: l.sets || 1,
+        timestamp: l.timestamp || new Date(date).getTime() 
+      });
+    });
+  });
+
+  // 2. Determine which exercise to show
+  let selectedEx = targetExercise;
+  if (!selectedEx) {
+    let maxW = -1;
+    Object.entries(exerciseData).forEach(([ex, history]) => {
+      const best = Math.max(...history.map(h => h.weight));
+      if (best > maxW) {
+        maxW = best;
+        selectedEx = ex;
+      }
+    });
+  }
+
+  if (!selectedEx || !exerciseData[selectedEx]) {
+    content.innerHTML = `<div class="logged-empty">Veri bulunamadı. Lütfen antrenman logu girin.</div>`;
+    modal.style.display = 'flex';
+    return;
+  }
+
+  title.textContent = selectedEx;
+  const history = exerciseData[selectedEx].sort((a, b) => b.timestamp - a.timestamp);
+
+  // 3. Calculate statistics
+  const weights = history.map(h => h.weight);
+  const maxWeight = Math.max(...weights);
+  const minWeight = Math.min(...weights);
+  const avgWeight = (weights.reduce((a, b) => a + b, 0) / weights.length).toFixed(1);
+  const totalVolume = history.reduce((sum, h) => sum + (h.weight * h.reps * h.sets), 0);
+  
+  // 4. Calculate progress
+  const recentLogs = history.slice(0, 5);
+  const oldestLog = history[history.length - 1];
+  const progressDays = Math.round((new Date() - new Date(oldestLog.date)) / 86400000);
+  const weightGain = maxWeight - minWeight;
+  const monthlyProjection = progressDays > 0 ? (weightGain / progressDays * 30).toFixed(1) : 0;
+
+  // 5. Render selector
+  const allExercises = Object.keys(exerciseData).sort();
+  let selectorHtml = '';
+  if (allExercises.length > 1) {
+    selectorHtml = `
+      <div style="margin-bottom:16px;">
+        <select onchange="showStrengthDetailsEnhanced(this.value)" style="width:100%; padding:10px; border-radius:10px; background:var(--bg-card-alt); color:var(--text-primary); border:1px solid var(--border-subtle); font-size:0.85rem;">
+          ${allExercises.map(ex => `<option value="${ex}" ${ex === selectedEx ? 'selected' : ''}>${ex}</option>`).join('')}
+        </select>
+      </div>
+    `;
+  }
+
+  // 6. Render stats cards
+  const statsHtml = `
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:20px;">
+      <div style="padding:12px; background:rgba(139,124,247,0.1); border:1px solid rgba(139,124,247,0.2); border-radius:10px;">
+        <div style="font-size:0.7rem; color:var(--text-muted); margin-bottom:4px;">En Yüksek</div>
+        <div style="font-size:1.5rem; font-weight:700; color:var(--orange-vivid);">${maxWeight} kg</div>
+      </div>
+      <div style="padding:12px; background:rgba(76,203,141,0.1); border:1px solid rgba(76,203,141,0.2); border-radius:10px;">
+        <div style="font-size:0.7rem; color:var(--text-muted); margin-bottom:4px;">Ortalama</div>
+        <div style="font-size:1.5rem; font-weight:700; color:var(--green-vivid);">${avgWeight} kg</div>
+      </div>
+      <div style="padding:12px; background:rgba(92,138,222,0.1); border:1px solid rgba(92,138,222,0.2); border-radius:10px;">
+        <div style="font-size:0.7rem; color:var(--text-muted); margin-bottom:4px;">Toplam Hacim</div>
+        <div style="font-size:1.5rem; font-weight:700; color:var(--blue-vivid);">${totalVolume.toLocaleString()} kg</div>
+      </div>
+      <div style="padding:12px; background:rgba(217,110,163,0.1); border:1px solid rgba(217,110,163,0.2); border-radius:10px;">
+        <div style="font-size:0.7rem; color:var(--text-muted); margin-bottom:4px;">Aylık Tahmin</div>
+        <div style="font-size:1.5rem; font-weight:700; color:var(--pink-vivid);">+${monthlyProjection} kg</div>
+      </div>
+    </div>
+  `;
+
+  // 7. Render timeline
+  let timelineHtml = '<div style="margin-top:20px;"><h4 style="font-size:0.85rem; font-weight:700; margin-bottom:12px;">Son Hareketler</h4>';
+  timelineHtml += recentLogs.map((log, idx) => {
+    const date = new Date(log.date).toLocaleDateString('tr-TR');
+    const progress = idx > 0 ? log.weight - recentLogs[idx - 1].weight : 0;
+    const progressText = progress > 0 ? `+${progress} kg ↑` : progress < 0 ? `${progress} kg ↓` : 'Aynı';
+    const progressColor = progress > 0 ? 'var(--green-vivid)' : progress < 0 ? 'var(--red-vivid)' : 'var(--text-muted)';
+    
+    return `
+      <div style="padding:10px; background:rgba(255,255,255,0.02); border-left:3px solid var(--accent-primary); border-radius:6px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
+        <div>
+          <div style="font-size:0.8rem; font-weight:600;">${log.weight} kg × ${log.reps} rep × ${log.sets} set</div>
+          <div style="font-size:0.7rem; color:var(--text-tertiary);">${date}</div>
+        </div>
+        <div style="font-size:0.75rem; font-weight:700; color:${progressColor};">${progressText}</div>
+      </div>
+    `;
+  }).join('');
+  timelineHtml += '</div>';
+
+  content.innerHTML = selectorHtml + statsHtml + timelineHtml;
+  modal.style.display = 'flex';
+};
+
+// Override the original function
+window.showStrengthDetails = window.showStrengthDetailsEnhanced;
+
+// =============================================
+// FEATURE 4: INITIALIZE ENHANCEMENTS
+// =============================================
+function initializeEnhancements() {
+  // Update flame animation on dashboard load
+  updateStreakFlame();
+  
+  // Render admin notification history
+  setTimeout(() => {
+    if (document.getElementById('adminNotifHistory')) {
+      renderAdminNotificationHistory();
+    }
+  }, 500);
+}
+
+// Call on page load
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initializeEnhancements);
+} else {
+  initializeEnhancements();
+}
