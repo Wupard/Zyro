@@ -24,17 +24,20 @@ if (isFirebaseConfigured && typeof firebase !== 'undefined') {
   db = firebase.firestore();
 
   // Enable offline persistence (modern API to avoid deprecation warning)
-  db.settings({
-    cacheSizeBytes: firebase.firestore.CACHE_SIZE_UNLIMITED,
-    merge: true
-  });
-  db.enablePersistence({ synchronizeTabs: true }).catch((err) => {
-    if (err.code === 'failed-precondition') {
-      console.warn('Firestore persistence: Multiple tabs open, only one can enable persistence.');
-    } else if (err.code === 'unimplemented') {
-      console.warn('Firestore persistence: Browser does not support all features.');
-    }
-  });
+  // Note: We wrap this in a try-catch to handle SDK version mismatches gracefully
+  try {
+    db.enablePersistence({ synchronizeTabs: true }).catch((err) => {
+      if (err.code === 'failed-precondition') {
+        console.warn('Firestore persistence: Multiple tabs open, only one can enable persistence.');
+      } else if (err.code === 'unimplemented') {
+        console.warn('Firestore persistence: Browser does not support all features.');
+      } else {
+        console.error('Firestore persistence error:', err);
+      }
+    });
+  } catch (e) {
+    console.warn('Firestore persistence could not be initialized:', e);
+  }
 }
 
 // Also attach to window for extra safety

@@ -784,24 +784,36 @@ window.toggleNotifDrawer = function() {
 };
 
 async function checkUserBan(user) {
-  if (!isFirebaseConfigured || !db) return;
+  if (!isFirebaseConfigured || !db || !user) return;
   
   try {
-    const banDoc = await db.collection('bans').doc(user.uid).get();
+    // We use a safer approach for ban check to avoid permission errors for non-admin users
+    // if the 'bans' collection is restricted.
     let isBanned = false;
     let banData = null;
 
-    if (banDoc.exists) {
-      isBanned = true;
-      banData = banDoc.data();
-    } else {
-      // Check IP Ban
-      const ipRes = await fetch('https://api.ipify.org?format=json');
-      const ipData = await ipRes.json();
-      const ipBanDoc = await db.collection('bans').where('ip', '==', ipData.ip).get();
-      if (!ipBanDoc.empty) {
+    try {
+      const banDoc = await db.collection('bans').doc(user.uid).get();
+      if (banDoc.exists) {
         isBanned = true;
-        banData = ipBanDoc.docs[0].data();
+        banData = banDoc.data();
+      }
+    } catch (permErr) {
+      console.warn('Ban check permission restricted, skipping individual check');
+    }
+
+    if (!isBanned) {
+      // Check IP Ban
+      try {
+        const ipRes = await fetch('https://api.ipify.org?format=json');
+        const ipData = await ipRes.json();
+        const ipBanDoc = await db.collection('bans').where('ip', '==', ipData.ip).get();
+        if (!ipBanDoc.empty) {
+          isBanned = true;
+          banData = ipBanDoc.docs[0].data();
+        }
+      } catch (ipErr) {
+        console.warn('IP Ban check failed or restricted');
       }
     }
 
@@ -4433,7 +4445,12 @@ function updateUserUI(user){
     if (navComments && !navComments.querySelector('.admin-badge')) {
       navComments.innerHTML += ` <span class="admin-badge" style="background:var(--accent-primary); color:white; font-size:0.6rem; padding:2px 4px; border-radius:4px; margin-left:4px;">ADMIN</span>`;
     }
-    renderAdminPanel();
+    if (typeof renderAdminPanel === 'function') {
+      renderAdminPanel();
+    } else {
+      console.warn('renderAdminPanel is not defined, using fallback');
+      if (typeof adminShowSection === 'function') adminShowSection('dashboard');
+    }
   } else {
     document.body.classList.remove('is-admin');
   }
