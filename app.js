@@ -5236,9 +5236,8 @@ window.setNewPassword = async function() {
 };
 
 // Load profile data when switching to profile page
-const originalSwitchPage = window.switchPage;
 window.switchPage = function(page) {
-  originalSwitchPage(page);
+  navigateTo(page);
   if (page === 'profile') {
     setTimeout(() => loadProfileData(), 100);
   }
@@ -5251,4 +5250,10 @@ window.handleAuthStateChange = function(user) {
   if (user && document.getElementById('pageProfile')) {
     loadProfileData();
   }
+};
+
+
+// Render profile page
+window.renderProfilePage = function() {
+  loadProfileData();
 };
