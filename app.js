@@ -4598,13 +4598,37 @@ window.showStrengthDetailsEnhanced = function(targetExercise = null) {
   const avgWeight = (weights.reduce((a, b) => a + b, 0) / weights.length).toFixed(1);
   const totalVolume = history.reduce((sum, h) => sum + (h.weight * h.reps * h.sets), 0);
   
-  // 4. Calculate progress
+  // 4. Calculate realistic progress & predictions
   const recentLogs = history.slice(0, 5);
   const oldestLog = history[history.length - 1];
-  const progressDays = Math.round((new Date() - new Date(oldestLog.date)) / 86400000);
+  const exactDays = Math.max(0, (new Date() - new Date(oldestLog.date)) / 86400000);
+  
+  // Base calculation span on at least 7 days to prevent absurd spikes from same-day logs
+  const calcDays = Math.max(7, exactDays);
   const weightGain = maxWeight - minWeight;
-  const monthlyProjection = progressDays > 0 ? (weightGain / progressDays * 30).toFixed(1) : 0;
-  const weeklyProjection = progressDays > 0 ? (weightGain / progressDays * 7).toFixed(1) : 0;
+  
+  let rawWeekly = (weightGain / calcDays) * 7;
+  let rawMonthly = (weightGain / calcDays) * 30;
+  
+  // Real-world physical limits (e.g., max ~2.5% strength gain per week)
+  const maxWeeklyCap = Math.max(1.0, maxWeight * 0.025);
+  const maxMonthlyCap = Math.max(2.5, maxWeight * 0.05);
+  
+  let weeklyNum = 0;
+  let monthlyNum = 0;
+
+  if (weightGain > 0) {
+    weeklyNum = Math.min(rawWeekly, maxWeeklyCap);
+    monthlyNum = Math.min(rawMonthly, maxMonthlyCap);
+  } else {
+    // If no progress yet, give a standard realistic goal
+    weeklyNum = maxWeight > 40 ? 1.5 : 1.0;
+    monthlyNum = maxWeight > 40 ? 3.0 : 2.0;
+  }
+
+  // Round to nearest 0.5 for clean gym weights
+  const weeklyProjection = (Math.round(weeklyNum * 2) / 2).toFixed(1);
+  const monthlyProjection = (Math.round(monthlyNum * 2) / 2).toFixed(1);
 
   // 5. Render selector
   const allExercises = Object.keys(exerciseData).sort();
