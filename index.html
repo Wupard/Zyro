@@ -239,7 +239,7 @@
           <div class="stat-info"><span class="stat-value" id="statConsistencyVal">0%</span><span class="stat-label" data-i18n="consistency">Consistency</span></div>
           <div class="stat-bar"><div class="stat-bar-fill bar-green" id="statConsistencyBar" style="width:0%"></div></div>
         </div>
-        <div class="stat-card stat-card--volume" onclick="showStrengthDetails()" style="cursor:pointer;" title="Detayları Gör">
+        <div class="stat-card stat-card--volume" onclick="switchPage('progress')" style="cursor:pointer;" title="Detayları Gör">
           <div class="stat-icon-wrap"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg></div>
           <div class="stat-info"><span class="stat-value" id="statVolumeVal">— kg</span><span class="stat-label">Güç Gelişimi</span></div>
           <div class="stat-bar"><div class="stat-bar-fill bar-orange" id="statVolumeBar" style="width:0%"></div></div>
@@ -867,6 +867,32 @@
     <button class="weekly-goal-confirm" onclick="confirmWeeklyGoal()">Hedefi Kaydet</button>
   </div>
 
+  <!-- ===== PAGE: ACHIEVEMENTS ===== -->
+  <div class="page" data-page="achievements" id="pageAchievements">
+    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:24px;">
+      <h2 class="page-title" style="margin:0;" data-i18n="achievements">Başarımlar</h2>
+      <div id="achievementsSummaryBadge" style="display:flex; align-items:center; gap:8px; padding:8px 16px; background:linear-gradient(135deg,rgba(139,124,247,0.15),rgba(224,148,58,0.1)); border:1px solid rgba(139,124,247,0.25); border-radius:16px; font-size:0.82rem; font-weight:700; color:var(--accent-primary);">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>
+        <span id="achOverallCount">0 / 0</span>
+      </div>
+    </div>
+
+    <!-- Progress Bar -->
+    <div style="background:var(--bg-card); border:1px solid var(--border-card); border-radius:16px; padding:20px 24px; margin-bottom:20px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+        <span style="font-size:0.8rem; color:var(--text-secondary); font-weight:600; text-transform:uppercase; letter-spacing:0.05em;">Toplam İlerleme</span>
+      </div>
+      <div style="height:8px; background:rgba(255,255,255,0.06); border-radius:8px; overflow:hidden;">
+        <div id="achOverallBar" style="height:100%; background:linear-gradient(90deg,var(--accent-deep),var(--accent-primary),var(--orange-vivid)); border-radius:8px; transition:width 1s ease; width:0%;"></div>
+      </div>
+    </div>
+
+    <!-- Category Filters Removed -->
+
+    <!-- Achievements Grid -->
+    <div id="achievementsGrid" style="display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:14px;"></div>
+  </div>
+
   <!-- ===== PAGE: BEFORE/AFTER ===== -->
   <div class="page" data-page="beforeafter" id="pageBeforeafter">
     <h2 class="page-title">Gelişim Fotoğrafları</h2>
@@ -966,6 +992,7 @@
         <div class="logged-empty">Henüz ölçü eklenmedi.</div>
       </div>
     </section>
+  </div>
 
     <!-- ============ PAGE: PROFILE ============ -->
     <div class="page" data-page="profile" id="pageProfile">

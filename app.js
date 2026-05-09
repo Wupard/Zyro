@@ -341,7 +341,9 @@ const CATEGORY_ICONS = {
   'core':      '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="4"/><path d="M3 9h18M3 15h18M9 3v18M15 3v18"/></svg>'
 };
 
+
 const DEFAULT_PROGRAMS = {
+
   day1: [
     {name:'Barbell Bench Press',sets:'3×8-10',weight:'-'},
     {name:'İncline Bench Press',sets:'3×10-12',weight:'-'},
@@ -1436,39 +1438,7 @@ async function syncAchievementsWithLogs(deletedLog = null) {
   renderAchievements();
 }
 
-function renderAchievements() {
-  const container = document.getElementById('achievementsGrid');
-  if (!container) return;
 
-  try {
-    const unlocked = appData.achievements || {};
-    
-    if (ACHIEVEMENT_DEFS.length === 0) {
-      container.innerHTML = `<div class="logged-empty">Henüz başarım tanımı bulunmuyor.</div>`;
-      return;
-    }
-
-    container.innerHTML = ACHIEVEMENT_DEFS.map(def => {
-      const isUnlocked = !!unlocked[def.id];
-      return `
-        <div class="achievement-card ${isUnlocked ? 'unlocked' : 'locked'}" style="padding:16px; border-radius:12px; background:var(--bg-card-alt); border:1px solid ${isUnlocked ? 'var(--accent-primary)' : 'var(--border-subtle)'}; opacity:${isUnlocked ? '1' : '0.5'}; transition:all 0.3s;">
-          <div style="font-size:1.5rem; margin-bottom:8px;">${def.icon}</div>
-          <div style="font-weight:700; font-size:0.9rem; color:var(--text-primary);">${def.title}</div>
-          <div style="font-size:0.75rem; color:var(--text-secondary); margin-top:4px;">${def.desc}</div>
-          ${isUnlocked ? `<div style="font-size:0.6rem; color:var(--accent-primary); margin-top:8px; font-weight:800; text-transform:uppercase;">Açıldı: ${new Date(unlocked[def.id].unlockedAt).toLocaleDateString()}</div>` : ''}
-        </div>
-      `;
-    }).join('');
-  } catch (err) {
-    console.error('Achievement render failed:', err);
-    container.innerHTML = `
-      <div style="padding:20px; text-align:center; background:rgba(239,68,68,0.05); border:1px solid rgba(239,68,68,0.2); border-radius:12px;">
-        <div style="color:#ef4444; font-weight:700; margin-bottom:8px;">Veri Yükleme Hatası</div>
-        <div style="font-size:0.8rem; color:var(--text-secondary);">Başarımlar yüklenirken bir sorun oluştu. Lütfen sayfayı yenileyin.</div>
-      </div>
-    `;
-  }
-}
 
 // =============================================
 // =============================================
@@ -1977,7 +1947,7 @@ function updateStats(){
       const daysDiff = Math.round((new Date() - prDate) / 86400000);
       const ago = daysDiff === 0 ? 'bugün' : daysDiff === 1 ? 'dün' : `${daysDiff} gün önce`;
       const exShort = topPR.exercise.length > 18 ? topPR.exercise.substring(0, 17) + '…' : topPR.exercise;
-      volDetail.innerHTML = `<span style='cursor:pointer;' onmouseenter="this.style.color='var(--accent-primary)'" onmouseleave="this.style.color='var(--orange-vivid)'" onclick="showStrengthDetailsEnhanced('${topPR.exercise}')">${exShort} · ${ago}</span>`;
+      volDetail.innerHTML = `<span style='cursor:pointer;' onmouseenter="this.style.color='var(--accent-primary)'" onmouseleave="this.style.color='var(--orange-vivid)'">${exShort} · ${ago}</span>`;
       volDetail.style.color = 'var(--orange-vivid)';
     } else {
       volDetail.textContent = 'Henüz egzersiz kaydı yok';
@@ -4110,282 +4080,6 @@ window.confirmWeeklyGoal = function() {
 // =============================================
 // PROFILE PAGE (3.3)
 // =============================================
-function renderProfilePage() {
-  const page = document.getElementById('pageProfile');
-  if (!page) return;
-
-  const profile = appData.profile || {};
-  const displayName = profile.displayName || (currentUser ? (currentUser.displayName || 'User') : 'User');
-  const bio = profile.bio || '';
-  const hasPassword = !!profile.password;
-  const measurements = profile.measurements || {};
-  const userRankKey = appData.userRank || 'default';
-  const rank = RANKS[userRankKey] || RANKS.default;
-
-  // Achievements showcase (max 3 selected by user)
-  const allUnlocked = ACHIEVEMENT_DEFS.filter(def => !!(appData.achievements || {})[def.id]);
-  const unlockedCount = allUnlocked.length;
-  const selectedIds = (appData.profile && appData.profile.showcaseBadges) || [];
-  const showcaseBadges = selectedIds
-    .map(id => ACHIEVEMENT_DEFS.find(d => d.id === id))
-    .filter(Boolean)
-    .filter(d => allUnlocked.find(u => u.id === d.id));
-
-  // PRs
-  const prs = {};
-  Object.values(appData.workoutLogs || {}).forEach(logs => {
-    logs.forEach(l => {
-      if (!prs[l.exercise] || l.weight > prs[l.exercise]) prs[l.exercise] = l.weight;
-    });
-  });
-  const prsHtml = Object.entries(prs).length > 0
-    ? Object.entries(prs).sort((a,b) => b[1]-a[1]).slice(0,10).map(([ex, w]) =>
-        `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);">
-          <span style="font-size:0.85rem;color:var(--text-primary);">${ex}</span>
-          <span style="font-weight:700;color:var(--accent-primary);">${w} kg</span>
-        </div>`
-      ).join('')
-    : '<div style="color:var(--text-muted);font-size:0.85rem;padding:16px 0;">Henüz kayit yok.</div>';
-
-  const avatarHtml = profile.photoURL
-    ? `<img src="${profile.photoURL}" style="width:80px;height:80px;border-radius:50%;object-fit:cover;border:3px solid var(--accent-primary);" referrerpolicy="no-referrer">`
-    : `<div style="width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,var(--accent-primary),var(--accent-secondary));display:flex;align-items:center;justify-content:center;font-size:2rem;font-weight:900;color:white;border:3px solid var(--accent-primary);">${(displayName[0]||'U').toUpperCase()}</div>`;
-
-  page.innerHTML = `
-    <h2 class="page-title" style="margin-bottom:24px;">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:8px;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-      Profil
-    </h2>
-
-    <!-- Profile Header Card -->
-    <section class="card" style="margin-bottom:20px;">
-      <div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap;">
-        <div style="position:relative;cursor:pointer;" onclick="document.getElementById('profilePhotoInput').click();" title="Fotografi degistir">
-          ${avatarHtml}
-          <div style="position:absolute;bottom:0;right:0;width:24px;height:24px;background:var(--accent-primary);border-radius:50%;display:flex;align-items:center;justify-content:center;border:2px solid var(--bg-card);">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-          </div>
-        </div>
-        <input type="file" id="profilePhotoInput" accept="image/*" style="display:none" onchange="handleProfilePhotoChange(event)">
-        <div>
-          <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;">
-            <span style="font-size:0.65rem;padding:3px 10px;border-radius:6px;background:${rank.bg};color:${rank.color};font-weight:900;letter-spacing:0.05em;">${rank.label}</span>
-            <h3 style="font-size:1.3rem;font-weight:700;margin:0;">${displayName}</h3>
-          </div>
-          <div style="font-size:0.8rem;color:var(--text-muted);">${currentUser ? currentUser.email || '' : 'Yerel Mod'}</div>
-          <div style="font-size:0.75rem;color:var(--accent-primary);margin-top:4px;">${unlockedCount}/${ACHIEVEMENT_DEFS.length} Basarim Kazanildi</div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Name & Bio -->
-    <section class="card" style="margin-bottom:20px;">
-      <div class="card-header"><h3 class="card-title">Kisisel Bilgiler</h3></div>
-      <div class="log-field" style="margin-bottom:14px;">
-        <label>Goruntulenen Ad</label>
-        <input type="text" id="profileName" class="log-input" value="${displayName.replace(/"/g,'&quot;')}" placeholder="Adiniz" maxlength="40">
-      </div>
-      <div class="log-field" style="margin-bottom:14px;">
-        <label>Hakkimda <span style="font-size:0.7rem;color:var(--text-muted);">(maks 500 karakter)</span></label>
-        <textarea id="profileBio" class="note-input" maxlength="500" rows="3" placeholder="Kendinizi taniytin...">${bio}</textarea>
-        <div id="profileBioCount" style="font-size:0.7rem;color:var(--text-muted);text-align:right;margin-top:4px;">${bio.length}/500</div>
-      </div>
-      <button class="btn-primary" onclick="saveProfileInfo()">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-        Kaydet
-      </button>
-    </section>
-
-    <!-- Password -->
-    <section class="card" style="margin-bottom:20px;">
-      <div class="card-header"><h3 class="card-title">${hasPassword ? 'Sifre Degistir' : 'Sifre Belirle'}</h3></div>
-      ${hasPassword ? `<div class="log-field" style="margin-bottom:14px;"><label>Mevcut Sifre</label><input type="password" id="profileOldPwd" class="log-input" placeholder="••••••••"></div>` : ''}
-      <div class="log-field" style="margin-bottom:14px;">
-        <label>Yeni Sifre</label>
-        <input type="password" id="profileNewPwd" class="log-input" placeholder="••••••••" minlength="6">
-      </div>
-      <div class="log-field" style="margin-bottom:14px;">
-        <label>Sifre Tekrar</label>
-        <input type="password" id="profileNewPwd2" class="log-input" placeholder="••••••••">
-      </div>
-      <button class="btn-primary" onclick="saveProfilePassword()">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-        ${hasPassword ? 'Sifre Degistir' : 'Sifre Olustur'}
-      </button>
-    </section>
-
-    <!-- Body Measurements -->
-    <section class="card" style="margin-bottom:20px;">
-      <div class="card-header"><h3 class="card-title">Vucut Olculeri</h3></div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
-        <div class="log-field"><label>Yas</label><input type="number" id="measAge" class="log-input" placeholder="25" value="${measurements.age||''}" min="10" max="100"></div>
-        <div class="log-field"><label>Cinsiyet</label>
-          <select id="measGender" class="log-input">
-            <option value="male" ${measurements.gender==='male'?'selected':''}>Erkek</option>
-            <option value="female" ${measurements.gender==='female'?'selected':''}>Kadin</option>
-          </select>
-        </div>
-        <div class="log-field"><label>Boy (cm)</label><input type="number" id="measHeight" class="log-input" placeholder="175" value="${measurements.height||''}" min="100" max="250"></div>
-        <div class="log-field"><label>Kilo (kg)</label><input type="number" id="measWeight" class="log-input" placeholder="75" value="${measurements.weight||''}" min="20" max="300" step="0.1"></div>
-        <div class="log-field"><label>Yag Orani (%)</label><input type="number" id="measBodyFat" class="log-input" placeholder="15" value="${measurements.bodyFat||''}" min="1" max="60" step="0.1"></div>
-      </div>
-      <button class="btn-primary" onclick="saveMeasurements()">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/></svg>
-        Kaydet
-      </button>
-    </section>
-
-    <!-- Lifted Weights (PRs) -->
-    <section class="card" style="margin-bottom:20px;">
-      <div class="card-header">
-        <h3 class="card-title">Kaldirilan Agirliklar</h3>
-        <span class="card-badge">${Object.keys(prs).length} egzersiz</span>
-      </div>
-      <div>${prsHtml}</div>
-    </section>
-
-    <!-- Achievements in Profile -->
-    <section class="card" style="margin-bottom:20px;">
-      <div class="card-header">
-    <!-- Achievements Showcase -->
-    <section class="card" style="margin-bottom:20px;">
-      <div class="card-header">
-        <h3 class="card-title">Vitrin Başarımları</h3>
-        <span class="card-badge" style="background:rgba(255,215,0,0.15);color:#FFD700;">${unlockedCount}/${ACHIEVEMENT_DEFS.length}</span>
-      </div>
-      <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:14px;">Profilinde göstermek istediğin 3 rozeti seç.</div>
-      <!-- Showcase Display -->
-      <div style="display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap;">
-        ${[0,1,2].map(i => {
-          const badge = showcaseBadges[i];
-          if (badge) {
-            return `<div style="flex:1;min-width:80px;background:linear-gradient(135deg,rgba(255,215,0,0.15),rgba(255,165,0,0.08));border:1.5px solid rgba(255,215,0,0.4);border-radius:14px;padding:14px;text-align:center;">
-              <div style="color:#FFD700;margin-bottom:6px;">${ACH_ICONS[badge.icon]||ACH_ICONS['star']}</div>
-              <div style="font-size:0.7rem;font-weight:700;color:#FFD700;">${badge.name}</div>
-            </div>`;
-          }
-          return `<div style="flex:1;min-width:80px;background:var(--bg-card-alt);border:1.5px dashed rgba(255,255,255,0.1);border-radius:14px;padding:14px;text-align:center;color:var(--text-muted);">
-            <div style="font-size:1.5rem;margin-bottom:4px;">🔒</div>
-            <div style="font-size:0.7rem;">Boş Slot</div>
-          </div>`;
-        }).join('')}
-      </div>
-      <!-- Badge Selector -->
-      ${allUnlocked.length > 0 ? `
-      <div style="font-size:0.72rem;color:var(--text-tertiary);text-transform:uppercase;font-weight:700;letter-spacing:.06em;margin-bottom:10px;">Kazanılan Rozetler</div>
-      <div style="display:grid;gap:8px;">
-        ${allUnlocked.map(def => {
-          const isSelected = selectedIds.includes(def.id);
-          return `<div onclick="toggleShowcaseBadge('${def.id}')" style="cursor:pointer;display:flex;align-items:center;gap:10px;padding:10px 12px;background:${isSelected?'linear-gradient(135deg,rgba(255,215,0,0.15),rgba(255,165,0,0.08))':'var(--bg-card-alt)'};border:${isSelected?'1.5px solid rgba(255,215,0,0.5)':'1px solid var(--border-subtle)'};border-radius:10px;transition:all 0.2s;">
-            <div style="width:34px;height:34px;border-radius:8px;background:${isSelected?'rgba(255,215,0,0.15)':'rgba(255,255,255,0.05)'};display:flex;align-items:center;justify-content:center;color:${isSelected?'#FFD700':'var(--text-muted)'};flex-shrink:0;">${ACH_ICONS[def.icon]||ACH_ICONS['star']}</div>
-            <div style="flex:1;font-size:0.82rem;font-weight:600;color:${isSelected?'#FFD700':'var(--text-primary)'};">${def.name}</div>
-            ${isSelected?'<svg width="16" height="16" viewBox="0 0 24 24" fill="#FFD700"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>':''}
-          </div>`;
-        }).join('')}
-      </div>` : '<div style="font-size:0.8rem;color:var(--text-tertiary);text-align:center;padding:16px 0;">Henüz rozet kazanılmadı. Egzersiz log et!</div>'}
-    </section>
-  `;
-
-  // Bio character counter
-  const bioTextarea = document.getElementById('profileBio');
-  const bioCount = document.getElementById('profileBioCount');
-  if (bioTextarea && bioCount) {
-    bioTextarea.addEventListener('input', () => {
-      bioCount.textContent = bioTextarea.value.length + '/500';
-    });
-  }
-}
-
-window.toggleShowcaseBadge = function(id) {
-  if (!appData.profile) appData.profile = {};
-  const list = appData.profile.showcaseBadges ? [...appData.profile.showcaseBadges] : [];
-  const idx = list.indexOf(id);
-  if (idx >= 0) {
-    list.splice(idx, 1);
-  } else {
-    if (list.length >= 3) {
-      showToast(currentLang === 'tr' ? 'En fazla 3 rozet seçebilirsin!' : 'Max 3 badges allowed!', 'error');
-      return;
-    }
-    list.push(id);
-  }
-  appData.profile.showcaseBadges = list;
-  saveData();
-  renderProfilePage();
-};
-
-window.handleProfilePhotoChange = function(event) {
-  const file = event.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = (e) => {
-    const img = new Image();
-    img.onload = () => {
-      const max = 256;
-      const canvas = document.createElement('canvas');
-      const ratio = Math.min(max / img.width, max / img.height);
-      canvas.width = img.width * ratio;
-      canvas.height = img.height * ratio;
-      canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
-      if (!appData.profile) appData.profile = {};
-      appData.profile.photoURL = canvas.toDataURL('image/jpeg', 0.8);
-      saveData();
-      renderProfilePage();
-      // Update sidebar avatar
-      const avatar = document.getElementById('userAvatar');
-      if (avatar) avatar.innerHTML = `<img src="${appData.profile.photoURL}" alt="Avatar" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">`;
-      showToast('Profil fotografi guncellendi', 'success');
-    };
-    img.src = e.target.result;
-  };
-  reader.readAsDataURL(file);
-  event.target.value = '';
-};
-
-window.saveProfileInfo = function() {
-  if (!appData.profile) appData.profile = {};
-  const name = document.getElementById('profileName')?.value.trim();
-  const bio = document.getElementById('profileBio')?.value.trim().slice(0, 500);
-  if (name) appData.profile.displayName = name;
-  if (bio !== undefined) appData.profile.bio = bio;
-  saveData();
-  // Update greeting
-  setGreeting();
-  const nameEl = document.getElementById('userName');
-  if (nameEl && name) nameEl.textContent = name.split(' ')[0];
-  showToast('Profil guncellendi', 'success');
-};
-
-window.saveProfilePassword = function() {
-  const profile = appData.profile || {};
-  const hasPassword = !!profile.password;
-  const oldPwd = document.getElementById('profileOldPwd')?.value || '';
-  const newPwd = document.getElementById('profileNewPwd')?.value || '';
-  const newPwd2 = document.getElementById('profileNewPwd2')?.value || '';
-  if (hasPassword && oldPwd !== profile.password) {
-    showToast('Mevcut sifre yanlis!', 'error'); return;
-  }
-  if (newPwd.length < 6) { showToast('Sifre en az 6 karakter olmali!', 'error'); return; }
-  if (newPwd !== newPwd2) { showToast('Sifreler eslesmyor!', 'error'); return; }
-  if (!appData.profile) appData.profile = {};
-  appData.profile.password = newPwd;
-  saveData();
-  renderProfilePage();
-  showToast('Sifre guncellendi', 'success');
-};
-
-window.saveMeasurements = function() {
-  if (!appData.profile) appData.profile = {};
-  appData.profile.measurements = {
-    age: parseFloat(document.getElementById('measAge')?.value) || 0,
-    gender: document.getElementById('measGender')?.value || 'male',
-    height: parseFloat(document.getElementById('measHeight')?.value) || 0,
-    weight: parseFloat(document.getElementById('measWeight')?.value) || 0,
-    bodyFat: parseFloat(document.getElementById('measBodyFat')?.value) || 0,
-  };
-  saveData();
-  showToast('Vucut olculeri kaydedildi', 'success');
-};
 
 // =============================================
 // UPDATE USER UI — Premium sidebar with rank left of name + "Senkronize" status
@@ -4626,10 +4320,22 @@ function updateStreakFlame() {
   const dayMatch = dayText.match(/Day (\d+)/);
   const dayNum = dayMatch ? parseInt(dayMatch[1]) : 0;
 
+  const badgeEl = document.getElementById('streakBadge');
+  const flameWrap = document.getElementById('streakFlame');
+
   if (dayNum === 0) {
-    // Day 0: No flame
+    // Day 0: No flame — hide the flame wrapper and center the text
+    if (flameWrap) flameWrap.style.display = 'none';
+    if (badgeEl) badgeEl.style.justifyContent = 'center';
     flameContent.style.display = 'none';
-  } else if (dayNum === 1) {
+  } else {
+    // Day > 0: Restore flame wrapper and original flex layout
+    if (flameWrap) flameWrap.style.display = 'flex';
+    if (badgeEl) badgeEl.style.justifyContent = '';
+    flameContent.style.display = '';
+  }
+
+  if (dayNum === 1) {
     // Day 1: Small flame
     flameContent.innerHTML = '🔥';
     flameContent.style.fontSize = '1rem';
