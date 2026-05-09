@@ -4598,35 +4598,50 @@ window.showStrengthDetailsEnhanced = function(targetExercise = null) {
   const avgWeight = (weights.reduce((a, b) => a + b, 0) / weights.length).toFixed(1);
   const totalVolume = history.reduce((sum, h) => sum + (h.weight * h.reps * h.sets), 0);
   
-  // 4. Calculate realistic progress & predictions
+  // 4. Calculate mathematically robust progress & predictions
   const recentLogs = history.slice(0, 5);
-  const oldestLog = history[history.length - 1];
-  const exactDays = Math.max(0, (new Date() - new Date(oldestLog.date)) / 86400000);
   
-  // Base calculation span on at least 7 days to prevent absurd spikes from same-day logs
-  const calcDays = Math.max(7, exactDays);
-  const weightGain = maxWeight - minWeight;
-  
-  let rawWeekly = (weightGain / calcDays) * 7;
-  let rawMonthly = (weightGain / calcDays) * 30;
-  
-  // Real-world physical limits (e.g., max ~2.5% strength gain per week)
-  const maxWeeklyCap = Math.max(1.0, maxWeight * 0.025);
-  const maxMonthlyCap = Math.max(2.5, maxWeight * 0.05);
+  // Find earliest and latest dates to avoid same-day noise
+  const latestDateObj = new Date(history[0].date);
+  const earliestDateObj = new Date(history[history.length - 1].date);
+  const progressDays = Math.max(0, (latestDateObj - earliestDateObj) / 86400000);
   
   let weeklyNum = 0;
   let monthlyNum = 0;
 
-  if (weightGain > 0) {
-    weeklyNum = Math.min(rawWeekly, maxWeeklyCap);
-    monthlyNum = Math.min(rawMonthly, maxMonthlyCap);
+  // Realistic maximum physical caps (preventing +300kg/month, but allowing high newbie gains)
+  // Max weekly gain ~ 5% of current max, Max monthly ~ 15% of current max
+  const maxWeeklyCap = Math.max(5.0, maxWeight * 0.05);
+  const maxMonthlyCap = Math.max(20.0, maxWeight * 0.15);
+
+  if (progressDays >= 3) {
+    // True historical progress (compare latest day max to earliest day max)
+    const earliestDayLogs = history.filter(h => h.date === history[history.length-1].date);
+    const latestDayLogs = history.filter(h => h.date === history[0].date);
+    const earliestMax = Math.max(...earliestDayLogs.map(h => h.weight));
+    const latestMax = Math.max(...latestDayLogs.map(h => h.weight));
+    
+    const trueGain = latestMax - earliestMax;
+    
+    if (trueGain > 0) {
+      const dailyRate = trueGain / progressDays;
+      let rawWeekly = dailyRate * 7;
+      let rawMonthly = dailyRate * 30;
+      
+      weeklyNum = Math.min(rawWeekly, maxWeeklyCap);
+      monthlyNum = Math.min(rawMonthly, maxMonthlyCap);
+    } else {
+      // Stagnant history. Motivate with standard generic goal.
+      weeklyNum = Math.max(2.0, maxWeight * 0.02);
+      monthlyNum = Math.max(8.0, maxWeight * 0.06);
+    }
   } else {
-    // If no progress yet, give a standard realistic goal
-    weeklyNum = maxWeight > 40 ? 1.5 : 1.0;
-    monthlyNum = maxWeight > 40 ? 3.0 : 2.0;
+    // Insufficient history (< 3 days). Standard linear progression baseline.
+    weeklyNum = Math.max(2.5, maxWeight * 0.025);
+    monthlyNum = Math.max(10.0, maxWeight * 0.08);
   }
 
-  // Round to nearest 0.5 for clean gym weights
+  // Round to nearest 0.5 for clean gym weights (e.g. 2.5, 5.0)
   const weeklyProjection = (Math.round(weeklyNum * 2) / 2).toFixed(1);
   const monthlyProjection = (Math.round(monthlyNum * 2) / 2).toFixed(1);
 
