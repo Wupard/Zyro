@@ -2387,70 +2387,85 @@ html {
   border-radius: 20px;
   padding: 32px 24px;
   margin-bottom: 24px;
-  border: 1px solid rgba(139,124,247,0.2);
-  background: linear-gradient(135deg, #0f0f18, #12111c, #0d0d15);
-  animation: profileBgShift 10s ease-in-out infinite alternate;
+  /* Solid dark base — color comes entirely from the blurred orbs below */
+  background: #0d0d15;
+  border: 1px solid rgba(139,124,247,0.18);
 }
 
-@keyframes profileBgShift {
-  0%   { background: linear-gradient(135deg, rgba(139,124,247,0.12) 0%, rgba(217,110,163,0.08) 50%, rgba(80,60,180,0.1) 100%); }
-  33%  { background: linear-gradient(135deg, rgba(80,60,180,0.1) 0%, rgba(139,124,247,0.15) 50%, rgba(217,110,163,0.1) 100%); }
-  66%  { background: linear-gradient(135deg, rgba(217,110,163,0.1) 0%, rgba(80,60,180,0.12) 50%, rgba(139,124,247,0.14) 100%); }
-  100% { background: linear-gradient(135deg, rgba(139,124,247,0.12) 0%, rgba(217,110,163,0.08) 50%, rgba(80,60,180,0.1) 100%); }
-}
-
-/* Floating orbs */
+/* Floating orbs — the ONLY color source, smoothly animatable */
 .profile-orb {
   position: absolute;
   border-radius: 50%;
   pointer-events: none;
-  filter: blur(40px);
-  opacity: 0.55;
+  filter: blur(55px);
+  will-change: transform, filter;
 }
 
 .profile-orb-1 {
-  width: 260px;
-  height: 260px;
-  background: radial-gradient(circle, rgba(139,124,247,0.45), transparent 70%);
-  top: -80px;
-  right: -60px;
-  animation: orbFloat1 8s ease-in-out infinite;
+  width: 320px;
+  height: 320px;
+  background: radial-gradient(circle, rgba(139,124,247,0.55), transparent 68%);
+  top: -100px;
+  right: -80px;
+  opacity: 0.7;
+  animation: orbFloat1 9s ease-in-out infinite, orbHue1 18s linear infinite;
 }
 
 .profile-orb-2 {
-  width: 200px;
-  height: 200px;
-  background: radial-gradient(circle, rgba(217,110,163,0.4), transparent 70%);
-  bottom: -70px;
-  left: 10%;
-  animation: orbFloat2 10s ease-in-out infinite;
+  width: 260px;
+  height: 260px;
+  background: radial-gradient(circle, rgba(217,110,163,0.5), transparent 68%);
+  bottom: -90px;
+  left: 5%;
+  opacity: 0.65;
+  animation: orbFloat2 11s ease-in-out infinite, orbHue2 22s linear infinite;
 }
 
 .profile-orb-3 {
-  width: 150px;
-  height: 150px;
-  background: radial-gradient(circle, rgba(90,76,201,0.5), transparent 70%);
+  width: 200px;
+  height: 200px;
+  background: radial-gradient(circle, rgba(90,76,201,0.6), transparent 68%);
   top: 50%;
-  left: 45%;
-  transform: translate(-50%, -50%);
-  animation: orbFloat3 12s ease-in-out infinite;
+  left: 42%;
+  opacity: 0.5;
+  animation: orbFloat3 14s ease-in-out infinite, orbHue3 26s linear infinite;
 }
 
+/* Float keyframes — smooth position drift */
 @keyframes orbFloat1 {
-  0%,100% { transform: translate(0, 0) scale(1); }
-  33%      { transform: translate(-20px, 15px) scale(1.08); }
-  66%      { transform: translate(10px, -10px) scale(0.95); }
+  0%   { transform: translate(0px, 0px)   scale(1); }
+  25%  { transform: translate(-18px, 12px) scale(1.06); }
+  50%  { transform: translate(8px, 20px)  scale(0.94); }
+  75%  { transform: translate(16px, -8px)  scale(1.04); }
+  100% { transform: translate(0px, 0px)   scale(1); }
 }
 
 @keyframes orbFloat2 {
-  0%,100% { transform: translate(0, 0) scale(1); }
-  40%      { transform: translate(18px, -20px) scale(1.1); }
-  70%      { transform: translate(-10px, 8px) scale(0.92); }
+  0%   { transform: translate(0px, 0px)   scale(1); }
+  30%  { transform: translate(20px, -18px) scale(1.08); }
+  60%  { transform: translate(-12px, 10px) scale(0.93); }
+  100% { transform: translate(0px, 0px)   scale(1); }
 }
 
 @keyframes orbFloat3 {
-  0%,100% { transform: translate(-50%, -50%) scale(1); opacity: 0.55; }
-  50%      { transform: translate(-50%, -50%) scale(1.2); opacity: 0.3; }
+  0%   { transform: translate(-50%, -50%) scale(1);    opacity: 0.5; }
+  40%  { transform: translate(-44%, -55%) scale(1.18); opacity: 0.35; }
+  70%  { transform: translate(-56%, -45%) scale(0.88); opacity: 0.55; }
+  100% { transform: translate(-50%, -50%) scale(1);    opacity: 0.5; }
+}
+
+/* Hue-rotate keyframes — smooth color shift, NEVER abrupt */
+@keyframes orbHue1 {
+  0%   { filter: blur(55px) hue-rotate(0deg); }
+  100% { filter: blur(55px) hue-rotate(360deg); }
+}
+@keyframes orbHue2 {
+  0%   { filter: blur(55px) hue-rotate(0deg); }
+  100% { filter: blur(55px) hue-rotate(-360deg); }
+}
+@keyframes orbHue3 {
+  0%   { filter: blur(55px) hue-rotate(0deg); }
+  100% { filter: blur(55px) hue-rotate(360deg); }
 }
 
 /* Shimmer sweep */
@@ -2458,18 +2473,18 @@ html {
   position: absolute;
   inset: 0;
   pointer-events: none;
+  z-index: 0;
   background: linear-gradient(
     105deg,
-    transparent 30%,
-    rgba(255,255,255,0.025) 50%,
-    transparent 70%
+    transparent 20%,
+    rgba(255,255,255,0.03) 50%,
+    transparent 80%
   );
-  background-size: 200% 100%;
-  animation: profileShimmer 6s ease-in-out infinite;
-  z-index: 0;
+  background-size: 250% 100%;
+  animation: profileShimmer 7s ease-in-out infinite;
 }
 
 @keyframes profileShimmer {
-  0%   { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
+  0%   { background-position: 250% 0; }
+  100% { background-position: -250% 0; }
 }
