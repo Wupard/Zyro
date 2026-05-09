@@ -1988,41 +1988,116 @@ window.showStrengthDetails = function(targetExercise = null) {
 
   // 2. Determine which exercise to show
   let selectedEx = targetExercise;
-  if (!selectedEx) {
-    // Find the one with most recent progress or highest weight
-    let maxW = -1;
-    Object.entries(exerciseData).forEach(([ex, history]) => {
-      const best = Math.max(...history.map(h => h.weight));
-      if (best > maxW) {
-        maxW = best;
-        selectedEx = ex;
-      }
-    });
-  }
+  const allExercises = Object.keys(exerciseData).sort();
 
-  if (!selectedEx || !exerciseData[selectedEx]) {
-    content.innerHTML = `<div class="logged-empty">Veri bulunamadı. Lütfen antrenman logu girin.</div>`;
+  if (allExercises.length === 0) {
+    content.innerHTML = `<div class="logged-empty" style="padding:40px 20px;">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" style="opacity:0.2;margin-bottom:16px;"><path d="M6.5 6.5h11M6.5 17.5h11M12 2v4M12 18v4M4.5 8.5v7M19.5 8.5v7"/></svg>
+      <p>Henüz veri bulunamadı. Antrenman yaparak gelişiminizi takip etmeye başlayın!</p>
+    </div>`;
     modal.style.display = 'flex';
     return;
   }
 
-  title.textContent = selectedEx;
-  const history = exerciseData[selectedEx].sort((a, b) => b.timestamp - a.timestamp); // Chronological desc
+  if (!selectedEx) {
+    // If no specific exercise, show a summary page first
+    let summaryHtml = `
+      <div style="margin-bottom:24px;">
+        <h4 style="font-size:0.8rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px; margin-bottom:16px;">Güç Kazandığın Hareketler</h4>
+        <div style="display:flex; flex-direction:column; gap:12px;">
+    `;
 
-  // 3. Render Header with Selector (if multiple exercises exist)
-  const allExercises = Object.keys(exerciseData).sort();
-  let selectorHtml = '';
-  if (allExercises.length > 1) {
-    selectorHtml = `
-      <div style="margin-bottom:16px;">
-        <select onchange="showStrengthDetails(this.value)" style="width:100%; padding:10px; border-radius:10px; background:var(--bg-card-alt); color:var(--text-primary); border:1px solid var(--border-subtle); font-size:0.85rem;">
-          ${allExercises.map(ex => `<option value="${ex}" ${ex === selectedEx ? 'selected' : ''}>${ex}</option>`).join('')}
+    const gains = [];
+    allExercises.forEach(ex => {
+      const history = exerciseData[ex].sort((a,b) => a.timestamp - b.timestamp);
+      const first = history[0];
+      const last = history[history.length-1];
+      const weightGain = last.weight - first.weight;
+      const scoreGain = calculateStrengthScore(last.weight, last.reps) - calculateStrengthScore(first.weight, first.reps);
+      
+      if (weightGain > 0 || scoreGain > 0) {
+        gains.push({ name: ex, weightGain, scoreGain, lastWeight: last.weight, lastDate: last.date });
+      }
+    });
+
+    if (gains.length === 0) {
+      summaryHtml += `<div style="padding:20px; text-align:center; background:rgba(255,255,255,0.02); border-radius:12px; border:1px solid var(--border-subtle); color:var(--text-muted); font-size:0.85rem;">Henüz net bir güç artışı tespit edilemedi. Devam et!</div>`;
+    } else {
+      gains.sort((a,b) => b.scoreGain - a.scoreGain).forEach(g => {
+        summaryHtml += `
+          <div onclick="showStrengthDetails('${g.name}')" style="cursor:pointer; display:flex; justify-content:space-between; align-items:center; padding:14px; background:var(--bg-card-alt); border:1px solid var(--border-subtle); border-radius:12px; transition:all 0.2s;" onmouseenter="this.style.borderColor='var(--accent-primary)';this.style.transform='translateX(4px)'" onmouseleave="this.style.borderColor='var(--border-subtle)';this.style.transform='translateX(0)'">
+            <div>
+              <div style="font-size:0.9rem; font-weight:700; color:var(--text-primary);">${g.name}</div>
+              <div style="font-size:0.7rem; color:var(--text-muted);">Son: ${g.lastWeight}kg · ${new Date(g.lastDate).toLocaleDateString('tr-TR', {day:'numeric', month:'short'})}</div>
+            </div>
+            <div style="text-align:right;">
+              <div style="font-size:0.85rem; font-weight:800; color:#4ecb8d;">+${g.weightGain}kg</div>
+              <div style="font-size:0.6rem; color:var(--text-muted);">Gelişim</div>
+            </div>
+          </div>
+        `;
+      });
+    }
+
+    summaryHtml += `</div></div>
+      <div style="margin-top:24px; padding-top:24px; border-top:1px solid var(--border-subtle);">
+        <h4 style="font-size:0.8rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px; margin-bottom:12px;">Tüm Egzersizler</h4>
+        <select onchange="showStrengthDetails(this.value)" style="width:100%; padding:12px; border-radius:12px; background:var(--bg-card-alt); color:var(--text-primary); border:1px solid var(--border-subtle); font-size:0.9rem;">
+          <option value="" selected disabled>Bir egzersiz seçin...</option>
+          ${allExercises.map(ex => `<option value="${ex}">${ex}</option>`).join('')}
         </select>
       </div>
     `;
+
+    title.textContent = "Güç Gelişimi";
+    content.innerHTML = summaryHtml;
+    modal.style.display = 'flex';
+    return;
   }
 
-  // 4. Group by Month
+  // If specific exercise is selected
+  title.textContent = selectedEx;
+  const history = exerciseData[selectedEx].sort((a, b) => b.timestamp - a.timestamp); // Chronological desc
+  const latest = history[0];
+  const earliest = history[history.length-1];
+  
+  // 3. Render Header with Selector
+  let selectorHtml = `
+    <div style="margin-bottom:20px; display:flex; gap:10px;">
+      <button onclick="showStrengthDetails()" style="background:var(--bg-card-alt); border:1px solid var(--border-subtle); color:var(--text-muted); padding:8px 12px; border-radius:10px; cursor:pointer;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <select onchange="showStrengthDetails(this.value)" style="flex:1; padding:10px; border-radius:10px; background:var(--bg-card-alt); color:var(--text-primary); border:1px solid var(--border-subtle); font-size:0.85rem;">
+        ${allExercises.map(ex => `<option value="${ex}" ${ex === selectedEx ? 'selected' : ''}>${ex}</option>`).join('')}
+      </select>
+    </div>
+  `;
+
+  // 4. Predictions Section (Motivational)
+  const current1RM = calculateStrengthScore(latest.weight, latest.reps);
+  const nextWeekWeight = latest.weight + (latest.weight > 50 ? 2.5 : 1);
+  const nextMonthWeight = latest.weight + (latest.weight > 50 ? 7.5 : 5);
+
+  let predictionHtml = `
+    <div style="background:linear-gradient(135deg, rgba(139,124,247,0.1), rgba(78,203,141,0.05)); border:1px solid rgba(139,124,247,0.2); border-radius:16px; padding:18px; margin-bottom:24px; position:relative; overflow:hidden;">
+      <div style="position:absolute; top:-10px; right:-10px; font-size:4rem; opacity:0.05; transform:rotate(15deg);">🚀</div>
+      <h4 style="font-size:0.75rem; color:var(--accent-primary); text-transform:uppercase; letter-spacing:1px; margin-bottom:14px; font-weight:800;">Gelecek Tahminleri</h4>
+      
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+        <div style="background:rgba(255,255,255,0.03); padding:12px; border-radius:12px; border:1px solid rgba(255,255,255,0.05);">
+          <div style="font-size:0.6rem; color:var(--text-muted); text-transform:uppercase; margin-bottom:4px;">Gelecek Hafta</div>
+          <div style="font-size:1.1rem; font-weight:900; color:var(--text-primary);">${nextWeekWeight}<small style="font-size:0.6rem; opacity:0.7;">kg</small></div>
+          <div style="font-size:0.65rem; color:#4ecb8d; font-weight:600;">${latest.reps} Tekrar</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.03); padding:12px; border-radius:12px; border:1px solid rgba(255,255,255,0.05);">
+          <div style="font-size:0.6rem; color:var(--text-muted); text-transform:uppercase; margin-bottom:4px;">Gelecek Ay</div>
+          <div style="font-size:1.1rem; font-weight:900; color:var(--text-primary);">${nextMonthWeight}<small style="font-size:0.6rem; opacity:0.7;">kg</small></div>
+          <div style="font-size:0.65rem; color:#4ecb8d; font-weight:600;">${latest.reps} Tekrar</div>
+        </div>
+      </div>
+      <p style="font-size:0.65rem; color:var(--text-muted); margin-top:12px; font-style:italic;">* Bu tahminler lineer gelişim ve düzenli antrenman baz alınarak hesaplanmıştır.</p>
+    </div>
+  `;
+
+  // 5. Group by Month for History
   const groupedHistory = {};
   history.forEach(item => {
     const date = new Date(item.timestamp);
@@ -2031,70 +2106,34 @@ window.showStrengthDetails = function(targetExercise = null) {
     groupedHistory[monthYear].push(item);
   });
 
-  // 5. Render History Timeline
-  let historyHtml = '<div class="strength-timeline" style="display:flex; flex-direction:column; gap:24px;">';
-  
+  // 6. Render History Timeline
+  let historyHtml = '<div class="strength-timeline" style="display:flex; flex-direction:column; gap:20px;">';
   Object.entries(groupedHistory).forEach(([monthYear, items]) => {
     historyHtml += `
       <div class="timeline-month-group">
-        <div style="font-size:0.75rem; font-weight:800; color:var(--accent-primary); text-transform:uppercase; margin-bottom:12px; display:flex; align-items:center; gap:8px;">
-          <span style="width:30px; height:1px; background:var(--accent-primary); opacity:0.3;"></span>
-          ${monthYear}
-        </div>
-        <div style="display:flex; flex-direction:column; gap:12px; padding-left:12px; border-left:1px solid rgba(139,124,247,0.2);">
+        <div style="font-size:0.7rem; font-weight:800; color:var(--text-tertiary); text-transform:uppercase; margin-bottom:12px; padding-left:4px;">${monthYear}</div>
+        <div style="display:flex; flex-direction:column; gap:12px; border-left:1px dashed rgba(255,255,255,0.1); margin-left:8px; padding-left:16px;">
           ${items.map((curr, idx) => {
-            // To find the 'next' (previous in time) item for diffs, we need the original history index
             const originalIdx = history.indexOf(curr);
             const next = history[originalIdx + 1]; 
-            
             const weightDiff = next ? (curr.weight - next.weight) : 0;
-            const repDiff = next ? (curr.reps - next.reps) : 0;
             const score = calculateStrengthScore(curr.weight, curr.reps);
             const prevScore = next ? calculateStrengthScore(next.weight, next.reps) : 0;
             const scoreDiffPct = prevScore > 0 ? Math.round(((score - prevScore) / prevScore) * 100) : 0;
 
             const dateObj = new Date(curr.timestamp);
             const dateStrFormatted = dateObj.toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' });
-            const timeStrFormatted = dateObj.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
 
             return `
-              <div class="strength-log-item" style="background:var(--bg-card-alt); border:1px solid var(--border-subtle); border-radius:14px; padding:16px; position:relative; transition: transform 0.2s;">
-                <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px;">
-                  <div style="display:flex; align-items:center; gap:10px;">
-                    <div style="width:8px; height:8px; border-radius:50%; background:var(--accent-primary); box-shadow: 0 0 10px var(--accent-primary);"></div>
-                    <div>
-                      <div style="font-size:0.85rem; font-weight:700; color:var(--text-primary);">${dateStrFormatted}</div>
-                      <div style="font-size:0.65rem; color:var(--text-muted);">${timeStrFormatted}</div>
-                    </div>
-                  </div>
-                  <div style="text-align:right;">
-                    <div style="font-size:0.6rem; color:var(--accent-primary); font-weight:800; text-transform:uppercase;">Puan</div>
-                    <div style="font-size:1.1rem; font-weight:900; color:var(--text-primary);">${score}</div>
-                  </div>
+              <div style="background:var(--bg-card-alt); border:1px solid var(--border-subtle); border-radius:14px; padding:12px; position:relative;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                  <span style="font-size:0.75rem; font-weight:700; color:var(--text-muted);">${dateStrFormatted}</span>
+                  <span style="font-size:0.65rem; font-weight:800; padding:2px 6px; border-radius:4px; background:rgba(139,124,247,0.1); color:var(--accent-primary);">${score} Puan</span>
                 </div>
-
-                <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:8px; background:rgba(255,255,255,0.02); padding:10px; border-radius:10px; border:1px solid rgba(255,255,255,0.03);">
-                  <div style="text-align:center;">
-                    <div style="font-size:0.55rem; color:var(--text-tertiary); text-transform:uppercase;">Ağırlık</div>
-                    <div style="font-size:0.85rem; font-weight:800;">${curr.weight}kg</div>
-                    <div style="font-size:0.65rem; font-weight:700; color:${weightDiff > 0 ? '#4ecb8d' : weightDiff < 0 ? '#ef4444' : 'var(--text-muted)'};">
-                      ${weightDiff > 0 ? '+' + weightDiff : weightDiff === 0 ? '=' : weightDiff}kg
-                    </div>
-                  </div>
-                  <div style="text-align:center; border-left:1px solid rgba(255,255,255,0.05); border-right:1px solid rgba(255,255,255,0.05);">
-                    <div style="font-size:0.55rem; color:var(--text-tertiary); text-transform:uppercase;">Tekrar</div>
-                    <div style="font-size:0.85rem; font-weight:800;">${curr.reps}</div>
-                    <div style="font-size:0.65rem; font-weight:700; color:${repDiff > 0 ? '#4ecb8d' : repDiff < 0 ? '#ef4444' : 'var(--text-muted)'};">
-                      ${repDiff > 0 ? '+' + repDiff : repDiff === 0 ? '=' : repDiff}
-                    </div>
-                  </div>
-                  <div style="text-align:center;">
-                    <div style="font-size:0.55rem; color:var(--text-tertiary); text-transform:uppercase;">Set</div>
-                    <div style="font-size:0.85rem; font-weight:800;">${curr.sets}</div>
-                    <div style="font-size:0.65rem; font-weight:700; color:${scoreDiffPct > 0 ? '#4ecb8d' : scoreDiffPct < 0 ? '#ef4444' : 'var(--text-muted)'};">
-                      ${scoreDiffPct > 0 ? '+' + scoreDiffPct : scoreDiffPct === 0 ? '=' : scoreDiffPct}%
-                    </div>
-                  </div>
+                <div style="display:flex; align-items:baseline; gap:8px;">
+                  <span style="font-size:1.2rem; font-weight:900;">${curr.weight}kg</span>
+                  <span style="font-size:0.75rem; color:var(--text-muted);">${curr.reps} Tekrar</span>
+                  ${weightDiff > 0 ? `<span style="font-size:0.7rem; font-weight:800; color:#4ecb8d; margin-left:auto;">+${weightDiff}kg ↑</span>` : ''}
                 </div>
               </div>
             `;
@@ -2105,7 +2144,7 @@ window.showStrengthDetails = function(targetExercise = null) {
   });
   historyHtml += '</div>';
 
-  content.innerHTML = selectorHtml + historyHtml;
+  content.innerHTML = selectorHtml + predictionHtml + historyHtml;
   modal.style.display = 'flex';
 };
 
