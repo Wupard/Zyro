@@ -4604,6 +4604,7 @@ window.showStrengthDetailsEnhanced = function(targetExercise = null) {
   const progressDays = Math.round((new Date() - new Date(oldestLog.date)) / 86400000);
   const weightGain = maxWeight - minWeight;
   const monthlyProjection = progressDays > 0 ? (weightGain / progressDays * 30).toFixed(1) : 0;
+  const weeklyProjection = progressDays > 0 ? (weightGain / progressDays * 7).toFixed(1) : 0;
 
   // 5. Render selector
   const allExercises = Object.keys(exerciseData).sort();
@@ -4630,8 +4631,8 @@ window.showStrengthDetailsEnhanced = function(targetExercise = null) {
         <div style="font-size:1.5rem; font-weight:700; color:var(--green-vivid);">${avgWeight} kg</div>
       </div>
       <div style="padding:12px; background:rgba(92,138,222,0.1); border:1px solid rgba(92,138,222,0.2); border-radius:10px;">
-        <div style="font-size:0.7rem; color:var(--text-muted); margin-bottom:4px;">Toplam Hacim</div>
-        <div style="font-size:1.5rem; font-weight:700; color:var(--blue-vivid);">${totalVolume.toLocaleString()} kg</div>
+        <div style="font-size:0.7rem; color:var(--text-muted); margin-bottom:4px;">Haftalık Tahmin</div>
+        <div style="font-size:1.5rem; font-weight:700; color:var(--blue-vivid);">+${weeklyProjection} kg</div>
       </div>
       <div style="padding:12px; background:rgba(217,110,163,0.1); border:1px solid rgba(217,110,163,0.2); border-radius:10px;">
         <div style="font-size:0.7rem; color:var(--text-muted); margin-bottom:4px;">Aylık Tahmin</div>
