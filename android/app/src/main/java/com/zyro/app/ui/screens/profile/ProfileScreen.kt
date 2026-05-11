@@ -6,6 +6,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.ExitToApp
@@ -151,6 +152,57 @@ fun ProfileScreen(
                     "${profile?.targetWeight} kg" else "--",
                 modifier = Modifier.weight(1f)
             )
+        }
+
+        val rankName = profile?.rank?.takeIf { it.isNotBlank() } ?: "Bronze"
+        val rankPct = (profile?.rankProgress ?: 0).coerceIn(0, 100) / 100f
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(20.dp),
+            colors = CardDefaults.cardColors(containerColor = ZyroSurfaceVariant)
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 12.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "Rank",
+                        style = MaterialTheme.typography.labelLarge,
+                        color = ZyroOnSurfaceVariant,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                    Text(
+                        text = rankName,
+                        style = MaterialTheme.typography.titleMedium,
+                        color = ZyroPrimary,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+                Spacer(modifier = Modifier.height(8.dp))
+                LinearProgressIndicator(
+                    progress = { rankPct },
+                    modifier = Modifier
+                        .width(168.dp)
+                        .height(6.dp)
+                        .clip(RoundedCornerShape(50.dp)),
+                    color = ZyroPrimary,
+                    trackColor = ZyroSurfaceContainer,
+                    strokeCap = StrokeCap.Round
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = "${(rankPct * 100).toInt()}%",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = ZyroOnSurfaceVariant
+                )
+            }
         }
 
         // Info Items

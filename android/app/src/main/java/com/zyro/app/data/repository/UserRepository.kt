@@ -26,14 +26,18 @@ class UserRepository {
                 displayName = user.displayName ?: "",
                 email = user.email ?: "",
                 photoUrl = user.photoUrl?.toString() ?: "",
-                createdAt = System.currentTimeMillis()
+                createdAt = System.currentTimeMillis(),
+                isAdmin = false,
+                isBanned = false,
+                rank = "Bronze",
+                rankProgress = 0
             )
             docRef.set(profile).await()
         } else {
-            // Update display name and photo if changed
             docRef.update(
                 "displayName", user.displayName ?: "",
-                "photoUrl", user.photoUrl?.toString() ?: ""
+                "photoUrl", user.photoUrl?.toString() ?: "",
+                "email", user.email ?: ""
             ).await()
         }
     }
