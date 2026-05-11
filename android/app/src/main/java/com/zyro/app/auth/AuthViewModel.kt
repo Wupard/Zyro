@@ -11,7 +11,9 @@ import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
+import com.zyro.app.data.model.UserProfile
 import com.zyro.app.data.repository.UserRepository
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -32,6 +34,11 @@ class AuthViewModel : ViewModel() {
     private val _authState = MutableStateFlow<AuthState>(AuthState.Loading)
     val authState: StateFlow<AuthState> = _authState
 
+    private val _meProfile = MutableStateFlow<UserProfile?>(null)
+    val meProfile: StateFlow<UserProfile?> = _meProfile
+
+    private var profileListenJob: Job? = null
+
     init {
         // Check current auth state immediately
         val currentUser = auth.currentUser
@@ -40,14 +47,34 @@ class AuthViewModel : ViewModel() {
         } else {
             AuthState.Unauthenticated
         }
+        if (currentUser != null) {
+            startProfileListener(currentUser.uid)
+        }
 
         // Listen for auth state changes
         auth.addAuthStateListener { firebaseAuth ->
             val user = firebaseAuth.currentUser
-            _authState.value = if (user != null) {
-                AuthState.Authenticated(user.uid)
+            profileListenJob?.cancel()
+            profileListenJob = null
+            _meProfile.value = null
+            if (user != null) {
+                _authState.value = AuthState.Authenticated(user.uid)
+                startProfileListener(user.uid)
             } else {
-                AuthState.Unauthenticated
+                _authState.value = AuthState.Unauthenticated
+            }
+        }
+    }
+
+    private fun startProfileListener(uid: String) {
+        profileListenJob?.cancel()
+        profileListenJob = viewModelScope.launch {
+            userRepository.getUserProfileFlow(uid).collect { profile ->
+                _meProfile.value = profile
+                if (profile?.isBanned == true) {
+                    auth.signOut()
+                    _authState.value = AuthState.Error("Hesabınız yönetici tarafından askıya alındı.")
+                }
             }
         }
     }

@@ -1,0 +1,57 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function authed() {
+      return request.auth != null;
+    }
+
+    function me() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+
+    function isAdmin() {
+      return authed() && me().isAdmin == true;
+    }
+
+    match /users/{userId} {
+      allow read: if authed();
+      allow create: if authed() && request.auth.uid == userId;
+      allow update: if authed() && (
+        request.auth.uid == userId ||
+        isAdmin()
+      );
+      allow delete: if false;
+
+      match /notifications/{nid} {
+        allow read: if authed() && request.auth.uid == userId;
+        allow update: if authed() && request.auth.uid == userId;
+        allow create: if authed() && (
+          request.auth.uid == userId ||
+          isAdmin()
+        );
+        allow delete: if authed() && request.auth.uid == userId;
+      }
+    }
+
+    match /comments/{commentId} {
+      allow read: if authed();
+      allow create: if authed()
+        && request.resource.data.userId == request.auth.uid
+        && request.resource.data.text is string
+        && request.resource.data.text.size() > 0
+        && request.resource.data.text.size() < 5000;
+      allow delete: if authed() && (
+        resource.data.userId == request.auth.uid ||
+        isAdmin()
+      );
+      allow update: if false;
+    }
+
+    match /systemAnnouncements/{aid} {
+      allow read: if authed();
+      allow create: if isAdmin();
+      allow update, delete: if isAdmin();
+    }
+  }
+}
