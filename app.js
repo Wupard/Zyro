@@ -324,6 +324,7 @@ const EXERCISE_CATEGORIES = {
 };
 
 const RANKS = {
+  'admin': { label: 'ADMIN', color: '#F472B6', bg: 'rgba(244, 114, 182, 0.15)', canAdmin: true },
   'mod': { label: 'MOD', color: '#FFD700', bg: 'rgba(255, 215, 0, 0.15)', canAdmin: true },
   'special': { label: 'SPECIAL', color: '#A855F7', bg: 'rgba(168, 85, 247, 0.15)', canAdmin: false },
   'premium': { label: 'PREMIUM', color: '#3B82F6', bg: 'rgba(59, 130, 246, 0.15)', canAdmin: false },
@@ -536,8 +537,21 @@ let appData = {
   userRank: 'default',
   achievements: {},
   progressImages: [],
-  weeklyGoal: 0
+  weeklyGoal: 0,
+  firestoreAdmin: false
 };
+
+/** Unsubscribe previous Firestore listener before attaching a new one (nav repeats). */
+let commentsListenerUnsub = null;
+let userProfileListenerUnsub = null;
+
+function commentAuthorRankKey() {
+  if (!currentUser) return 'default';
+  if (currentUser.email === 'wupard@gmail.com' || appData.firestoreAdmin) return 'mod';
+  if (appData.userRank === 'admin') return 'admin';
+  if (appData.userRank === 'mod') return 'mod';
+  return appData.userRank || 'default';
+}
 
 // =============================================
 // UTILITIES
@@ -711,7 +725,7 @@ function updateUserUI(user){
   signOutBtn.style.display=user?'block':'none';
 
   // Admin Check
-  const isAdmin = user && user.email === 'wupard@gmail.com';
+  const isAdmin = user && (user.email === 'wupard@gmail.com' || appData.userRank === 'admin' || appData.userRank === 'mod');
   if (isAdmin) {
     adminItems.forEach(el => el.style.display = 'flex');
     document.body.classList.add('is-admin');
@@ -1118,6 +1132,20 @@ function populateExerciseDropdown(){
 function initLogForm(){
   const catSelect=document.getElementById('logCategory');
   if(catSelect) catSelect.addEventListener('change',()=>populateExerciseDropdown());
+  
+  // Clear form on initialization (fix "log stays after refresh" issue)
+  const clearFields = () => {
+    const weightInp = document.getElementById('logWeight');
+    const repsInp = document.getElementById('logReps');
+    const setsInp = document.getElementById('logSets');
+    const exInp = document.getElementById('logExercise');
+    if(weightInp) weightInp.value = '';
+    if(repsInp) repsInp.value = '';
+    if(setsInp) setsInp.value = '';
+    if(exInp) exInp.value = '';
+  };
+  clearFields();
+
   const logF = document.getElementById('logForm');
   if(logF) logF.addEventListener('submit',e=>{
     e.preventDefault();
@@ -1128,7 +1156,11 @@ function initLogForm(){
     const unit = checkedUnit ? checkedUnit.value : 'kg';
     const reps=parseInt(document.getElementById('logReps').value);
     const sets=parseInt(document.getElementById('logSets').value);
-    if(!exercise||isNaN(weight)||isNaN(reps)||isNaN(sets))return;
+    
+    if(!exercise||isNaN(weight)||isNaN(reps)||isNaN(sets)) {
+      showToast(currentLang === 'tr' ? 'Lütfen tüm alanları eksiksiz doldurun!' : 'Please fill in all fields!', 'error');
+      return;
+    }
     
     // Internal storage is always in KG
     const finalWeight = unit === 'lbs' ? Math.round(weight * 0.453592 * 10) / 10 : weight;
@@ -1140,9 +1172,8 @@ function initLogForm(){
     saveData();renderLoggedExercises();renderAttendance();updateMuscleMap();updateStats();
     // Check achievements on each log
     checkAchievements(exercise, finalWeight);
-    document.getElementById('logWeight').value='';
-    document.getElementById('logReps').value='';
-    document.getElementById('logSets').value='';
+    clearFields();
+    showToast(currentLang === 'tr' ? 'Egzersiz başarıyla kaydedildi!' : 'Exercise logged successfully!', 'success');
   });
   // 1.5: Sync aria-checked on radio change
   document.querySelectorAll('input[name="logUnitRadio"]').forEach(r => {
@@ -1326,11 +1357,11 @@ function renderLoggedExercises(){
   });
   container.innerHTML=html;
   container.querySelectorAll('.delete-log').forEach(btn=>{
-    btn.addEventListener('click',()=>{
-      const idx=parseInt(btn.dataset.index);
-      appData.workoutLogs[td].splice(idx,1);
-      const logToDelete = { ...appData.workoutLogs[td][idx] }; // Get a copy for auditing
-      if(appData.workoutLogs[td].length===0) {
+      btn.addEventListener('click',()=>{
+        const idx=parseInt(btn.dataset.index);
+        const logToDelete = { ...appData.workoutLogs[td][idx] }; // Get a copy BEFORE splicing
+        appData.workoutLogs[td].splice(idx,1);
+        if(appData.workoutLogs[td].length===0) {
         delete appData.workoutLogs[td];
         // If no more logs for this day, also remove attendance
         delete appData.attendance[td];
@@ -1924,6 +1955,12 @@ function updateStats(){
   const volDetail = document.getElementById('statVolumeDetail');
   let topPR = { exercise: '', weight: 0, date: '' };
   let allTimePRMax = 0;
+  
+  const hasLogs = Object.keys(appData.workoutLogs || {}).length > 0;
+  if (!hasLogs) {
+    localStorage.removeItem('zyro_prMax');
+  }
+
   Object.entries(appData.workoutLogs || {}).forEach(([date, logs]) => {
     logs.forEach(l => {
       if ((l.weight || 0) > topPR.weight) {
@@ -1936,10 +1973,14 @@ function updateStats(){
     volEl.textContent = topPR.weight > 0 ? `${topPR.weight} kg` : '— kg';
   }
   if (volBar) {
-    const storedMax = parseFloat(localStorage.getItem('zyro_prMax') || '0');
-    if (allTimePRMax > storedMax) localStorage.setItem('zyro_prMax', allTimePRMax);
-    const barMax = Math.max(allTimePRMax, storedMax, 1);
-    volBar.style.width = `${Math.min((topPR.weight / barMax) * 100, 100)}%`;
+    let storedMax = parseFloat(localStorage.getItem('zyro_prMax') || '0');
+    if (allTimePRMax > storedMax) {
+      storedMax = allTimePRMax;
+      localStorage.setItem('zyro_prMax', allTimePRMax);
+    }
+    // If we have no logs, bar should be 0. If we have logs, compare to a target (e.g. 20% more than max)
+    const barMax = Math.max(allTimePRMax * 1.2, storedMax, 1);
+    volBar.style.width = topPR.weight > 0 ? `${Math.min((topPR.weight / barMax) * 100, 100)}%` : '0%';
   }
   if (volDetail) {
     if (topPR.weight > 0) {
@@ -2308,14 +2349,6 @@ function renderAdminHistory() {
   `).join('');
 }
 
-window.deleteNotification = function(id, scope) {
-  if (!confirm('Bu bildirimi silmek istediğinize emin misiniz?')) return;
-  const path = scope === 'broadcast' ? `broadcasts/${id}` : `users/${currentUser.uid}/notifications/${id}`;
-  db.doc(path).delete().then(() => {
-    showToast('Bildirim silindi.', 'success');
-  }).catch(e => console.error('Delete notif failed:', e));
-};
-
 window.markAllNotificationsAsRead = function() {
   if (!currentUser || activeNotifications.length === 0) return;
   
@@ -2327,7 +2360,7 @@ window.markAllNotificationsAsRead = function() {
 
   const batch = db.batch();
   unread.forEach(n => {
-    const path = n.scope === 'broadcast' ? `broadcasts/${n.id}` : `users/${currentUser.uid}/notifications/${n.id}`;
+    const path = n.scope === 'broadcast' ? `notifications/${n.id}` : `users/${currentUser.uid}/notifications/${n.id}`;
     batch.update(db.doc(path), { read: true });
   });
 
@@ -2355,11 +2388,11 @@ function renderNotificationList() {
     
     return `
       <div class="notif-item ${isUnread ? 'unread' : ''}" style="position:relative;">
-        <div style="display:flex; gap:12px; flex:1;" onclick="markAsRead('${n.id}', '${n.scope}')">
+        <div style="display:flex; gap:12px; flex:1; cursor:pointer;" onclick="openNotifFromList('${n.id}', '${n.scope}')">
           <div class="notif-item-icon">${icon}</div>
           <div class="notif-item-body">
             <div class="notif-item-title">${n.title}</div>
-            <div class="notif-item-msg">${n.body}</div>
+            <div class="notif-item-msg">${n.body || n.message}</div>
             <div class="notif-item-time">${date}</div>
           </div>
         </div>
@@ -2411,13 +2444,51 @@ function showSystemNotification(data) {
   }, 10000);
 }
 
-window.markAsRead = function(id, scope) {
+let __pendingNotifDetail = null;
+
+window.openNotifFromList = function(id, scope) {
   if (!currentUser) return;
-  const path = scope === 'broadcast' ? `broadcasts/${id}` : `users/${currentUser.uid}/notifications/${id}`;
-  
-  // Note: Broadcast read status is usually per-user, but for simplicity here we mark the doc
-  // In a real app, you'd store read status in user's profile
-  db.doc(path).update({ read: true }).catch(e => console.error('Mark read failed:', e));
+  const n = activeNotifications.find(x => x.id === id && x.scope === scope);
+  if (!n) return;
+  __pendingNotifDetail = n;
+  const titleEl = document.getElementById('notifDetailTitle');
+  const bodyEl = document.getElementById('notifDetailBody');
+  const goBtn = document.getElementById('notifDetailGoBtn');
+  const modal = document.getElementById('notifDetailModal');
+  if (titleEl) titleEl.textContent = n.title || '';
+  if (bodyEl) bodyEl.textContent = n.body || n.message || '';
+  const canGoComments = !!(n.link && (n.type === 'reply' || n.link === 'comments'));
+  if (goBtn) goBtn.style.display = canGoComments ? 'inline-flex' : 'none';
+  if (modal) {
+    modal.style.display = 'flex';
+    modal.style.alignItems = 'center';
+    modal.style.justifyContent = 'center';
+  }
+
+  const path = scope === 'broadcast' ? `notifications/${id}` : `users/${currentUser.uid}/notifications/${id}`;
+  if (!n.read) {
+    db.doc(path).update({ read: true }).catch(e => console.error('Mark read failed:', e));
+  }
+};
+
+window.closeNotifDetailModal = function() {
+  const modal = document.getElementById('notifDetailModal');
+  if (modal) modal.style.display = 'none';
+  __pendingNotifDetail = null;
+};
+
+window.goNotifDetailToComments = function() {
+  const n = __pendingNotifDetail;
+  closeNotifDetailModal();
+  if (n && n.link) {
+    navigateTo(n.link);
+    if (typeof toggleNotifDrawer === 'function') toggleNotifDrawer();
+  }
+};
+
+/** @deprecated — liste öğesi openNotifFromList kullanır */
+window.markAsRead = function(id, scope) {
+  openNotifFromList(id, scope);
 };
 
 window.closeNotifBanner = function() {
@@ -3094,6 +3165,7 @@ window.resetStrengthProgress = function() {
   const backup = JSON.parse(JSON.stringify(appData.workoutLogs || {}));
   try {
     appData.workoutLogs = {};
+    localStorage.removeItem('zyro_prMax'); // Also clear the global PR max for the progress bar
     saveData();
     renderLoggedExercises();
     renderPRTable();
@@ -3189,7 +3261,7 @@ function initComments() {
       date: todayStr(),
       upvotes: 0,
       upvotedBy: [],
-      rank: (currentUser && currentUser.email === 'wupard@gmail.com') ? 'mod' : (appData.userRank || 'default')
+      rank: commentAuthorRankKey()
     };
     
     if (isFirebaseConfigured && db) {
@@ -3226,7 +3298,12 @@ function renderComments() {
   if (!list) return;
   
   if (isFirebaseConfigured && db) {
-    db.collection('public_comments').orderBy('timestamp', 'desc').limit(20).onSnapshot(snap => {
+    if (commentsListenerUnsub) {
+      commentsListenerUnsub();
+      commentsListenerUnsub = null;
+    }
+    const q = db.collection('public_comments').orderBy('timestamp', 'desc').limit(40);
+    commentsListenerUnsub = q.onSnapshot(snap => {
       const comments = [];
       snap.forEach(doc => comments.push({ id: doc.id, ...doc.data() }));
       displayComments(comments);
@@ -3258,6 +3335,17 @@ function displayComments(comments) {
 
     // Get replies for this comment
     const commentReplies = replies.filter(r => r.parentId === c.id).sort((a,b) => a.timestamp - b.timestamp);
+    
+    const isOwnComment = currentUser && c.userId === currentUser.uid;
+    const isAdminUser = currentUser && (
+      currentUser.email === 'wupard@gmail.com' ||
+      appData.firestoreAdmin === true ||
+      appData.userRank === 'admin' ||
+      appData.userRank === 'mod'
+    );
+    const canDelete = isOwnComment || isAdminUser;
+    
+    const isAdminComment = c.rank === 'admin' || c.rank === 'mod' || c.userEmail === 'wupard@gmail.com';
 
     return `
       <div class="comment-item" id="comment_${c.id}" style="padding: 16px; border-bottom: 1px solid var(--border-subtle); background: var(--bg-card-alt); border-radius: 12px; margin-bottom: 12px; position: relative;">
@@ -3267,11 +3355,15 @@ function displayComments(comments) {
               `<img src="${c.userPhoto}" style="width: 24px; height: 24px; border-radius: 50%; border: 1px solid var(--accent-primary);" referrerpolicy="no-referrer">` : 
               `<div style="width: 24px; height: 24px; border-radius: 50%; background: var(--bg-primary); display: flex; align-items: center; justify-content: center; font-size: 0.7rem; color: var(--text-tertiary); border: 1px solid var(--border-subtle);">?</div>`
             }
-            <div>
+            <div style="display: flex; align-items: center; gap: 6px;">
               <span style="font-weight: 600; font-size: 0.9rem; color: var(--accent-primary);">${c.userName}</span>
+              ${isAdminComment ? `<span style="background:var(--accent-primary); color:white; font-size:0.65rem; padding:2px 6px; border-radius:4px; font-weight:bold; text-transform:uppercase;">Admin</span>` : ''}
             </div>
           </div>
-          <span style="font-size: 0.75rem; color: var(--text-muted);">${new Date(c.timestamp).toLocaleDateString()}</span>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="font-size: 0.75rem; color: var(--text-muted);">${new Date(c.timestamp).toLocaleDateString()}</span>
+            ${canDelete ? `<button onclick="deletePublicComment('${c.id}')" style="background:none; border:none; color:#ef4444; cursor:pointer; padding:4px;" title="Sil"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button>` : ''}
+          </div>
         </div>
         <p style="margin: 0; font-size: 0.9rem; line-height: 1.5; color: var(--text-primary); padding-left: 34px;">${c.text}</p>
         
@@ -3296,16 +3388,26 @@ function displayComments(comments) {
 
         ${commentReplies.length > 0 ? `
           <div class="comment-replies" style="margin-top:12px; padding-left:34px; border-left: 2px solid var(--border-subtle);">
-            ${commentReplies.map(r => `
-              <div style="margin-top:12px; padding:10px; background:rgba(255,255,255,0.02); border-radius:8px;">
-                <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
-                  ${r.userPhoto ? `<img src="${r.userPhoto}" style="width:18px; height:18px; border-radius:50%;" referrerpolicy="no-referrer">` : `<div style="width:18px; height:18px; border-radius:50%; background:var(--bg-primary); display:flex; align-items:center; justify-content:center; font-size:0.6rem;">?</div>`}
-                  <span style="font-weight:600; font-size:0.8rem; color:var(--accent-primary);">${r.userName}</span>
-                  <span style="font-size:0.65rem; color:var(--text-muted); margin-left:auto;">${new Date(r.timestamp).toLocaleDateString()}</span>
+            ${commentReplies.map(r => {
+              const isOwnReply = currentUser && r.userId === currentUser.uid;
+              const canDeleteReply = isOwnReply || isAdminUser;
+              const isAdminReply = r.rank === 'admin' || r.rank === 'mod' || r.userEmail === 'wupard@gmail.com';
+              return `
+              <div style="margin-top:12px; padding:10px; background:rgba(255,255,255,0.02); border-radius:8px; position:relative;">
+                <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
+                  <div style="display:flex; align-items:center; gap:8px;">
+                    ${r.userPhoto ? `<img src="${r.userPhoto}" style="width:18px; height:18px; border-radius:50%;" referrerpolicy="no-referrer">` : `<div style="width:18px; height:18px; border-radius:50%; background:var(--bg-primary); display:flex; align-items:center; justify-content:center; font-size:0.6rem;">?</div>`}
+                    <span style="font-weight:600; font-size:0.8rem; color:var(--accent-primary);">${r.userName}</span>
+                    ${isAdminReply ? `<span style="background:var(--accent-primary); color:white; font-size:0.6rem; padding:2px 4px; border-radius:4px; font-weight:bold; text-transform:uppercase;">Admin</span>` : ''}
+                  </div>
+                  <div style="display:flex; align-items:center; gap:6px;">
+                    <span style="font-size:0.65rem; color:var(--text-muted);">${new Date(r.timestamp).toLocaleDateString()}</span>
+                    ${canDeleteReply ? `<button onclick="deletePublicComment('${r.id}')" style="background:none; border:none; color:#ef4444; cursor:pointer; padding:2px;" title="Sil"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button>` : ''}
+                  </div>
                 </div>
                 <p style="margin:0; font-size:0.85rem; color:var(--text-primary);">${r.text}</p>
               </div>
-            `).join('')}
+            `}).join('')}
           </div>
         ` : ''}
       </div>
@@ -3338,12 +3440,31 @@ window.submitReply = async function(parentId) {
     timestamp: Date.now(),
     date: todayStr(),
     upvotes: 0,
-    upvotedBy: []
+    upvotedBy: [],
+    rank: commentAuthorRankKey()
   };
 
   if (isFirebaseConfigured && db) {
     try {
       await db.collection('public_comments').add(reply);
+      
+      // Fetch parent comment to notify the author
+      const parentDoc = await db.collection('public_comments').doc(parentId).get();
+      if (parentDoc.exists) {
+        const parentData = parentDoc.data();
+        if (parentData.userId && parentData.userId !== currentUser.uid && parentData.userId !== 'local') {
+          await db.collection(`users/${parentData.userId}/notifications`).add({
+            title: 'Yorumuna Cevap Geldi!',
+            message: `${currentUser.displayName || 'Birisi'} yorumunu yanıtladı: "${text.length > 30 ? text.substring(0,30) + '...' : text}"`,
+            body: `${currentUser.displayName || 'Birisi'} yorumunu yanıtladı: "${text.length > 120 ? text.substring(0,120) + '...' : text}"`,
+            type: 'reply',
+            link: 'comments',
+            timestamp: Date.now(),
+            read: false
+          });
+        }
+      }
+
       showToast('Cevabın gönderildi!', 'success');
       input.value = '';
       document.getElementById(`replyForm_${parentId}`).style.display = 'none';
@@ -3358,13 +3479,6 @@ window.submitReply = async function(parentId) {
 };
 
 function sendCommentEmailNotification(text, userName, isReply = false) {
-  // Since we don't have a backend to send emails directly, 
-  // we can use a "system notification" in Firestore that the admin will see.
-  // The user asked for an email to wupard@gmail.com.
-  // A common trick is to use a mailto link or a third-party service,
-  // but for a Firebase app, Cloud Functions are best. 
-  // Without Cloud Functions, we can just log it to a special 'admin_notifications' collection.
-  
   if (db) {
     db.collection('admin_notifications').add({
       type: isReply ? 'reply' : 'comment',
@@ -3374,6 +3488,21 @@ function sendCommentEmailNotification(text, userName, isReply = false) {
       target: 'wupard@gmail.com'
     }).catch(e => console.error('Admin notification failed:', e));
   }
+
+  // Send email via FormSubmit API to wupard@gmail.com
+  fetch('https://formsubmit.co/ajax/wupard@gmail.com', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
+    },
+    body: JSON.stringify({
+      _subject: isReply ? 'Zyro - Yeni Yorum Yanıtı' : 'Zyro - Yeni Yorum',
+      Gonderen: userName,
+      Mesaj: text,
+      Tip: isReply ? 'Yanıt' : 'Ana Yorum'
+    })
+  }).catch(e => console.error('Email send failed:', e));
 }
 
 window.adminDeleteComment = async function(commentId) {
@@ -3381,6 +3510,21 @@ window.adminDeleteComment = async function(commentId) {
   if (!confirm('Bu yorumu silmek istediğine emin misin?')) return;
   
   try {
+    await db.collection('public_comments').doc(commentId).delete();
+    showToast('Yorum silindi.', 'success');
+    renderComments();
+  } catch (e) {
+    console.error('Delete Error:', e);
+    showToast('Yorum silinemedi!', 'error');
+  }
+};
+
+window.deletePublicComment = async function(commentId) {
+  if (!currentUser) return;
+  if (!confirm('Bu yorumu silmek istediğine emin misin?')) return;
+  
+  try {
+    // Note: Firestore security rules must allow this. Assuming user can delete their own comment.
     await db.collection('public_comments').doc(commentId).delete();
     showToast('Yorum silindi.', 'success');
     renderComments();
@@ -4151,7 +4295,9 @@ function updateUserUI(user){
   if (signOutBtn) signOutBtn.style.display = user ? 'block' : 'none';
 
   // Rank Display
-  const userRankKey = appData.userRank || (user && user.email === 'wupard@gmail.com' ? 'mod' : 'default');
+  let userRankKey = appData.userRank || 'default';
+  if (user && user.email === 'wupard@gmail.com') userRankKey = 'mod';
+  if (appData.firestoreAdmin && userRankKey === 'default') userRankKey = 'mod';
   const rank = RANKS[userRankKey] || RANKS.default;
 
   const rankBadge = document.getElementById('userRank');
@@ -4170,49 +4316,77 @@ function updateUserUI(user){
     checkUserBan(user);
   }
 
-  // Admin Check
-  const rank2 = RANKS[userRankKey] || RANKS.default;
-  if (user && rank2.canAdmin) {
-    document.body.classList.add('is-admin');
-    const navComments = document.getElementById('nav-comments');
-    if (navComments && !navComments.querySelector('.admin-badge')) {
-      navComments.innerHTML += ` <span class="admin-badge" style="background:var(--accent-primary); color:white; font-size:0.6rem; padding:2px 4px; border-radius:4px; margin-left:4px;">ADMIN</span>`;
-    }
-    if (typeof renderAdminPanel === 'function') {
-      renderAdminPanel();
+  function applyAdminVisibility() {
+    const rankObj = RANKS[appData.userRank] || RANKS.default;
+    const isAdminCapable = !!(user && (
+      (user.email === 'wupard@gmail.com') ||
+      appData.firestoreAdmin === true ||
+      rankObj.canAdmin
+    ));
+    const adminOnlyEls = document.querySelectorAll('.admin-only');
+    adminOnlyEls.forEach(el => { el.style.display = isAdminCapable ? 'flex' : 'none'; });
+    if (isAdminCapable) {
+      document.body.classList.add('is-admin');
+      const navComments = document.getElementById('nav-comments');
+      if (navComments && !navComments.querySelector('.admin-badge')) {
+        navComments.insertAdjacentHTML('beforeend', ` <span class="admin-badge" style="background:var(--accent-primary); color:white; font-size:0.6rem; padding:2px 4px; border-radius:4px; margin-left:4px;">ADMIN</span>`);
+      }
+      if (typeof renderAdminPanel === 'function') {
+        renderAdminPanel();
+      } else if (typeof adminShowSection === 'function') {
+        adminShowSection('dashboard');
+      }
     } else {
-      console.warn('renderAdminPanel is not defined, using fallback');
-      if (typeof adminShowSection === 'function') adminShowSection('dashboard');
+      document.body.classList.remove('is-admin');
     }
-  } else {
-    document.body.classList.remove('is-admin');
   }
 
-  // Realtime rank update from Firestore
+  applyAdminVisibility();
+
+  // Realtime rank + isAdmin from Firestore (tek dinleyici)
   if (user && isFirebaseConfigured && db) {
-    db.collection('users').doc(user.uid).onSnapshot(snap => {
-      if (snap.exists) {
-        const userData = snap.data().data || {};
-        if (userData.userRank) {
-          appData.userRank = userData.userRank;
-          const updRank = RANKS[userData.userRank] || RANKS.default;
-          const rankEl = document.getElementById('userRankInfo');
-          if (rankEl) {
-            rankEl.textContent = updRank.label;
-            rankEl.style.color = updRank.color;
-            rankEl.style.background = updRank.bg;
-          }
-        }
-        // Also update profile data
-        if (userData.profile) {
-          appData.profile = { ...appData.profile, ...userData.profile };
-          const profileN = appData.profile.displayName;
-          if (profileN && document.getElementById('userName')) {
-            document.getElementById('userName').textContent = profileN.split(' ')[0];
-          }
+    if (userProfileListenerUnsub) {
+      userProfileListenerUnsub();
+      userProfileListenerUnsub = null;
+    }
+    userProfileListenerUnsub = db.collection('users').doc(user.uid).onSnapshot(snap => {
+      if (!snap.exists) return;
+      const root = snap.data();
+      appData.firestoreAdmin = root.isAdmin === true;
+      const userData = root.data || {};
+      if (userData.userRank) {
+        appData.userRank = userData.userRank;
+      }
+      const rk = appData.userRank || 'default';
+      const updRank = RANKS[rk] || RANKS.default;
+      const rankEl = document.getElementById('userRankInfo');
+      if (rankEl) {
+        rankEl.textContent = updRank.label;
+        rankEl.style.color = updRank.color;
+        rankEl.style.background = updRank.bg;
+      }
+      const rb = document.getElementById('userRank');
+      if (rb && currentUser) {
+        let key = appData.userRank || 'default';
+        if (currentUser.email === 'wupard@gmail.com') key = 'mod';
+        if (appData.firestoreAdmin && key === 'default') key = 'mod';
+        const r2 = RANKS[key] || RANKS.default;
+        rb.textContent = r2.label;
+        rb.style.color = r2.color;
+        rb.style.background = r2.bg;
+      }
+      if (userData.profile) {
+        appData.profile = { ...appData.profile, ...userData.profile };
+        const profileN = appData.profile.displayName;
+        if (profileN && document.getElementById('userName')) {
+          document.getElementById('userName').textContent = profileN.split(' ')[0];
         }
       }
+      applyAdminVisibility();
     });
+  } else if (userProfileListenerUnsub) {
+    userProfileListenerUnsub();
+    userProfileListenerUnsub = null;
   }
 }
 
@@ -4246,106 +4420,6 @@ window.adminSetUserRank = async function(uid, rankKey) {
 // =============================================
 // ADMIN: Fix anonymous display — load user info from auth/firestore data
 // =============================================
-window.adminShowSection = async function(section) {
-  const content = document.getElementById('adminPanelContent');
-  if (!content) return;
-  
-  content.style.display = 'block';
-  content.innerHTML = '<div style="padding: 40px; text-align: center; color: var(--text-secondary);"><div class="loading-spinner" style="margin: 0 auto 16px;"></div>Veriler cekiliyor...</div>';
-  
-  document.querySelectorAll('.admin-tab-btn').forEach(btn => btn.classList.remove('active'));
-  if (section === 'users') document.getElementById('adminTabUsers')?.classList.add('active');
-  else if (section === 'comments') document.getElementById('adminTabComments')?.classList.add('active');
-
-  try {
-    if (section === 'users') {
-      if (isFirebaseConfigured && db) {
-        const snap = await db.collection('users').get();
-        let html = '<div style="padding: 16px;"><h3 style="margin:0 0 20px 0; font-size: 1.1rem; color: var(--text-primary);">Kayitli Kullanicilar</h3>';
-        
-        for (const doc of snap.docs) {
-          const rawData = doc.data();
-          const userData = rawData.data || rawData || {};
-          // Try all possible name sources
-          const displayName = (userData.profile && userData.profile.displayName)
-            || rawData.displayName || userData.userName || userData.displayName
-            || (userData.userEmail ? userData.userEmail.split('@')[0] : null)
-            || 'Kullanici ' + doc.id.slice(0,6);
-          const userEmail = rawData.email || userData.userEmail || userData.email || doc.id;
-          // Try all possible photo sources
-          const userPhoto = (userData.profile && userData.profile.photoURL)
-            || rawData.photoURL || userData.userPhoto || userData.photoURL || null;
-          
-          const userRankKey2 = userData.userRank || (userEmail === 'wupard@gmail.com' ? 'mod' : 'default');
-          const rank2 = RANKS[userRankKey2] || RANKS.default;
-          const isOwner = userEmail === 'wupard@gmail.com';
-          
-          html += `
-            <div class="admin-user-row" style="padding: 16px; border-bottom: 1px solid var(--border-subtle); display: flex; flex-direction: column; gap: 12px; border-radius: 12px; margin-bottom: 12px; background: rgba(255,255,255,0.02);">
-              <div style="display: flex; justify-content: space-between; align-items: center;">
-                <div style="display: flex; align-items: center; gap: 12px;">
-                  ${userPhoto 
-                    ? `<img src="${userPhoto}" style="width: 40px; height: 40px; border-radius: 50%; border: 2px solid ${rank2.color}44; object-fit:cover;" referrerpolicy="no-referrer">`
-                    : `<div style="width: 40px; height: 40px; border-radius: 50%; background: ${rank2.bg}; color: ${rank2.color}; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size:1.1rem; border: 2px solid ${rank2.color}44;">${displayName[0].toUpperCase()}</div>`
-                  }
-                  <div>
-                    <div style="font-weight:600; font-size: 1rem; color: var(--text-primary); display: flex; align-items: center; gap: 8px;">
-                      <span style="font-size: 0.65rem; padding: 2px 8px; border-radius: 6px; background: ${rank2.bg}; color: ${rank2.color}; font-weight: 900;">${rank2.label}</span>
-                      ${displayName}
-                      ${isOwner ? '<span style="font-size:0.65rem;color:#FFD700;">★ Sahip</span>' : ''}
-                    </div>
-                    <div style="font-size:0.75rem; color:var(--text-tertiary); font-family: monospace;">${userEmail}</div>
-                  </div>
-                </div>
-                <div style="display: flex; gap: 8px;">
-                  <button onclick="adminViewUserNotes('${doc.id}')" class="btn-small" style="background: var(--bg-primary); border: 1px solid var(--border-subtle);">Notlar</button>
-                </div>
-              </div>
-              
-              ${!isOwner ? `
-              <div style="display: flex; flex-wrap: wrap; gap: 8px; padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.05);">
-                <div style="font-size: 0.75rem; color: var(--text-tertiary); width: 100%; margin-bottom: 4px;">Rank Ver:</div>
-                ${Object.entries(RANKS).filter(([k])=>k!=='default').map(([key, r]) => `
-                  <button onclick="adminSetUserRank('${doc.id}', '${key}')" style="font-size: 0.7rem; padding: 4px 10px; border-radius: 6px; border: 1px solid ${r.color}44; background: ${userRankKey2 === key ? r.color : 'transparent'}; color: ${userRankKey2 === key ? '#000' : r.color}; cursor: pointer; font-weight: bold;">
-                    ${r.label}
-                  </button>
-                `).join('')}
-              </div>
-              <div style="display: flex; gap: 8px; margin-top: 4px;">
-                <button onclick="adminBanUser('${doc.id}', 'normal')" style="font-size: 0.7rem; padding: 6px 12px; border-radius: 6px; border: 1px solid #ef444444; background: transparent; color: #ef4444; cursor: pointer; font-weight: bold; display:flex; align-items:center; gap:5px;">
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg> Banla
-                </button>
-                <button onclick="adminBanUser('${doc.id}', 'ip')" style="font-size: 0.7rem; padding: 6px 12px; border-radius: 6px; border: 1px solid #ef4444; background: #ef444422; color: #ef4444; cursor: pointer; font-weight: bold; display:flex; align-items:center; gap:5px;">
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> IP Banla
-                </button>
-                <button onclick="adminUnbanUser('${doc.id}')" style="font-size: 0.7rem; padding: 6px 12px; border-radius: 6px; border: 1px solid #22c55e44; background: transparent; color: #22c55e; cursor: pointer; font-weight: bold; display:flex; align-items:center; gap:5px;">
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Bani Kaldir
-                </button>
-              </div>` : '<div style="font-size:0.75rem;color:var(--accent-primary);padding-top:8px;border-top:1px solid rgba(255,255,255,0.05);">Sistem sahibi — rank degistirilemez</div>'}
-            </div>
-          `;
-        }
-        html += '</div>';
-        content.innerHTML = html;
-      } else {
-        content.innerHTML = '<div style="padding: 40px; text-align: center; color: var(--red-vivid);">Firebase yapilandirilmamis.</div>';
-      }
-    } else if (section === 'comments') {
-      renderComments();
-      content.style.display = 'none';
-    }
-  } catch (e) {
-    console.error('Admin Section Error:', e);
-    content.innerHTML = `
-      <div style="padding: 40px; text-align: center;">
-        <div style="color: var(--red-vivid); font-weight: 600; margin-bottom: 8px;">Bir hata olustu!</div>
-        <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 20px;">${e.message}</div>
-        <button onclick="adminShowSection('${section}')" class="btn-small">Tekrar Dene</button>
-      </div>
-    `;
-  }
-};
-
 
 // =============================================
 // FEATURE 1: ADVANCED FIRE ANIMATION (Day 0-7)
@@ -4794,10 +4868,21 @@ window.loadProfileData = function() {
         // Load selected achievements
         selectedProfileAchievements = profile.selectedAchievements || [];
         
-        // Load rank
-        const rank = RANKS[userData.userRank] || RANKS.default;
-        document.getElementById('profileRank').textContent = rank.label;
-        document.getElementById('profileRank').style.color = rank.color;
+        // Load rank (nested data.userRank veya kök alan rank — Android uyumu)
+        const rootSnap = doc.data();
+        const rankKey = rootSnap.rank || userData.userRank || 'default';
+        const rank = RANKS[rankKey] || RANKS.default;
+        const labelEl = document.getElementById('profileRank');
+        const pctEl = document.getElementById('profileRankPct');
+        const barEl = document.getElementById('profileRankBar');
+        const tierLabel = rootSnap.rank && !RANKS[rankKey] ? rootSnap.rank : rank.label;
+        if (labelEl) {
+          labelEl.textContent = tierLabel;
+          labelEl.style.color = rank.color;
+        }
+        const pct = Math.max(0, Math.min(100, parseInt(rootSnap.rankProgress, 10) || 0));
+        if (pctEl) pctEl.textContent = pct + '%';
+        if (barEl) barEl.style.width = pct + '%';
       }
     });
   }

@@ -1975,6 +1975,27 @@ html {
 }
 
 /* Drawer */
+
+/* Compact user rank (shorter bar for profile & sidebar) */
+#userRankInfo, .user-rank, .user-rank .rank-bar {
+  max-width: 96px;
+  padding: 4px 8px;
+  font-size: 0.72rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: inline-block;
+  border-radius: 8px;
+}
+@media (max-width: 768px) {
+  #userRankInfo, .user-rank, .user-rank .rank-bar {
+    max-width: 72px;
+    font-size: 0.66rem;
+    padding: 3px 6px;
+  }
+}
+
+
 .notif-backdrop {
   position: fixed;
   inset: 0;
