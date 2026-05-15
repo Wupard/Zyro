@@ -3735,95 +3735,20 @@ window.adminViewUserDetails = function(uid) {
   alert('Kullanıcı Detayları: ' + uid);
 };
 
-window.adminShowSection = async function(section) {
-  const content = document.getElementById('adminPanelContent');
-  if (!content) return;
-  
-  content.style.display = 'block';
-  content.innerHTML = '<div style="padding: 40px; text-align: center; color: var(--text-secondary);"><div class="loading-spinner" style="margin: 0 auto 16px;"></div>Veriler çekiliyor...</div>';
-  
-  // Update active tab style
-  document.querySelectorAll('.admin-tab-btn').forEach(btn => btn.classList.remove('active'));
-  if (section === 'users') document.getElementById('adminTabUsers').classList.add('active');
-  else if (section === 'comments') document.getElementById('adminTabComments').classList.add('active');
+// Unified adminShowSection: toggle pre-existing admin sections
+window.adminShowSection = function(section) {
+  const sections = ['dashboard', 'notifications', 'users', 'comments'];
+  sections.forEach(s => {
+    const el = document.getElementById(`admin${s.charAt(0).toUpperCase() + s.slice(1)}Section`);
+    if (el) el.style.display = s === section ? 'block' : 'none';
 
-  try {
-    if (section === 'users') {
-      if (isFirebaseConfigured && db) {
-        // Fetch users from both 'users' collection and also scan for potential auth users
-        const snap = await db.collection('users').get();
-        let html = '<div style="padding: 16px;"><h3 style="margin:0 0 20px 0; font-size: 1.1rem; color: var(--text-primary);">Kayıtlı Kullanıcılar</h3>';
-        
-        for (const doc of snap.docs) {
-          const rawData = doc.data();
-          // Merging logic to handle different data structures in Firebase
-          const userData = rawData.data || rawData || {};
-          const userEmail = rawData.email || userData.email || doc.id;
-          const displayName = rawData.displayName || userData.userName || userData.displayName || 'İsimsiz Kullanıcı';
-          const userPhoto = rawData.photoURL || userData.userPhoto || userData.photoURL || null;
-          
-          const userRank = userData.userRank || (userEmail === 'wupard@gmail.com' ? 'mod' : 'default');
-          const rank = RANKS[userRank] || RANKS.default;
-          
-          html += `
-            <div class="admin-user-row" style="padding: 16px; border-bottom: 1px solid var(--border-subtle); display: flex; flex-direction: column; gap: 12px; transition: all 0.2s; border-radius: 12px; margin-bottom: 12px; background: rgba(255,255,255,0.02);">
-              <div style="display: flex; justify-content: space-between; align-items: center;">
-                <div style="display: flex; align-items: center; gap: 12px;">
-                  ${userPhoto ? 
-                    `<img src="${userPhoto}" style="width: 40px; height: 40px; border-radius: 50%; border: 1px solid ${rank.color}44;" referrerpolicy="no-referrer">` :
-                    `<div style="width: 40px; height: 40px; border-radius: 50%; background: ${rank.bg}; color: ${rank.color}; display: flex; align-items: center; justify-content: center; font-weight: 700; border: 1px solid ${rank.color}44;">
-                      ${displayName[0].toUpperCase()}
-                    </div>`
-                  }
-                  <div>
-                    <div style="font-weight:600; font-size: 1rem; color: var(--text-primary); display: flex; align-items: center; gap: 8px;">
-                      <span style="font-size: 0.65rem; padding: 2px 8px; border-radius: 6px; background: ${rank.bg}; color: ${rank.color}; font-weight: 900;">${rank.label}</span>
-                      ${displayName}
-                    </div>
-                    <div style="font-size:0.75rem; color:var(--text-tertiary); font-family: monospace;">${userEmail}</div>
-                  </div>
-                </div>
-                <div style="display: flex; gap: 8px;">
-                  <button onclick="adminViewUserNotes('${doc.id}')" class="btn-small" style="background: var(--bg-primary); border: 1px solid var(--border-subtle);">Notlar</button>
-                </div>
-              </div>
-              
-              <div style="display: flex; flex-wrap: wrap; gap: 8px; padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.05);">
-                <div style="font-size: 0.75rem; color: var(--text-tertiary); width: 100%; margin-bottom: 4px;">Rank Ver:</div>
-                ${Object.entries(RANKS).filter(([k])=>k!=='default').map(([key, r]) => `
-                  <button onclick="adminSetUserRank('${doc.id}', '${key}')" style="font-size: 0.7rem; padding: 4px 10px; border-radius: 6px; border: 1px solid ${r.color}44; background: ${userRank === key ? r.color : 'transparent'}; color: ${userRank === key ? '#000' : r.color}; cursor: pointer; font-weight: bold;">
-                    ${r.label}
-                  </button>
-                `).join('')}
-              </div>
+    const btn = document.getElementById(`adminTab${s.charAt(0).toUpperCase() + s.slice(1)}`);
+    if (btn) btn.classList.toggle('active', s === section);
+  });
 
-              <div style="display: flex; gap: 8px; margin-top: 4px;">
-                <button onclick="adminBanUser('${doc.id}', 'normal')" style="font-size: 0.7rem; padding: 6px 12px; border-radius: 6px; border: 1px solid #ef444444; background: transparent; color: #ef4444; cursor: pointer; font-weight: bold;">🚫 Normal Ban</button>
-                <button onclick="adminBanUser('${doc.id}', 'ip')" style="font-size: 0.7rem; padding: 6px 12px; border-radius: 6px; border: 1px solid #ef4444; background: #ef444422; color: #ef4444; cursor: pointer; font-weight: bold;">🔥 IP Ban</button>
-                <button onclick="adminUnbanUser('${doc.id}')" style="font-size: 0.7rem; padding: 6px 12px; border-radius: 6px; border: 1px solid #22c55e44; background: transparent; color: #22c55e; cursor: pointer; font-weight: bold;">✅ Banı Kaldır</button>
-              </div>
-            </div>
-          `;
-        }
-        html += '</div>';
-        content.innerHTML = html;
-      } else {
-        content.innerHTML = '<div style="padding: 40px; text-align: center; color: var(--red-vivid);">Firebase yapılandırılmamış.</div>';
-      }
-    } else if (section === 'comments') {
-      renderComments();
-      content.style.display = 'none';
-    }
-  } catch (e) {
-    console.error('Admin Section Error:', e);
-    content.innerHTML = `
-      <div style="padding: 40px; text-align: center;">
-        <div style="color: var(--red-vivid); font-weight: 600; margin-bottom: 8px;">Bir hata oluştu!</div>
-        <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 20px;">${e.message}</div>
-        <button onclick="adminShowSection('${section}')" class="btn-small">Tekrar Dene</button>
-      </div>
-    `;
-  }
+  if (section === 'users') adminLoadUsers();
+  if (section === 'comments') adminLoadAllComments();
+  if (section === 'dashboard') adminLoadDashboardStats();
 };
 
 window.adminViewUserNotes = async function(uid) {
