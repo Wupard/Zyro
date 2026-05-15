@@ -88,6 +88,11 @@ service cloud.firestore {
       allow read, update, delete: if isAdmin();
     }
 
+    match /app_state/{id} {
+      allow read: if authed();
+      allow create, update, delete: if isAdmin();
+    }
+
     match /bans/{banId} {
       allow get: if authed() && (request.auth.uid == banId || isAdmin());
       allow list: if isAdmin();

@@ -2377,6 +2377,8 @@ document.addEventListener('DOMContentLoaded',()=>{
 // =============================================
 let activeNotifications = [];
 let notifUnsubscribe = null;
+let adminNotifHistoryUnsubscribe = null;
+let adminNotificationHistory = [];
 const __broadcastLastReadKey = 'zyro_broadcast_lastRead';
 
 function __getBroadcastLastRead() {
@@ -2396,10 +2398,14 @@ function __isNotifRead(n) {
 function initNotifications() {
   if (!currentUser) return;
 
-  const isAdmin = currentUser.email === 'wupard@gmail.com'; 
+  const isAdmin = currentUser.email === 'wupard@gmail.com' || appData.firestoreAdmin === true || appData.userRank === 'admin' || appData.userRank === 'mod';
 
   // Cleanup old listener
   if (notifUnsubscribe) notifUnsubscribe();
+  if (adminNotifHistoryUnsubscribe) {
+    adminNotifHistoryUnsubscribe();
+    adminNotifHistoryUnsubscribe = null;
+  }
 
   const notifList = document.getElementById('notifList');
   const badge = document.getElementById('notifBadge');
@@ -2423,6 +2429,7 @@ function initNotifications() {
       activeNotifications = all;
       renderNotificationList();
       updateNotifBadge();
+      renderAdminNotificationHistory();
     });
   };
 
@@ -2442,7 +2449,23 @@ function initNotifications() {
   });
 
   const unsub2 = personalRef.onSnapshot(() => syncNotifs());
-  notifUnsubscribe = () => { unsub1(); unsub2(); };
+  let unsub3 = null;
+  if (isAdmin) {
+    unsub3 = db.collection('admin_notifications').orderBy('timestamp', 'desc').limit(25).onSnapshot(snap => {
+      adminNotificationHistory = snap.docs.map(doc => ({ id: doc.id, ...(doc.data() || {}) }));
+      renderAdminNotificationHistory();
+    }, err => {
+      console.error('Admin notification history listener failed:', err);
+      adminNotificationHistory = [];
+      renderAdminNotificationHistory();
+    });
+    adminNotifHistoryUnsubscribe = unsub3;
+  }
+  notifUnsubscribe = () => {
+    unsub1();
+    unsub2();
+    if (unsub3) unsub3();
+  };
 }
 
 function renderAdminHistory() {
@@ -2468,6 +2491,13 @@ function renderAdminHistory() {
       </button>
     </div>
   `).join('');
+}
+
+function __formatAdminHistoryTarget(item) {
+  if (!item) return 'Bilinmiyor';
+  if (item.recipientType === 'all' || item.targetScope === 'broadcast') return 'Tüm Kullanıcılar';
+  if (item.targetUid) return `UID: ${item.targetUid}`;
+  return 'Belirli Kullanıcı';
 }
 
 window.markAllNotificationsAsRead = function() {
@@ -5161,6 +5191,281 @@ if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', initializeEnhancements);
 } else {
   initializeEnhancements();
+}
+
+window.adminSendNotificationV2Enhanced = async function() {
+  const recipientType = document.getElementById('adminNotifRecipient').value;
+  const targetUid = document.getElementById('adminNotifUid').value.trim();
+  const category = document.getElementById('adminNotifCategory').value;
+  const title = document.getElementById('adminNotifTitle').value.trim();
+  const msg = document.getElementById('adminNotifMessage').value.trim();
+  const dEl = document.getElementById('adminNotifExpiryDays');
+  const hEl = document.getElementById('adminNotifExpiryHours');
+  const mEl = document.getElementById('adminNotifExpiryMinutes');
+  let expiryMs = 7 * 24 * 60 * 60 * 1000;
+  if (dEl || hEl || mEl) {
+    const days = parseInt(dEl?.value) || 0;
+    const hours = parseInt(hEl?.value) || 0;
+    const mins = parseInt(mEl?.value) || 0;
+    expiryMs = ((days * 24 + hours) * 60 + mins) * 60 * 1000;
+    if (expiryMs <= 0) expiryMs = 7 * 24 * 60 * 60 * 1000;
+  }
+
+  const btnText = document.getElementById('adminNotifBtnText');
+  const loader = document.getElementById('adminNotifLoader');
+
+  if (!title || !msg) {
+    showToast('LÃ¼tfen baÅŸlÄ±k ve mesaj girin.', 'error');
+    return;
+  }
+
+  if (recipientType === 'specific' && !targetUid) {
+    showToast('LÃ¼tfen hedef kullanÄ±cÄ± UID girin.', 'error');
+    return;
+  }
+
+  if (btnText) btnText.style.opacity = '0.5';
+  if (loader) loader.style.display = 'block';
+
+  const categoryIcons = {
+    system: 'ğŸ”§',
+    announcement: 'ğŸ“¢',
+    feature: 'âœ¨',
+    maintenance: 'ğŸ”¨',
+    urgent: 'âš ï¸'
+  };
+
+  const notifData = {
+    title,
+    body: msg,
+    timestamp: Date.now(),
+    expiry: Date.now() + expiryMs,
+    read: false,
+    type: recipientType === 'all' ? 'broadcast' : 'personal',
+    sender: 'Admin',
+    category,
+    icon: categoryIcons[category] || 'ğŸ“¢'
+  };
+
+  try {
+    let targetRef = null;
+    if (recipientType === 'all') {
+      targetRef = await db.collection('notifications').add(notifData);
+    } else {
+      targetRef = await db.collection(`users/${targetUid}/notifications`).add(notifData);
+    }
+
+    await db.collection('admin_notifications').add({
+      title,
+      body: msg,
+      category,
+      icon: notifData.icon,
+      timestamp: notifData.timestamp,
+      expiry: notifData.expiry,
+      recipientType,
+      targetScope: recipientType === 'all' ? 'broadcast' : 'personal',
+      targetUid: recipientType === 'all' ? '' : targetUid,
+      targetId: targetRef ? targetRef.id : '',
+      senderUid: currentUser?.uid || '',
+      senderEmail: currentUser?.email || '',
+      senderName: currentUser?.displayName || 'Admin'
+    });
+
+    showToast('Bildirim baÅŸarÄ±yla gÃ¶nderildi!', 'success');
+    document.getElementById('adminNotifTitle').value = '';
+    document.getElementById('adminNotifMessage').value = '';
+    document.getElementById('adminNotifUid').value = '';
+    renderAdminNotificationHistory();
+  } catch (err) {
+    console.error('Notification error:', err);
+    showToast('Bildirim gÃ¶nderilemedi: ' + err.message, 'error');
+  } finally {
+    if (btnText) btnText.style.opacity = '1';
+    if (loader) loader.style.display = 'none';
+  }
+};
+
+window.adminSendNotificationV2 = window.adminSendNotificationV2Enhanced;
+
+window.renderAdminNotificationHistory = function() {
+  const historyEl = document.getElementById('adminNotifHistory');
+  if (!historyEl) return;
+
+  const history = adminNotificationHistory.length > 0 ? adminNotificationHistory.slice(0, 8) : activeNotifications.slice(0, 5);
+  if (history.length === 0) {
+    historyEl.innerHTML = '<div style="font-size:0.7rem; color:var(--text-tertiary); text-align:center; padding:12px;">GeÃ§miÅŸ bulunamadÄ±</div>';
+    return;
+  }
+
+  historyEl.innerHTML = history.map(h => {
+    const categoryIcons = {
+      system: 'ğŸ”§',
+      announcement: 'ğŸ“¢',
+      feature: 'âœ¨',
+      maintenance: 'ğŸ”¨',
+      urgent: 'âš ï¸'
+    };
+    const icon = categoryIcons[h.category] || h.icon || 'ğŸ“¢';
+    const date = new Date(h.timestamp).toLocaleDateString('tr-TR', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+    const targetLabel = __formatAdminHistoryTarget(h);
+    const canDelete = h.targetScope === 'broadcast' || h.scope === 'broadcast';
+
+    return `
+      <div class="admin-history-item">
+        <div style="display:flex; align-items:flex-start; gap:8px; flex:1; min-width:0;">
+          <span class="admin-history-icon">${icon}</span>
+          <div style="min-width:0;">
+            <div style="font-size:0.7rem; font-weight:600; color:var(--text-primary); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${h.title}</div>
+            <div style="font-size:0.65rem; color:var(--text-secondary); margin-top:2px;">${targetLabel}</div>
+            <div style="font-size:0.65rem; color:var(--text-tertiary);">${date}</div>
+          </div>
+        </div>
+        ${canDelete ? `
+          <button onclick="deleteNotification('${h.targetId || h.id}', 'broadcast')" style="background:none; border:none; color:var(--text-muted); cursor:pointer; padding:4px; flex-shrink:0;">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+          </button>
+        ` : ''}
+      </div>
+    `;
+  }).join('');
+};
+
+window.saveMaintenanceSettings = async function() {
+  if (!currentUser) {
+    showToast('YalnÄ±zca adminler bakÄ±m modunu deÄŸiÅŸtirebilir.', 'error');
+    return;
+  }
+  const isAdmin = currentUser.email === 'wupard@gmail.com' || appData.firestoreAdmin === true;
+  if (!isAdmin) {
+    showToast('Ä°zin yok: sadece adminler eriÅŸebilir.', 'error');
+    return;
+  }
+
+  const msg = (document.getElementById('adminMaintenanceMessage')?.value || '').trim();
+  const days = parseInt(document.getElementById('adminMaintenanceExpiryDays')?.value) || 0;
+  const hours = parseInt(document.getElementById('adminMaintenanceExpiryHours')?.value) || 0;
+  const mins = parseInt(document.getElementById('adminMaintenanceExpiryMinutes')?.value) || 0;
+  let durationMs = ((days * 24 + hours) * 60 + mins) * 60 * 1000;
+  if (durationMs <= 0) durationMs = 60 * 60 * 1000;
+
+  const obj = {
+    enabled: true,
+    message: msg,
+    expiresAt: Date.now() + durationMs,
+    setBy: currentUser.email || currentUser.uid || 'admin'
+  };
+
+  try {
+    if (isFirebaseConfigured && db) {
+      await db.collection('app_state').doc('maintenance').set(obj, { merge: true });
+    }
+    localStorage.setItem('zyro_maintenance', JSON.stringify(obj));
+    applyMaintenanceState(obj);
+    updateMaintenanceStatusText(obj);
+    showToast('BakÄ±m modu etkinleÅŸtirildi.', 'success');
+  } catch (e) {
+    console.error('Maintenance save failed:', e);
+    showToast('BakÄ±m modu kaydedilemedi.', 'error');
+  }
+};
+
+window.clearMaintenanceSettings = async function() {
+  if (!currentUser) return showToast('Yetki gerekli.', 'error');
+  const isAdmin = currentUser.email === 'wupard@gmail.com' || appData.firestoreAdmin === true;
+  if (!isAdmin) return showToast('Ä°zin yok.', 'error');
+
+  try {
+    if (isFirebaseConfigured && db) {
+      await db.collection('app_state').doc('maintenance').set({
+        enabled: false,
+        message: '',
+        expiresAt: 0,
+        setBy: currentUser.email || currentUser.uid || 'admin'
+      }, { merge: true });
+    }
+    localStorage.removeItem('zyro_maintenance');
+    applyMaintenanceState({ enabled: false });
+    updateMaintenanceStatusText({ enabled: false });
+    showToast('BakÄ±m modu kapatÄ±ldÄ±.', 'success');
+  } catch (e) {
+    console.error('Maintenance clear failed:', e);
+    showToast('BakÄ±m modu kapatÄ±lamadÄ±.', 'error');
+  }
+};
+
+window.applyMaintenanceState = function(forcedState = null) {
+  const state = forcedState || getMaintenanceState();
+  let overlay = document.getElementById('maintenanceOverlay');
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.id = 'maintenanceOverlay';
+    overlay.className = 'maintenance-overlay';
+    overlay.innerHTML = `
+      <div class="maintenance-card">
+        <div class="maintenance-icon">ğŸ”§</div>
+        <h2 class="maintenance-title">BakÄ±m Modu</h2>
+        <div id="maintenanceOverlayMsg" class="maintenance-msg"></div>
+        <div id="maintenanceOverlayUntil" class="maintenance-until"></div>
+      </div>
+    `;
+    document.body.appendChild(overlay);
+  }
+
+  if (state.enabled) {
+    const isAdmin = currentUser && (currentUser.email === 'wupard@gmail.com' || appData.firestoreAdmin === true);
+    if (!isAdmin) {
+      document.getElementById('maintenanceOverlayMsg').textContent = state.message || 'KÄ±sa sÃ¼reli bakÄ±m yapÄ±lÄ±yor.';
+      const until = state.expiresAt ? new Date(state.expiresAt).toLocaleString() : 'â€”';
+      document.getElementById('maintenanceOverlayUntil').textContent = 'Tahmini bitiÅŸ: ' + until;
+      overlay.style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+    } else {
+      overlay.style.display = 'none';
+      document.body.style.overflow = '';
+    }
+  } else {
+    overlay.style.display = 'none';
+    document.body.style.overflow = '';
+  }
+};
+
+window.updateMaintenanceStatusText = function(forcedState = null) {
+  const st = forcedState || getMaintenanceState();
+  const el = document.getElementById('adminMaintenanceStatus');
+  if (!el) return;
+  if (st.enabled) {
+    const until = st.expiresAt ? new Date(st.expiresAt).toLocaleString() : 'â€”';
+    el.textContent = `Etkin â€” Tahmini bitiÅŸ: ${until} (AÃ§an: ${st.setBy || 'admin'})`;
+  } else {
+    el.textContent = 'KapalÄ±';
+  }
+};
+
+window.initMaintenanceSync = function() {
+  if (!(isFirebaseConfigured && db)) {
+    applyMaintenanceState();
+    updateMaintenanceStatusText();
+    return;
+  }
+
+  db.collection('app_state').doc('maintenance').onSnapshot(snap => {
+    const remote = snap.exists ? (snap.data() || { enabled: false }) : { enabled: false };
+    const normalized = remote.expiresAt && Date.now() > remote.expiresAt ? { enabled: false } : remote;
+    if (normalized.enabled) localStorage.setItem('zyro_maintenance', JSON.stringify(normalized));
+    else localStorage.removeItem('zyro_maintenance');
+    applyMaintenanceState(normalized);
+    updateMaintenanceStatusText(normalized);
+  }, err => {
+    console.error('Maintenance sync failed:', err);
+    applyMaintenanceState();
+    updateMaintenanceStatusText();
+  });
+};
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initMaintenanceSync);
+} else {
+  initMaintenanceSync();
 }
 
 
