@@ -1,5 +1,5 @@
-/* ===========================
-   Zyro — Dashboard V2
+﻿/* ===========================
+   Zyro â€” Dashboard V2
    i18n, Firebase Auth, Routing, Logging, Charts
    =========================== */
 
@@ -45,7 +45,7 @@ const I18N = {
     volume: 'Volume',
     workoutProgram: 'Workout Program',
     exercise: 'Exercise',
-    setsReps: 'Sets × Reps',
+    setsReps: 'Sets Ã— Reps',
     weightLabel: 'Weight',
     done: 'Done',
     logExercise: 'Log Exercise',
@@ -78,8 +78,8 @@ const I18N = {
     goodAfternoon: 'Good afternoon',
     goodEvening: 'Good evening',
     goodNight: 'Good night',
-    synced: '● Synced',
-    localMode: '● Local Mode',
+    synced: 'â— Synced',
+    localMode: 'â— Local Mode',
     notePlaceholder: 'How was your day? What did you learn? How do you feel?...',
     calc1RM: 'Calculate 1RM',
     calcConverter: 'Unit Converter',
@@ -100,98 +100,98 @@ const I18N = {
     beforeAfter: 'Before/After'
   },
   tr: {
-    authSubtitle: 'Kişisel Gelişim Paneli',
-    signInGoogle: 'Google ile Giriş Yap',
+    authSubtitle: 'KiÅŸisel GeliÅŸim Paneli',
+    signInGoogle: 'Google ile GiriÅŸ Yap',
     continueWithout: 'Hesap olmadan devam et',
-    authNote: 'Verilerinizi cihazlar arasında senkronize etmek için giriş yapın',
+    authNote: 'Verilerinizi cihazlar arasÄ±nda senkronize etmek iÃ§in giriÅŸ yapÄ±n',
     navDashboard: 'Ana Sayfa',
     navWorkouts: 'Antrenman',
-    navProgress: 'İlerleme',
+    navProgress: 'Ä°lerleme',
     navNotes: 'Notlar',
     navComments: 'Yorumlar',
-    navPosture: 'Postür',
-    navCalculators: 'Hesaplayıcılar',
+    navPosture: 'PostÃ¼r',
+    navCalculators: 'HesaplayÄ±cÄ±lar',
     navWupard: 'WFIT',
     thisWeek: 'Bu Hafta',
-    dailyPosture: 'Günlük Postür',
-    postureProgram: 'Postür Programı',
-    weeklyWorkouts: 'Haftalık Antrenman',
+    dailyPosture: 'GÃ¼nlÃ¼k PostÃ¼r',
+    postureProgram: 'PostÃ¼r ProgramÄ±',
+    weeklyWorkouts: 'HaftalÄ±k Antrenman',
     currentWeight: 'Mevcut Kilo',
     totalVolume: 'Toplam Hacim (kg)',
-    consistency: 'Tutarlılık',
-    muscleMap: 'Kas Haritası',
-    intensity: 'Yoğunluk',
-    lowVolume: 'Düşük hacim',
+    consistency: 'TutarlÄ±lÄ±k',
+    muscleMap: 'Kas HaritasÄ±',
+    intensity: 'YoÄŸunluk',
+    lowVolume: 'DÃ¼ÅŸÃ¼k hacim',
     medVolume: 'Orta hacim',
-    highVolume: 'Yüksek hacim',
-    notTrained: 'Çalışılmadı',
-    progressOverview: 'İlerleme Özeti',
+    highVolume: 'YÃ¼ksek hacim',
+    notTrained: 'Ã‡alÄ±ÅŸÄ±lmadÄ±',
+    progressOverview: 'Ä°lerleme Ã–zeti',
     weight: 'Kilo',
     volume: 'Hacim',
-    workoutProgram: 'Antrenman Programı',
+    workoutProgram: 'Antrenman ProgramÄ±',
     exercise: 'Egzersiz',
-    setsReps: 'Set × Tekrar',
-    weightLabel: 'Ağırlık',
+    setsReps: 'Set Ã— Tekrar',
+    weightLabel: 'AÄŸÄ±rlÄ±k',
     done: 'Tamam',
     logExercise: 'Egzersiz Kaydet',
-    logSubtitle: 'Bugün gerçekte ne yaptığını kaydet',
-    weightKg: 'Ağırlık (kg)',
+    logSubtitle: 'BugÃ¼n gerÃ§ekte ne yaptÄ±ÄŸÄ±nÄ± kaydet',
+    weightKg: 'AÄŸÄ±rlÄ±k (kg)',
     saveLog: 'Kaydet',
-    todaysLog: 'Bugünkü Kayıt',
-    today: 'Bugün',
-    noExercisesLogged: 'Bugün henüz egzersiz kaydedilmedi.',
-    progressTracking: 'İlerleme Takibi',
-    bodyWeight: 'Vücut Ağırlığı',
+    todaysLog: 'BugÃ¼nkÃ¼ KayÄ±t',
+    today: 'BugÃ¼n',
+    noExercisesLogged: 'BugÃ¼n henÃ¼z egzersiz kaydedilmedi.',
+    progressTracking: 'Ä°lerleme Takibi',
+    bodyWeight: 'VÃ¼cut AÄŸÄ±rlÄ±ÄŸÄ±',
     log: 'Kaydet',
-    strengthProgress: 'Güç İlerlemesi',
-    totalVolumeWeek: 'Haftalık Toplam Hacim',
-    personalRecords: 'Kişisel Rekorlar',
-    maxWeight: 'Maks Ağırlık',
-    bestReps: 'En İyi Tekrar',
+    strengthProgress: 'GÃ¼Ã§ Ä°lerlemesi',
+    totalVolumeWeek: 'HaftalÄ±k Toplam Hacim',
+    personalRecords: 'KiÅŸisel Rekorlar',
+    maxWeight: 'Maks AÄŸÄ±rlÄ±k',
+    bestReps: 'En Ä°yi Tekrar',
     date: 'Tarih',
-    dailyNotes: 'Günlük Notlar',
-    todaysEntry: 'Bugünkü Giriş',
+    dailyNotes: 'GÃ¼nlÃ¼k Notlar',
+    todaysEntry: 'BugÃ¼nkÃ¼ GiriÅŸ',
     saveNote: 'Notu Kaydet',
-    pastEntries: 'Geçmiş Girişler',
-    noNotes: 'Henüz not yok. Günlük tutmaya başla!',
-    noData: 'Henüz veri yok',
-    noPRs: 'Rekorlarınızı görmek için egzersiz kaydedin.',
-    weeklyVolume: 'Haftalık Hacim',
-    noWorkoutsWeek: 'Bu hafta henüz antrenman kaydedilmedi.',
-    selectExercise: 'Egzersiz seçin...',
-    goodMorning: 'Günaydın',
-    goodAfternoon: 'İyi öğleden sonralar',
-    goodEvening: 'İyi akşamlar',
-    goodNight: 'İyi geceler',
-    synced: '● Senkronize',
-    localMode: '● Yerel Mod',
-    notePlaceholder: 'Günün nasıldı? Ne öğrendin? Nasıl hissediyorsun?...',
+    pastEntries: 'GeÃ§miÅŸ GiriÅŸler',
+    noNotes: 'HenÃ¼z not yok. GÃ¼nlÃ¼k tutmaya baÅŸla!',
+    noData: 'HenÃ¼z veri yok',
+    noPRs: 'RekorlarÄ±nÄ±zÄ± gÃ¶rmek iÃ§in egzersiz kaydedin.',
+    weeklyVolume: 'HaftalÄ±k Hacim',
+    noWorkoutsWeek: 'Bu hafta henÃ¼z antrenman kaydedilmedi.',
+    selectExercise: 'Egzersiz seÃ§in...',
+    goodMorning: 'GÃ¼naydÄ±n',
+    goodAfternoon: 'Ä°yi Ã¶ÄŸleden sonralar',
+    goodEvening: 'Ä°yi akÅŸamlar',
+    goodNight: 'Ä°yi geceler',
+    synced: 'â— Senkronize',
+    localMode: 'â— Yerel Mod',
+    notePlaceholder: 'GÃ¼nÃ¼n nasÄ±ldÄ±? Ne Ã¶ÄŸrendin? NasÄ±l hissediyorsun?...',
     calc1RM: '1RM Hesapla',
-    calcConverter: 'Birim Dönüştürücü',
-    calcBfp: 'Yağ Oranı',
-    calcGrowth: 'Gelişim',
+    calcConverter: 'Birim DÃ¶nÃ¼ÅŸtÃ¼rÃ¼cÃ¼',
+    calcBfp: 'YaÄŸ OranÄ±',
+    calcGrowth: 'GeliÅŸim',
     calcMacros: 'Makro/Kalori',
-    catAll: 'Tümü (Tüm Vücut)',
-    catLegs: 'Bacak & Kalça',
-    catChest: 'Göğüs',
-    catBack: 'Sırt & Kanat',
+    catAll: 'TÃ¼mÃ¼ (TÃ¼m VÃ¼cut)',
+    catLegs: 'Bacak & KalÃ§a',
+    catChest: 'GÃ¶ÄŸÃ¼s',
+    catBack: 'SÄ±rt & Kanat',
     catShoulders: 'Omuz',
     catArms: 'Kollar',
-    catCore: 'Karın & Merkez',
+    catCore: 'KarÄ±n & Merkez',
     lblCategory: 'Kategori',
     repetitions: 'Tekrar',
     sets: 'Set',
-    achievements: 'Başarımlar',
-    beforeAfter: 'Gelişim Fotoğrafları',
+    achievements: 'BaÅŸarÄ±mlar',
+    beforeAfter: 'GeliÅŸim FotoÄŸraflarÄ±',
     // Posture Exercises
-    'Warm-up: Light shoulder circles': 'Isınma: Hafif omuz daireleri ve kafa hareketleri',
+    'Warm-up: Light shoulder circles': 'IsÄ±nma: Hafif omuz daireleri ve kafa hareketleri',
     'Y-T-W Raises': 'Y-T-W Raises',
     'Wall Angels': 'Wall Angels',
     'Chin Tuck & Neck Nod': 'Chin Tuck & Neck Nod',
     'Doorway Stretch': 'Doorway Stretch',
     'Thoracic Extension': 'Thoracic Extension',
     'Wrist Stretch': 'Wrist Stretch',
-    'Warm-up: Marching in place / walking': 'Isınma: Marching in place / walking',
+    'Warm-up: Marching in place / walking': 'IsÄ±nma: Marching in place / walking',
     'Cat-Cow': 'Cat-Cow',
     'Pelvic Tilt + Deadbug': 'Pelvic Tilt + Deadbug',
     'Glute Bridge': 'Glute Bridge',
@@ -208,11 +208,11 @@ const I18N = {
     '2 sets x 60 sec': '2 set x 60 sn',
     '2 sets x 30 sec': '2 set x 30 sn',
     '12 reps': '12 tekrar',
-    '20 slow reps': '20 yavaş tekrar',
+    '20 slow reps': '20 yavaÅŸ tekrar',
     '3 sets x 15 reps': '3 set x 15 tekrar',
     '30 sec each side': 'Her taraf 30 sn',
     '3 sets x 30-45 sec': '3 set x 30-45 sn',
-    '20 reps each': '20\'şer tekrar',
+    '20 reps each': '20\'ÅŸer tekrar',
     '15 rounds / 12 reps': '15 tur / 12 tekrar',
     '30 sec': '30 sn',
     '60 sec': '60 sn',
@@ -264,12 +264,12 @@ function initLangSwitcher() {
 // DATA
 // =============================================
 const DAYS_EN = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
-const DAYS_TR = ['Pzt','Sal','Çar','Per','Cum','Cmt','Paz'];
+const DAYS_TR = ['Pzt','Sal','Ã‡ar','Per','Cum','Cmt','Paz'];
 
 const EXERCISE_MUSCLES = {
-  // Göğüs
+  // GÃ¶ÄŸÃ¼s
   'Barbell Bench Press': ['chest', 'triceps'],
-  'İncline Bench Press': ['chest', 'triceps'],
+  'Ä°ncline Bench Press': ['chest', 'triceps'],
   'Upper-lower Cable crossover': ['chest'],
   
   // Omuz
@@ -277,7 +277,7 @@ const EXERCISE_MUSCLES = {
   'Face Pull': ['shoulders', 'traps'],
   'Seated Dumbbell Rear Delt Fly': ['shoulders', 'traps'],
   
-  // Sırt — Sırt egzersizleri sadece traps/lats'ı primary gösterir; biceps secondary sayılmaz
+  // SÄ±rt â€” SÄ±rt egzersizleri sadece traps/lats'Ä± primary gÃ¶sterir; biceps secondary sayÄ±lmaz
   'Lat Pulldown': ['traps'],
   'Close-Grip V-Bar Pulldown': ['traps'],
   'Seated Row Machine': ['traps'],
@@ -303,7 +303,7 @@ const EXERCISE_MUSCLES = {
   'Z-Bar Reverse Curl': ['biceps', 'forearms'],
   'Classic Forearm Exercises': ['forearms'],
   
-  // Karın & Core
+  // KarÄ±n & Core
   'Straight Bar Cable Crunch': ['abs'],
   'Sit-up': ['abs'],
   'Reverse Crunch': ['abs'],
@@ -315,7 +315,7 @@ const ALL_EXERCISES = Object.keys(EXERCISE_MUSCLES).sort();
 // GLOBAL EXERCISE CATEGORIES
 // =============================================
 const EXERCISE_CATEGORIES = {
-  'chest': ['Barbell Bench Press', 'İncline Bench Press', 'Upper-lower Cable crossover'],
+  'chest': ['Barbell Bench Press', 'Ä°ncline Bench Press', 'Upper-lower Cable crossover'],
   'shoulders': ['Cable Shoulder', 'Face Pull', 'Seated Dumbbell Rear Delt Fly', 'Smith Machine Shrug', 'DB Shrug'],
   'back': ['Lat Pulldown', 'Close-Grip V-Bar Pulldown', 'Seated Row Machine'],
   'legs': ['Squat', 'Romanian Deadlift', 'Farmers Walk', 'Hip Abductor Machines', 'Standing Calf Raise'],
@@ -346,43 +346,43 @@ const CATEGORY_ICONS = {
 const DEFAULT_PROGRAMS = {
 
   day1: [
-    {name:'Barbell Bench Press',sets:'3×8-10',weight:'-'},
-    {name:'İncline Bench Press',sets:'3×10-12',weight:'-'},
-    {name:'Upper-lower Cable crossover',sets:'3×12-15',weight:'-'},
-    {name:'Cable Shoulder',sets:'3×10-12',weight:'-'},
-    {name:'Face Pull',sets:'3×15',weight:'-'},
-    {name:'Seated Dumbbell Rear Delt Fly',sets:'3×15',weight:'-'},
-    {name:'Seated DB Biceps Curl',sets:'3×10-12',weight:'-'},
-    {name:'Cross-Body Hammer Curl',sets:'3×10-12',weight:'-'},
-    {name:'Single-Arm DB Preacher Curl',sets:'3×12-15',weight:'-'},
+    {name:'Barbell Bench Press',sets:'3Ã—8-10',weight:'-'},
+    {name:'Ä°ncline Bench Press',sets:'3Ã—10-12',weight:'-'},
+    {name:'Upper-lower Cable crossover',sets:'3Ã—12-15',weight:'-'},
+    {name:'Cable Shoulder',sets:'3Ã—10-12',weight:'-'},
+    {name:'Face Pull',sets:'3Ã—15',weight:'-'},
+    {name:'Seated Dumbbell Rear Delt Fly',sets:'3Ã—15',weight:'-'},
+    {name:'Seated DB Biceps Curl',sets:'3Ã—10-12',weight:'-'},
+    {name:'Cross-Body Hammer Curl',sets:'3Ã—10-12',weight:'-'},
+    {name:'Single-Arm DB Preacher Curl',sets:'3Ã—12-15',weight:'-'},
   ],
   day2: [
-    {name:'Lat Pulldown',sets:'3×8-12',weight:'-'},
-    {name:'Close-Grip V-Bar Pulldown',sets:'3×10-12',weight:'-'},
-    {name:'Seated Row Machine',sets:'3×10-12',weight:'-'},
-    {name:'V-Bar Triceps Pushdown',sets:'3×12-15',weight:'-'},
-    {name:'Single-Arm Cable Reverse Pushdown',sets:'3×12-15',weight:'-'},
-    {name:'Skull Crusher',sets:'3×10-12',weight:'-'},
-    {name:'Overhead DB Triceps Extension',sets:'3×12-15',weight:'-'},
-    {name:'Yusuf\'s Forearm Exercise',sets:'3×Maks',weight:'-'},
-    {name:'Z-Bar Reverse Curl',sets:'3×12-15',weight:'-'},
-    {name:'Classic Forearm Exercises',sets:'3×15',weight:'-'},
+    {name:'Lat Pulldown',sets:'3Ã—8-12',weight:'-'},
+    {name:'Close-Grip V-Bar Pulldown',sets:'3Ã—10-12',weight:'-'},
+    {name:'Seated Row Machine',sets:'3Ã—10-12',weight:'-'},
+    {name:'V-Bar Triceps Pushdown',sets:'3Ã—12-15',weight:'-'},
+    {name:'Single-Arm Cable Reverse Pushdown',sets:'3Ã—12-15',weight:'-'},
+    {name:'Skull Crusher',sets:'3Ã—10-12',weight:'-'},
+    {name:'Overhead DB Triceps Extension',sets:'3Ã—12-15',weight:'-'},
+    {name:'Yusuf\'s Forearm Exercise',sets:'3Ã—Maks',weight:'-'},
+    {name:'Z-Bar Reverse Curl',sets:'3Ã—12-15',weight:'-'},
+    {name:'Classic Forearm Exercises',sets:'3Ã—15',weight:'-'},
   ],
   day3: [
-    {name:'Squat',sets:'3×8-10',weight:'-'},
-    {name:'Romanian Deadlift',sets:'3×10-12',weight:'-'},
-    {name:'Farmers Walk',sets:'3×Maks',weight:'-'},
-    {name:'Hip Abductor Machines',sets:'3×15',weight:'-'},
-    {name:'Standing Calf Raise',sets:'4×15-20',weight:'-'},
-    {name:'Smith Machine Shrug',sets:'4×10-12',weight:'-'},
-    {name:'DB Shrug',sets:'4×10-12',weight:'-'},
-    {name:'Straight Bar Cable Crunch',sets:'3×15-20',weight:'-'},
-    {name:'Sit-up',sets:'3×20',weight:'-'},
-    {name:'Reverse Crunch',sets:'3×20',weight:'-'},
-    {name:'Russian twist',sets:'3×20',weight:'-'},
-    {name:'Yusuf\'s Forearm Exercise',sets:'3×Maks',weight:'-'},
-    {name:'Z-Bar Reverse Curl',sets:'3×12-15',weight:'-'},
-    {name:'Classic Forearm Exercises',sets:'3×15',weight:'-'},
+    {name:'Squat',sets:'3Ã—8-10',weight:'-'},
+    {name:'Romanian Deadlift',sets:'3Ã—10-12',weight:'-'},
+    {name:'Farmers Walk',sets:'3Ã—Maks',weight:'-'},
+    {name:'Hip Abductor Machines',sets:'3Ã—15',weight:'-'},
+    {name:'Standing Calf Raise',sets:'4Ã—15-20',weight:'-'},
+    {name:'Smith Machine Shrug',sets:'4Ã—10-12',weight:'-'},
+    {name:'DB Shrug',sets:'4Ã—10-12',weight:'-'},
+    {name:'Straight Bar Cable Crunch',sets:'3Ã—15-20',weight:'-'},
+    {name:'Sit-up',sets:'3Ã—20',weight:'-'},
+    {name:'Reverse Crunch',sets:'3Ã—20',weight:'-'},
+    {name:'Russian twist',sets:'3Ã—20',weight:'-'},
+    {name:'Yusuf\'s Forearm Exercise',sets:'3Ã—Maks',weight:'-'},
+    {name:'Z-Bar Reverse Curl',sets:'3Ã—12-15',weight:'-'},
+    {name:'Classic Forearm Exercises',sets:'3Ã—15',weight:'-'},
   ],
 };
 
@@ -411,9 +411,9 @@ const POSTURE_VIDEO_URLS = {
 // WORKOUT VIDEO URLS
 // =============================================
 const WORKOUT_VIDEO_URLS = {
-  // Salı: Göğüs-Omuz-Biceps
+  // SalÄ±: GÃ¶ÄŸÃ¼s-Omuz-Biceps
   'Barbell Bench Press': 'https://www.youtube.com/shorts/ZR1i47nkH9c',
-  'İncline Bench Press': 'https://www.youtube.com/shorts/98HWfiRonkE',
+  'Ä°ncline Bench Press': 'https://www.youtube.com/shorts/98HWfiRonkE',
   'Upper-lower Cable crossover': 'https://m.youtube.com/shorts/LCgCPxcUIOM',
   'Cable Shoulder': 'https://www.youtube.com/shorts/6wHaXpM6JgE',
   'Face Pull': 'https://www.youtube.com/shorts/7kXfVIwmfwE',
@@ -422,7 +422,7 @@ const WORKOUT_VIDEO_URLS = {
   'Cross-Body Hammer Curl': 'https://www.youtube.com/shorts/7HkJh-OBA0s',
   'Single-Arm DB Preacher Curl': 'https://m.youtube.com/shorts/-CJEoRtcyHc',
 
-  // Perşembe: Sırt-Triceps-Bilek
+  // PerÅŸembe: SÄ±rt-Triceps-Bilek
   'Lat Pulldown': 'https://www.youtube.com/shorts/8kgs9hrgNks',
   'Close-Grip V-Bar Pulldown': 'https://www.youtube.com/shorts/wrt5Y25QbH4',
   'Seated Row Machine': 'https://www.youtube.com/shorts/DHA7QGDa2qg',
@@ -601,15 +601,15 @@ function loadData(cb){
     // Realtime listen: Server is the MASTER truth
     docRef.onSnapshot(snap => {
       if(snap.exists && snap.data().data) {
-         // Veriler her zaman sunucudan cihazınıza en güncel haliyle senkronize olur
-         // Böylece telefon ile PC birbirini EZMEZ.
+         // Veriler her zaman sunucudan cihazÄ±nÄ±za en gÃ¼ncel haliyle senkronize olur
+         // BÃ¶ylece telefon ile PC birbirini EZMEZ.
          appData = snap.data().data;
          enforceVersion();
          localStorage.setItem('zyro_data', JSON.stringify(appData));
          if(cb) cb();
          refreshAllViews();
       } else {
-         // Eğer sunucuda (hesapta) hiç veri yoksa, ilk giriş demektir: Local veriyi sunucuya gönder
+         // EÄŸer sunucuda (hesapta) hiÃ§ veri yoksa, ilk giriÅŸ demektir: Local veriyi sunucuya gÃ¶nder
          docRef.set({ data: appData }, { merge: true });
          if(cb) cb();
          refreshAllViews();
@@ -837,13 +837,13 @@ async function checkUserBan(user) {
       document.body.innerHTML = `
         <div style="height: 100vh; background: #0d0d12; color: white; display: flex; align-items: center; justify-content: center; font-family: sans-serif; text-align: center; padding: 20px;">
           <div style="max-width: 500px; padding: 40px; background: #181822; border-radius: 24px; border: 1px solid #ef4444; box-shadow: 0 0 40px rgba(239, 68, 68, 0.2);">
-            <div style="font-size: 4rem; margin-bottom: 20px;">🚫</div>
+            <div style="font-size: 4rem; margin-bottom: 20px;">ğŸš«</div>
             <h1 style="color: #ef4444; margin-bottom: 16px;">BANLANDINIZ</h1>
-            <p style="color: #94a3b8; margin-bottom: 24px;">Sistem kurallarını ihlal ettiğiniz için erişiminiz engellendi.</p>
+            <p style="color: #94a3b8; margin-bottom: 24px;">Sistem kurallarÄ±nÄ± ihlal ettiÄŸiniz iÃ§in eriÅŸiminiz engellendi.</p>
             <div style="text-align: left; background: rgba(0,0,0,0.2); padding: 20px; border-radius: 12px; font-size: 0.9rem;">
               <div style="margin-bottom: 8px;"><span style="color: #625f7a;">Yetkili:</span> <span style="color: #FFD700; font-weight: bold;">Wupard</span></div>
               <div style="margin-bottom: 8px;"><span style="color: #625f7a;">Sebep:</span> ${banData.reason || 'Kural ihlali'}</div>
-              <div><span style="color: #625f7a;">Süre:</span> ${banData.duration || 'Süresiz'}</div>
+              <div><span style="color: #625f7a;">SÃ¼re:</span> ${banData.duration || 'SÃ¼resiz'}</div>
             </div>
             <button onclick="location.reload()" style="margin-top: 32px; padding: 12px 24px; background: #3d3d52; color: white; border: none; border-radius: 12px; cursor: pointer;">Yeniden Dene</button>
           </div>
@@ -1128,7 +1128,7 @@ function renderAttendance(){
   const today=new Date();const monday=getMonday(today);
   monday.setDate(monday.getDate()+attendanceWeekOffset*7);
   const sunday=new Date(monday);sunday.setDate(sunday.getDate()+6);
-  label.textContent=`${formatDate(monday)} – ${formatDate(sunday)}`;
+  label.textContent=`${formatDate(monday)} â€“ ${formatDate(sunday)}`;
   const days=currentLang==='tr'?DAYS_TR:DAYS_EN;
   let html='';
   for(let i=0;i<7;i++){
@@ -1137,7 +1137,7 @@ function renderAttendance(){
     html+=`<div class="att-day ${isToday?'today':''} ${attended?'active':''}" data-date="${ds}">
       <span class="att-day-name">${days[i]}</span>
       <span class="att-day-num">${d.getDate()}</span>
-      <div class="att-day-check">${attended?'✓':''}</div>
+      <div class="att-day-check">${attended?'âœ“':''}</div>
     </div>`;
   }
   container.innerHTML=html;
@@ -1167,23 +1167,23 @@ function renderWorkout(tab){
   if(allDone) {
     btnHtml = `
     <button class="btn-primary complete-btn" style="width:100%; margin-top:16px; justify-content:center; padding:12px; font-weight: bold; font-size: 1.1rem;" onclick="completeDay('workout','${tab}')">
-      ${currentLang==='tr'?'🎉 Spor Programını Tamamla (Bugün) 🎉':'🎉 Complete Workout (Today) 🎉'}
+      ${currentLang==='tr'?'ğŸ‰ Spor ProgramÄ±nÄ± Tamamla (BugÃ¼n) ğŸ‰':'ğŸ‰ Complete Workout (Today) ğŸ‰'}
     </button>`;
   }
 
   list.innerHTML=exercises.map((ex,i)=>{
     const videoUrl = WORKOUT_VIDEO_URLS[ex.name];
     const videoBtn = videoUrl
-      ? `<a href="${videoUrl}" target="_blank" rel="noopener noreferrer" class="posture-video-btn" title="${currentLang==='tr'?'YouTube\'da İzle':'Watch on YouTube'}" onclick="event.stopPropagation()">
+      ? `<a href="${videoUrl}" target="_blank" rel="noopener noreferrer" class="posture-video-btn" title="${currentLang==='tr'?'YouTube\'da Ä°zle':'Watch on YouTube'}" onclick="event.stopPropagation()">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg>
-          ${currentLang==='tr'?'İzle':'Watch'}
+          ${currentLang==='tr'?'Ä°zle':'Watch'}
         </a>`
       : '<span></span>';
     return `<div class="exercise-row workout-exercise-row">
       <span class="exercise-name">${ex.name}</span>
       <span class="exercise-detail">${ex.sets}</span>
       ${videoBtn}
-      <button class="exercise-check ${ex.done?'done':''}" data-index="${i}">${ex.done?'✓':''}</button>
+      <button class="exercise-check ${ex.done?'done':''}" data-index="${i}">${ex.done?'âœ“':''}</button>
     </div>`;
   }).join('') + btnHtml;
 
@@ -1264,7 +1264,7 @@ function initLogForm(){
     const sets=parseInt(document.getElementById('logSets').value);
     
     if(!exercise||isNaN(weight)||isNaN(reps)||isNaN(sets)) {
-      showToast(currentLang === 'tr' ? 'Lütfen tüm alanları eksiksiz doldurun!' : 'Please fill in all fields!', 'error');
+      showToast(currentLang === 'tr' ? 'LÃ¼tfen tÃ¼m alanlarÄ± eksiksiz doldurun!' : 'Please fill in all fields!', 'error');
       return;
     }
     
@@ -1279,7 +1279,7 @@ function initLogForm(){
     // Check achievements on each log
     checkAchievements(exercise, finalWeight);
     clearFields();
-    showToast(currentLang === 'tr' ? 'Egzersiz başarıyla kaydedildi!' : 'Exercise logged successfully!', 'success');
+    showToast(currentLang === 'tr' ? 'Egzersiz baÅŸarÄ±yla kaydedildi!' : 'Exercise logged successfully!', 'success');
   });
   // 1.5: Sync aria-checked on radio change
   document.querySelectorAll('input[name="logUnitRadio"]').forEach(r => {
@@ -1303,23 +1303,23 @@ function renderPosture(tab){
   if(allDone) {
     btnHtml = `
     <button class="btn-primary complete-btn" style="width:100%; margin-top:16px; justify-content:center; padding:12px; font-weight: bold; font-size: 1.1rem;" onclick="completeDay('posture','${tab}')">
-      ${currentLang==='tr'?'🎉 Postür Programını Tamamla (Bugün) 🎉':'🎉 Complete Posture (Today) 🎉'}
+      ${currentLang==='tr'?'ğŸ‰ PostÃ¼r ProgramÄ±nÄ± Tamamla (BugÃ¼n) ğŸ‰':'ğŸ‰ Complete Posture (Today) ğŸ‰'}
     </button>`;
   }
   
   list.innerHTML=exercises.map((ex,i)=>{
     const videoUrl = POSTURE_VIDEO_URLS[ex.name];
     const videoBtn = videoUrl
-      ? `<a href="${videoUrl}" target="_blank" rel="noopener noreferrer" class="posture-video-btn" title="${currentLang==='tr'?'Youtube\'da İzle':'Watch on YouTube'}" onclick="event.stopPropagation()">
+      ? `<a href="${videoUrl}" target="_blank" rel="noopener noreferrer" class="posture-video-btn" title="${currentLang==='tr'?'Youtube\'da Ä°zle':'Watch on YouTube'}" onclick="event.stopPropagation()">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg>
-          ${currentLang==='tr'?'İzle':'Watch'}
+          ${currentLang==='tr'?'Ä°zle':'Watch'}
         </a>`
       : '';
     return `<div class="exercise-row posture-exercise-row">
       <span class="exercise-name">${ex.name}</span>
       <span class="exercise-detail">${t(ex.sets)}</span>
       ${videoBtn}
-      <button class="exercise-check ${ex.done?'done':''}" data-index="${i}">${ex.done?'✓':''}</button>
+      <button class="exercise-check ${ex.done?'done':''}" data-index="${i}">${ex.done?'âœ“':''}</button>
     </div>`;
   }).join('') + btnHtml;
 
@@ -1413,7 +1413,7 @@ window.completeDay = function(type, tab) {
   }
   
   // Toast instead of alert
-  const msg = currentLang==='tr' ? (type==='workout'?'Spor Programı Kaydedildi! 💪':'Postür Programı Kaydedildi! 🌟') : 'Program Completed!';
+  const msg = currentLang==='tr' ? (type==='workout'?'Spor ProgramÄ± Kaydedildi! ğŸ’ª':'PostÃ¼r ProgramÄ± Kaydedildi! ğŸŒŸ') : 'Program Completed!';
   setTimeout(() => showToast(msg, 'success'), 400);
 };
 
@@ -1430,7 +1430,7 @@ function renderMonthlyTracker() {
   const monthName = now.toLocaleString(currentLang==='tr'?'tr-TR':'en-US', { month: 'long' });
   
   let wHtml = `<div class="tracker-row"><div class="tracker-title">${currentLang==='tr'?'Spor':'Workout'} - ${monthName}</div><div class="tracker-grid">`;
-  let pHtml = `<div class="tracker-row"><div class="tracker-title">${currentLang==='tr'?'Postür':'Posture'} - ${monthName}</div><div class="tracker-grid">`;
+  let pHtml = `<div class="tracker-row"><div class="tracker-title">${currentLang==='tr'?'PostÃ¼r':'Posture'} - ${monthName}</div><div class="tracker-grid">`;
   
   for(let d=1; d<=daysInMonth; d++) {
     const dStr = y + '-' + String(m+1).padStart(2,'0') + '-' + String(d).padStart(2,'0');
@@ -1441,9 +1441,9 @@ function renderMonthlyTracker() {
     const isWorkoutDone = comp.workout || workoutLogs.length >= 3;
     
     // Workout cell
-    wHtml += `<div class="tracker-day ${isWorkoutDone?'done':''}"><span>${d}</span>${isWorkoutDone?'<span class="tracker-check">✓</span>':''}</div>`;
+    wHtml += `<div class="tracker-day ${isWorkoutDone?'done':''}"><span>${d}</span>${isWorkoutDone?'<span class="tracker-check">âœ“</span>':''}</div>`;
     // Posture cell
-    pHtml += `<div class="tracker-day ${comp.posture?'done':''}"><span>${d}</span>${comp.posture?'<span class="tracker-check">✓</span>':''}</div>`;
+    pHtml += `<div class="tracker-day ${comp.posture?'done':''}"><span>${d}</span>${comp.posture?'<span class="tracker-check">âœ“</span>':''}</div>`;
   }
   
   wHtml += '</div></div>';
@@ -1459,7 +1459,7 @@ function renderLoggedExercises(){
   let html=`<div class="logged-row logged-row-header"><span>${t('exercise')}</span><span>${t('weightLabel')}</span><span>Reps</span><span>Sets</span><span></span></div>`;
   logs.forEach((l,i)=>{
     const displayWeight = l.inputWeight && l.unit ? `${l.inputWeight}${l.unit.toUpperCase()}` : `${l.weight}kg`;
-    html+=`<div class="logged-row" style="border-bottom: 1px solid var(--border-subtle);"><span class="logged-exercise">${l.exercise}</span><span>${displayWeight}</span><span>${l.reps}</span><span>${l.sets}</span><button class="delete-log" data-index="${i}">×</button></div>`;
+    html+=`<div class="logged-row" style="border-bottom: 1px solid var(--border-subtle);"><span class="logged-exercise">${l.exercise}</span><span>${displayWeight}</span><span>${l.reps}</span><span>${l.sets}</span><button class="delete-log" data-index="${i}">Ã—</button></div>`;
   });
   container.innerHTML=html;
   container.querySelectorAll('.delete-log').forEach(btn=>{
@@ -1579,18 +1579,18 @@ async function syncAchievementsWithLogs(deletedLog = null) {
 
 // =============================================
 // =============================================
-// MUSCLE MAP — Premium Redesign
+// MUSCLE MAP â€” Premium Redesign
 // =============================================
 
 let _muscleRange = 'today'; // 'today' | 'week'
 let _muscleView  = 'front'; // 'front' | 'back'
 let _activeMuscleTip = null;
 
-// ── Muscle map display helpers ──────────────────
+// â”€â”€ Muscle map display helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const MUSCLE_LABELS = {
-  chest:'Göğüs', shoulders:'Omuz', biceps:'Biceps', triceps:'Triceps',
-  forearms:'Unterkollar', abs:'Karın', obliques:'Yanlar',
-  quads:'Quadriceps', calves:'Baldır', traps:'Sırt / Traps',
+  chest:'GÃ¶ÄŸÃ¼s', shoulders:'Omuz', biceps:'Biceps', triceps:'Triceps',
+  forearms:'Unterkollar', abs:'KarÄ±n', obliques:'Yanlar',
+  quads:'Quadriceps', calves:'BaldÄ±r', traps:'SÄ±rt / Traps',
   glutes:'Glutlar', core:'Core'
 };
 
@@ -1602,7 +1602,7 @@ function getMuscleColor(sets) {
   return null;
 }
 
-// Build per-range volume map { muscle → { sets, exercises:[{name,sets}] } }
+// Build per-range volume map { muscle â†’ { sets, exercises:[{name,sets}] } }
 function buildMuscleVolume() {
   const vol = {};
   const addLog = (log) => {
@@ -1673,7 +1673,7 @@ function updateMuscleMap() {
   }
 
   if (allExercises.length === 0) {
-    summary.innerHTML = `<div class="mm-no-data" style="text-align:center;color:var(--text-muted);padding:20px 0;"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="opacity:0.3;margin-bottom:8px;"><path d="M6.5 6.5h11M6.5 17.5h11M12 2v4M12 18v4M4.5 8.5v7M19.5 8.5v7"/></svg><br><span>${_muscleRange==='today'?'Bugün egzersiz yok.':'Bu hafta egzersiz yok.'}</span></div>`;
+    summary.innerHTML = `<div class="mm-no-data" style="text-align:center;color:var(--text-muted);padding:20px 0;"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="opacity:0.3;margin-bottom:8px;"><path d="M6.5 6.5h11M6.5 17.5h11M12 2v4M12 18v4M4.5 8.5v7M19.5 8.5v7"/></svg><br><span>${_muscleRange==='today'?'BugÃ¼n egzersiz yok.':'Bu hafta egzersiz yok.'}</span></div>`;
     return;
   }
 
@@ -1829,7 +1829,7 @@ function renderPRTable(){
 }
 
 window.deletePR = function(exerciseName) {
-  if (!confirm(currentLang === 'tr' ? `${exerciseName} rekorunu silmek istediğine emin misin?` : `Are you sure you want to delete PR for ${exerciseName}?`)) return;
+  if (!confirm(currentLang === 'tr' ? `${exerciseName} rekorunu silmek istediÄŸine emin misin?` : `Are you sure you want to delete PR for ${exerciseName}?`)) return;
   let found = false;
   Object.entries(appData.workoutLogs).forEach(([date, logs]) => {
     const originalLength = logs.length;
@@ -1921,7 +1921,7 @@ function renderNotes() {
   
   const entries = Object.values(appData.notes || {}).sort((a, b) => b.timestamp - a.timestamp);
   if (entries.length === 0) {
-    container.innerHTML = `<div class="logged-empty">${currentLang === 'tr' ? 'Henüz not yok.' : 'No notes yet.'}</div>`;
+    container.innerHTML = `<div class="logged-empty">${currentLang === 'tr' ? 'HenÃ¼z not yok.' : 'No notes yet.'}</div>`;
     if (bulkBtn) bulkBtn.style.display = 'none';
     return;
   }
@@ -1936,7 +1936,7 @@ function renderNotes() {
   
   container.innerHTML = entries.map(note => {
     const d = new Date(note.timestamp);
-    const dateLabel = note.date === todayStr() ? (currentLang === 'tr' ? 'Bugün' : 'Today') : d.toLocaleDateString(currentLang === 'tr' ? 'tr-TR' : 'en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+    const dateLabel = note.date === todayStr() ? (currentLang === 'tr' ? 'BugÃ¼n' : 'Today') : d.toLocaleDateString(currentLang === 'tr' ? 'tr-TR' : 'en-US', { weekday: 'short', month: 'short', day: 'numeric' });
     const tagsHtml = (note.tags || []).map(tg => `<span style="display:inline-flex;align-items:center;gap:3px;font-size:0.65rem;padding:2px 8px;border-radius:12px;background:var(--accent-glow);color:var(--accent-primary);font-weight:600;margin-right:4px;">${TAG_SVG[tg]||''}${tg}</span>`).join('');
     
     return `
@@ -1963,11 +1963,11 @@ function renderNotes() {
 window.bulkDeleteNotes = function() {
   const checkboxes = document.querySelectorAll('.note-checkbox:checked');
   if (checkboxes.length === 0) {
-    showToast('Lütfen silmek istediğiniz notları seçin.', 'error');
+    showToast('LÃ¼tfen silmek istediÄŸiniz notlarÄ± seÃ§in.', 'error');
     return;
   }
   
-  if (!confirm(`${checkboxes.length} adet notu silmek istediğinize emin misiniz?`)) return;
+  if (!confirm(`${checkboxes.length} adet notu silmek istediÄŸinize emin misiniz?`)) return;
   
   const idsToDelete = Array.from(checkboxes).map(cb => cb.value);
   idsToDelete.forEach(id => {
@@ -2045,7 +2045,7 @@ function updateStats(){
   }
 
   
-  // 1. Update only streakText span — the static 🔥 in HTML is already removed
+  // 1. Update only streakText span â€” the static ğŸ”¥ in HTML is already removed
   const streakEl = document.getElementById('streakText');
   if (streakEl) {
     streakEl.textContent = `Day ${weeklyStreak}`;
@@ -2055,7 +2055,7 @@ function updateStats(){
   // Update flame animation
   if (typeof updateStreakFlame === 'function') updateStreakFlame();
 
-  // ── Strength Progress (4th stat card) — Top PR ──
+  // â”€â”€ Strength Progress (4th stat card) â€” Top PR â”€â”€
   const volEl = document.getElementById('statVolumeVal');
   const volBar = document.getElementById('statVolumeBar');
   const volDetail = document.getElementById('statVolumeDetail');
@@ -2076,7 +2076,7 @@ function updateStats(){
     });
   });
   if (volEl) {
-    volEl.textContent = topPR.weight > 0 ? `${topPR.weight} kg` : '— kg';
+    volEl.textContent = topPR.weight > 0 ? `${topPR.weight} kg` : 'â€” kg';
   }
   if (volBar) {
     let storedMax = parseFloat(localStorage.getItem('zyro_prMax') || '0');
@@ -2092,12 +2092,12 @@ function updateStats(){
     if (topPR.weight > 0) {
       const prDate = new Date(topPR.date + 'T00:00:00');
       const daysDiff = Math.round((new Date() - prDate) / 86400000);
-      const ago = daysDiff === 0 ? 'bugün' : daysDiff === 1 ? 'dün' : `${daysDiff} gün önce`;
-      const exShort = topPR.exercise.length > 18 ? topPR.exercise.substring(0, 17) + '…' : topPR.exercise;
-      volDetail.innerHTML = `<span style='cursor:pointer;' onmouseenter="this.style.color='var(--accent-primary)'" onmouseleave="this.style.color='var(--orange-vivid)'">${exShort} · ${ago}</span>`;
+      const ago = daysDiff === 0 ? 'bugÃ¼n' : daysDiff === 1 ? 'dÃ¼n' : `${daysDiff} gÃ¼n Ã¶nce`;
+      const exShort = topPR.exercise.length > 18 ? topPR.exercise.substring(0, 17) + 'â€¦' : topPR.exercise;
+      volDetail.innerHTML = `<span style='cursor:pointer;' onmouseenter="this.style.color='var(--accent-primary)'" onmouseleave="this.style.color='var(--orange-vivid)'">${exShort} Â· ${ago}</span>`;
       volDetail.style.color = 'var(--orange-vivid)';
     } else {
-      volDetail.textContent = 'Henüz egzersiz kaydı yok';
+      volDetail.textContent = 'HenÃ¼z egzersiz kaydÄ± yok';
       volDetail.style.color = 'var(--text-tertiary)';
     }
   }
@@ -2140,7 +2140,7 @@ window.showStrengthDetails = function(targetExercise = null) {
   if (allExercises.length === 0) {
     content.innerHTML = `<div class="logged-empty" style="padding:40px 20px;">
       <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" style="opacity:0.2;margin-bottom:16px;"><path d="M6.5 6.5h11M6.5 17.5h11M12 2v4M12 18v4M4.5 8.5v7M19.5 8.5v7"/></svg>
-      <p>Henüz veri bulunamadı. Antrenman yaparak gelişiminizi takip etmeye başlayın!</p>
+      <p>HenÃ¼z veri bulunamadÄ±. Antrenman yaparak geliÅŸiminizi takip etmeye baÅŸlayÄ±n!</p>
     </div>`;
     modal.style.display = 'flex';
     return;
@@ -2150,7 +2150,7 @@ window.showStrengthDetails = function(targetExercise = null) {
     // If no specific exercise, show a summary page first
     let summaryHtml = `
       <div style="margin-bottom:24px;">
-        <h4 style="font-size:0.8rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px; margin-bottom:16px;">Güç Kazandığın Hareketler</h4>
+        <h4 style="font-size:0.8rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px; margin-bottom:16px;">GÃ¼Ã§ KazandÄ±ÄŸÄ±n Hareketler</h4>
         <div style="display:flex; flex-direction:column; gap:12px;">
     `;
 
@@ -2168,18 +2168,18 @@ window.showStrengthDetails = function(targetExercise = null) {
     });
 
     if (gains.length === 0) {
-      summaryHtml += `<div style="padding:20px; text-align:center; background:rgba(255,255,255,0.02); border-radius:12px; border:1px solid var(--border-subtle); color:var(--text-muted); font-size:0.85rem;">Henüz net bir güç artışı tespit edilemedi. Devam et!</div>`;
+      summaryHtml += `<div style="padding:20px; text-align:center; background:rgba(255,255,255,0.02); border-radius:12px; border:1px solid var(--border-subtle); color:var(--text-muted); font-size:0.85rem;">HenÃ¼z net bir gÃ¼Ã§ artÄ±ÅŸÄ± tespit edilemedi. Devam et!</div>`;
     } else {
       gains.sort((a,b) => b.scoreGain - a.scoreGain).forEach(g => {
         summaryHtml += `
           <div onclick="showStrengthDetails('${g.name}')" style="cursor:pointer; display:flex; justify-content:space-between; align-items:center; padding:14px; background:var(--bg-card-alt); border:1px solid var(--border-subtle); border-radius:12px; transition:all 0.2s;" onmouseenter="this.style.borderColor='var(--accent-primary)';this.style.transform='translateX(4px)'" onmouseleave="this.style.borderColor='var(--border-subtle)';this.style.transform='translateX(0)'">
             <div>
               <div style="font-size:0.9rem; font-weight:700; color:var(--text-primary);">${g.name}</div>
-              <div style="font-size:0.7rem; color:var(--text-muted);">Son: ${g.lastWeight}kg · ${new Date(g.lastDate).toLocaleDateString('tr-TR', {day:'numeric', month:'short'})}</div>
+              <div style="font-size:0.7rem; color:var(--text-muted);">Son: ${g.lastWeight}kg Â· ${new Date(g.lastDate).toLocaleDateString('tr-TR', {day:'numeric', month:'short'})}</div>
             </div>
             <div style="text-align:right;">
               <div style="font-size:0.85rem; font-weight:800; color:#4ecb8d;">+${g.weightGain}kg</div>
-              <div style="font-size:0.6rem; color:var(--text-muted);">Gelişim</div>
+              <div style="font-size:0.6rem; color:var(--text-muted);">GeliÅŸim</div>
             </div>
           </div>
         `;
@@ -2188,15 +2188,15 @@ window.showStrengthDetails = function(targetExercise = null) {
 
     summaryHtml += `</div></div>
       <div style="margin-top:24px; padding-top:24px; border-top:1px solid var(--border-subtle);">
-        <h4 style="font-size:0.8rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px; margin-bottom:12px;">Tüm Egzersizler</h4>
+        <h4 style="font-size:0.8rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px; margin-bottom:12px;">TÃ¼m Egzersizler</h4>
         <select onchange="showStrengthDetails(this.value)" style="width:100%; padding:12px; border-radius:12px; background:var(--bg-card-alt); color:var(--text-primary); border:1px solid var(--border-subtle); font-size:0.9rem;">
-          <option value="" selected disabled>Bir egzersiz seçin...</option>
+          <option value="" selected disabled>Bir egzersiz seÃ§in...</option>
           ${allExercises.map(ex => `<option value="${ex}">${ex}</option>`).join('')}
         </select>
       </div>
     `;
 
-    title.textContent = "Güç Gelişimi";
+    title.textContent = "GÃ¼Ã§ GeliÅŸimi";
     content.innerHTML = summaryHtml;
     modal.style.display = 'flex';
     return;
@@ -2225,7 +2225,7 @@ window.showStrengthDetails = function(targetExercise = null) {
 
   let predictionHtml = `
     <div style="background:linear-gradient(135deg, rgba(139,124,247,0.1), rgba(78,203,141,0.05)); border:1px solid rgba(139,124,247,0.2); border-radius:16px; padding:18px; margin-bottom:24px; position:relative; overflow:hidden;">
-      <div style="position:absolute; top:-10px; right:-10px; font-size:4rem; opacity:0.05; transform:rotate(15deg);">🚀</div>
+      <div style="position:absolute; top:-10px; right:-10px; font-size:4rem; opacity:0.05; transform:rotate(15deg);">ğŸš€</div>
       <h4 style="font-size:0.75rem; color:var(--accent-primary); text-transform:uppercase; letter-spacing:1px; margin-bottom:14px; font-weight:800;">Gelecek Tahminleri</h4>
       
       <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
@@ -2240,7 +2240,7 @@ window.showStrengthDetails = function(targetExercise = null) {
           <div style="font-size:0.65rem; color:#4ecb8d; font-weight:600;">${latest.reps} Tekrar</div>
         </div>
       </div>
-      <p style="font-size:0.65rem; color:var(--text-muted); margin-top:12px; font-style:italic;">* Bu tahminler lineer gelişim ve düzenli antrenman baz alınarak hesaplanmıştır.</p>
+      <p style="font-size:0.65rem; color:var(--text-muted); margin-top:12px; font-style:italic;">* Bu tahminler lineer geliÅŸim ve dÃ¼zenli antrenman baz alÄ±narak hesaplanmÄ±ÅŸtÄ±r.</p>
     </div>
   `;
 
@@ -2280,7 +2280,7 @@ window.showStrengthDetails = function(targetExercise = null) {
                 <div style="display:flex; align-items:baseline; gap:8px;">
                   <span style="font-size:1.2rem; font-weight:900;">${curr.weight}kg</span>
                   <span style="font-size:0.75rem; color:var(--text-muted);">${curr.reps} Tekrar</span>
-                  ${weightDiff > 0 ? `<span style="font-size:0.7rem; font-weight:800; color:#4ecb8d; margin-left:auto;">+${weightDiff}kg ↑</span>` : ''}
+                  ${weightDiff > 0 ? `<span style="font-size:0.7rem; font-weight:800; color:#4ecb8d; margin-left:auto;">+${weightDiff}kg â†‘</span>` : ''}
                 </div>
               </div>
             `;
@@ -2373,7 +2373,7 @@ document.addEventListener('DOMContentLoaded',()=>{
 });
 
 // =============================================
-// NOTIFICATIONS (2.5) — Banner & Admin
+// NOTIFICATIONS (2.5) â€” Banner & Admin
 // =============================================
 let activeNotifications = [];
 let notifUnsubscribe = null;
@@ -2476,7 +2476,7 @@ function renderAdminHistory() {
   const history = activeNotifications.slice(0, 5);
   
   if (history.length === 0) {
-    historyContainer.innerHTML = '<div style="font-size:0.7rem; color:var(--text-tertiary);">Geçmiş bulunamadı.</div>';
+    historyContainer.innerHTML = '<div style="font-size:0.7rem; color:var(--text-tertiary);">GeÃ§miÅŸ bulunamadÄ±.</div>';
     return;
   }
 
@@ -2495,9 +2495,9 @@ function renderAdminHistory() {
 
 function __formatAdminHistoryTarget(item) {
   if (!item) return 'Bilinmiyor';
-  if (item.recipientType === 'all' || item.targetScope === 'broadcast') return 'Tüm Kullanıcılar';
+  if (item.recipientType === 'all' || item.targetScope === 'broadcast') return 'TÃ¼m KullanÄ±cÄ±lar';
   if (item.targetUid) return `UID: ${item.targetUid}`;
-  return 'Belirli Kullanıcı';
+  return 'Belirli KullanÄ±cÄ±';
 }
 
 window.markAllNotificationsAsRead = function() {
@@ -2505,7 +2505,7 @@ window.markAllNotificationsAsRead = function() {
   
   const unread = activeNotifications.filter(n => !__isNotifRead(n));
   if (unread.length === 0) {
-    showToast('Tüm bildirimler zaten okundu.', 'info');
+    showToast('TÃ¼m bildirimler zaten okundu.', 'info');
     return;
   }
 
@@ -2519,7 +2519,7 @@ window.markAllNotificationsAsRead = function() {
   });
 
   batch.commit().then(() => {
-    showToast('Tüm bildirimler okundu olarak işaretlendi.', 'success');
+    showToast('TÃ¼m bildirimler okundu olarak iÅŸaretlendi.', 'success');
     activeNotifications.forEach(n => {
       if (n.scope === 'personal') n.read = true;
       if (n.scope === 'broadcast' && (n.timestamp || 0) <= broadcastMaxTs) n.read = true;
@@ -2536,7 +2536,7 @@ function renderNotificationList() {
   if (activeNotifications.length === 0) {
     container.innerHTML = `<div class="notif-empty">
       <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="opacity:0.3;"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-      <p>Henüz bildirim yok</p>
+      <p>HenÃ¼z bildirim yok</p>
     </div>`;
     return;
   }
@@ -2544,7 +2544,7 @@ function renderNotificationList() {
   container.innerHTML = activeNotifications.map(n => {
     const isUnread = !__isNotifRead(n);
     const date = new Date(n.timestamp).toLocaleDateString(currentLang === 'tr' ? 'tr-TR' : 'en-US', { hour: '2-digit', minute: '2-digit' });
-    const icon = n.type === 'broadcast' ? '📢' : '🔔';
+    const icon = n.type === 'broadcast' ? 'ğŸ“¢' : 'ğŸ””';
     const canDelete = n.scope !== 'broadcast' || (currentUser && currentUser.email === 'wupard@gmail.com');
     
     return `
@@ -2571,12 +2571,12 @@ function renderNotificationList() {
 window.deleteNotification = function(id, scope) {
   if (!currentUser) return;
   if (scope === 'broadcast' && currentUser.email !== 'wupard@gmail.com') {
-    showToast('Bu işlem için yetkin yok.', 'error');
+    showToast('Bu iÅŸlem iÃ§in yetkin yok.', 'error');
     return;
   }
   const path = scope === 'broadcast' ? `notifications/${id}` : `users/${currentUser.uid}/notifications/${id}`;
   
-  if (confirm('Bu bildirimi silmek istediğine emin misin?')) {
+  if (confirm('Bu bildirimi silmek istediÄŸine emin misin?')) {
     db.doc(path).delete().then(() => {
       showToast('Bildirim silindi.', 'success');
     }).catch(e => console.error('Delete notif failed:', e));
@@ -2664,7 +2664,7 @@ window.goNotifDetailToComments = function() {
   }
 };
 
-/** @deprecated — liste öğesi openNotifFromList kullanır */
+/** @deprecated â€” liste Ã¶ÄŸesi openNotifFromList kullanÄ±r */
 window.markAsRead = function(id, scope) {
   openNotifFromList(id, scope);
 };
@@ -2700,7 +2700,7 @@ window.sendAdminBroadcast = function() {
   }
 
   if (!title || !msg) {
-    showToast('Lütfen başlık ve mesaj girin.', 'error');
+    showToast('LÃ¼tfen baÅŸlÄ±k ve mesaj girin.', 'error');
     return;
   }
 
@@ -2722,13 +2722,13 @@ window.sendAdminBroadcast = function() {
   const collection = recipient === 'all' ? 'broadcasts' : `users/${uid}/notifications`;
   
   db.collection(collection).add(notifData).then(() => {
-    showToast('Bildirim başarıyla gönderildi!', 'success');
+    showToast('Bildirim baÅŸarÄ±yla gÃ¶nderildi!', 'success');
     document.getElementById('adminNotifTitle').value = '';
     document.getElementById('adminNotifMessage').value = '';
     document.getElementById('adminNotifUid').value = '';
   }).catch(err => {
     console.error('Broadcast error:', err);
-    showToast('Bildirim gönderilemedi.', 'error');
+    showToast('Bildirim gÃ¶nderilemedi.', 'error');
   }).finally(() => {
     btn.disabled = false;
     btnText.style.opacity = '1';
@@ -2737,7 +2737,7 @@ window.sendAdminBroadcast = function() {
 };
 
 // ==============================================
-// WEEKLY GOAL (2.5) — Bottom Sheet
+// WEEKLY GOAL (2.5) â€” Bottom Sheet
 // =============================================
 function initWeeklyGoalSheet() {
   const slider = document.getElementById('weeklyGoalSlider');
@@ -2772,7 +2772,7 @@ window.confirmWeeklyGoal = function() {
   appData.weeklyGoal = val;
   document.getElementById('weeklyGoalSheet')?.classList.remove('show');
   updateStats();
-  showToast(`Haftalık hedef ${val} gün olarak kaydedildi! 🎯`, 'success');
+  showToast(`HaftalÄ±k hedef ${val} gÃ¼n olarak kaydedildi! ğŸ¯`, 'success');
 };
 
 // Update stat to show weekly goal ratio
@@ -2867,57 +2867,57 @@ const ACHIEVEMENT_GROUPS = [
   {
     id: 'bench_group', label: 'Bench Press', icon: 'barbell',
     badges: [
-      { id: 'bench_50',  name: '50 kg Bench',  exercise: 'Barbell Bench Press', target: 50,  desc: 'Bench Press ile 50 kg kaldır.' },
-      { id: 'bench_80',  name: '80 kg Bench',  exercise: 'Barbell Bench Press', target: 80,  desc: 'Bench Press ile 80 kg kaldır.' },
-      { id: 'bench_100', name: '100 kg Bench', exercise: 'Barbell Bench Press', target: 100, desc: 'Bench Press ile 100 kg kaldır.' },
+      { id: 'bench_50',  name: '50 kg Bench',  exercise: 'Barbell Bench Press', target: 50,  desc: 'Bench Press ile 50 kg kaldÄ±r.' },
+      { id: 'bench_80',  name: '80 kg Bench',  exercise: 'Barbell Bench Press', target: 80,  desc: 'Bench Press ile 80 kg kaldÄ±r.' },
+      { id: 'bench_100', name: '100 kg Bench', exercise: 'Barbell Bench Press', target: 100, desc: 'Bench Press ile 100 kg kaldÄ±r.' },
     ]
   },
   {
     id: 'squat_group', label: 'Squat', icon: 'barbell',
     badges: [
-      { id: 'squat_80',  name: '80 kg Squat',  exercise: 'Squat', target: 80,  desc: 'Squat ile 80 kg kaldır.' },
-      { id: 'squat_100', name: '100 kg Squat', exercise: 'Squat', target: 100, desc: 'Squat ile 100 kg kaldır.' },
-      { id: 'squat_140', name: '140 kg Squat', exercise: 'Squat', target: 140, desc: 'Squat ile 140 kg kaldır.' },
+      { id: 'squat_80',  name: '80 kg Squat',  exercise: 'Squat', target: 80,  desc: 'Squat ile 80 kg kaldÄ±r.' },
+      { id: 'squat_100', name: '100 kg Squat', exercise: 'Squat', target: 100, desc: 'Squat ile 100 kg kaldÄ±r.' },
+      { id: 'squat_140', name: '140 kg Squat', exercise: 'Squat', target: 140, desc: 'Squat ile 140 kg kaldÄ±r.' },
     ]
   },
   {
     id: 'deadlift_group', label: 'Deadlift', icon: 'barbell',
     badges: [
-      { id: 'deadlift_80',  name: '80 kg Deadlift',  exercise: 'Romanian Deadlift', target: 80,  desc: 'Deadlift ile 80 kg kaldır.' },
-      { id: 'deadlift_100', name: '100 kg Deadlift', exercise: 'Romanian Deadlift', target: 100, desc: 'Deadlift ile 100 kg kaldır.' },
-      { id: 'deadlift_150', name: '150 kg Deadlift', exercise: 'Romanian Deadlift', target: 150, desc: 'Deadlift ile 150 kg kaldır.' },
+      { id: 'deadlift_80',  name: '80 kg Deadlift',  exercise: 'Romanian Deadlift', target: 80,  desc: 'Deadlift ile 80 kg kaldÄ±r.' },
+      { id: 'deadlift_100', name: '100 kg Deadlift', exercise: 'Romanian Deadlift', target: 100, desc: 'Deadlift ile 100 kg kaldÄ±r.' },
+      { id: 'deadlift_150', name: '150 kg Deadlift', exercise: 'Romanian Deadlift', target: 150, desc: 'Deadlift ile 150 kg kaldÄ±r.' },
     ]
   },
   {
     id: 'lat_group', label: 'Lat Pulldown', icon: 'machine',
     badges: [
-      { id: 'lat_50', name: '50 kg Lat',  exercise: 'Lat Pulldown', target: 50, desc: 'Lat Pulldown ile 50 kg çek.' },
-      { id: 'lat_80', name: '80 kg Lat',  exercise: 'Lat Pulldown', target: 80, desc: 'Lat Pulldown ile 80 kg çek.' },
+      { id: 'lat_50', name: '50 kg Lat',  exercise: 'Lat Pulldown', target: 50, desc: 'Lat Pulldown ile 50 kg Ã§ek.' },
+      { id: 'lat_80', name: '80 kg Lat',  exercise: 'Lat Pulldown', target: 80, desc: 'Lat Pulldown ile 80 kg Ã§ek.' },
     ]
   },
   {
     id: 'biceps_group', label: 'Biceps Curl', icon: 'dumbbell',
     badges: [
-      { id: 'biceps_20', name: '20 kg Biceps', exercise: 'Seated DB Biceps Curl', target: 20, desc: 'Biceps Curl ile 20 kg kaldır.' },
-      { id: 'biceps_30', name: '30 kg Biceps', exercise: 'Seated DB Biceps Curl', target: 30, desc: 'Biceps Curl ile 30 kg kaldır.' },
+      { id: 'biceps_20', name: '20 kg Biceps', exercise: 'Seated DB Biceps Curl', target: 20, desc: 'Biceps Curl ile 20 kg kaldÄ±r.' },
+      { id: 'biceps_30', name: '30 kg Biceps', exercise: 'Seated DB Biceps Curl', target: 30, desc: 'Biceps Curl ile 30 kg kaldÄ±r.' },
     ]
   },
   {
-    id: 'single_group', label: 'Diğer Hareketler', icon: 'dumbbell',
+    id: 'single_group', label: 'DiÄŸer Hareketler', icon: 'dumbbell',
     badges: [
-      { id: 'hammer_25',        name: '25 kg Hammer Curl',   exercise: 'Cross-Body Hammer Curl',     target: 25,  desc: 'Hammer Curl ile 25 kg kaldır.' },
+      { id: 'hammer_25',        name: '25 kg Hammer Curl',   exercise: 'Cross-Body Hammer Curl',     target: 25,  desc: 'Hammer Curl ile 25 kg kaldÄ±r.' },
       { id: 'triceps_40',       name: '40 kg Pushdown',      exercise: 'V-Bar Triceps Pushdown',     target: 40,  desc: 'Triceps Pushdown ile 40 kg it.' },
       { id: 'triceps_60',       name: '60 kg Pushdown',      exercise: 'V-Bar Triceps Pushdown',     target: 60,  desc: 'Triceps Pushdown ile 60 kg it.' },
-      { id: 'shoulder_50',      name: '50 kg Shoulder',      exercise: 'Cable Shoulder',             target: 50,  desc: 'Cable Shoulder ile 50 kg çek.' },
-      { id: 'crunch_60',        name: '60 kg Crunch',        exercise: 'Straight Bar Cable Crunch',  target: 60,  desc: 'Cable Crunch ile 60 kg çek.' },
-      { id: 'incline_bench_60', name: '60 kg İncline',       exercise: 'İncline Bench Press',        target: 60,  desc: 'İncline ile 60 kg kaldır.' },
+      { id: 'shoulder_50',      name: '50 kg Shoulder',      exercise: 'Cable Shoulder',             target: 50,  desc: 'Cable Shoulder ile 50 kg Ã§ek.' },
+      { id: 'crunch_60',        name: '60 kg Crunch',        exercise: 'Straight Bar Cable Crunch',  target: 60,  desc: 'Cable Crunch ile 60 kg Ã§ek.' },
+      { id: 'incline_bench_60', name: '60 kg Ä°ncline',       exercise: 'Ä°ncline Bench Press',        target: 60,  desc: 'Ä°ncline ile 60 kg kaldÄ±r.' },
     ]
   },
   {
     id: 'streak_group', label: 'Seri / Devam', icon: 'streak',
     badges: [
-      { id: 'streak_3', name: '3 Günlük Seri', exercise: null, target: 3, desc: 'Haftada 3 gün antrenman yap.' },
-      { id: 'streak_7', name: '7 Günlük Seri', exercise: null, target: 7, desc: '7 gün üst üste antrenman yap.' },
+      { id: 'streak_3', name: '3 GÃ¼nlÃ¼k Seri', exercise: null, target: 3, desc: 'Haftada 3 gÃ¼n antrenman yap.' },
+      { id: 'streak_7', name: '7 GÃ¼nlÃ¼k Seri', exercise: null, target: 7, desc: '7 gÃ¼n Ã¼st Ã¼ste antrenman yap.' },
     ]
   },
 ];
@@ -2961,15 +2961,15 @@ function showAchievementPopup(def) {
   const popup = document.getElementById('achievementPopup');
   if (!popup) return;
   document.getElementById('achievementIcon').innerHTML = ACH_ICONS[def.icon] || ACH_ICONS['star'];
-  document.getElementById('achievementTitle').textContent = '🏆 ' + def.name;
-  document.getElementById('achievementDesc').textContent = def.desc + ' 🎉';
+  document.getElementById('achievementTitle').textContent = 'ğŸ† ' + def.name;
+  document.getElementById('achievementDesc').textContent = def.desc + ' ğŸ‰';
   // Add "Go to Achievements" button
   let goBtn = document.getElementById('achievementGoBtn');
   if (!goBtn) {
     goBtn = document.createElement('button');
     goBtn.id = 'achievementGoBtn';
     goBtn.style.cssText = 'margin-top:12px;background:var(--accent-primary);color:white;border:none;border-radius:10px;padding:8px 20px;font-size:0.85rem;font-weight:700;cursor:pointer;';
-    goBtn.textContent = currentLang === 'tr' ? 'Başarımları Gör →' : 'View Achievements →';
+    goBtn.textContent = currentLang === 'tr' ? 'BaÅŸarÄ±mlarÄ± GÃ¶r â†’' : 'View Achievements â†’';
     goBtn.onclick = () => { closeAchievementPopup(); navigateTo('achievements'); };
     popup.querySelector('.achievement-popup-card').appendChild(goBtn);
   }
@@ -2995,7 +2995,7 @@ function renderAchievements() {
   const achBar = document.getElementById('achOverallBar');
   const achCount = document.getElementById('achOverallCount');
   if (achBar) achBar.style.width = overallPct + '%';
-  if (achCount) achCount.textContent = `${unlockedAll} / ${totalAll} rozet · ${overallPct}%`;
+  if (achCount) achCount.textContent = `${unlockedAll} / ${totalAll} rozet Â· ${overallPct}%`;
 
   grid.innerHTML = ACHIEVEMENT_GROUPS.map(group => {
     const totalBadges = group.badges.length;
@@ -3032,7 +3032,7 @@ function renderAchievements() {
           <div style="flex:1;min-width:0;">
             <div style="font-weight:600;font-size:0.85rem;color:${unlocked?'#FFD700':'var(--text-primary)'};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${b.name}</div>
             <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:2px;line-height:1.4;">${b.desc}</div>
-            ${unlockedDate ? `<div style="font-size:0.65rem;color:#FFD700;margin-top:4px;font-weight:600;">✓ ${unlockedDate}</div>` : ''}
+            ${unlockedDate ? `<div style="font-size:0.65rem;color:#FFD700;margin-top:4px;font-weight:600;">âœ“ ${unlockedDate}</div>` : ''}
           </div>
           <div style="flex-shrink:0;">
             ${unlocked
@@ -3178,7 +3178,7 @@ window.saveProgressPhoto = function() {
   
   saveData();
   renderProgressPhotos();
-  showToast(currentLang === 'tr' ? 'Fotoğraf kaydedildi! 📸' : 'Photo saved! 📸', 'success');
+  showToast(currentLang === 'tr' ? 'FotoÄŸraf kaydedildi! ğŸ“¸' : 'Photo saved! ğŸ“¸', 'success');
 };
 
 window.toggleCompareMode = function() {
@@ -3192,7 +3192,7 @@ window.toggleCompareMode = function() {
     photosGrid.style.display = 'none';
     renderCompareView();
   } else {
-    btn.textContent = currentLang === 'tr' ? 'Karşılaştır' : 'Compare';
+    btn.textContent = currentLang === 'tr' ? 'KarÅŸÄ±laÅŸtÄ±r' : 'Compare';
     compareView.style.display = 'none';
     photosGrid.style.display = 'grid';
   }
@@ -3203,18 +3203,18 @@ function renderCompareView() {
   if (!container) return;
   const photos = (appData.progressImages || []).sort((a, b) => a.date.localeCompare(b.date));
   if (photos.length < 2) {
-    container.innerHTML = `<div class="logged-empty" style="grid-column:1/-1;">${currentLang === 'tr' ? 'Karşılaştırmak için en az 2 fotoğraf gerekli.' : 'Need at least 2 photos to compare.'}</div>`;
+    container.innerHTML = `<div class="logged-empty" style="grid-column:1/-1;">${currentLang === 'tr' ? 'KarÅŸÄ±laÅŸtÄ±rmak iÃ§in en az 2 fotoÄŸraf gerekli.' : 'Need at least 2 photos to compare.'}</div>`;
     return;
   }
   const first = photos[0];
   const last = photos[photos.length - 1];
   container.innerHTML = [
-    {label: currentLang === 'tr' ? 'Başlangıç' : 'Start', photo: first},
+    {label: currentLang === 'tr' ? 'BaÅŸlangÄ±Ã§' : 'Start', photo: first},
     {label: currentLang === 'tr' ? 'Son' : 'End', photo: last}
   ].map(({label, photo}) => `
     <div class="compare-photo-wrap">
       <img src="${photo.image}" alt="${label}">
-      <div class="compare-photo-overlay">${label} • ${photo.date} • ${photo.weight ? photo.weight + 'kg' : ''}${photo.fat ? ' • %' + photo.fat + ' Yağ' : ''}</div>
+      <div class="compare-photo-overlay">${label} â€¢ ${photo.date} â€¢ ${photo.weight ? photo.weight + 'kg' : ''}${photo.fat ? ' â€¢ %' + photo.fat + ' YaÄŸ' : ''}</div>
     </div>
   `).join('');
 }
@@ -3224,7 +3224,7 @@ function renderProgressPhotos() {
   if (!grid) return;
   const photos = (appData.progressImages || []).sort((a, b) => b.date.localeCompare(a.date));
   if (photos.length === 0) {
-    grid.innerHTML = `<div class="logged-empty" style="grid-column:1/-1;">${currentLang === 'tr' ? 'Henüz fotoğraf eklenmedi.' : 'No photos added yet.'}</div>`;
+    grid.innerHTML = `<div class="logged-empty" style="grid-column:1/-1;">${currentLang === 'tr' ? 'HenÃ¼z fotoÄŸraf eklenmedi.' : 'No photos added yet.'}</div>`;
     return;
   }
   grid.innerHTML = photos.map(p => `
@@ -3233,7 +3233,7 @@ function renderProgressPhotos() {
       <div class="progress-photo-meta">
         <strong>${p.date}</strong>
         <div style="font-size: 0.75rem; margin-top: 4px; color: var(--text-secondary);">
-          ${p.height ? p.height + ' cm • ' : ''}${p.weight ? p.weight + ' kg' : ''}${p.fat ? ' • %' + p.fat + ' Yağ' : ''}
+          ${p.height ? p.height + ' cm â€¢ ' : ''}${p.weight ? p.weight + ' kg' : ''}${p.fat ? ' â€¢ %' + p.fat + ' YaÄŸ' : ''}
         </div>
         ${p.note ? `<div style="font-size: 0.75rem; margin-top: 2px; color: var(--text-tertiary);">${p.note}</div>` : ''}
         <button onclick="deleteProgressPhoto(${p.id})" style="display:block;margin-top:6px;background:rgba(224,84,84,0.15);border:1px solid rgba(224,84,84,0.3);color:#e05454;border-radius:6px;padding:3px 8px;font-size:0.7rem;cursor:pointer;">${currentLang === 'tr' ? 'Sil' : 'Delete'}</button>
@@ -3243,11 +3243,11 @@ function renderProgressPhotos() {
 }
 
 window.deleteProgressPhoto = function(id) {
-  if (!confirm(currentLang === 'tr' ? 'Bu fotoğrafı silmek istediğine emin misin?' : 'Are you sure you want to delete this photo?')) return;
+  if (!confirm(currentLang === 'tr' ? 'Bu fotoÄŸrafÄ± silmek istediÄŸine emin misin?' : 'Are you sure you want to delete this photo?')) return;
   appData.progressImages = (appData.progressImages || []).filter(p => p.id !== id);
   saveData();
   renderProgressPhotos();
-  showToast(currentLang === 'tr' ? 'Fotoğraf silindi.' : 'Photo deleted.', 'success');
+  showToast(currentLang === 'tr' ? 'FotoÄŸraf silindi.' : 'Photo deleted.', 'success');
 };
 
 // =============================================
@@ -3274,11 +3274,11 @@ window.saveBodyMeasurement = function() {
   ['measFormDate','measFormWeight','measFormFat','measFormArm','measFormChest','measFormWaist','measFormHip','measFormLeg','measFormShoulder']
     .forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
   renderBodyMeasurements();
-  showToast(currentLang === 'tr' ? 'Ölçüler kaydedildi!' : 'Measurements saved!', 'success');
+  showToast(currentLang === 'tr' ? 'Ã–lÃ§Ã¼ler kaydedildi!' : 'Measurements saved!', 'success');
 };
 
 window.deleteBodyMeasurement = function(id) {
-  if (!confirm(currentLang === 'tr' ? 'Bu ölçümü silmek istediğine emin misin?' : 'Delete this entry?')) return;
+  if (!confirm(currentLang === 'tr' ? 'Bu Ã¶lÃ§Ã¼mÃ¼ silmek istediÄŸine emin misin?' : 'Delete this entry?')) return;
   appData.bodyMeasurements = (appData.bodyMeasurements || []).filter(e => e.id !== id);
   saveData();
   renderBodyMeasurements();
@@ -3291,18 +3291,18 @@ function renderBodyMeasurements() {
   const entries = (appData.bodyMeasurements || []).sort((a,b) => b.date.localeCompare(a.date));
 
   if (entries.length === 0) {
-    container.innerHTML = `<div class="logged-empty">${currentLang==='tr' ? 'Henüz ölçüm eklenmedi.' : 'No measurements yet.'}</div>`;
+    container.innerHTML = `<div class="logged-empty">${currentLang==='tr' ? 'HenÃ¼z Ã¶lÃ§Ã¼m eklenmedi.' : 'No measurements yet.'}</div>`;
     if(compareEl) compareEl.style.display = 'none';
     return;
   }
 
   const FIELDS = [
     {k:'weight',   label: currentLang==='tr'?'Kilo':'Weight',   unit:'kg'},
-    {k:'fat',      label: currentLang==='tr'?'Yağ Oranı':'Body Fat', unit:'%'},
+    {k:'fat',      label: currentLang==='tr'?'YaÄŸ OranÄ±':'Body Fat', unit:'%'},
     {k:'arm',      label: currentLang==='tr'?'Kol':'Arm',       unit:'cm'},
-    {k:'chest',    label: currentLang==='tr'?'Göğüs':'Chest',   unit:'cm'},
+    {k:'chest',    label: currentLang==='tr'?'GÃ¶ÄŸÃ¼s':'Chest',   unit:'cm'},
     {k:'waist',    label: currentLang==='tr'?'Bel':'Waist',     unit:'cm'},
-    {k:'hip',      label: currentLang==='tr'?'Kalça':'Hip',     unit:'cm'},
+    {k:'hip',      label: currentLang==='tr'?'KalÃ§a':'Hip',     unit:'cm'},
     {k:'leg',      label: currentLang==='tr'?'Bacak':'Leg',     unit:'cm'},
     {k:'shoulder', label: currentLang==='tr'?'Omuz':'Shoulder', unit:'cm'},
   ];
@@ -3315,7 +3315,7 @@ function renderBodyMeasurements() {
     compareEl.innerHTML = `
       <div style="background:var(--bg-card-alt);border:1px solid var(--border-subtle);border-radius:14px;padding:16px;margin-bottom:4px;">
         <div style="font-size:0.75rem;color:var(--accent-primary);font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px;">
-          ${currentLang==='tr'?'Karşılaştırma':'Comparison'}: ${oldest.date} → ${newest.date}
+          ${currentLang==='tr'?'KarÅŸÄ±laÅŸtÄ±rma':'Comparison'}: ${oldest.date} â†’ ${newest.date}
         </div>
         <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px;">
           ${FIELDS.filter(f=>oldest[f.k]||newest[f.k]).map(f=>{
@@ -3324,7 +3324,7 @@ function renderBodyMeasurements() {
             const sign  = diff>0?'+':'';
             return `<div style="background:var(--bg-main);border-radius:10px;padding:10px;text-align:center;">
               <div style="font-size:0.65rem;color:var(--text-tertiary);text-transform:uppercase;margin-bottom:4px;">${f.label}</div>
-              <div style="font-size:1rem;font-weight:700;color:var(--text-primary);">${newest[f.k]||'—'} <span style="font-size:.7rem;opacity:.6;">${f.unit}</span></div>
+              <div style="font-size:1rem;font-weight:700;color:var(--text-primary);">${newest[f.k]||'â€”'} <span style="font-size:.7rem;opacity:.6;">${f.unit}</span></div>
               ${diff!==0?`<div style="font-size:0.7rem;color:${color};margin-top:2px;">${sign}${diff.toFixed(1)} ${f.unit}</div>`:''}
             </div>`;
           }).join('')}
@@ -3353,7 +3353,7 @@ function renderBodyMeasurements() {
 // STRENGTH PROGRESS DATA RESET (2.3)
 // =============================================
 window.resetStrengthProgress = function() {
-  if (!confirm('Tüm Güç İlerlemesi verilerini kalıcı olarak silmek istediğine emin misin?\n\nBu işlem geri alınamaz!')) return;
+  if (!confirm('TÃ¼m GÃ¼Ã§ Ä°lerlemesi verilerini kalÄ±cÄ± olarak silmek istediÄŸine emin misin?\n\nBu iÅŸlem geri alÄ±namaz!')) return;
   const backup = JSON.parse(JSON.stringify(appData.workoutLogs || {}));
   try {
     appData.workoutLogs = {};
@@ -3364,11 +3364,11 @@ window.resetStrengthProgress = function() {
     renderProgressTracker();
     updateStats();
     updateMuscleMap();
-    showToast('Verileriniz sıfırlandı', 'success');
+    showToast('Verileriniz sÄ±fÄ±rlandÄ±', 'success');
   } catch(e) {
     appData.workoutLogs = backup;
     console.error('Data reset failed, rolled back:', e);
-    showToast('Sıfırlama başarısız!', 'error');
+    showToast('SÄ±fÄ±rlama baÅŸarÄ±sÄ±z!', 'error');
   }
 };
 
@@ -3509,7 +3509,7 @@ function renderComments() {
 function displayComments(comments) {
   const list = document.getElementById('commentsList');
   if (comments.length === 0) {
-    list.innerHTML = `<div class="logged-empty">${currentLang === 'tr' ? 'Henüz yorum yok.' : 'No comments yet.'}</div>`;
+    list.innerHTML = `<div class="logged-empty">${currentLang === 'tr' ? 'HenÃ¼z yorum yok.' : 'No comments yet.'}</div>`;
     return;
   }
   
@@ -3571,10 +3571,10 @@ function displayComments(comments) {
         </div>
 
         <div id="replyForm_${c.id}" style="display:none; margin-top:12px; padding-left:34px;">
-          <textarea id="replyInput_${c.id}" class="note-input" rows="2" placeholder="Cevabını yaz..." style="margin-bottom:8px; font-size:0.85rem;"></textarea>
+          <textarea id="replyInput_${c.id}" class="note-input" rows="2" placeholder="CevabÄ±nÄ± yaz..." style="margin-bottom:8px; font-size:0.85rem;"></textarea>
           <div style="display:flex; gap:8px;">
-            <button class="btn-primary" style="padding:6px 16px; font-size:0.8rem;" onclick="submitReply('${c.id}')">Gönder</button>
-            <button class="btn-small" onclick="showReplyForm('${c.id}')">İptal</button>
+            <button class="btn-primary" style="padding:6px 16px; font-size:0.8rem;" onclick="submitReply('${c.id}')">GÃ¶nder</button>
+            <button class="btn-small" onclick="showReplyForm('${c.id}')">Ä°ptal</button>
           </div>
         </div>
 
@@ -3618,7 +3618,7 @@ window.submitReply = async function(parentId) {
   if (!text) return;
 
   if (!currentUser) {
-    showToast('Cevap yazmak için giriş yapmalısın!', 'error');
+    showToast('Cevap yazmak iÃ§in giriÅŸ yapmalÄ±sÄ±n!', 'error');
     return;
   }
 
@@ -3647,8 +3647,8 @@ window.submitReply = async function(parentId) {
         if (parentData.userId && parentData.userId !== currentUser.uid && parentData.userId !== 'local') {
           await db.collection(`users/${parentData.userId}/notifications`).add({
             title: 'Yorumuna Cevap Geldi!',
-            message: `${currentUser.displayName || 'Birisi'} yorumunu yanıtladı: "${text.length > 30 ? text.substring(0,30) + '...' : text}"`,
-            body: `${currentUser.displayName || 'Birisi'} yorumunu yanıtladı: "${text.length > 120 ? text.substring(0,120) + '...' : text}"`,
+            message: `${currentUser.displayName || 'Birisi'} yorumunu yanÄ±tladÄ±: "${text.length > 30 ? text.substring(0,30) + '...' : text}"`,
+            body: `${currentUser.displayName || 'Birisi'} yorumunu yanÄ±tladÄ±: "${text.length > 120 ? text.substring(0,120) + '...' : text}"`,
             type: 'reply',
             link: 'comments',
             timestamp: Date.now(),
@@ -3657,7 +3657,7 @@ window.submitReply = async function(parentId) {
         }
       }
 
-      showToast('Cevabın gönderildi!', 'success');
+      showToast('CevabÄ±n gÃ¶nderildi!', 'success');
       input.value = '';
       document.getElementById(`replyForm_${parentId}`).style.display = 'none';
       renderComments();
@@ -3689,17 +3689,17 @@ function sendCommentEmailNotification(text, userName, isReply = false) {
       'Accept': 'application/json'
     },
     body: JSON.stringify({
-      _subject: isReply ? 'Zyro - Yeni Yorum Yanıtı' : 'Zyro - Yeni Yorum',
+      _subject: isReply ? 'Zyro - Yeni Yorum YanÄ±tÄ±' : 'Zyro - Yeni Yorum',
       Gonderen: userName,
       Mesaj: text,
-      Tip: isReply ? 'Yanıt' : 'Ana Yorum'
+      Tip: isReply ? 'YanÄ±t' : 'Ana Yorum'
     })
   }).catch(e => console.error('Email send failed:', e));
 }
 
 window.adminDeleteComment = async function(commentId) {
   if (!currentUser || currentUser.email !== 'wupard@gmail.com') return;
-  if (!confirm('Bu yorumu silmek istediğine emin misin?')) return;
+  if (!confirm('Bu yorumu silmek istediÄŸine emin misin?')) return;
   
   try {
     await db.collection('public_comments').doc(commentId).delete();
@@ -3713,7 +3713,7 @@ window.adminDeleteComment = async function(commentId) {
 
 window.deletePublicComment = async function(commentId) {
   if (!currentUser) return;
-  if (!confirm('Bu yorumu silmek istediğine emin misin?')) return;
+  if (!confirm('Bu yorumu silmek istediÄŸine emin misin?')) return;
   
   try {
     // Note: Firestore security rules must allow this. Assuming user can delete their own comment.
@@ -3796,12 +3796,12 @@ window.adminSendNotificationV2 = async function() {
   const loader = document.getElementById('adminNotifLoader');
 
   if (!title || !msg) {
-    showToast('Lütfen başlık ve mesaj girin.', 'error');
+    showToast('LÃ¼tfen baÅŸlÄ±k ve mesaj girin.', 'error');
     return;
   }
 
   if (recipientType === 'specific' && !targetUid) {
-    showToast('Lütfen hedef kullanıcı UID girin.', 'error');
+    showToast('LÃ¼tfen hedef kullanÄ±cÄ± UID girin.', 'error');
     return;
   }
 
@@ -3826,13 +3826,13 @@ window.adminSendNotificationV2 = async function() {
       await db.collection(`users/${targetUid}/notifications`).add(notifData);
     }
     
-    showToast('Bildirim başarıyla gönderildi!', 'success');
+    showToast('Bildirim baÅŸarÄ±yla gÃ¶nderildi!', 'success');
     document.getElementById('adminNotifTitle').value = '';
     document.getElementById('adminNotifMessage').value = '';
     document.getElementById('adminNotifUid').value = '';
   } catch (err) {
     console.error('Notification error:', err);
-    showToast('Bildirim gönderilemedi: ' + err.message, 'error');
+    showToast('Bildirim gÃ¶nderilemedi: ' + err.message, 'error');
   } finally {
     btnText.style.opacity = '1';
     loader.style.display = 'none';
@@ -3868,7 +3868,7 @@ window.adminSendNotification = async function() {
         date: todayStr(),
         type: 'admin'
       });
-      showToast('Bildirim yayınlandı!', 'success');
+      showToast('Bildirim yayÄ±nlandÄ±!', 'success');
       document.getElementById('adminNotifTitle').value = '';
       document.getElementById('adminNotifText').value = '';
     } catch (e) {
@@ -3880,7 +3880,7 @@ window.adminSendNotification = async function() {
 async function adminLoadUsers() {
   const list = document.getElementById('adminUsersList');
   if (!list || !db) return;
-  list.innerHTML = '<div class="logged-empty">Yükleniyor...</div>';
+  list.innerHTML = '<div class="logged-empty">YÃ¼kleniyor...</div>';
   
   try {
     const snap = await db.collection('users').get();
@@ -3892,11 +3892,11 @@ async function adminLoadUsers() {
       const displayName = profile.displayName || data.userName || top.userName || top.displayName || '';
       const email = profile.email || data.email || top.email || '';
       const rankKey = data.userRank || top.userRank || 'default';
-      const rankLabel = (typeof RANKS !== 'undefined' && RANKS[rankKey] ? RANKS[rankKey].label : (rankKey || 'Üye'));
+      const rankLabel = (typeof RANKS !== 'undefined' && RANKS[rankKey] ? RANKS[rankKey].label : (rankKey || 'Ãœye'));
       html += `
         <div style="padding:12px; border-bottom:1px solid var(--border-subtle); display:flex; justify-content:space-between; align-items:center;">
           <div>
-            <div style="font-weight:800; font-size:0.9rem; color:var(--text-primary);">${displayName || 'İsimsiz Kullanıcı'}</div>
+            <div style="font-weight:800; font-size:0.9rem; color:var(--text-primary);">${displayName || 'Ä°simsiz KullanÄ±cÄ±'}</div>
             <div style="font-size:0.72rem; color:var(--text-tertiary);">${email || doc.id}</div>
             <div style="font-size:0.7rem; color:var(--text-tertiary);">Rank: ${rankLabel}</div>
           </div>
@@ -3904,14 +3904,14 @@ async function adminLoadUsers() {
         </div>
       `;
     });
-    list.innerHTML = html || '<div class="logged-empty">Kullanıcı bulunamadı.</div>';
+    list.innerHTML = html || '<div class="logged-empty">KullanÄ±cÄ± bulunamadÄ±.</div>';
   } catch(e) { list.innerHTML = 'Hata: ' + e.message; }
 }
 
 async function adminLoadAllComments() {
   const list = document.getElementById('adminAllCommentsList');
   if (!list || !db) return;
-  list.innerHTML = '<div class="logged-empty">Yükleniyor...</div>';
+  list.innerHTML = '<div class="logged-empty">YÃ¼kleniyor...</div>';
   
   try {
     const snap = await db.collection('public_comments').orderBy('timestamp', 'desc').limit(50).get();
@@ -3929,7 +3929,7 @@ async function adminLoadAllComments() {
         </div>
       `;
     });
-    list.innerHTML = html || '<div class="logged-empty">Yorum bulunamadı.</div>';
+    list.innerHTML = html || '<div class="logged-empty">Yorum bulunamadÄ±.</div>';
   } catch(e) { list.innerHTML = 'Hata: ' + e.message; }
 }
 
@@ -3957,8 +3957,8 @@ window.adminViewUserDetails = async function(uid) {
   modal.style.alignItems = 'center';
   modal.style.justifyContent = 'center';
 
-  if (titleEl) titleEl.textContent = 'Kullanıcı Detayı';
-  content.innerHTML = '<div class="logged-empty">Yükleniyor...</div>';
+  if (titleEl) titleEl.textContent = 'KullanÄ±cÄ± DetayÄ±';
+  content.innerHTML = '<div class="logged-empty">YÃ¼kleniyor...</div>';
 
   try {
     const snap = await db.collection('users').doc(uid).get();
@@ -3970,7 +3970,7 @@ window.adminViewUserDetails = async function(uid) {
     const rankKey = data.userRank || top.userRank || 'default';
     const rank = (typeof RANKS !== 'undefined' && RANKS[rankKey]) ? RANKS[rankKey] : null;
 
-    if (titleEl) titleEl.textContent = displayName ? `${displayName} — Detay` : 'Kullanıcı Detayı';
+    if (titleEl) titleEl.textContent = displayName ? `${displayName} â€” Detay` : 'KullanÄ±cÄ± DetayÄ±';
 
     const notesObj = data.notes || {};
     const notes = Object.values(notesObj).filter(n => n && typeof n === 'object');
@@ -3986,9 +3986,9 @@ window.adminViewUserDetails = async function(uid) {
     }
 
     const notesHtml = notes.length === 0
-      ? `<div style="font-size:0.8rem; color:var(--text-tertiary); padding:14px; text-align:center;">Not bulunamadı.</div>`
+      ? `<div style="font-size:0.8rem; color:var(--text-tertiary); padding:14px; text-align:center;">Not bulunamadÄ±.</div>`
       : notes.slice(0, 50).map(n => {
-        const date = n.date || (n.timestamp ? new Date(n.timestamp).toLocaleDateString('tr-TR') : '—');
+        const date = n.date || (n.timestamp ? new Date(n.timestamp).toLocaleDateString('tr-TR') : 'â€”');
         const tags = Array.isArray(n.tags) ? n.tags : [];
         const tagsHtml = tags.length
           ? `<div style="display:flex; flex-wrap:wrap; gap:6px; margin-top:10px;">${tags.map(t => `<span style="font-size:0.65rem; padding:2px 8px; border-radius:999px; background:rgba(139,124,247,0.12); border:1px solid rgba(139,124,247,0.2); color:var(--text-secondary); font-weight:600;">${__escapeHtml(t)}</span>`).join('')}</div>`
@@ -4006,12 +4006,12 @@ window.adminViewUserDetails = async function(uid) {
       }).join('');
 
     const commentsHtml = comments.length === 0
-      ? `<div style="font-size:0.8rem; color:var(--text-tertiary); padding:14px; text-align:center;">Yorum bulunamadı.</div>`
+      ? `<div style="font-size:0.8rem; color:var(--text-tertiary); padding:14px; text-align:center;">Yorum bulunamadÄ±.</div>`
       : comments.slice(0, 50).map(c => {
-        const date = c.date || (c.timestamp ? new Date(c.timestamp).toLocaleDateString('tr-TR') : '—');
+        const date = c.date || (c.timestamp ? new Date(c.timestamp).toLocaleDateString('tr-TR') : 'â€”');
         const isReply = !!c.parentId;
         const typeBadge = isReply
-          ? `<span style="font-size:0.62rem; padding:2px 8px; border-radius:999px; background:rgba(92,138,222,0.12); border:1px solid rgba(92,138,222,0.2); color:var(--text-secondary); font-weight:700;">Yanıt</span>`
+          ? `<span style="font-size:0.62rem; padding:2px 8px; border-radius:999px; background:rgba(92,138,222,0.12); border:1px solid rgba(92,138,222,0.2); color:var(--text-secondary); font-weight:700;">YanÄ±t</span>`
           : `<span style="font-size:0.62rem; padding:2px 8px; border-radius:999px; background:rgba(76,203,141,0.12); border:1px solid rgba(76,203,141,0.2); color:var(--text-secondary); font-weight:700;">Yorum</span>`;
         return `
           <div style="padding:14px; background:var(--bg-card-alt); border:1px solid var(--border-subtle); border-radius:12px;">
@@ -4036,7 +4036,7 @@ window.adminViewUserDetails = async function(uid) {
         <div style="padding:16px; background:linear-gradient(145deg,rgba(139,124,247,0.12),rgba(0,0,0,0)); border:1px solid rgba(139,124,247,0.18); border-radius:16px;">
           <div style="display:flex; justify-content:space-between; gap:16px; align-items:flex-start; flex-wrap:wrap;">
             <div style="min-width:220px;">
-              <div style="font-size:1.05rem; font-weight:900; color:var(--text-primary); margin-bottom:6px;">${__escapeHtml(displayName || 'İsimsiz Kullanıcı')}</div>
+              <div style="font-size:1.05rem; font-weight:900; color:var(--text-primary); margin-bottom:6px;">${__escapeHtml(displayName || 'Ä°simsiz KullanÄ±cÄ±')}</div>
               <div style="font-size:0.78rem; color:var(--text-tertiary); margin-bottom:4px;">${__escapeHtml(uid)}</div>
               <div style="font-size:0.78rem; color:var(--text-secondary);">${__escapeHtml(email)}</div>
             </div>
@@ -4091,10 +4091,10 @@ window.adminViewUserNotes = async function(uid) {
   if (snap.exists) {
     const data = snap.data().data;
     const notes = data.notes || {};
-    let html = `<div style="padding: 16px;"><button onclick="adminShowSection('users')" class="btn-small" style="margin-bottom:12px;">← Geri</button><h3>${data.userName || uid} - Notları</h3>`;
+    let html = `<div style="padding: 16px;"><button onclick="adminShowSection('users')" class="btn-small" style="margin-bottom:12px;">â† Geri</button><h3>${data.userName || uid} - NotlarÄ±</h3>`;
     const sortedNotes = Object.entries(notes).sort((a,b) => b[0].localeCompare(a[0]));
     if (sortedNotes.length === 0) {
-      html += '<p>Not bulunamadı.</p>';
+      html += '<p>Not bulunamadÄ±.</p>';
     } else {
       sortedNotes.forEach(([date, note]) => {
         html += `
@@ -4120,12 +4120,12 @@ window.adminSetUserRank = async function(uid, rankKey) {
       const currentData = snap.data().data || {};
       currentData.userRank = rankKey;
       await userDoc.update({ 'data.userRank': rankKey });
-      alert(`Kullanıcı rankı ${RANKS[rankKey].label} olarak güncellendi.`);
+      alert(`KullanÄ±cÄ± rankÄ± ${RANKS[rankKey].label} olarak gÃ¼ncellendi.`);
       adminShowSection('users');
     }
   } catch (e) {
     console.error('Rank Update Error:', e);
-    alert('Rank güncellenemedi: ' + e.message);
+    alert('Rank gÃ¼ncellenemedi: ' + e.message);
   }
 };
 
@@ -4135,7 +4135,7 @@ window.adminBanUser = async function(uid, type) {
   const reason = prompt('Ban sebebi nedir?', 'Kural ihlali');
   if (reason === null) return;
   
-  const duration = prompt('Ban süresi nedir?', 'Süresiz');
+  const duration = prompt('Ban sÃ¼resi nedir?', 'SÃ¼resiz');
   if (duration === null) return;
 
   try {
@@ -4156,11 +4156,11 @@ window.adminBanUser = async function(uid, type) {
       timestamp: Date.now()
     });
 
-    alert(`Kullanıcı ${type.toUpperCase()} olarak banlandı.`);
+    alert(`KullanÄ±cÄ± ${type.toUpperCase()} olarak banlandÄ±.`);
     adminShowSection('users');
   } catch (e) {
     console.error('Ban Error:', e);
-    alert('Ban atılamadı: ' + e.message);
+    alert('Ban atÄ±lamadÄ±: ' + e.message);
   }
 };
 
@@ -4169,11 +4169,11 @@ window.adminUnbanUser = async function(uid) {
   
   try {
     await db.collection('bans').doc(uid).delete();
-    alert('Kullanıcının banı kaldırıldı.');
+    alert('KullanÄ±cÄ±nÄ±n banÄ± kaldÄ±rÄ±ldÄ±.');
     adminShowSection('users');
   } catch (e) {
     console.error('Unban Error:', e);
-    alert('Ban kaldırılamadı: ' + e.message);
+    alert('Ban kaldÄ±rÄ±lamadÄ±: ' + e.message);
   }
 };
 
@@ -4189,8 +4189,8 @@ function renderProgressTracker() {
         <div style="width: 64px; height: 64px; border-radius: 16px; background: rgba(52, 211, 153, 0.1); display: flex; align-items: center; justify-content: center; margin-bottom: 16px;">
           <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-emerald-400"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
         </div>
-        <p style="font-size: 1.125rem; font-weight: 600; margin: 0 0 4px 0;">Henüz veri yok</p>
-        <p style="font-size: 0.875rem; color: var(--text-muted); margin: 0;">Egzersiz kaydettikçe burada görebilirsin</p>
+        <p style="font-size: 1.125rem; font-weight: 600; margin: 0 0 4px 0;">HenÃ¼z veri yok</p>
+        <p style="font-size: 0.875rem; color: var(--text-muted); margin: 0;">Egzersiz kaydettikÃ§e burada gÃ¶rebilirsin</p>
       </div>
     `;
     return;
@@ -4204,7 +4204,7 @@ function renderProgressTracker() {
     ? allStats.find(e => e.name === currentTrackerExercise)
     : filtered[0];
 
-  let catBtnsHtml = `<button onclick="setTrackerCategory('')" class="tracker-cat-btn ${!currentTrackerCategory?'active':''}">${currentLang==='tr'?'Tümü':'All'}</button>`;
+  let catBtnsHtml = `<button onclick="setTrackerCategory('')" class="tracker-cat-btn ${!currentTrackerCategory?'active':''}">${currentLang==='tr'?'TÃ¼mÃ¼':'All'}</button>`;
   
   Object.keys(EXERCISE_CATEGORIES).forEach(cat => {
     catBtnsHtml += `<button onclick="setTrackerCategory('${cat}')" class="tracker-cat-btn ${currentTrackerCategory===cat?'active':''}">${CATEGORY_ICONS[cat] || ''} ${cat.charAt(0).toUpperCase() + cat.slice(1)}</button>`;
@@ -4222,11 +4222,11 @@ function renderProgressTracker() {
       <button onclick="setTrackerExercise('${ex.name}')" class="tracker-list-item ${isSelected ? 'selected' : ''}">
         <div style="display: flex; align-items: center; gap: 12px;">
           <div class="tracker-list-icon" style="background: rgba(139,124,247,0.1); color: #8B7CF7;">
-            ${CATEGORY_ICONS[ex.category] || '🏋️'}
+            ${CATEGORY_ICONS[ex.category] || 'ğŸ‹ï¸'}
           </div>
           <div style="text-align: left;">
             <p style="margin: 0; font-weight: 500; font-size: 0.875rem;">${ex.name}</p>
-            <p style="margin: 0; font-size: 0.75rem; color: var(--text-muted);">${ex.currentWeight}kg × ${ex.currentReps}</p>
+            <p style="margin: 0; font-size: 0.75rem; color: var(--text-muted);">${ex.currentWeight}kg Ã— ${ex.currentReps}</p>
           </div>
         </div>
         <div style="display: flex; align-items: center; gap: 8px;">
@@ -4251,7 +4251,7 @@ function renderProgressTracker() {
       <div class="tracker-detail-card" style="margin-top: 16px; padding: 20px; border-radius: 12px; background: rgba(139,124,247,0.05); border: 1px solid rgba(139,124,247,0.1);">
         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
           <div style="display: flex; align-items: center; gap: 8px;">
-            <span style="font-size: 1.25rem;">${CATEGORY_ICONS[selectedEx.category] || '🏋️'}</span>
+            <span style="font-size: 1.25rem;">${CATEGORY_ICONS[selectedEx.category] || 'ğŸ‹ï¸'}</span>
             <h4 style="margin: 0; font-weight: bold; color: #fff;">${selectedEx.name}</h4>
           </div>
         </div>
@@ -4276,17 +4276,17 @@ function renderProgressTracker() {
         ${percentChange !== 0 ? `
         <div style="margin-top: 12px; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 8px; border-radius: 8px; background: rgba(255,255,255,0.05);">
           <span style="font-size: 1.125rem; font-weight: 900; color: ${isPositive?'#34d399':'#f87171'}">${isPositive?'+':''}${percentChange}%</span>
-          <span style="font-size: 0.75rem; color: var(--text-muted);">${currentLang==='tr'?'gelişim':'improvement'}</span>
+          <span style="font-size: 0.75rem; color: var(--text-muted);">${currentLang==='tr'?'geliÅŸim':'improvement'}</span>
         </div>
         ` : ''}
         
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 16px;">
            <div style="padding: 16px; border-radius: 12px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05);">
-             <p style="font-size: 0.6rem; font-weight: bold; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin: 0 0 8px 0;">${currentLang==='tr'?'Son Güncelleme':'Last Updated'}</p>
+             <p style="font-size: 0.6rem; font-weight: bold; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin: 0 0 8px 0;">${currentLang==='tr'?'Son GÃ¼ncelleme':'Last Updated'}</p>
              <p style="font-weight: bold; font-size: 0.9rem; margin: 0;">${formatDate(selectedEx.lastUpdated)}</p>
            </div>
            <div style="padding: 16px; border-radius: 12px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05);">
-             <p style="font-size: 0.6rem; font-weight: bold; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin: 0 0 8px 0;">${currentLang==='tr'?'Başlangıç':'Baseline Set'}</p>
+             <p style="font-size: 0.6rem; font-weight: bold; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin: 0 0 8px 0;">${currentLang==='tr'?'BaÅŸlangÄ±Ã§':'Baseline Set'}</p>
              <p style="font-weight: bold; font-size: 0.9rem; margin: 0;">${formatDate(selectedEx.baselineDate)}</p>
            </div>
         </div>
@@ -4301,7 +4301,7 @@ function renderProgressTracker() {
     
     <div style="margin-top: 16px;">
       <label style="font-size: 0.625rem; font-weight: bold; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); display: block; margin-bottom: 8px;">
-        ${currentLang==='tr'?'Egzersiz Seç':'Select Exercise'} (${filtered.length})
+        ${currentLang==='tr'?'Egzersiz SeÃ§':'Select Exercise'} (${filtered.length})
       </label>
       <div style="display: grid; gap: 8px; max-height: 180px; overflow-y: auto;" class="no-scrollbar">
         ${listHtml}
@@ -4448,7 +4448,7 @@ window.calcGrowth = function() {
   
   const diff = ((new1RM - old1RM) / old1RM * 100).toFixed(1);
   
-  const valText = currentLang === 'tr' ? `Gücün %${diff} ${diff >= 0 ? 'arttı' : 'azaldı'}` : `Strength ${diff >= 0 ? 'increased' : 'decreased'} by ${diff}%`;
+  const valText = currentLang === 'tr' ? `GÃ¼cÃ¼n %${diff} ${diff >= 0 ? 'arttÄ±' : 'azaldÄ±'}` : `Strength ${diff >= 0 ? 'increased' : 'decreased'} by ${diff}%`;
   document.getElementById('res-growth-val').textContent = valText;
   
   const bar = document.getElementById('res-growth-bar');
@@ -4524,7 +4524,7 @@ window.confirmWeeklyGoal = function() {
 // =============================================
 
 // =============================================
-// UPDATE USER UI — Premium sidebar with rank left of name + "Senkronize" status
+// UPDATE USER UI â€” Premium sidebar with rank left of name + "Senkronize" status
 // =============================================
 function updateUserUI(user){
   const avatar=document.getElementById('userAvatar');
@@ -4677,7 +4677,7 @@ window.adminSetUserRank = async function(uid, rankKey) {
 };
 
 // =============================================
-// ADMIN: Fix anonymous display — load user info from auth/firestore data
+// ADMIN: Fix anonymous display â€” load user info from auth/firestore data
 // =============================================
 
 // =============================================
@@ -4696,7 +4696,7 @@ function updateStreakFlame() {
   const flameWrap = document.getElementById('streakFlame');
 
   if (dayNum === 0) {
-    // Day 0: No flame — hide the flame wrapper and center the text
+    // Day 0: No flame â€” hide the flame wrapper and center the text
     if (flameWrap) flameWrap.style.display = 'none';
     if (badgeEl) badgeEl.style.justifyContent = 'center';
     flameContent.style.display = 'none';
@@ -4709,26 +4709,26 @@ function updateStreakFlame() {
 
   if (dayNum === 1) {
     // Day 1: Small flame
-    flameContent.innerHTML = '🔥';
+    flameContent.innerHTML = 'ğŸ”¥';
     flameContent.style.fontSize = '1rem';
     flameContent.style.opacity = '0.8';
     flameContent.style.animation = 'flameFlicker 0.6s ease-in-out infinite';
   } else if (dayNum <= 3) {
     // Day 2-3: Medium flame
-    flameContent.innerHTML = '🔥';
+    flameContent.innerHTML = 'ğŸ”¥';
     flameContent.style.fontSize = '1.2rem';
     flameContent.style.opacity = '1';
     flameContent.style.animation = 'flameFlicker 0.5s ease-in-out infinite';
   } else if (dayNum <= 7) {
     // Day 4-7: Large flame with glow
-    flameContent.innerHTML = '🔥';
+    flameContent.innerHTML = 'ğŸ”¥';
     flameContent.style.fontSize = '1.4rem';
     flameContent.style.opacity = '1';
     flameContent.style.animation = 'flameFlickerIntense 0.4s ease-in-out infinite';
     flameContent.style.textShadow = '0 0 8px rgba(255, 69, 0, 0.6), 0 0 16px rgba(255, 140, 0, 0.3)';
   } else {
     // Day 8+: Legendary flame
-    flameContent.innerHTML = '🔥';
+    flameContent.innerHTML = 'ğŸ”¥';
     flameContent.style.fontSize = '1.5rem';
     flameContent.style.opacity = '1';
     flameContent.style.animation = 'flameLegendary 0.3s ease-in-out infinite';
@@ -4794,12 +4794,12 @@ window.adminSendNotificationV2Enhanced = async function() {
   const loader = document.getElementById('adminNotifLoader');
 
   if (!title || !msg) {
-    showToast('Lütfen başlık ve mesaj girin.', 'error');
+    showToast('LÃ¼tfen baÅŸlÄ±k ve mesaj girin.', 'error');
     return;
   }
 
   if (recipientType === 'specific' && !targetUid) {
-    showToast('Lütfen hedef kullanıcı UID girin.', 'error');
+    showToast('LÃ¼tfen hedef kullanÄ±cÄ± UID girin.', 'error');
     return;
   }
 
@@ -4808,11 +4808,11 @@ window.adminSendNotificationV2Enhanced = async function() {
   loader.style.display = 'block';
 
   const categoryIcons = {
-    system: '🔧',
-    announcement: '📢',
-    feature: '✨',
-    maintenance: '🔨',
-    urgent: '⚠️'
+    system: 'ğŸ”§',
+    announcement: 'ğŸ“¢',
+    feature: 'âœ¨',
+    maintenance: 'ğŸ”¨',
+    urgent: 'âš ï¸'
   };
 
   const notifData = {
@@ -4824,7 +4824,7 @@ window.adminSendNotificationV2Enhanced = async function() {
     type: recipientType === 'all' ? 'broadcast' : 'personal',
     sender: 'Admin',
     category: category,
-    icon: categoryIcons[category] || '📢'
+    icon: categoryIcons[category] || 'ğŸ“¢'
   };
 
   try {
@@ -4834,7 +4834,7 @@ window.adminSendNotificationV2Enhanced = async function() {
       await db.collection(`users/${targetUid}/notifications`).add(notifData);
     }
     
-    showToast('Bildirim başarıyla gönderildi!', 'success');
+    showToast('Bildirim baÅŸarÄ±yla gÃ¶nderildi!', 'success');
     document.getElementById('adminNotifTitle').value = '';
     document.getElementById('adminNotifMessage').value = '';
     document.getElementById('adminNotifUid').value = '';
@@ -4843,7 +4843,7 @@ window.adminSendNotificationV2Enhanced = async function() {
     renderAdminNotificationHistory();
   } catch (err) {
     console.error('Notification error:', err);
-    showToast('Bildirim gönderilemedi: ' + err.message, 'error');
+    showToast('Bildirim gÃ¶nderilemedi: ' + err.message, 'error');
   } finally {
     btnText.style.opacity = '1';
     loader.style.display = 'none';
@@ -4857,19 +4857,19 @@ function renderAdminNotificationHistory() {
   const history = activeNotifications.slice(0, 5);
   
   if (history.length === 0) {
-    historyEl.innerHTML = '<div style="font-size:0.7rem; color:var(--text-tertiary); text-align:center; padding:12px;">Geçmiş bulunamadı</div>';
+    historyEl.innerHTML = '<div style="font-size:0.7rem; color:var(--text-tertiary); text-align:center; padding:12px;">GeÃ§miÅŸ bulunamadÄ±</div>';
     return;
   }
 
   historyEl.innerHTML = history.map(h => {
     const categoryIcons = {
-      system: '🔧',
-      announcement: '📢',
-      feature: '✨',
-      maintenance: '🔨',
-      urgent: '⚠️'
+      system: 'ğŸ”§',
+      announcement: 'ğŸ“¢',
+      feature: 'âœ¨',
+      maintenance: 'ğŸ”¨',
+      urgent: 'âš ï¸'
     };
-    const icon = categoryIcons[h.category] || h.icon || '📢';
+    const icon = categoryIcons[h.category] || h.icon || 'ğŸ“¢';
     const date = new Date(h.timestamp).toLocaleDateString('tr-TR', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
     
     return `
@@ -4930,7 +4930,7 @@ window.showStrengthDetailsEnhanced = function(targetExercise = null) {
   }
 
   if (!selectedEx || !exerciseData[selectedEx]) {
-    content.innerHTML = `<div class="logged-empty">Veri bulunamadı. Lütfen antrenman logu girin.</div>`;
+    content.innerHTML = `<div class="logged-empty">Veri bulunamadÄ±. LÃ¼tfen antrenman logu girin.</div>`;
     modal.style.display = 'flex';
     return;
   }
@@ -5009,7 +5009,7 @@ window.showStrengthDetailsEnhanced = function(targetExercise = null) {
   const statsHtml = `
     <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:20px;">
       <div style="padding:12px; background:rgba(139,124,247,0.1); border:1px solid rgba(139,124,247,0.2); border-radius:10px;">
-        <div style="font-size:0.7rem; color:var(--text-muted); margin-bottom:4px;">En Yüksek</div>
+        <div style="font-size:0.7rem; color:var(--text-muted); margin-bottom:4px;">En YÃ¼ksek</div>
         <div style="font-size:1.5rem; font-weight:700; color:var(--orange-vivid);">${maxWeight} kg</div>
       </div>
       <div style="padding:12px; background:rgba(76,203,141,0.1); border:1px solid rgba(76,203,141,0.2); border-radius:10px;">
@@ -5017,11 +5017,11 @@ window.showStrengthDetailsEnhanced = function(targetExercise = null) {
         <div style="font-size:1.5rem; font-weight:700; color:var(--green-vivid);">${avgWeight} kg</div>
       </div>
       <div style="padding:12px; background:rgba(92,138,222,0.1); border:1px solid rgba(92,138,222,0.2); border-radius:10px;">
-        <div style="font-size:0.7rem; color:var(--text-muted); margin-bottom:4px;">Haftalık Tahmin</div>
+        <div style="font-size:0.7rem; color:var(--text-muted); margin-bottom:4px;">HaftalÄ±k Tahmin</div>
         <div style="font-size:1.5rem; font-weight:700; color:var(--blue-vivid);">+${weeklyProjection} kg</div>
       </div>
       <div style="padding:12px; background:rgba(217,110,163,0.1); border:1px solid rgba(217,110,163,0.2); border-radius:10px;">
-        <div style="font-size:0.7rem; color:var(--text-muted); margin-bottom:4px;">Aylık Tahmin</div>
+        <div style="font-size:0.7rem; color:var(--text-muted); margin-bottom:4px;">AylÄ±k Tahmin</div>
         <div style="font-size:1.5rem; font-weight:700; color:var(--pink-vivid);">+${monthlyProjection} kg</div>
       </div>
     </div>
@@ -5032,13 +5032,13 @@ window.showStrengthDetailsEnhanced = function(targetExercise = null) {
   timelineHtml += recentLogs.map((log, idx) => {
     const date = new Date(log.date).toLocaleDateString('tr-TR');
     const progress = idx > 0 ? log.weight - recentLogs[idx - 1].weight : 0;
-    const progressText = progress > 0 ? `+${progress} kg ↑` : progress < 0 ? `${progress} kg ↓` : 'Aynı';
+    const progressText = progress > 0 ? `+${progress} kg â†‘` : progress < 0 ? `${progress} kg â†“` : 'AynÄ±';
     const progressColor = progress > 0 ? 'var(--green-vivid)' : progress < 0 ? 'var(--red-vivid)' : 'var(--text-muted)';
     
     return `
       <div style="padding:10px; background:rgba(255,255,255,0.02); border-left:3px solid var(--accent-primary); border-radius:6px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
         <div>
-          <div style="font-size:0.8rem; font-weight:600;">${log.weight} kg × ${log.reps} rep × ${log.sets} set</div>
+          <div style="font-size:0.8rem; font-weight:600;">${log.weight} kg Ã— ${log.reps} rep Ã— ${log.sets} set</div>
           <div style="font-size:0.7rem; color:var(--text-tertiary);">${date}</div>
         </div>
         <div style="font-size:0.75rem; font-weight:700; color:${progressColor};">${progressText}</div>
@@ -5087,12 +5087,12 @@ function initializeEnhancements() {
 // Maintenance mode helpers (client-side only - persisted in localStorage)
 function saveMaintenanceSettings() {
   if (!currentUser) {
-    showToast('Yalnızca adminler bakım modunu değiştirebilir.', 'error');
+    showToast('YalnÄ±zca adminler bakÄ±m modunu deÄŸiÅŸtirebilir.', 'error');
     return;
   }
   const isAdmin = currentUser.email === 'wupard@gmail.com' || appData.firestoreAdmin === true;
   if (!isAdmin) {
-    showToast('İzin yok: sadece adminler erişebilir.', 'error');
+    showToast('Ä°zin yok: sadece adminler eriÅŸebilir.', 'error');
     return;
   }
 
@@ -5114,17 +5114,17 @@ function saveMaintenanceSettings() {
   localStorage.setItem('zyro_maintenance', JSON.stringify(obj));
   applyMaintenanceState();
   updateMaintenanceStatusText();
-  showToast('Bakım modu etkinleştirildi.', 'success');
+  showToast('BakÄ±m modu etkinleÅŸtirildi.', 'success');
 }
 
 function clearMaintenanceSettings() {
   if (!currentUser) return showToast('Yetki gerekli.', 'error');
   const isAdmin = currentUser.email === 'wupard@gmail.com' || appData.firestoreAdmin === true;
-  if (!isAdmin) return showToast('İzin yok.', 'error');
+  if (!isAdmin) return showToast('Ä°zin yok.', 'error');
   localStorage.removeItem('zyro_maintenance');
   applyMaintenanceState();
   updateMaintenanceStatusText();
-  showToast('Bakım modu kapatıldı.', 'success');
+  showToast('BakÄ±m modu kapatÄ±ldÄ±.', 'success');
 }
 
 function getMaintenanceState() {
@@ -5146,8 +5146,8 @@ function applyMaintenanceState() {
     overlay.className = 'maintenance-overlay';
     overlay.innerHTML = `
       <div class="maintenance-card">
-        <div class="maintenance-icon">🔧</div>
-        <h2 class="maintenance-title">Bakım Modu</h2>
+        <div class="maintenance-icon">ğŸ”§</div>
+        <h2 class="maintenance-title">BakÄ±m Modu</h2>
         <div id="maintenanceOverlayMsg" class="maintenance-msg"></div>
         <div id="maintenanceOverlayUntil" class="maintenance-until"></div>
       </div>
@@ -5159,9 +5159,9 @@ function applyMaintenanceState() {
     // Show overlay for non-admin users
     const isAdmin = currentUser && (currentUser.email === 'wupard@gmail.com' || appData.firestoreAdmin === true);
     if (!isAdmin) {
-      document.getElementById('maintenanceOverlayMsg').textContent = state.message || 'Kısa süreli bakım yapılıyor.';
-      const until = state.expiresAt ? new Date(state.expiresAt).toLocaleString() : '—';
-      document.getElementById('maintenanceOverlayUntil').textContent = 'Tahmini bitiş: ' + until;
+      document.getElementById('maintenanceOverlayMsg').textContent = state.message || 'KÄ±sa sÃ¼reli bakÄ±m yapÄ±lÄ±yor.';
+      const until = state.expiresAt ? new Date(state.expiresAt).toLocaleString() : 'â€”';
+      document.getElementById('maintenanceOverlayUntil').textContent = 'Tahmini bitiÅŸ: ' + until;
       overlay.style.display = 'flex';
       document.body.style.overflow = 'hidden';
     } else {
@@ -5179,10 +5179,10 @@ function updateMaintenanceStatusText() {
   const el = document.getElementById('adminMaintenanceStatus');
   if (!el) return;
   if (st.enabled) {
-    const until = st.expiresAt ? new Date(st.expiresAt).toLocaleString() : '—';
-    el.textContent = `Etkin — Tahmini bitiş: ${until} (Açan: ${st.setBy || 'admin'})`;
+    const until = st.expiresAt ? new Date(st.expiresAt).toLocaleString() : 'â€”';
+    el.textContent = `Etkin â€” Tahmini bitiÅŸ: ${until} (AÃ§an: ${st.setBy || 'admin'})`;
   } else {
-    el.textContent = 'Kapalı';
+    el.textContent = 'KapalÄ±';
   }
 }
 
@@ -5193,6 +5193,9 @@ if (document.readyState === 'loading') {
   initializeEnhancements();
 }
 
+// =============================================
+// OVERRIDE: Admin Notification Send (with admin_notifications log)
+// =============================================
 window.adminSendNotificationV2Enhanced = async function() {
   const recipientType = document.getElementById('adminNotifRecipient').value;
   const targetUid = document.getElementById('adminNotifUid').value.trim();
@@ -5215,12 +5218,12 @@ window.adminSendNotificationV2Enhanced = async function() {
   const loader = document.getElementById('adminNotifLoader');
 
   if (!title || !msg) {
-    showToast('LÃ¼tfen baÅŸlÄ±k ve mesaj girin.', 'error');
+    showToast('Lütfen başlık ve mesaj girin.', 'error');
     return;
   }
 
   if (recipientType === 'specific' && !targetUid) {
-    showToast('LÃ¼tfen hedef kullanÄ±cÄ± UID girin.', 'error');
+    showToast('Lütfen hedef kullanıcı UID girin.', 'error');
     return;
   }
 
@@ -5228,11 +5231,11 @@ window.adminSendNotificationV2Enhanced = async function() {
   if (loader) loader.style.display = 'block';
 
   const categoryIcons = {
-    system: 'ğŸ”§',
-    announcement: 'ğŸ“¢',
-    feature: 'âœ¨',
-    maintenance: 'ğŸ”¨',
-    urgent: 'âš ï¸'
+    system: '\uD83D\uDD27',
+    announcement: '\uD83D\uDCE2',
+    feature: '\u2728',
+    maintenance: '\uD83D\uDD28',
+    urgent: '\u26A0\uFE0F'
   };
 
   const notifData = {
@@ -5244,7 +5247,7 @@ window.adminSendNotificationV2Enhanced = async function() {
     type: recipientType === 'all' ? 'broadcast' : 'personal',
     sender: 'Admin',
     category,
-    icon: categoryIcons[category] || 'ğŸ“¢'
+    icon: categoryIcons[category] || '\uD83D\uDCE2'
   };
 
   try {
@@ -5271,14 +5274,21 @@ window.adminSendNotificationV2Enhanced = async function() {
       senderName: currentUser?.displayName || 'Admin'
     });
 
-    showToast('Bildirim baÅŸarÄ±yla gÃ¶nderildi!', 'success');
+    // Immediately add to local arrays so it renders instantly
+    const newNotif = { id: targetRef?.id || '', ...notifData, scope: recipientType === 'all' ? 'broadcast' : 'personal' };
+    activeNotifications.unshift(newNotif);
+    adminNotificationHistory.unshift({ id: targetRef?.id || '', title, body: msg, category, icon: notifData.icon, timestamp: notifData.timestamp, recipientType, targetScope: recipientType === 'all' ? 'broadcast' : 'personal', targetUid: recipientType === 'all' ? '' : targetUid });
+
+    showToast('Bildirim başarıyla gönderildi!', 'success');
     document.getElementById('adminNotifTitle').value = '';
     document.getElementById('adminNotifMessage').value = '';
     document.getElementById('adminNotifUid').value = '';
+    renderNotificationList();
+    updateNotifBadge();
     renderAdminNotificationHistory();
   } catch (err) {
     console.error('Notification error:', err);
-    showToast('Bildirim gÃ¶nderilemedi: ' + err.message, 'error');
+    showToast('Bildirim gönderilemedi: ' + err.message, 'error');
   } finally {
     if (btnText) btnText.style.opacity = '1';
     if (loader) loader.style.display = 'none';
@@ -5287,25 +5297,21 @@ window.adminSendNotificationV2Enhanced = async function() {
 
 window.adminSendNotificationV2 = window.adminSendNotificationV2Enhanced;
 
+// =============================================
+// OVERRIDE: Admin Notification History Render
+// =============================================
 window.renderAdminNotificationHistory = function() {
   const historyEl = document.getElementById('adminNotifHistory');
   if (!historyEl) return;
 
   const history = adminNotificationHistory.length > 0 ? adminNotificationHistory.slice(0, 8) : activeNotifications.slice(0, 5);
   if (history.length === 0) {
-    historyEl.innerHTML = '<div style="font-size:0.7rem; color:var(--text-tertiary); text-align:center; padding:12px;">GeÃ§miÅŸ bulunamadÄ±</div>';
+    historyEl.innerHTML = '<div style="font-size:0.7rem; color:var(--text-tertiary); text-align:center; padding:12px;">Geçmiş bulunamadı</div>';
     return;
   }
 
   historyEl.innerHTML = history.map(h => {
-    const categoryIcons = {
-      system: 'ğŸ”§',
-      announcement: 'ğŸ“¢',
-      feature: 'âœ¨',
-      maintenance: 'ğŸ”¨',
-      urgent: 'âš ï¸'
-    };
-    const icon = categoryIcons[h.category] || h.icon || 'ğŸ“¢';
+    const icon = h.icon || '\uD83D\uDCE2';
     const date = new Date(h.timestamp).toLocaleDateString('tr-TR', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
     const targetLabel = __formatAdminHistoryTarget(h);
     const canDelete = h.targetScope === 'broadcast' || h.scope === 'broadcast';
@@ -5330,14 +5336,17 @@ window.renderAdminNotificationHistory = function() {
   }).join('');
 };
 
+// =============================================
+// OVERRIDE: Maintenance Mode (Firestore synced)
+// =============================================
 window.saveMaintenanceSettings = async function() {
   if (!currentUser) {
-    showToast('YalnÄ±zca adminler bakÄ±m modunu deÄŸiÅŸtirebilir.', 'error');
+    showToast('Yalnızca adminler bakım modunu değiştirebilir.', 'error');
     return;
   }
   const isAdmin = currentUser.email === 'wupard@gmail.com' || appData.firestoreAdmin === true;
   if (!isAdmin) {
-    showToast('Ä°zin yok: sadece adminler eriÅŸebilir.', 'error');
+    showToast('İzin yok: sadece adminler erişebilir.', 'error');
     return;
   }
 
@@ -5362,61 +5371,51 @@ window.saveMaintenanceSettings = async function() {
     localStorage.setItem('zyro_maintenance', JSON.stringify(obj));
     applyMaintenanceState(obj);
     updateMaintenanceStatusText(obj);
-    showToast('BakÄ±m modu etkinleÅŸtirildi.', 'success');
+    showToast('Bakım modu etkinleştirildi.', 'success');
   } catch (e) {
     console.error('Maintenance save failed:', e);
-    showToast('BakÄ±m modu kaydedilemedi.', 'error');
+    showToast('Bakım modu kaydedilemedi.', 'error');
   }
 };
 
 window.clearMaintenanceSettings = async function() {
   if (!currentUser) return showToast('Yetki gerekli.', 'error');
   const isAdmin = currentUser.email === 'wupard@gmail.com' || appData.firestoreAdmin === true;
-  if (!isAdmin) return showToast('Ä°zin yok.', 'error');
+  if (!isAdmin) return showToast('İzin yok.', 'error');
 
   try {
     if (isFirebaseConfigured && db) {
       await db.collection('app_state').doc('maintenance').set({
-        enabled: false,
-        message: '',
-        expiresAt: 0,
+        enabled: false, message: '', expiresAt: 0,
         setBy: currentUser.email || currentUser.uid || 'admin'
       }, { merge: true });
     }
     localStorage.removeItem('zyro_maintenance');
     applyMaintenanceState({ enabled: false });
     updateMaintenanceStatusText({ enabled: false });
-    showToast('BakÄ±m modu kapatÄ±ldÄ±.', 'success');
+    showToast('Bakım modu kapatıldı.', 'success');
   } catch (e) {
     console.error('Maintenance clear failed:', e);
-    showToast('BakÄ±m modu kapatÄ±lamadÄ±.', 'error');
+    showToast('Bakım modu kapatılamadı.', 'error');
   }
 };
 
-window.applyMaintenanceState = function(forcedState = null) {
+window.applyMaintenanceState = function(forcedState) {
   const state = forcedState || getMaintenanceState();
   let overlay = document.getElementById('maintenanceOverlay');
   if (!overlay) {
     overlay = document.createElement('div');
     overlay.id = 'maintenanceOverlay';
     overlay.className = 'maintenance-overlay';
-    overlay.innerHTML = `
-      <div class="maintenance-card">
-        <div class="maintenance-icon">ğŸ”§</div>
-        <h2 class="maintenance-title">BakÄ±m Modu</h2>
-        <div id="maintenanceOverlayMsg" class="maintenance-msg"></div>
-        <div id="maintenanceOverlayUntil" class="maintenance-until"></div>
-      </div>
-    `;
+    overlay.innerHTML = '<div class="maintenance-card"><div class="maintenance-icon">\uD83D\uDD27</div><h2 class="maintenance-title">Bakım Modu</h2><div id="maintenanceOverlayMsg" class="maintenance-msg"></div><div id="maintenanceOverlayUntil" class="maintenance-until"></div></div>';
     document.body.appendChild(overlay);
   }
-
   if (state.enabled) {
-    const isAdmin = currentUser && (currentUser.email === 'wupard@gmail.com' || appData.firestoreAdmin === true);
-    if (!isAdmin) {
-      document.getElementById('maintenanceOverlayMsg').textContent = state.message || 'KÄ±sa sÃ¼reli bakÄ±m yapÄ±lÄ±yor.';
-      const until = state.expiresAt ? new Date(state.expiresAt).toLocaleString() : 'â€”';
-      document.getElementById('maintenanceOverlayUntil').textContent = 'Tahmini bitiÅŸ: ' + until;
+    const isAdm = currentUser && (currentUser.email === 'wupard@gmail.com' || appData.firestoreAdmin === true);
+    if (!isAdm) {
+      document.getElementById('maintenanceOverlayMsg').textContent = state.message || 'Kısa süreli bakım yapılıyor.';
+      const until = state.expiresAt ? new Date(state.expiresAt).toLocaleString() : '\u2014';
+      document.getElementById('maintenanceOverlayUntil').textContent = 'Tahmini bitiş: ' + until;
       overlay.style.display = 'flex';
       document.body.style.overflow = 'hidden';
     } else {
@@ -5429,15 +5428,15 @@ window.applyMaintenanceState = function(forcedState = null) {
   }
 };
 
-window.updateMaintenanceStatusText = function(forcedState = null) {
+window.updateMaintenanceStatusText = function(forcedState) {
   const st = forcedState || getMaintenanceState();
   const el = document.getElementById('adminMaintenanceStatus');
   if (!el) return;
   if (st.enabled) {
-    const until = st.expiresAt ? new Date(st.expiresAt).toLocaleString() : 'â€”';
-    el.textContent = `Etkin â€” Tahmini bitiÅŸ: ${until} (AÃ§an: ${st.setBy || 'admin'})`;
+    const until = st.expiresAt ? new Date(st.expiresAt).toLocaleString() : '\u2014';
+    el.textContent = 'Etkin \u2014 Tahmini bitiş: ' + until + ' (Açan: ' + (st.setBy || 'admin') + ')';
   } else {
-    el.textContent = 'KapalÄ±';
+    el.textContent = 'Kapalı';
   }
 };
 
@@ -5447,15 +5446,14 @@ window.initMaintenanceSync = function() {
     updateMaintenanceStatusText();
     return;
   }
-
-  db.collection('app_state').doc('maintenance').onSnapshot(snap => {
+  db.collection('app_state').doc('maintenance').onSnapshot(function(snap) {
     const remote = snap.exists ? (snap.data() || { enabled: false }) : { enabled: false };
     const normalized = remote.expiresAt && Date.now() > remote.expiresAt ? { enabled: false } : remote;
     if (normalized.enabled) localStorage.setItem('zyro_maintenance', JSON.stringify(normalized));
     else localStorage.removeItem('zyro_maintenance');
     applyMaintenanceState(normalized);
     updateMaintenanceStatusText(normalized);
-  }, err => {
+  }, function(err) {
     console.error('Maintenance sync failed:', err);
     applyMaintenanceState();
     updateMaintenanceStatusText();
@@ -5467,6 +5465,7 @@ if (document.readyState === 'loading') {
 } else {
   initMaintenanceSync();
 }
+
 
 
 // =============================================
@@ -5533,7 +5532,7 @@ window.loadProfileData = function() {
         // Load selected achievements
         selectedProfileAchievements = profile.selectedAchievements || [];
         
-        // Load rank (nested data.userRank veya kök alan rank — Android uyumu)
+        // Load rank (nested data.userRank veya kÃ¶k alan rank â€” Android uyumu)
         const rootSnap = doc.data();
         const rankKey = rootSnap.rank || userData.userRank || 'default';
         const rank = RANKS[rankKey] || RANKS.default;
@@ -5573,10 +5572,10 @@ window.handleProfilePhotoUpload = async function(event) {
         await db.collection('users').doc(currentUser.uid).update({
           'data.profile.photoURL': photoURL
         });
-        showToast('Profil fotoğrafı güncellendi!', 'success');
+        showToast('Profil fotoÄŸrafÄ± gÃ¼ncellendi!', 'success');
       } catch (err) {
         console.error('Photo upload error:', err);
-        showToast('Fotoğraf yüklenemedi: ' + err.message, 'error');
+        showToast('FotoÄŸraf yÃ¼klenemedi: ' + err.message, 'error');
       }
     }
   };
@@ -5594,7 +5593,7 @@ window.saveProfileBio = async function() {
   const gender = document.getElementById('profileGender').value;
   
   if (!displayName) {
-    showToast('Lütfen ad soyad girin.', 'error');
+    showToast('LÃ¼tfen ad soyad girin.', 'error');
     return;
   }
   
@@ -5635,9 +5634,9 @@ window.renderProfileAchievementsSelector = function() {
     
     return `
       <div style="padding:12px; background:${isSelected ? 'rgba(139,124,247,0.2)' : 'rgba(255,255,255,0.03)'}; border:2px solid ${isSelected ? 'var(--accent-primary)' : 'rgba(139,124,247,0.1)'}; border-radius:12px; cursor:pointer; transition:all 0.2s; display:flex; flex-direction:column; align-items:center; gap:8px;" onclick="toggleProfileAchievement('${badge.id}')">
-        <div style="font-size:2rem;">⭐</div>
+        <div style="font-size:2rem;">â­</div>
         <div style="font-size:0.7rem; font-weight:600; text-align:center; color:${isSelected ? 'var(--accent-primary)' : 'var(--text-primary)'};">${badge.name}</div>
-        ${isSelected ? '<div style="font-size:0.65rem; color:var(--accent-primary); font-weight:700;">✓ SEÇİLİ</div>' : ''}
+        ${isSelected ? '<div style="font-size:0.65rem; color:var(--accent-primary); font-weight:700;">âœ“ SEÃ‡Ä°LÄ°</div>' : ''}
       </div>
     `;
   }).join('');
@@ -5651,7 +5650,7 @@ window.toggleProfileAchievement = function(achievementId) {
     if (selectedProfileAchievements.length < 3) {
       selectedProfileAchievements.push(achievementId);
     } else {
-      showToast('Maksimum 3 başarım seçebilirsiniz.', 'info');
+      showToast('Maksimum 3 baÅŸarÄ±m seÃ§ebilirsiniz.', 'info');
       return;
     }
   }
@@ -5667,10 +5666,10 @@ window.saveProfileAchievements = async function() {
       await db.collection('users').doc(currentUser.uid).update({
         'data.profile.selectedAchievements': selectedProfileAchievements
       });
-      showToast('Başarımlar kaydedildi!', 'success');
+      showToast('BaÅŸarÄ±mlar kaydedildi!', 'success');
     } catch (err) {
       console.error('Achievement save error:', err);
-      showToast('Başarımlar kaydedilemedi: ' + err.message, 'error');
+      showToast('BaÅŸarÄ±mlar kaydedilemedi: ' + err.message, 'error');
     }
   }
 };
@@ -5684,34 +5683,34 @@ window.renderPasswordSection = function() {
   if (hasPassword) {
     section.innerHTML = `
       <div>
-        <label style="font-size:0.75rem; font-weight:700; color:var(--text-muted); display:block; margin-bottom:6px;">Mevcut Şifre</label>
-        <input type="password" id="currentPassword" class="log-input" placeholder="Mevcut şifreniz">
+        <label style="font-size:0.75rem; font-weight:700; color:var(--text-muted); display:block; margin-bottom:6px;">Mevcut Åifre</label>
+        <input type="password" id="currentPassword" class="log-input" placeholder="Mevcut ÅŸifreniz">
       </div>
       <div>
-        <label style="font-size:0.75rem; font-weight:700; color:var(--text-muted); display:block; margin-bottom:6px;">Yeni Şifre</label>
-        <input type="password" id="newPassword" class="log-input" placeholder="Yeni şifre (min 6 karakter)">
+        <label style="font-size:0.75rem; font-weight:700; color:var(--text-muted); display:block; margin-bottom:6px;">Yeni Åifre</label>
+        <input type="password" id="newPassword" class="log-input" placeholder="Yeni ÅŸifre (min 6 karakter)">
       </div>
       <div>
-        <label style="font-size:0.75rem; font-weight:700; color:var(--text-muted); display:block; margin-bottom:6px;">Yeni Şifre (Tekrar)</label>
-        <input type="password" id="confirmPassword" class="log-input" placeholder="Şifreyi tekrar girin">
+        <label style="font-size:0.75rem; font-weight:700; color:var(--text-muted); display:block; margin-bottom:6px;">Yeni Åifre (Tekrar)</label>
+        <input type="password" id="confirmPassword" class="log-input" placeholder="Åifreyi tekrar girin">
       </div>
-      <button class="btn-primary" onclick="changePassword()" style="width:100%; margin-top:12px;">Şifreyi Değiştir</button>
+      <button class="btn-primary" onclick="changePassword()" style="width:100%; margin-top:12px;">Åifreyi DeÄŸiÅŸtir</button>
     `;
   } else {
     section.innerHTML = `
       <div style="padding:16px; background:rgba(76,203,141,0.1); border:1px solid rgba(76,203,141,0.2); border-radius:10px; margin-bottom:16px;">
-        <div style="font-size:0.85rem; color:var(--green-vivid); font-weight:600; margin-bottom:8px;">ℹ️ Bilgi</div>
-        <div style="font-size:0.8rem; color:var(--text-secondary);">Google ile giriş yaptığınız için şu anda şifreniz yok. Aşağıdan bir şifre belirleyebilirsiniz.</div>
+        <div style="font-size:0.85rem; color:var(--green-vivid); font-weight:600; margin-bottom:8px;">â„¹ï¸ Bilgi</div>
+        <div style="font-size:0.8rem; color:var(--text-secondary);">Google ile giriÅŸ yaptÄ±ÄŸÄ±nÄ±z iÃ§in ÅŸu anda ÅŸifreniz yok. AÅŸaÄŸÄ±dan bir ÅŸifre belirleyebilirsiniz.</div>
       </div>
       <div>
-        <label style="font-size:0.75rem; font-weight:700; color:var(--text-muted); display:block; margin-bottom:6px;">Yeni Şifre</label>
-        <input type="password" id="newPassword" class="log-input" placeholder="Şifre belirleyin (min 6 karakter)">
+        <label style="font-size:0.75rem; font-weight:700; color:var(--text-muted); display:block; margin-bottom:6px;">Yeni Åifre</label>
+        <input type="password" id="newPassword" class="log-input" placeholder="Åifre belirleyin (min 6 karakter)">
       </div>
       <div>
-        <label style="font-size:0.75rem; font-weight:700; color:var(--text-muted); display:block; margin-bottom:6px;">Yeni Şifre (Tekrar)</label>
-        <input type="password" id="confirmPassword" class="log-input" placeholder="Şifreyi tekrar girin">
+        <label style="font-size:0.75rem; font-weight:700; color:var(--text-muted); display:block; margin-bottom:6px;">Yeni Åifre (Tekrar)</label>
+        <input type="password" id="confirmPassword" class="log-input" placeholder="Åifreyi tekrar girin">
       </div>
-      <button class="btn-primary" onclick="setNewPassword()" style="width:100%; margin-top:12px;\">Şifre Belirle</button>
+      <button class="btn-primary" onclick="setNewPassword()" style="width:100%; margin-top:12px;\">Åifre Belirle</button>
     `;
   }
 };
@@ -5722,17 +5721,17 @@ window.changePassword = async function() {
   const confirmPass = document.getElementById('confirmPassword').value;
   
   if (!currentPass || !newPass || !confirmPass) {
-    showToast('Lütfen tüm alanları doldurun.', 'error');
+    showToast('LÃ¼tfen tÃ¼m alanlarÄ± doldurun.', 'error');
     return;
   }
   
   if (newPass !== confirmPass) {
-    showToast('Yeni şifreler eşleşmiyor.', 'error');
+    showToast('Yeni ÅŸifreler eÅŸleÅŸmiyor.', 'error');
     return;
   }
   
   if (newPass.length < 6) {
-    showToast('Şifre en az 6 karakter olmalıdır.', 'error');
+    showToast('Åifre en az 6 karakter olmalÄ±dÄ±r.', 'error');
     return;
   }
   
@@ -5748,10 +5747,10 @@ window.changePassword = async function() {
     document.getElementById('newPassword').value = '';
     document.getElementById('confirmPassword').value = '';
     
-    showToast('Şifre başarıyla değiştirildi!', 'success');
+    showToast('Åifre baÅŸarÄ±yla deÄŸiÅŸtirildi!', 'success');
   } catch (err) {
     console.error('Password change error:', err);
-    showToast('Şifre değiştirilemedi: ' + err.message, 'error');
+    showToast('Åifre deÄŸiÅŸtirilemedi: ' + err.message, 'error');
   }
 };
 
@@ -5760,17 +5759,17 @@ window.setNewPassword = async function() {
   const confirmPass = document.getElementById('confirmPassword').value;
   
   if (!newPass || !confirmPass) {
-    showToast('Lütfen tüm alanları doldurun.', 'error');
+    showToast('LÃ¼tfen tÃ¼m alanlarÄ± doldurun.', 'error');
     return;
   }
   
   if (newPass !== confirmPass) {
-    showToast('Şifreler eşleşmiyor.', 'error');
+    showToast('Åifreler eÅŸleÅŸmiyor.', 'error');
     return;
   }
   
   if (newPass.length < 6) {
-    showToast('Şifre en az 6 karakter olmalıdır.', 'error');
+    showToast('Åifre en az 6 karakter olmalÄ±dÄ±r.', 'error');
     return;
   }
   
@@ -5780,10 +5779,10 @@ window.setNewPassword = async function() {
     document.getElementById('newPassword').value = '';
     document.getElementById('confirmPassword').value = '';
     
-    showToast('Şifre başarıyla belirlendi!', 'success');
+    showToast('Åifre baÅŸarÄ±yla belirlendi!', 'success');
   } catch (err) {
     console.error('Password set error:', err);
-    showToast('Şifre belirlenemedi: ' + err.message, 'error');
+    showToast('Åifre belirlenemedi: ' + err.message, 'error');
   }
 };
 
