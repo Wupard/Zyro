@@ -305,6 +305,8 @@
     </div>
     <!-- Notif Drawer Backdrop -->
     <div class="notif-backdrop" id="notifBackdrop"></div>
+    <!-- Sidebar Backdrop (mobile) -->
+    <div id="sidebarBackdrop" class="sidebar-backdrop" aria-hidden="true"></div>
 
     <!-- Bildirim detayı (önce metin, isteğe yorumlara git) -->
     <div id="notifDetailModal" onclick="if(event.target===this)closeNotifDetailModal()"
@@ -1667,10 +1669,15 @@
             </div>
 
             <div class="input-group">
-              <label
-                style="font-size:0.75rem; font-weight:700; color:var(--text-muted); margin-bottom:6px; display:block;">Geçerlilik
-                Süresi (Gün)</label>
-              <input type="number" id="adminNotifExpiry" class="log-input" value="7" min="1">
+              <label style="font-size:0.75rem; font-weight:700; color:var(--text-muted); margin-bottom:6px; display:block;">Geçerlilik Süresi</label>
+              <div style="display:flex;gap:8px;align-items:center;">
+                <input type="number" id="adminNotifExpiryDays" class="log-input small" value="7" min="0" placeholder="Gün" style="width:80px;">
+                <input type="number" id="adminNotifExpiryHours" class="log-input small" value="0" min="0" max="23" placeholder="Saat" style="width:80px;">
+                <input type="number" id="adminNotifExpiryMinutes" class="log-input small" value="0" min="0" max="59" placeholder="Dakika" style="width:100px;">
+                <!-- Backwards compatibility fallback -->
+                <input type="hidden" id="adminNotifExpiry" value="7">
+              </div>
+              <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:6px;">Gün/Saat/Dakika olarak geçerlilik süresi belirleyebilirsiniz. Boş bırakılırsa varsayılan 7 gün atanır.</div>
             </div>
 
             <div id="adminNotifHistorySection"
@@ -1679,6 +1686,28 @@
                 Gönderilen Bildirimler</h4>
               <div id="adminNotifHistory"
                 style="display:flex; flex-direction:column; gap:8px; max-height:200px; overflow-y:auto;"></div>
+            </div>
+
+            <!-- Maintenance Mode Control (admin only) -->
+            <div class="admin-only" style="margin-top:20px; padding-top:16px; border-top:1px dashed rgba(139,124,247,0.06);">
+              <h4 style="font-size:0.85rem; font-weight:700; color:var(--text-primary); margin-bottom:12px;">🔧 Bakım Modu</h4>
+              <div style="display:flex;flex-direction:column;gap:8px;">
+                <label style="font-size:0.75rem;color:var(--text-muted);">Mesaj (kullanıcılara gösterilecek)</label>
+                <input type="text" id="adminMaintenanceMessage" class="log-input" placeholder="Bakım sebebi veya bilgilendirme mesajı...">
+
+                <label style="font-size:0.75rem;color:var(--text-muted);">Süre</label>
+                <div style="display:flex;gap:8px;align-items:center;">
+                  <input type="number" id="adminMaintenanceExpiryDays" class="log-input small" value="0" min="0" placeholder="Gün" style="width:80px;">
+                  <input type="number" id="adminMaintenanceExpiryHours" class="log-input small" value="1" min="0" max="23" placeholder="Saat" style="width:80px;">
+                  <input type="number" id="adminMaintenanceExpiryMinutes" class="log-input small" value="0" min="0" max="59" placeholder="Dakika" style="width:100px;">
+                </div>
+
+                <div style="display:flex;gap:8px;align-items:center;">
+                  <button class="btn-primary" id="adminSaveMaintenanceBtn">Bakım Modunu Kaydet / Aç</button>
+                  <button class="btn-small" id="adminClearMaintenanceBtn">Kapat</button>
+                </div>
+                <div id="adminMaintenanceStatus" style="font-size:0.75rem;color:var(--text-secondary);"></div>
+              </div>
             </div>
 
             <button class="btn-primary" onclick="adminSendNotificationV2()" style="margin-top:8px;">

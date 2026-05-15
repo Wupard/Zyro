@@ -907,12 +907,118 @@ function initNav(){
       navigateTo(item.dataset.page);
     });
   });
-  document.getElementById('menuToggle').addEventListener('click',()=>{
-    document.getElementById('sidebar').classList.toggle('open');
+  // Improved mobile sidebar toggle with backdrop, aria, and ESC support
+  const menuToggleEl = document.getElementById('menuToggle');
+  const sidebarEl = document.getElementById('sidebar');
+  const sidebarBackdrop = document.getElementById('sidebarBackdrop');
+
+  if (menuToggleEl && sidebarEl) {
+    // Accessible sidebar open/close with focus management and focus-trap
+    menuToggleEl.setAttribute('aria-expanded', 'false');
+    let _prevFocus = null;
+    let _trapHandler = null;
+    const _focusableSelector = 'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+
+    const openSidebar = () => {
+      const opening = true;
+      sidebarEl.classList.add('open');
+      menuToggleEl.setAttribute('aria-expanded', String(opening));
+      if (sidebarBackdrop) {
+        sidebarBackdrop.classList.add('show');
+        sidebarBackdrop.setAttribute('aria-hidden', 'false');
+      }
+      if (window.innerWidth <= 900) document.body.style.overflow = 'hidden';
+
+      // Save previous focus and move focus into the sidebar
+      try { _prevFocus = document.activeElement; } catch (e) { _prevFocus = null; }
+      const first = sidebarEl.querySelector(_focusableSelector);
+      if (first && typeof first.focus === 'function') first.focus();
+      else sidebarEl.setAttribute('tabindex', '-1'); sidebarEl.focus();
+
+      // Trap Tab focus inside sidebar
+      _trapHandler = (e) => {
+        if (e.key !== 'Tab') return;
+        const focusables = Array.from(sidebarEl.querySelectorAll(_focusableSelector)).filter(el => el.offsetParent !== null);
+        if (focusables.length === 0) { e.preventDefault(); return; }
+        const idx = focusables.indexOf(document.activeElement);
+        if (e.shiftKey) {
+          if (idx === 0 || document.activeElement === sidebarEl) { e.preventDefault(); focusables[focusables.length - 1].focus(); }
+        } else {
+          if (idx === focusables.length - 1) { e.preventDefault(); focusables[0].focus(); }
+        }
+      };
+      document.addEventListener('keydown', _trapHandler);
+    };
+
+    const closeSidebar = () => {
+      sidebarEl.classList.remove('open');
+      menuToggleEl.setAttribute('aria-expanded', 'false');
+      if (sidebarBackdrop) {
+        sidebarBackdrop.classList.remove('show');
+        sidebarBackdrop.setAttribute('aria-hidden', 'true');
+      }
+      document.body.style.overflow = '';
+      if (_trapHandler) { document.removeEventListener('keydown', _trapHandler); _trapHandler = null; }
+      if (_prevFocus && typeof _prevFocus.focus === 'function') {
+        try { _prevFocus.focus(); } catch (e) {}
+      }
+      _prevFocus = null;
+    };
+
+    menuToggleEl.addEventListener('click', () => {
+      if (sidebarEl.classList.contains('open')) closeSidebar(); else openSidebar();
+    });
+
+    // expose closeSidebar to other handlers below via closure
+    // attach to elements handled further down (backdrop, outside click, ESC)
+    // we'll reference closeSidebar inside those listeners
+    // (no global exposure needed)
+  }
+
+  if (sidebarBackdrop) {
+    sidebarBackdrop.addEventListener('click', () => {
+      // closeSidebar is in scope only if menuToggleEl & sidebarEl existed
+      if (typeof closeSidebar === 'function') {
+        closeSidebar();
+        return;
+      }
+      if (sidebarEl) sidebarEl.classList.remove('open');
+      sidebarBackdrop.classList.remove('show');
+      sidebarBackdrop.setAttribute('aria-hidden', 'true');
+      if (menuToggleEl) menuToggleEl.setAttribute('aria-expanded', 'false');
+      document.body.style.overflow = '';
+    });
+  }
+
+  // Click outside to close on mobile (keeps existing behaviour but more robust)
+  document.addEventListener('click', e => {
+    if (window.innerWidth <= 768) {
+      const tg = document.getElementById('menuToggle');
+      if (sidebarEl && !sidebarEl.contains(e.target) && tg && !tg.contains(e.target) && sidebarEl.classList.contains('open')) {
+        if (typeof closeSidebar === 'function') { closeSidebar(); return; }
+        sidebarEl.classList.remove('open');
+        if (sidebarBackdrop) {
+          sidebarBackdrop.classList.remove('show');
+          sidebarBackdrop.setAttribute('aria-hidden', 'true');
+        }
+        if (menuToggleEl) menuToggleEl.setAttribute('aria-expanded', 'false');
+        document.body.style.overflow = '';
+      }
+    }
   });
-  document.addEventListener('click',e=>{
-    const sb=document.getElementById('sidebar');const tg=document.getElementById('menuToggle');
-    if(window.innerWidth<=768&&!sb.contains(e.target)&&!tg.contains(e.target))sb.classList.remove('open');
+
+  // Close on ESC key
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && sidebarEl && sidebarEl.classList.contains('open')) {
+      if (typeof closeSidebar === 'function') { closeSidebar(); return; }
+      sidebarEl.classList.remove('open');
+      if (sidebarBackdrop) {
+        sidebarBackdrop.classList.remove('show');
+        sidebarBackdrop.setAttribute('aria-hidden', 'true');
+      }
+      if (menuToggleEl) menuToggleEl.setAttribute('aria-expanded', 'false');
+      document.body.style.overflow = '';
+    }
   });
   initGestures();
 }
@@ -2505,7 +2611,21 @@ window.sendAdminBroadcast = function() {
   const msg = document.getElementById('adminNotifMessage').value;
   const recipient = document.getElementById('adminNotifRecipient').value;
   const uid = document.getElementById('adminNotifUid').value;
-  const expiryDays = parseInt(document.getElementById('adminNotifExpiry').value) || 7;
+  // Read expiry fields (days/hours/minutes) with backward compatibility
+  const dEl = document.getElementById('adminNotifExpiryDays');
+  const hEl = document.getElementById('adminNotifExpiryHours');
+  const mEl = document.getElementById('adminNotifExpiryMinutes');
+  let expiryMs = 7 * 24 * 60 * 60 * 1000; // default 7 days
+  if (dEl || hEl || mEl) {
+    const days = parseInt(dEl?.value) || 0;
+    const hours = parseInt(hEl?.value) || 0;
+    const mins = parseInt(mEl?.value) || 0;
+    expiryMs = ((days * 24 + hours) * 60 + mins) * 60 * 1000;
+    if (expiryMs <= 0) expiryMs = 7 * 24 * 60 * 60 * 1000;
+  } else if (document.getElementById('adminNotifExpiry')) {
+    const expiryDays = parseInt(document.getElementById('adminNotifExpiry').value) || 7;
+    expiryMs = expiryDays * 24 * 60 * 60 * 1000;
+  }
 
   if (!title || !msg) {
     showToast('Lütfen başlık ve mesaj girin.', 'error');
@@ -2521,7 +2641,7 @@ window.sendAdminBroadcast = function() {
     title,
     body: msg,
     timestamp: Date.now(),
-    expiry: Date.now() + (expiryDays * 24 * 60 * 60 * 1000),
+    expiry: Date.now() + expiryMs,
     read: false,
     type: recipient === 'all' ? 'broadcast' : 'personal',
     sender: currentUser ? currentUser.displayName || 'Admin' : 'Admin'
@@ -3571,20 +3691,9 @@ window.upvoteComment = async function(commentId) {
 // =============================================
 // ADMIN PANEL (Special for Wupard)
 // =============================================
-window.adminShowSection = function(section) {
-  const sections = ['dashboard', 'notifications', 'users', 'comments'];
-  sections.forEach(s => {
-    const el = document.getElementById(`admin${s.charAt(0).toUpperCase() + s.slice(1)}Section`);
-    if (el) el.style.display = s === section ? 'block' : 'none';
-    
-    const btn = document.getElementById(`adminTab${s.charAt(0).toUpperCase() + s.slice(1)}`);
-    if (btn) btn.classList.toggle('active', s === section);
-  });
-  
-  if (section === 'users') adminLoadUsers();
-  if (section === 'comments') adminLoadAllComments();
-  if (section === 'dashboard') adminLoadDashboardStats();
-};
+// NOTE: adminShowSection is defined later in the file (unified version). This earlier
+// occurrence was removed to avoid duplicate definitions. The unified implementation
+// further below (near line ~3780) is the authoritative function.
 
 window.toggleAdminUidInput = function(val) {
   document.getElementById('adminNotifUidWrap').style.display = val === 'specific' ? 'block' : 'none';
@@ -3595,7 +3704,21 @@ window.adminSendNotificationV2 = async function() {
   const targetUid = document.getElementById('adminNotifUid').value.trim();
   const title = document.getElementById('adminNotifTitle').value.trim();
   const msg = document.getElementById('adminNotifMessage').value.trim();
-  const expiryDays = parseInt(document.getElementById('adminNotifExpiry').value) || 7;
+  // Keep compatibility: compute expiryMs from days/hours/minutes inputs
+  const dEl2 = document.getElementById('adminNotifExpiryDays');
+  const hEl2 = document.getElementById('adminNotifExpiryHours');
+  const mEl2 = document.getElementById('adminNotifExpiryMinutes');
+  let expiryMs2 = 7 * 24 * 60 * 60 * 1000;
+  if (dEl2 || hEl2 || mEl2) {
+    const days = parseInt(dEl2?.value) || 0;
+    const hours = parseInt(hEl2?.value) || 0;
+    const mins = parseInt(mEl2?.value) || 0;
+    expiryMs2 = ((days * 24 + hours) * 60 + mins) * 60 * 1000;
+    if (expiryMs2 <= 0) expiryMs2 = 7 * 24 * 60 * 60 * 1000;
+  } else if (document.getElementById('adminNotifExpiry')) {
+    const expiryDays = parseInt(document.getElementById('adminNotifExpiry').value) || 7;
+    expiryMs2 = expiryDays * 24 * 60 * 60 * 1000;
+  }
 
   const btnText = document.getElementById('adminNotifBtnText');
   const loader = document.getElementById('adminNotifLoader');
@@ -3618,7 +3741,7 @@ window.adminSendNotificationV2 = async function() {
     title,
     body: msg,
     timestamp: Date.now(),
-    expiry: Date.now() + (expiryDays * 24 * 60 * 60 * 1000),
+    expiry: Date.now() + expiryMs2,
     read: false,
     type: recipientType === 'all' ? 'broadcast' : 'personal',
     sender: 'Admin'
@@ -4440,7 +4563,21 @@ window.adminSendNotificationV2Enhanced = async function() {
   const category = document.getElementById('adminNotifCategory').value;
   const title = document.getElementById('adminNotifTitle').value.trim();
   const msg = document.getElementById('adminNotifMessage').value.trim();
-  const expiryDays = parseInt(document.getElementById('adminNotifExpiry').value) || 7;
+  // compute expiry in ms from days/hours/minutes inputs for more granularity
+  const dEl3 = document.getElementById('adminNotifExpiryDays');
+  const hEl3 = document.getElementById('adminNotifExpiryHours');
+  const mEl3 = document.getElementById('adminNotifExpiryMinutes');
+  let expiryMs3 = 7 * 24 * 60 * 60 * 1000;
+  if (dEl3 || hEl3 || mEl3) {
+    const days = parseInt(dEl3?.value) || 0;
+    const hours = parseInt(hEl3?.value) || 0;
+    const mins = parseInt(mEl3?.value) || 0;
+    expiryMs3 = ((days * 24 + hours) * 60 + mins) * 60 * 1000;
+    if (expiryMs3 <= 0) expiryMs3 = 7 * 24 * 60 * 60 * 1000;
+  } else if (document.getElementById('adminNotifExpiry')) {
+    const expiryDays = parseInt(document.getElementById('adminNotifExpiry').value) || 7;
+    expiryMs3 = expiryDays * 24 * 60 * 60 * 1000;
+  }
 
   const btnText = document.getElementById('adminNotifBtnText');
   const loader = document.getElementById('adminNotifLoader');
@@ -4471,7 +4608,7 @@ window.adminSendNotificationV2Enhanced = async function() {
     title,
     body: msg,
     timestamp: Date.now(),
-    expiry: Date.now() + (expiryDays * 24 * 60 * 60 * 1000),
+    expiry: Date.now() + expiryMs3,
     read: false,
     type: recipientType === 'all' ? 'broadcast' : 'personal',
     sender: 'Admin',
@@ -4719,6 +4856,120 @@ function initializeEnhancements() {
       renderAdminNotificationHistory();
     }
   }, 500);
+
+  // Initialize maintenance mode UI and state
+  try {
+    if (document.getElementById('adminSaveMaintenanceBtn')) {
+      document.getElementById('adminSaveMaintenanceBtn').addEventListener('click', saveMaintenanceSettings);
+    }
+    if (document.getElementById('adminClearMaintenanceBtn')) {
+      document.getElementById('adminClearMaintenanceBtn').addEventListener('click', clearMaintenanceSettings);
+    }
+
+    // Apply existing maintenance state on load
+    applyMaintenanceState();
+    // Update admin status text
+    updateMaintenanceStatusText();
+  } catch (e) { console.error('Maintenance init error:', e); }
+}
+
+// Maintenance mode helpers (client-side only - persisted in localStorage)
+function saveMaintenanceSettings() {
+  if (!currentUser) {
+    showToast('Yalnızca adminler bakım modunu değiştirebilir.', 'error');
+    return;
+  }
+  const isAdmin = currentUser.email === 'wupard@gmail.com' || appData.firestoreAdmin === true;
+  if (!isAdmin) {
+    showToast('İzin yok: sadece adminler erişebilir.', 'error');
+    return;
+  }
+
+  const msg = (document.getElementById('adminMaintenanceMessage')?.value || '').trim();
+  const days = parseInt(document.getElementById('adminMaintenanceExpiryDays')?.value) || 0;
+  const hours = parseInt(document.getElementById('adminMaintenanceExpiryHours')?.value) || 0;
+  const mins = parseInt(document.getElementById('adminMaintenanceExpiryMinutes')?.value) || 0;
+
+  let durationMs = ((days * 24 + hours) * 60 + mins) * 60 * 1000;
+  if (durationMs <= 0) durationMs = 60 * 60 * 1000; // default 1 hour if zero
+
+  const obj = {
+    enabled: true,
+    message: msg,
+    expiresAt: Date.now() + durationMs,
+    setBy: currentUser.email || currentUser.uid || 'admin'
+  };
+
+  localStorage.setItem('zyro_maintenance', JSON.stringify(obj));
+  applyMaintenanceState();
+  updateMaintenanceStatusText();
+  showToast('Bakım modu etkinleştirildi.', 'success');
+}
+
+function clearMaintenanceSettings() {
+  if (!currentUser) return showToast('Yetki gerekli.', 'error');
+  const isAdmin = currentUser.email === 'wupard@gmail.com' || appData.firestoreAdmin === true;
+  if (!isAdmin) return showToast('İzin yok.', 'error');
+  localStorage.removeItem('zyro_maintenance');
+  applyMaintenanceState();
+  updateMaintenanceStatusText();
+  showToast('Bakım modu kapatıldı.', 'success');
+}
+
+function getMaintenanceState() {
+  try {
+    const raw = localStorage.getItem('zyro_maintenance');
+    if (!raw) return { enabled: false };
+    const obj = JSON.parse(raw);
+    if (obj.expiresAt && Date.now() > obj.expiresAt) return { enabled: false };
+    return obj;
+  } catch (e) { console.error('getMaintenanceState failed', e); return { enabled: false }; }
+}
+
+function applyMaintenanceState() {
+  const state = getMaintenanceState();
+  let overlay = document.getElementById('maintenanceOverlay');
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.id = 'maintenanceOverlay';
+    overlay.style.cssText = 'position:fixed;inset:0;z-index:99999;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,0.8);backdrop-filter:blur(4px);';
+    overlay.innerHTML = `<div style="max-width:720px;width:calc(100% - 40px);padding:24px;border-radius:12px;background:linear-gradient(145deg,#111118,#14141c);border:1px solid rgba(255,255,255,0.04);color:var(--text-primary);text-align:center;">
+      <h2 style="margin:0 0 8px;">Site Bakım Modunda</h2>
+      <div id="maintenanceOverlayMsg" style="margin-bottom:12px;color:var(--text-secondary);"></div>
+      <div id="maintenanceOverlayUntil" style="font-size:0.9rem;color:var(--text-tertiary);"></div>
+    </div>`;
+    document.body.appendChild(overlay);
+  }
+
+  if (state.enabled) {
+    // Show overlay for non-admin users
+    const isAdmin = currentUser && (currentUser.email === 'wupard@gmail.com' || appData.firestoreAdmin === true);
+    if (!isAdmin) {
+      document.getElementById('maintenanceOverlayMsg').textContent = state.message || 'Kısa süreli bakım yapılıyor.';
+      const until = state.expiresAt ? new Date(state.expiresAt).toLocaleString() : '—';
+      document.getElementById('maintenanceOverlayUntil').textContent = 'Tahmini bitiş: ' + until;
+      overlay.style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+    } else {
+      overlay.style.display = 'none';
+      document.body.style.overflow = '';
+    }
+  } else {
+    overlay.style.display = 'none';
+    document.body.style.overflow = '';
+  }
+}
+
+function updateMaintenanceStatusText() {
+  const st = getMaintenanceState();
+  const el = document.getElementById('adminMaintenanceStatus');
+  if (!el) return;
+  if (st.enabled) {
+    const until = st.expiresAt ? new Date(st.expiresAt).toLocaleString() : '—';
+    el.textContent = `Etkin — Tahmini bitiş: ${until} (Açan: ${st.setBy || 'admin'})`;
+  } else {
+    el.textContent = 'Kapalı';
+  }
 }
 
 // Call on page load

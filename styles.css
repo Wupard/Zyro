@@ -241,6 +241,25 @@ body.sidebar-collapsed .signout-btn { display:none; }
 
 .menu-toggle{display:none;background:none;border:none;color:var(--text-secondary);cursor:pointer;padding:6px;border-radius:var(--radius-sm)}
 
+/* Sidebar backdrop for mobile overlay */
+.sidebar-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  z-index: 90;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.22s ease;
+}
+.sidebar-backdrop.show {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Maintenance overlay style */
+#maintenanceOverlay { display: none; }
+#maintenanceOverlay > div { box-shadow: var(--shadow-card); }
+
 /* ===========================
    MAIN CONTENT
    =========================== */
