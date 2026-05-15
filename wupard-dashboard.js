@@ -19,9 +19,12 @@ function initNavigation() {
   document.querySelectorAll('.wp-nav-item').forEach(item => {
     item.addEventListener('click', (e) => {
       e.preventDefault();
+      const page = item.dataset.page;
       document.querySelectorAll('.wp-nav-item').forEach(n => n.classList.remove('active'));
       item.classList.add('active');
-      // Close mobile sidebar
+      document.querySelectorAll('.wp-page').forEach(p => p.style.display = 'none');
+      const targetPage = document.getElementById('page' + page.charAt(0).toUpperCase() + page.slice(1));
+      if (targetPage) targetPage.style.display = 'block';
       document.getElementById('wpSidebar').classList.remove('open');
       document.getElementById('wpOverlay').classList.remove('show');
     });

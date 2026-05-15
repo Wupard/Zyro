@@ -77,6 +77,9 @@
     <!-- Content -->
     <div class="wp-content">
 
+      <!-- DASHBOARD PAGE -->
+      <div class="wp-page" id="pageDashboard">
+
       <!-- STAT CARDS ROW -->
       <div class="wp-grid-stats">
         <div class="wp-card wp-stat wp-card-interactive" id="statSessions">
@@ -230,10 +233,117 @@
           </div>
         </div>
       </div>
+
+      </div> <!-- pageDashboard -->
+
+      <!-- TRAINING PAGE -->
+      <div class="wp-page" id="pageTraining" style="display:none">
+        <div class="wp-card">
+          <div class="wp-card-header">
+            <div class="wp-card-title accent">Training Logs</div>
+            <button class="wp-card-action">Add New</button>
+          </div>
+          <div class="wp-training-list" id="trainingList"></div>
+        </div>
+      </div>
+
+      <!-- PROFILE PAGE -->
+      <div class="wp-page" id="pageProfile" style="display:none">
+        <div class="wp-grid-main">
+          <div class="wp-card">
+            <div class="wp-card-header">
+              <div class="wp-card-title accent">User Profile</div>
+            </div>
+            <div class="wp-profile-info">
+              <div class="wp-profile-avatar" id="profileAvatar">
+                <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:2rem;color:var(--accent);background:var(--accent-bg);">YK</div>
+              </div>
+              <div class="wp-profile-details">
+                <div class="wp-profile-name">Yusuf Kahraman</div>
+                <div class="wp-profile-email">yusuf@example.com</div>
+                <div class="wp-profile-stats">
+                  <div><span class="lbl">Height</span><span class="val">180 cm</span></div>
+                  <div><span class="lbl">Weight</span><span class="val">78.4 kg</span></div>
+                  <div><span class="lbl">Age</span><span class="val">26</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="wp-card">
+            <div class="wp-card-header">
+              <div class="wp-card-title accent">Body Stats</div>
+            </div>
+            <div class="wp-body-stats">
+              <div class="wp-body-stat-item">
+                <div class="wp-body-stat-label">Body Fat</div>
+                <div class="wp-body-stat-value">14.2%</div>
+                <div class="wp-body-stat-change down">-1.8%</div>
+              </div>
+              <div class="wp-body-stat-item">
+                <div class="wp-body-stat-label">Muscle Mass</div>
+                <div class="wp-body-stat-value">38.5 kg</div>
+                <div class="wp-body-stat-change up">+0.8 kg</div>
+              </div>
+              <div class="wp-body-stat-item">
+                <div class="wp-body-stat-label">Water %</div>
+                <div class="wp-body-stat-value">58%</div>
+                <div class="wp-body-stat-change">-</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SETTINGS PAGE -->
+      <div class="wp-page" id="pageSettings" style="display:none">
+        <div class="wp-grid-main">
+          <div class="wp-card">
+            <div class="wp-card-header">
+              <div class="wp-card-title accent">Account Settings</div>
+            </div>
+            <div class="wp-settings-form">
+              <div class="wp-setting-item">
+                <label>Display Name</label>
+                <input type="text" value="Yusuf K." class="wp-input">
+              </div>
+              <div class="wp-setting-item">
+                <label>Email</label>
+                <input type="email" value="yusuf@example.com" class="wp-input">
+              </div>
+              <div class="wp-setting-item">
+                <label>Weight Unit</label>
+                <select class="wp-select">
+                  <option selected>kg</option>
+                  <option>lbs</option>
+                </select>
+              </div>
+              <button class="wp-btn">Save Changes</button>
+            </div>
+          </div>
+          <div class="wp-card">
+            <div class="wp-card-header">
+              <div class="wp-card-title accent">Preferences</div>
+            </div>
+            <div class="wp-settings-options">
+              <div class="wp-setting-toggle">
+                <span>Dark Mode</span>
+                <label class="wp-toggle"><input type="checkbox" checked><span class="wp-toggle-slider"></span></label>
+              </div>
+              <div class="wp-setting-toggle">
+                <span>Email Notifications</span>
+                <label class="wp-toggle"><input type="checkbox"><span class="wp-toggle-slider"></span></label>
+              </div>
+              <div class="wp-setting-toggle">
+                <span>Weekly Summary</span>
+                <label class="wp-toggle"><input type="checkbox" checked><span class="wp-toggle-slider"></span></label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div>
   </main>
-
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <script src="wupard-dashboard.js"></script>
 </body>
 </html>
