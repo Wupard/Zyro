@@ -1581,7 +1581,7 @@
               <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
               <path d="M13.73 21a2 2 0 0 1-3.46 0" />
             </svg>
-            Kullanıcı Bildirimleri
+            Duyurular
           </button>
           <button onclick="adminShowSection('users')" class="admin-tab-btn" id="adminTabUsers">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
@@ -1621,7 +1621,7 @@
       <div id="adminNotificationsSection" class="admin-content-section" style="display:none;">
         <section class="card">
           <div class="card-header">
-            <h3 class="card-title">Kullanıcı Bildirimleri</h3>
+            <h3 class="card-title">Duyurular</h3>
           </div>
           <div style="padding:20px; display:flex; flex-direction:column; gap:16px;">
             <div class="input-group">
@@ -1688,25 +1688,26 @@
                 style="display:flex; flex-direction:column; gap:8px; max-height:200px; overflow-y:auto;"></div>
             </div>
 
-            <!-- Maintenance Mode Control (admin only) -->
-            <div class="admin-only" style="margin-top:20px; padding-top:16px; border-top:1px dashed rgba(139,124,247,0.06);">
-              <h4 style="font-size:0.85rem; font-weight:700; color:var(--text-primary); margin-bottom:12px;">🔧 Bakım Modu</h4>
-              <div style="display:flex;flex-direction:column;gap:8px;">
-                <label style="font-size:0.75rem;color:var(--text-muted);">Mesaj (kullanıcılara gösterilecek)</label>
+            <div class="admin-only admin-maintenance">
+              <div class="admin-maintenance-header">
+                <h4 class="admin-maintenance-title">🔧 Bakım Modu</h4>
+                <div id="adminMaintenanceStatus" class="admin-maintenance-status"></div>
+              </div>
+              <div class="admin-maintenance-body">
+                <label class="admin-maintenance-label">Mesaj (kullanıcılara gösterilecek)</label>
                 <input type="text" id="adminMaintenanceMessage" class="log-input" placeholder="Bakım sebebi veya bilgilendirme mesajı...">
 
-                <label style="font-size:0.75rem;color:var(--text-muted);">Süre</label>
-                <div style="display:flex;gap:8px;align-items:center;">
+                <label class="admin-maintenance-label">Süre</label>
+                <div class="admin-maintenance-duration">
                   <input type="number" id="adminMaintenanceExpiryDays" class="log-input small" value="0" min="0" placeholder="Gün" style="width:80px;">
                   <input type="number" id="adminMaintenanceExpiryHours" class="log-input small" value="1" min="0" max="23" placeholder="Saat" style="width:80px;">
                   <input type="number" id="adminMaintenanceExpiryMinutes" class="log-input small" value="0" min="0" max="59" placeholder="Dakika" style="width:100px;">
                 </div>
 
-                <div style="display:flex;gap:8px;align-items:center;">
+                <div class="admin-maintenance-actions">
                   <button class="btn-primary" id="adminSaveMaintenanceBtn">Bakım Modunu Kaydet / Aç</button>
                   <button class="btn-small" id="adminClearMaintenanceBtn">Kapat</button>
                 </div>
-                <div id="adminMaintenanceStatus" style="font-size:0.75rem;color:var(--text-secondary);"></div>
               </div>
             </div>
 
@@ -1756,6 +1757,25 @@
         <div id="strengthDetailContent" style="padding:20px;">
           <!-- Content will be rendered here -->
         </div>
+      </div>
+    </div>
+
+    <div class="modal" id="adminUserDetailModal"
+      style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:2000; align-items:center; justify-content:center; padding:20px;">
+      <div class="modal-content card"
+        style="width:100%; max-width:760px; max-height:90vh; overflow-y:auto; border: 1px solid var(--border-card); box-shadow: 0 0 30px rgba(139,124,247,0.18);">
+        <div class="card-header"
+          style="position:sticky; top:0; background:var(--bg-card); z-index:10; border-bottom: 1px solid var(--border-subtle);">
+          <h3 class="card-title" id="adminUserDetailTitle">Kullanıcı Detayı</h3>
+          <button class="btn-small" onclick="closeAdminUserDetail()"
+            style="background:transparent; color:var(--text-muted); padding:4px;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
+        </div>
+        <div id="adminUserDetailContent" style="padding:20px;"></div>
       </div>
     </div>
 

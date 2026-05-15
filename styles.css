@@ -259,6 +259,106 @@ body.sidebar-collapsed .signout-btn { display:none; }
 /* Maintenance overlay style */
 #maintenanceOverlay { display: none; }
 #maintenanceOverlay > div { box-shadow: var(--shadow-card); }
+#maintenanceOverlay.maintenance-overlay{
+  position:fixed;
+  inset:0;
+  z-index:99999;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  background:radial-gradient(900px 420px at 50% 20%, rgba(139,124,247,0.16), rgba(0,0,0,0.82));
+  backdrop-filter:blur(8px);
+}
+.maintenance-card{
+  width:min(760px, calc(100% - 40px));
+  border-radius:22px;
+  padding:26px 22px;
+  background:linear-gradient(145deg, rgba(17,17,24,0.92), rgba(20,20,28,0.92));
+  border:1px solid rgba(139,124,247,0.18);
+  box-shadow:0 24px 70px rgba(0,0,0,0.55), 0 0 48px rgba(139,124,247,0.12);
+  text-align:center;
+}
+.maintenance-icon{
+  width:72px;height:72px;border-radius:20px;
+  margin:0 auto 14px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:2rem;
+  background:rgba(139,124,247,0.12);
+  border:1px solid rgba(139,124,247,0.24);
+  box-shadow:0 0 24px rgba(139,124,247,0.18);
+}
+.maintenance-title{
+  margin:0 0 8px;
+  font-size:1.6rem;
+  font-weight:900;
+  letter-spacing:-0.02em;
+  background:linear-gradient(135deg,var(--text-primary),var(--text-accent));
+  -webkit-background-clip:text;
+  background-clip:text;
+  -webkit-text-fill-color:transparent;
+}
+.maintenance-msg{
+  color:var(--text-secondary);
+  font-size:0.95rem;
+  line-height:1.55;
+  margin:0 0 14px;
+  white-space:pre-wrap;
+}
+.maintenance-until{
+  color:var(--text-tertiary);
+  font-size:0.88rem;
+  font-weight:600;
+}
+
+.admin-maintenance{
+  margin-top:20px;
+  padding:18px;
+  border-radius:16px;
+  border:1px solid rgba(139,124,247,0.16);
+  background:linear-gradient(145deg, rgba(139,124,247,0.10), rgba(0,0,0,0));
+}
+.admin-maintenance-header{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:12px;
+  margin-bottom:14px;
+}
+.admin-maintenance-title{
+  margin:0;
+  font-size:0.9rem;
+  font-weight:900;
+  color:var(--text-primary);
+}
+.admin-maintenance-status{
+  font-size:0.75rem;
+  color:var(--text-tertiary);
+  font-weight:700;
+  text-align:right;
+}
+.admin-maintenance-body{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+.admin-maintenance-label{
+  font-size:0.75rem;
+  color:var(--text-muted);
+  font-weight:700;
+}
+.admin-maintenance-duration{
+  display:flex;
+  gap:8px;
+  align-items:center;
+  flex-wrap:wrap;
+}
+.admin-maintenance-actions{
+  display:flex;
+  gap:10px;
+  align-items:center;
+  flex-wrap:wrap;
+  margin-top:6px;
+}
 
 /* ===========================
    MAIN CONTENT

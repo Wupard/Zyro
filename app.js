@@ -2377,6 +2377,21 @@ document.addEventListener('DOMContentLoaded',()=>{
 // =============================================
 let activeNotifications = [];
 let notifUnsubscribe = null;
+const __broadcastLastReadKey = 'zyro_broadcast_lastRead';
+
+function __getBroadcastLastRead() {
+  return parseInt(localStorage.getItem(__broadcastLastReadKey) || '0', 10) || 0;
+}
+
+function __setBroadcastLastRead(ts) {
+  localStorage.setItem(__broadcastLastReadKey, String(ts || Date.now()));
+}
+
+function __isNotifRead(n) {
+  if (!n) return true;
+  if (n.scope === 'broadcast') return !!n.read || (n.timestamp || 0) <= __getBroadcastLastRead();
+  return !!n.read;
+}
 
 function initNotifications() {
   if (!currentUser) return;
@@ -2458,20 +2473,29 @@ function renderAdminHistory() {
 window.markAllNotificationsAsRead = function() {
   if (!currentUser || activeNotifications.length === 0) return;
   
-  const unread = activeNotifications.filter(n => !n.read);
+  const unread = activeNotifications.filter(n => !__isNotifRead(n));
   if (unread.length === 0) {
     showToast('Tüm bildirimler zaten okundu.', 'info');
     return;
   }
 
+  const broadcastMaxTs = Math.max(0, ...activeNotifications.filter(n => n.scope === 'broadcast').map(n => n.timestamp || 0));
+  if (broadcastMaxTs > 0) __setBroadcastLastRead(broadcastMaxTs);
+
   const batch = db.batch();
-  unread.forEach(n => {
-    const path = n.scope === 'broadcast' ? `notifications/${n.id}` : `users/${currentUser.uid}/notifications/${n.id}`;
+  unread.filter(n => n.scope !== 'broadcast').forEach(n => {
+    const path = `users/${currentUser.uid}/notifications/${n.id}`;
     batch.update(db.doc(path), { read: true });
   });
 
   batch.commit().then(() => {
     showToast('Tüm bildirimler okundu olarak işaretlendi.', 'success');
+    activeNotifications.forEach(n => {
+      if (n.scope === 'personal') n.read = true;
+      if (n.scope === 'broadcast' && (n.timestamp || 0) <= broadcastMaxTs) n.read = true;
+    });
+    renderNotificationList();
+    updateNotifBadge();
   }).catch(e => console.error('Batch read mark failed:', e));
 };
 
@@ -2488,9 +2512,10 @@ function renderNotificationList() {
   }
 
   container.innerHTML = activeNotifications.map(n => {
-    const isUnread = !n.read;
+    const isUnread = !__isNotifRead(n);
     const date = new Date(n.timestamp).toLocaleDateString(currentLang === 'tr' ? 'tr-TR' : 'en-US', { hour: '2-digit', minute: '2-digit' });
     const icon = n.type === 'broadcast' ? '📢' : '🔔';
+    const canDelete = n.scope !== 'broadcast' || (currentUser && currentUser.email === 'wupard@gmail.com');
     
     return `
       <div class="notif-item ${isUnread ? 'unread' : ''}" style="position:relative;">
@@ -2502,9 +2527,11 @@ function renderNotificationList() {
             <div class="notif-item-time">${date}</div>
           </div>
         </div>
-        <button onclick="deleteNotification('${n.id}', '${n.scope}')" style="background:none; border:none; color:var(--text-muted); cursor:pointer; padding:4px; position:absolute; top:8px; right:8px; opacity:0.5; transition:opacity 0.2s;" onmouseenter="this.style.opacity='1'" onmouseleave="this.style.opacity='0.5'">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-        </button>
+        ${canDelete ? `
+          <button onclick="deleteNotification('${n.id}', '${n.scope}')" style="background:none; border:none; color:var(--text-muted); cursor:pointer; padding:4px; position:absolute; top:8px; right:8px; opacity:0.5; transition:opacity 0.2s;" onmouseenter="this.style.opacity='1'" onmouseleave="this.style.opacity='0.5'">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        ` : ''}
         ${isUnread ? '<div class="notif-unread-dot"></div>' : ''}
       </div>
     `;
@@ -2513,6 +2540,10 @@ function renderNotificationList() {
 
 window.deleteNotification = function(id, scope) {
   if (!currentUser) return;
+  if (scope === 'broadcast' && currentUser.email !== 'wupard@gmail.com') {
+    showToast('Bu işlem için yetkin yok.', 'error');
+    return;
+  }
   const path = scope === 'broadcast' ? `notifications/${id}` : `users/${currentUser.uid}/notifications/${id}`;
   
   if (confirm('Bu bildirimi silmek istediğine emin misin?')) {
@@ -2525,7 +2556,7 @@ window.deleteNotification = function(id, scope) {
 function updateNotifBadge() {
   const badge = document.getElementById('notifBadge');
   if (!badge) return;
-  const unreadCount = activeNotifications.filter(n => !n.read).length;
+  const unreadCount = activeNotifications.filter(n => !__isNotifRead(n)).length;
   if (unreadCount > 0) {
     badge.textContent = unreadCount;
     badge.style.display = 'flex';
@@ -2571,9 +2602,20 @@ window.openNotifFromList = function(id, scope) {
     modal.style.justifyContent = 'center';
   }
 
-  const path = scope === 'broadcast' ? `notifications/${id}` : `users/${currentUser.uid}/notifications/${id}`;
+  if (scope === 'broadcast') {
+    if ((n.timestamp || 0) > __getBroadcastLastRead()) __setBroadcastLastRead(n.timestamp);
+    n.read = true;
+    renderNotificationList();
+    updateNotifBadge();
+    return;
+  }
+
+  const path = `users/${currentUser.uid}/notifications/${id}`;
   if (!n.read) {
     db.doc(path).update({ read: true }).catch(e => console.error('Mark read failed:', e));
+    n.read = true;
+    renderNotificationList();
+    updateNotifBadge();
   }
 };
 
@@ -3814,12 +3856,19 @@ async function adminLoadUsers() {
     const snap = await db.collection('users').get();
     let html = '';
     snap.forEach(doc => {
-      const data = doc.data().data || {};
+      const top = doc.data() || {};
+      const data = top.data || {};
+      const profile = data.profile || top.profile || {};
+      const displayName = profile.displayName || data.userName || top.userName || top.displayName || '';
+      const email = profile.email || data.email || top.email || '';
+      const rankKey = data.userRank || top.userRank || 'default';
+      const rankLabel = (typeof RANKS !== 'undefined' && RANKS[rankKey] ? RANKS[rankKey].label : (rankKey || 'Üye'));
       html += `
         <div style="padding:12px; border-bottom:1px solid var(--border-subtle); display:flex; justify-content:space-between; align-items:center;">
           <div>
-            <div style="font-weight:700; font-size:0.85rem;">${doc.id}</div>
-            <div style="font-size:0.7rem; color:var(--text-tertiary);">Rank: ${data.userRank || 'Üye'}</div>
+            <div style="font-weight:800; font-size:0.9rem; color:var(--text-primary);">${displayName || 'İsimsiz Kullanıcı'}</div>
+            <div style="font-size:0.72rem; color:var(--text-tertiary);">${email || doc.id}</div>
+            <div style="font-size:0.7rem; color:var(--text-tertiary);">Rank: ${rankLabel}</div>
           </div>
           <button class="btn-small" onclick="adminViewUserDetails('${doc.id}')">Detay</button>
         </div>
@@ -3854,8 +3903,140 @@ async function adminLoadAllComments() {
   } catch(e) { list.innerHTML = 'Hata: ' + e.message; }
 }
 
-window.adminViewUserDetails = function(uid) {
-  alert('Kullanıcı Detayları: ' + uid);
+function __escapeHtml(v) {
+  return String(v ?? '')
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#39;');
+}
+
+window.closeAdminUserDetail = function() {
+  const modal = document.getElementById('adminUserDetailModal');
+  if (modal) modal.style.display = 'none';
+};
+
+window.adminViewUserDetails = async function(uid) {
+  const modal = document.getElementById('adminUserDetailModal');
+  const titleEl = document.getElementById('adminUserDetailTitle');
+  const content = document.getElementById('adminUserDetailContent');
+  if (!modal || !content || !db) return;
+
+  modal.style.display = 'flex';
+  modal.style.alignItems = 'center';
+  modal.style.justifyContent = 'center';
+
+  if (titleEl) titleEl.textContent = 'Kullanıcı Detayı';
+  content.innerHTML = '<div class="logged-empty">Yükleniyor...</div>';
+
+  try {
+    const snap = await db.collection('users').doc(uid).get();
+    const top = snap.exists ? (snap.data() || {}) : {};
+    const data = top.data || {};
+    const profile = data.profile || top.profile || {};
+    const displayName = profile.displayName || data.userName || top.userName || top.displayName || '';
+    const email = profile.email || data.email || top.email || '';
+    const rankKey = data.userRank || top.userRank || 'default';
+    const rank = (typeof RANKS !== 'undefined' && RANKS[rankKey]) ? RANKS[rankKey] : null;
+
+    if (titleEl) titleEl.textContent = displayName ? `${displayName} — Detay` : 'Kullanıcı Detayı';
+
+    const notesObj = data.notes || {};
+    const notes = Object.values(notesObj).filter(n => n && typeof n === 'object');
+    notes.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+
+    let comments = [];
+    try {
+      const cSnap = await db.collection('public_comments').where('userId', '==', uid).get();
+      cSnap.forEach(d => comments.push({ id: d.id, ...(d.data() || {}) }));
+      comments.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+    } catch (e) {
+      comments = [];
+    }
+
+    const notesHtml = notes.length === 0
+      ? `<div style="font-size:0.8rem; color:var(--text-tertiary); padding:14px; text-align:center;">Not bulunamadı.</div>`
+      : notes.slice(0, 50).map(n => {
+        const date = n.date || (n.timestamp ? new Date(n.timestamp).toLocaleDateString('tr-TR') : '—');
+        const tags = Array.isArray(n.tags) ? n.tags : [];
+        const tagsHtml = tags.length
+          ? `<div style="display:flex; flex-wrap:wrap; gap:6px; margin-top:10px;">${tags.map(t => `<span style="font-size:0.65rem; padding:2px 8px; border-radius:999px; background:rgba(139,124,247,0.12); border:1px solid rgba(139,124,247,0.2); color:var(--text-secondary); font-weight:600;">${__escapeHtml(t)}</span>`).join('')}</div>`
+          : '';
+        return `
+          <div style="padding:14px; background:var(--bg-card-alt); border:1px solid var(--border-subtle); border-radius:12px;">
+            <div style="display:flex; justify-content:space-between; gap:12px; align-items:center; margin-bottom:10px;">
+              <div style="font-size:0.75rem; color:var(--text-tertiary); font-weight:700;">${__escapeHtml(date)}</div>
+              <div style="font-size:0.7rem; color:var(--text-tertiary);">${n.timestamp ? new Date(n.timestamp).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' }) : ''}</div>
+            </div>
+            <div style="font-size:0.9rem; color:var(--text-primary); white-space:pre-wrap; line-height:1.45;">${__escapeHtml(n.text || '')}</div>
+            ${tagsHtml}
+          </div>
+        `;
+      }).join('');
+
+    const commentsHtml = comments.length === 0
+      ? `<div style="font-size:0.8rem; color:var(--text-tertiary); padding:14px; text-align:center;">Yorum bulunamadı.</div>`
+      : comments.slice(0, 50).map(c => {
+        const date = c.date || (c.timestamp ? new Date(c.timestamp).toLocaleDateString('tr-TR') : '—');
+        const isReply = !!c.parentId;
+        const typeBadge = isReply
+          ? `<span style="font-size:0.62rem; padding:2px 8px; border-radius:999px; background:rgba(92,138,222,0.12); border:1px solid rgba(92,138,222,0.2); color:var(--text-secondary); font-weight:700;">Yanıt</span>`
+          : `<span style="font-size:0.62rem; padding:2px 8px; border-radius:999px; background:rgba(76,203,141,0.12); border:1px solid rgba(76,203,141,0.2); color:var(--text-secondary); font-weight:700;">Yorum</span>`;
+        return `
+          <div style="padding:14px; background:var(--bg-card-alt); border:1px solid var(--border-subtle); border-radius:12px;">
+            <div style="display:flex; justify-content:space-between; gap:12px; align-items:center; margin-bottom:10px;">
+              <div style="display:flex; align-items:center; gap:8px; min-width:0;">
+                ${typeBadge}
+                <div style="font-size:0.75rem; color:var(--text-tertiary); font-weight:700;">${__escapeHtml(date)}</div>
+              </div>
+              <div style="font-size:0.7rem; color:var(--text-tertiary);">${c.timestamp ? new Date(c.timestamp).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' }) : ''}</div>
+            </div>
+            <div style="font-size:0.9rem; color:var(--text-primary); white-space:pre-wrap; line-height:1.45;">${__escapeHtml(c.text || '')}</div>
+          </div>
+        `;
+      }).join('');
+
+    const rankBadge = rank
+      ? `<span style="display:inline-flex; align-items:center; gap:8px; padding:8px 12px; border-radius:999px; background:${rank.bg}; color:${rank.color}; font-weight:800; font-size:0.78rem;">${rank.icon || ''} ${__escapeHtml(rank.label)}</span>`
+      : `<span style="display:inline-flex; align-items:center; gap:8px; padding:8px 12px; border-radius:999px; background:rgba(255,255,255,0.04); border:1px solid var(--border-subtle); color:var(--text-secondary); font-weight:800; font-size:0.78rem;">${__escapeHtml(rankKey)}</span>`;
+
+    content.innerHTML = `
+      <div style="display:flex; flex-direction:column; gap:16px;">
+        <div style="padding:16px; background:linear-gradient(145deg,rgba(139,124,247,0.12),rgba(0,0,0,0)); border:1px solid rgba(139,124,247,0.18); border-radius:16px;">
+          <div style="display:flex; justify-content:space-between; gap:16px; align-items:flex-start; flex-wrap:wrap;">
+            <div style="min-width:220px;">
+              <div style="font-size:1.05rem; font-weight:900; color:var(--text-primary); margin-bottom:6px;">${__escapeHtml(displayName || 'İsimsiz Kullanıcı')}</div>
+              <div style="font-size:0.78rem; color:var(--text-tertiary); margin-bottom:4px;">${__escapeHtml(uid)}</div>
+              <div style="font-size:0.78rem; color:var(--text-secondary);">${__escapeHtml(email)}</div>
+            </div>
+            <div style="display:flex; gap:10px; align-items:center;">
+              ${rankBadge}
+            </div>
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:16px;">
+          <div class="card" style="padding:16px;">
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:12px;">
+              <div style="font-size:0.9rem; font-weight:900; color:var(--text-primary);">Notlar</div>
+              <div style="font-size:0.75rem; color:var(--text-tertiary);">${notes.length} adet</div>
+            </div>
+            <div style="display:flex; flex-direction:column; gap:10px;">${notesHtml}</div>
+          </div>
+          <div class="card" style="padding:16px;">
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:12px;">
+              <div style="font-size:0.9rem; font-weight:900; color:var(--text-primary);">Yorumlar</div>
+              <div style="font-size:0.75rem; color:var(--text-tertiary);">${comments.length} adet</div>
+            </div>
+            <div style="display:flex; flex-direction:column; gap:10px;">${commentsHtml}</div>
+          </div>
+        </div>
+      </div>
+    `;
+  } catch (e) {
+    content.innerHTML = `<div class="logged-empty">Hata: ${__escapeHtml(e.message)}</div>`;
+  }
 };
 
 // Unified adminShowSection: toggle pre-existing admin sections
@@ -4932,12 +5113,15 @@ function applyMaintenanceState() {
   if (!overlay) {
     overlay = document.createElement('div');
     overlay.id = 'maintenanceOverlay';
-    overlay.style.cssText = 'position:fixed;inset:0;z-index:99999;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,0.8);backdrop-filter:blur(4px);';
-    overlay.innerHTML = `<div style="max-width:720px;width:calc(100% - 40px);padding:24px;border-radius:12px;background:linear-gradient(145deg,#111118,#14141c);border:1px solid rgba(255,255,255,0.04);color:var(--text-primary);text-align:center;">
-      <h2 style="margin:0 0 8px;">Site Bakım Modunda</h2>
-      <div id="maintenanceOverlayMsg" style="margin-bottom:12px;color:var(--text-secondary);"></div>
-      <div id="maintenanceOverlayUntil" style="font-size:0.9rem;color:var(--text-tertiary);"></div>
-    </div>`;
+    overlay.className = 'maintenance-overlay';
+    overlay.innerHTML = `
+      <div class="maintenance-card">
+        <div class="maintenance-icon">🔧</div>
+        <h2 class="maintenance-title">Bakım Modu</h2>
+        <div id="maintenanceOverlayMsg" class="maintenance-msg"></div>
+        <div id="maintenanceOverlayUntil" class="maintenance-until"></div>
+      </div>
+    `;
     document.body.appendChild(overlay);
   }
 
