@@ -186,17 +186,6 @@ fun ProfileScreen(
                     )
                 }
                 Spacer(modifier = Modifier.height(8.dp))
-                LinearProgressIndicator(
-                    progress = { rankPct },
-                    modifier = Modifier
-                        .width(168.dp)
-                        .height(6.dp)
-                        .clip(RoundedCornerShape(50.dp)),
-                    color = ZyroPrimary,
-                    trackColor = ZyroSurfaceContainer,
-                    strokeCap = StrokeCap.Round
-                )
-                Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = "${(rankPct * 100).toInt()}%",
                     style = MaterialTheme.typography.labelSmall,

@@ -2066,22 +2066,22 @@ html {
    ACHIEVEMENT PAGE — Professional Redesign
    =========================== */
 
-/* PC: 2-column grid for achievement groups */
+ #achievementsGrid {
+  display: block !important;
+  column-count: 1;
+  column-gap: 10px;
+}
 @media (min-width: 900px) {
-  #achievementsGrid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-  }
+  #achievementsGrid { column-count: 2; }
+}
+@media (max-width: 899px) {
+  #achievementsGrid { column-count: 1; }
 }
 
-/* Mobile: single column stack */
-@media (max-width: 899px) {
-  #achievementsGrid {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
+#achievementsGrid > div {
+  break-inside: avoid;
+  width: 100%;
+  display: inline-block;
 }
 
 /* Subtle hover lift on each group card */

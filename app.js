@@ -1468,10 +1468,9 @@ function renderLoggedExercises(){
         const logToDelete = { ...appData.workoutLogs[td][idx] }; // Get a copy BEFORE splicing
         appData.workoutLogs[td].splice(idx,1);
         if(appData.workoutLogs[td].length===0) {
-        delete appData.workoutLogs[td];
-        // If no more logs for this day, also remove attendance
-        delete appData.attendance[td];
-      }
+        appData.workoutLogs[td] = [];
+        appData.attendance[td] = false;
+        }
       saveData();
       renderLoggedExercises();
       updateMuscleMap();
@@ -3538,6 +3537,8 @@ function displayComments(comments) {
     const canDelete = isOwnComment || isAdminUser;
     
     const isAdminComment = c.rank === 'admin' || c.rank === 'mod' || c.userEmail === 'wupard@gmail.com';
+    const upvoteAttr = isOwnComment && !hasUpvoted ? '' : `onclick="upvoteComment('${c.id}')"`;
+    const upvoteCursor = isOwnComment && !hasUpvoted ? 'cursor:not-allowed;opacity:0.35;' : 'cursor:pointer;';
 
     return `
       <div class="comment-item" id="comment_${c.id}" style="padding: 16px; border-bottom: 1px solid var(--border-subtle); background: var(--bg-card-alt); border-radius: 12px; margin-bottom: 12px; position: relative;">
@@ -3560,7 +3561,7 @@ function displayComments(comments) {
         <p style="margin: 0; font-size: 0.9rem; line-height: 1.5; color: var(--text-primary); padding-left: 34px;">${c.text}</p>
         
         <div style="margin-top: 12px; display: flex; gap: 16px; padding-left: 34px;">
-          <button onclick="upvoteComment('${c.id}')" style="background:${hasUpvoted ? 'var(--accent-glow)' : 'transparent'}; border:1px solid ${hasUpvoted ? 'var(--accent-primary)' : 'transparent'}; color:${hasUpvoted ? 'var(--accent-primary)' : 'var(--text-muted)'}; font-size:0.8rem; cursor:pointer; display:flex; align-items:center; gap:4px; padding: 4px 8px; border-radius: 6px; transition: all 0.2s;">
+          <button ${upvoteAttr} style="background:${hasUpvoted ? 'var(--accent-glow)' : 'transparent'}; border:1px solid ${hasUpvoted ? 'var(--accent-primary)' : 'transparent'}; color:${hasUpvoted ? 'var(--accent-primary)' : 'var(--text-muted)'}; font-size:0.8rem; ${upvoteCursor} display:flex; align-items:center; gap:4px; padding: 4px 8px; border-radius: 6px; transition: all 0.2s;">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg>
             <span style="font-weight: bold;">${upvotes}</span>
           </button>
@@ -3738,6 +3739,10 @@ window.upvoteComment = async function(commentId) {
     if (doc.exists) {
       const data = doc.data();
       const upvotedBy = data.upvotedBy || [];
+      if (data.userId === currentUser.uid && !upvotedBy.includes(currentUser.uid)) {
+        showToast(currentLang === 'tr' ? 'Kendi yorumunu begenemezsin!' : 'You cannot upvote your own comment!', 'error');
+        return;
+      }
       
       if (upvotedBy.includes(currentUser.uid)) {
         // Remove upvote
@@ -4695,6 +4700,9 @@ function updateStreakFlame() {
   const badgeEl = document.getElementById('streakBadge');
   const flameWrap = document.getElementById('streakFlame');
 
+  flameContent.style.animation = '';
+  flameContent.style.textShadow = '';
+
   if (dayNum === 0) {
     // Day 0: No flame — hide the flame wrapper and center the text
     if (flameWrap) flameWrap.style.display = 'none';
@@ -4709,26 +4717,26 @@ function updateStreakFlame() {
 
   if (dayNum === 1) {
     // Day 1: Small flame
-    flameContent.innerHTML = 'g���';
+    flameContent.textContent = '🔥';
     flameContent.style.fontSize = '1rem';
     flameContent.style.opacity = '0.8';
     flameContent.style.animation = 'flameFlicker 0.6s ease-in-out infinite';
   } else if (dayNum <= 3) {
     // Day 2-3: Medium flame
-    flameContent.innerHTML = 'g���';
+    flameContent.textContent = '🔥';
     flameContent.style.fontSize = '1.2rem';
     flameContent.style.opacity = '1';
     flameContent.style.animation = 'flameFlicker 0.5s ease-in-out infinite';
   } else if (dayNum <= 7) {
     // Day 4-7: Large flame with glow
-    flameContent.innerHTML = 'g���';
+    flameContent.textContent = '🔥';
     flameContent.style.fontSize = '1.4rem';
     flameContent.style.opacity = '1';
     flameContent.style.animation = 'flameFlickerIntense 0.4s ease-in-out infinite';
     flameContent.style.textShadow = '0 0 8px rgba(255, 69, 0, 0.6), 0 0 16px rgba(255, 140, 0, 0.3)';
   } else {
     // Day 8+: Legendary flame
-    flameContent.innerHTML = 'g���';
+    flameContent.textContent = '🔥';
     flameContent.style.fontSize = '1.5rem';
     flameContent.style.opacity = '1';
     flameContent.style.animation = 'flameLegendary 0.3s ease-in-out infinite';
