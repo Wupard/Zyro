@@ -97,7 +97,21 @@ const I18N = {
     repetitions: 'Reps',
     sets: 'Sets',
     achievements: 'Achievements',
-    beforeAfter: 'Before/After'
+    beforeAfter: 'Before/After',
+    // New Posture Program
+    'Chin Tuck': 'Chin Tuck',
+    'Deadbug': 'Deadbug',
+    'Thoracic Extension (Rulo veya sandalye ile)': 'Thoracic Extension (with roller or chair)',
+    "Child’s Pose (Çocuk Pozu)": "Child's Pose",
+    '2 set x 30 saniye': '2 sets x 30 sec',
+    'Her harf için 15 tekrar (Toplam 45 tekrar)': '15 reps per letter (45 total)',
+    '20 tekrar': '20 reps',
+    '15 tekrar (Her birinde 3 sn bekleme)': '15 reps (3s hold each)',
+    'Her bacak için 30 saniye': '30 sec each leg',
+    '2 set x 20 tekrar': '2 sets x 20 reps',
+    '20 tekrar (10 sağ, 10 sol)': '20 reps (10 right, 10 left)',
+    '1 dakika (Pozisyonda kal ve derin nefes al)': '1 min (hold and breathe deeply)',
+    '1 set x 30 saniye': '1 set x 30 sec'
   },
   tr: {
     authSubtitle: 'Kişisel Gelişim Paneli',
@@ -217,6 +231,11 @@ const I18N = {
     '30 sec': '30 sn',
     '60 sec': '60 sn',
     '10 reps': '10 tekrar',
+    // Posture program updated.
+    'Chin Tuck': 'Chin Tuck',
+    'Deadbug': 'Deadbug',
+    'Thoracic Extension (Rulo veya sandalye ile)': 'Thoracic Extension (Rulo veya sandalye ile)',
+    'Child’s Pose (Çocuk Pozu)': 'Child’s Pose (Çocuk Pozu)'
   }
 };
 
@@ -267,47 +286,46 @@ const DAYS_EN = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
 const DAYS_TR = ['Pzt','Sal','Çar','Per','Cum','Cmt','Paz'];
 
 const EXERCISE_MUSCLES = {
-  // Göğüs
-  'Barbell Bench Press': ['chest', 'triceps'],
-  'İncline Bench Press': ['chest', 'triceps'],
-  'Upper-lower Cable crossover': ['chest'],
-  
-  // Omuz
-  'Cable Shoulder': ['shoulders', 'triceps'],
-  'Face Pull': ['shoulders', 'traps'],
-  'Seated Dumbbell Rear Delt Fly': ['shoulders', 'traps'],
-  
-  // Sırt — Sırt egzersizleri sadece traps/lats'ı primary gösterir; biceps secondary sayılmaz
-  'Lat Pulldown': ['traps'],
-  'Close-Grip V-Bar Pulldown': ['traps'],
-  'Seated Row Machine': ['traps'],
-  'Smith Machine Shrug': ['traps'],
-  'DB Shrug': ['traps'],
-  
-  // Bacak
-  'Squat': ['quads', 'glutes', 'traps'],
+  // Sırt / Back
+  'Medium-Grip Lat Pulldown': ['traps'],
+  'Reverse-Grip Lat Pulldown': ['traps'],
+  'Barbell Row': ['traps'],
+  'Single-Arm Seated Cable Row': ['traps'],
+  'Dumbbell Shrug': ['traps'],
+
+  // Arka Kol / Triceps
+  'V-bar Pushdown': ['triceps'],
+  'Seated Dumbbell Overhead Tricep': ['triceps'],
+  'Single-Arm Cable Tricep Kickback': ['triceps'],
+
+  // Omuz / Shoulder
+  'Seated Barbell Overhead Press': ['shoulders'],
+  'Cable Lateral Raise': ['shoulders'],
+  'Cable Rope Face Pull': ['shoulders', 'traps'],
+  'Seated Rear Delt Fly': ['shoulders', 'traps'],
+
+  // Bilek / Forearm
+  'Dumbbell Reverse Wrist Curl': ['forearms'],
+  'Dumbbell Radial/Ulnar Deviation': ['forearms'],
+  'Reverse Curl': ['biceps', 'forearms'],
+  '4 Temel Bilek DB': ['forearms'],
+
+  // Göğüs / Chest
+  'Flat Barbell Bench Press': ['chest', 'triceps'],
+  'Incline Dumbbell Press': ['chest', 'triceps'],
+  'Decline Barbell Bench Press': ['chest'],
+
+  // Ön Kol / Biceps
+  'Seated Incline Dumbbell Curl': ['biceps'],
+  'Hammer Curl': ['biceps', 'forearms'],
+  'Single-Arm Cable Curl': ['biceps'],
+
+  // Bacak / Leg
   'Romanian Deadlift': ['glutes', 'traps'],
-  'Farmers Walk': ['forearms', 'traps', 'core'],
-  'Hip Abductor Machines': ['glutes'],
-  'Standing Calf Raise': ['calves'],
-  
-  // Kol & Bilek
-  'Seated DB Biceps Curl': ['biceps'],
-  'Cross-Body Hammer Curl': ['biceps', 'forearms'],
-  'Single-Arm DB Preacher Curl': ['biceps'],
-  'V-Bar Triceps Pushdown': ['triceps'],
-  'Single-Arm Cable Reverse Pushdown': ['triceps'],
-  'Skull Crusher': ['triceps'],
-  'Overhead DB Triceps Extension': ['triceps'],
-  'Yusuf\'s Forearm Exercise': ['forearms'],
-  'Z-Bar Reverse Curl': ['biceps', 'forearms'],
-  'Classic Forearm Exercises': ['forearms'],
-  
-  // Karın & Core
-  'Straight Bar Cable Crunch': ['abs'],
-  'Sit-up': ['abs'],
-  'Reverse Crunch': ['abs'],
-  'Russian twist': ['obliques', 'abs'],
+  'Leg Extension': ['quads'],
+  'Reverse Leg Extension': ['glutes'],
+  'Adductor Machine': ['glutes'],
+  'Smith Machine Calf Raise': ['calves'],
 };
 const ALL_EXERCISES = Object.keys(EXERCISE_MUSCLES).sort();
 
@@ -315,12 +333,16 @@ const ALL_EXERCISES = Object.keys(EXERCISE_MUSCLES).sort();
 // GLOBAL EXERCISE CATEGORIES
 // =============================================
 const EXERCISE_CATEGORIES = {
-  'chest': ['Barbell Bench Press', 'İncline Bench Press', 'Upper-lower Cable crossover'],
-  'shoulders': ['Cable Shoulder', 'Face Pull', 'Seated Dumbbell Rear Delt Fly', 'Smith Machine Shrug', 'DB Shrug'],
-  'back': ['Lat Pulldown', 'Close-Grip V-Bar Pulldown', 'Seated Row Machine'],
-  'legs': ['Squat', 'Romanian Deadlift', 'Farmers Walk', 'Hip Abductor Machines', 'Standing Calf Raise'],
-  'arms': ['Seated DB Biceps Curl', 'Cross-Body Hammer Curl', 'Single-Arm DB Preacher Curl', 'V-Bar Triceps Pushdown', 'Single-Arm Cable Reverse Pushdown', 'Skull Crusher', 'Overhead DB Triceps Extension', 'Yusuf\'s Forearm Exercise', 'Z-Bar Reverse Curl', 'Classic Forearm Exercises'],
-  'core': ['Straight Bar Cable Crunch', 'Sit-up', 'Reverse Crunch', 'Russian twist']
+  'chest': ['Flat Barbell Bench Press', 'Incline Dumbbell Press', 'Decline Barbell Bench Press'],
+  'shoulders': ['Seated Barbell Overhead Press', 'Cable Lateral Raise', 'Cable Rope Face Pull', 'Seated Rear Delt Fly', 'Dumbbell Shrug'],
+  'back': ['Medium-Grip Lat Pulldown', 'Reverse-Grip Lat Pulldown', 'Barbell Row', 'Single-Arm Seated Cable Row'],
+  'legs': ['Romanian Deadlift', 'Leg Extension', 'Reverse Leg Extension', 'Adductor Machine', 'Smith Machine Calf Raise'],
+  'arms': [
+    'V-bar Pushdown', 'Seated Dumbbell Overhead Tricep', 'Single-Arm Cable Tricep Kickback', // Triceps
+    'Seated Incline Dumbbell Curl', 'Hammer Curl', 'Single-Arm Cable Curl', // Biceps
+    'Dumbbell Reverse Wrist Curl', 'Dumbbell Radial/Ulnar Deviation', 'Reverse Curl', '4 Temel Bilek DB' // Forearm
+  ],
+  'core': []
 };
 
 const RANKS = {
@@ -344,45 +366,40 @@ const CATEGORY_ICONS = {
 
 
 const DEFAULT_PROGRAMS = {
-
-  day1: [
-    {name:'Barbell Bench Press',sets:'3×8-10',weight:'-'},
-    {name:'İncline Bench Press',sets:'3×10-12',weight:'-'},
-    {name:'Upper-lower Cable crossover',sets:'3×12-15',weight:'-'},
-    {name:'Cable Shoulder',sets:'3×10-12',weight:'-'},
-    {name:'Face Pull',sets:'3×15',weight:'-'},
-    {name:'Seated Dumbbell Rear Delt Fly',sets:'3×15',weight:'-'},
-    {name:'Seated DB Biceps Curl',sets:'3×10-12',weight:'-'},
-    {name:'Cross-Body Hammer Curl',sets:'3×10-12',weight:'-'},
-    {name:'Single-Arm DB Preacher Curl',sets:'3×12-15',weight:'-'},
+  day1: [ // SALI
+    {name:'Medium-Grip Lat Pulldown',sets:'3x12',weight:'-'},
+    {name:'Reverse-Grip Lat Pulldown',sets:'3x12',weight:'-'},
+    {name:'Barbell Row',sets:'3x12',weight:'-'},
+    {name:'Single-Arm Seated Cable Row',sets:'3x12',weight:'-'},
+    {name:'V-bar Pushdown',sets:'3x12',weight:'-'},
+    {name:'Seated Dumbbell Overhead Tricep',sets:'3x12',weight:'-'},
+    {name:'Single-Arm Cable Tricep Kickback',sets:'3x12',weight:'-'},
+    {name:'Seated Barbell Overhead Press',sets:'3x12',weight:'-'},
+    {name:'Cable Lateral Raise',sets:'3x12',weight:'-'},
+    {name:'Dumbbell Reverse Wrist Curl',sets:'3x12',weight:'-'},
+    {name:'Dumbbell Radial/Ulnar Deviation',sets:'3x12',weight:'-'},
   ],
-  day2: [
-    {name:'Lat Pulldown',sets:'3×8-12',weight:'-'},
-    {name:'Close-Grip V-Bar Pulldown',sets:'3×10-12',weight:'-'},
-    {name:'Seated Row Machine',sets:'3×10-12',weight:'-'},
-    {name:'V-Bar Triceps Pushdown',sets:'3×12-15',weight:'-'},
-    {name:'Single-Arm Cable Reverse Pushdown',sets:'3×12-15',weight:'-'},
-    {name:'Skull Crusher',sets:'3×10-12',weight:'-'},
-    {name:'Overhead DB Triceps Extension',sets:'3×12-15',weight:'-'},
-    {name:'Yusuf\'s Forearm Exercise',sets:'3×Maks',weight:'-'},
-    {name:'Z-Bar Reverse Curl',sets:'3×12-15',weight:'-'},
-    {name:'Classic Forearm Exercises',sets:'3×15',weight:'-'},
+  day2: [ // PERŞEMBE
+    {name:'Flat Barbell Bench Press',sets:'3x12',weight:'-'},
+    {name:'Incline Dumbbell Press',sets:'3x12',weight:'-'},
+    {name:'Decline Barbell Bench Press',sets:'3x12',weight:'-'},
+    {name:'Cable Rope Face Pull',sets:'3x12',weight:'-'},
+    {name:'Seated Rear Delt Fly',sets:'3x12',weight:'-'},
+    {name:'Seated Incline Dumbbell Curl',sets:'3x12',weight:'-'},
+    {name:'Hammer Curl',sets:'3x12',weight:'-'},
+    {name:'Single-Arm Cable Curl',sets:'3x12',weight:'-'},
   ],
-  day3: [
-    {name:'Squat',sets:'3×8-10',weight:'-'},
-    {name:'Romanian Deadlift',sets:'3×10-12',weight:'-'},
-    {name:'Farmers Walk',sets:'3×Maks',weight:'-'},
-    {name:'Hip Abductor Machines',sets:'3×15',weight:'-'},
-    {name:'Standing Calf Raise',sets:'4×15-20',weight:'-'},
-    {name:'Smith Machine Shrug',sets:'4×10-12',weight:'-'},
-    {name:'DB Shrug',sets:'4×10-12',weight:'-'},
-    {name:'Straight Bar Cable Crunch',sets:'3×15-20',weight:'-'},
-    {name:'Sit-up',sets:'3×20',weight:'-'},
-    {name:'Reverse Crunch',sets:'3×20',weight:'-'},
-    {name:'Russian twist',sets:'3×20',weight:'-'},
-    {name:'Yusuf\'s Forearm Exercise',sets:'3×Maks',weight:'-'},
-    {name:'Z-Bar Reverse Curl',sets:'3×12-15',weight:'-'},
-    {name:'Classic Forearm Exercises',sets:'3×15',weight:'-'},
+  day3: [ // CUMARTESİ
+    {name:'Romanian Deadlift',sets:'2x12',weight:'-'},
+    {name:'Leg Extension',sets:'3x12',weight:'-'},
+    {name:'Reverse Leg Extension',sets:'2x12',weight:'-'},
+    {name:'Adductor Machine',sets:'2x12',weight:'-'},
+    {name:'Smith Machine Calf Raise',sets:'3x12',weight:'-'},
+    {name:'Cable Rope Face Pull',sets:'3x12',weight:'-'},
+    {name:'Cable Lateral Raise',sets:'3x12',weight:'-'},
+    {name:'Dumbbell Shrug',sets:'3x12',weight:'-'},
+    {name:'Reverse Curl',sets:'3x12',weight:'-'},
+    {name:'4 Temel Bilek DB',sets:'3x12',weight:'-'},
   ],
 };
 
@@ -391,6 +408,7 @@ const DEFAULT_PROGRAMS = {
 // =============================================
 const POSTURE_VIDEO_URLS = {
   'Warm-up: Light shoulder circles': 'https://www.youtube.com/watch?v=-dXpizOGkxI',
+  'Doorway Stretch': 'https://www.youtube.com/watch?v=kXgmUP81c6U',
   'Y-T-W Raises': 'https://www.youtube.com/watch?v=0pq5oFywQDc',
   'Wall Angels': 'https://www.youtube.com/watch?v=XdCsMsaY90k',
   'Chin Tuck & Neck Nod': 'https://www.youtube.com/watch?v=kaplx1ocaw8',
@@ -398,54 +416,55 @@ const POSTURE_VIDEO_URLS = {
   'Thoracic Extension': 'https://www.youtube.com/watch?v=1uFnObPDZz0',
   'Wrist Stretch': 'https://www.youtube.com/watch?v=xiRFZD7eh4U',
   'Warm-up: Marching in place / walking': 'https://www.youtube.com/watch?v=tM6hPeF7O4I',
+  'Chin Tuck': 'https://www.youtube.com/watch?v=kaplx1ocaw8',
   'Cat-Cow': 'https://www.youtube.com/watch?v=lgFQUsbpF6I',
   'Pelvic Tilt + Deadbug': 'https://www.youtube.com/watch?v=zd160L4tPPs',
+  'Kneeling Hip Flexor Stretch': 'https://www.youtube.com/watch?v=8kfH_OhZNAg',
   'Glute Bridge': 'https://www.youtube.com/watch?v=R1OXPHRqehw',
   'Kneeling Hip Flexor Stretch': 'https://www.youtube.com/watch?v=8kfH_OhZNAg',
   'Active Plank': 'https://www.youtube.com/watch?v=7m3DGFtS3yA',
   'Clamshell & Side-Lying Hip Abduction': 'https://www.youtube.com/watch?v=d6mS1WUnvOw',
   'Towel Curls & Short Foot': 'https://www.youtube.com/watch?v=kemS6qku8d0',
+  'Deadbug': 'https://www.youtube.com/watch?v=zd160L4tPPs',
+  'Thoracic Extension (Rulo veya sandalye ile)': 'https://www.youtube.com/watch?v=1uFnObPDZz0',
+  'Child’s Pose (Çocuk Pozu)': 'https://www.youtube.com/watch?v=2vJK_d3I_oU'
 };
 
 // =============================================
 // WORKOUT VIDEO URLS
 // =============================================
 const WORKOUT_VIDEO_URLS = {
-  // Salı: Göğüs-Omuz-Biceps
-  'Barbell Bench Press': 'https://www.youtube.com/shorts/ZR1i47nkH9c',
-  'İncline Bench Press': 'https://www.youtube.com/shorts/98HWfiRonkE',
-  'Upper-lower Cable crossover': 'https://m.youtube.com/shorts/LCgCPxcUIOM',
-  'Cable Shoulder': 'https://www.youtube.com/shorts/6wHaXpM6JgE',
-  'Face Pull': 'https://www.youtube.com/shorts/7kXfVIwmfwE',
-  'Seated Dumbbell Rear Delt Fly': 'https://www.youtube.com/watch?v=d_feFQGGVh4',
-  'Seated DB Biceps Curl': 'https://www.youtube.com/watch?v=aez76Uo6xkA',
-  'Cross-Body Hammer Curl': 'https://www.youtube.com/shorts/7HkJh-OBA0s',
-  'Single-Arm DB Preacher Curl': 'https://m.youtube.com/shorts/-CJEoRtcyHc',
+  // SALI
+  'Medium-Grip Lat Pulldown': 'https://www.youtube.com/shorts/bNmvKpJSWKM',
+  'Reverse-Grip Lat Pulldown': 'https://www.youtube.com/shorts/rguA3pm73rs',
+  'Barbell Row': 'https://www.youtube.com/shorts/Nqh7q3zDCoQ',
+  'Single-Arm Seated Cable Row': 'https://www.youtube.com/shorts/9TWiV80cUYs',
+  'V-bar Pushdown': 'https://www.youtube.com/shorts/1FjkhpZsaxc',
+  'Seated Dumbbell Overhead Tricep': 'https://www.youtube.com/shorts/b_r_LW4HEcM',
+  'Single-Arm Cable Tricep Kickback': 'https://www.youtube.com/shorts/7_C9_SWHZbo',
+  'Seated Barbell Overhead Press': 'https://www.youtube.com/shorts/tKPtgQI-VFM',
+  'Cable Lateral Raise': 'https://www.youtube.com/shorts/xrBcuPNTxLg',
+  'Dumbbell Reverse Wrist Curl': 'https://www.youtube.com/watch?v=osYPwlBiCRM',
 
-  // Perşembe: Sırt-Triceps-Bilek
-  'Lat Pulldown': 'https://www.youtube.com/shorts/8kgs9hrgNks',
-  'Close-Grip V-Bar Pulldown': 'https://www.youtube.com/shorts/wrt5Y25QbH4',
-  'Seated Row Machine': 'https://www.youtube.com/shorts/DHA7QGDa2qg',
-  'V-Bar Triceps Pushdown': 'https://www.youtube.com/shorts/8xT4OwwiACQ',
-  'Single-Arm Cable Reverse Pushdown': 'https://www.youtube.com/watch?v=AzxlbXEDMq4',
-  'Skull Crusher': 'https://www.youtube.com/shorts/u3W3uE5F-ig',
-  'Overhead DB Triceps Extension': 'https://m.youtube.com/channel/UCcoCfmrZG4f_QRnGXf09NuQ/videos?view=0&sort=dd&shelf_id=0',
-  'Yusuf\'s Forearm Exercise': 'https://www.youtube.com/shorts/SDHjq-okXYk',
-  'Z-Bar Reverse Curl': 'https://m.youtube.com/shorts/VMda3081JI8',
-  'Classic Forearm Exercises': 'https://www.youtube.com/watch?v=sOlAqdzsomM',
+  // PERŞEMBE
+  'Flat Barbell Bench Press': 'https://www.youtube.com/shorts/hWbUlkb5Ms4',
+  'Incline Dumbbell Press': 'https://www.youtube.com/shorts/8fXfwG4ftaQ',
+  'Decline Barbell Bench Press': 'https://www.youtube.com/shorts/BZbgA8GCrl0',
+  'Cable Rope Face Pull': 'https://www.youtube.com/shorts/IeOqdw9WI90',
+  'Seated Rear Delt Fly': 'https://www.youtube.com/shorts/PkGcUy-XDMY',
+  'Seated Incline Dumbbell Curl': 'https://www.youtube.com/shorts/uCUaRFlA9vE',
+  'Hammer Curl': 'https://www.youtube.com/shorts/lmIo_gVE8T4',
+  'Single-Arm Cable Curl': 'https://www.youtube.com/shorts/EhC6ejgDGF0',
 
-  // Cumartesi: Bacak-Trapez-Core-Bilek
-  'Squat': 'https://www.youtube.com/watch?v=-_bBA1bHc9M',
-  'Romanian Deadlift': 'https://www.youtube.com/shorts/LJAnNYPex6Y',
-  'Farmers Walk': 'https://www.youtube.com/shorts/1uOs1hP3u4A',
-  'Hip Abductor Machines': 'https://www.youtube.com/shorts/kbk2E1ziO8Q',
-  'Standing Calf Raise': 'https://www.youtube.com/shorts/FmJKR_fGDz8',
-  'Smith Machine Shrug': 'https://www.youtube.com/shorts/_beyMmxuNwk',
-  'DB Shrug': 'https://www.youtube.com/shorts/zhnJErrN6FU',
-  'Straight Bar Cable Crunch': 'https://www.youtube.com/watch?v=rRC3iZorDC8',
-  'Sit-up': 'https://www.youtube.com/shorts/q5EOcLVXwZ8',
-  'Reverse Crunch': 'https://www.youtube.com/shorts/OaUHOeCq3Po',
-  'Russian twist': 'https://www.youtube.com/shorts/KUsvxlmpPoI',
+  // CUMARTESİ
+  'Romanian Deadlift': 'https://www.youtube.com/shorts/5rIqP63yWFg',
+  'Leg Extension': 'https://www.youtube.com/shorts/iQ92TuvBqRo',
+  'Reverse Leg Extension': 'https://www.youtube.com/shorts/lGNeJsdqJwg',
+  'Adductor Machine': 'https://www.youtube.com/shorts/BXs0PIkdXGs',
+  'Smith Machine Calf Raise': 'https://www.youtube.com/shorts/wlqTemUXPXY',
+  'Dumbbell Shrug': 'https://www.youtube.com/shorts/rFsSeClGnNA',
+  'Reverse Curl': 'https://www.youtube.com/watch?v=osYPwlBiCRM',
+  '4 Temel Bilek DB': 'https://www.youtube.com/shorts/sKXqNO2KQp8',
 };
 
 const DEFAULT_POSTURE_PROGRAMS = {
@@ -457,6 +476,10 @@ const DEFAULT_POSTURE_PROGRAMS = {
     {name:'Doorway Stretch',sets:'3 sets x 30 sec',done:false},
     {name:'Thoracic Extension',sets:'2 sets x 60 sec',done:false},
     {name:'Wrist Stretch',sets:'2 sets x 30 sec',done:false},
+    {name:'Doorway Stretch',sets:'2 set x 30 saniye',done:false},
+    {name:'Y-T-W Raises',sets:'Her harf için 15 tekrar (Toplam 45 tekrar)',done:false},
+    {name:'Wall Angels',sets:'20 tekrar',done:false},
+    {name:'Chin Tuck',sets:'15 tekrar (Her birinde 3 sn bekleme)',done:false},
   ],
   tue: [
     {name:'Warm-up: Marching in place / walking',sets:'5 min',done:false},
@@ -467,6 +490,10 @@ const DEFAULT_POSTURE_PROGRAMS = {
     {name:'Active Plank',sets:'3 sets x 30-45 sec',done:false},
     {name:'Clamshell & Side-Lying Hip Abduction',sets:'20 reps each',done:false},
     {name:'Towel Curls & Short Foot',sets:'15 rounds / 12 reps',done:false},
+    {name:'Cat-Cow',sets:'20 tekrar',done:false},
+    {name:'Kneeling Hip Flexor Stretch',sets:'Her bacak için 30 saniye',done:false},
+    {name:'Glute Bridge',sets:'2 set x 20 tekrar',done:false},
+    {name:'Deadbug',sets:'20 tekrar (10 sağ, 10 sol)',done:false},
   ],
   wed: [
     {name:'Warm-up: Light shoulder circles',sets:'5 min',done:false},
@@ -476,6 +503,10 @@ const DEFAULT_POSTURE_PROGRAMS = {
     {name:'Doorway Stretch',sets:'3 sets x 30 sec',done:false},
     {name:'Thoracic Extension',sets:'2 sets x 60 sec',done:false},
     {name:'Wrist Stretch',sets:'2 sets x 30 sec',done:false},
+    {name:'Doorway Stretch',sets:'2 set x 30 saniye',done:false},
+    {name:'Y-T-W Raises',sets:'Her harf için 15 tekrar (Toplam 45 tekrar)',done:false},
+    {name:'Wall Angels',sets:'20 tekrar',done:false},
+    {name:'Chin Tuck',sets:'15 tekrar (Her birinde 3 sn bekleme)',done:false},
   ],
   thu: [
     {name:'Warm-up: Marching in place / walking',sets:'5 min',done:false},
@@ -486,6 +517,10 @@ const DEFAULT_POSTURE_PROGRAMS = {
     {name:'Active Plank',sets:'3 sets x 30-45 sec',done:false},
     {name:'Clamshell & Side-Lying Hip Abduction',sets:'20 reps each',done:false},
     {name:'Towel Curls & Short Foot',sets:'15 rounds / 12 reps',done:false},
+    {name:'Cat-Cow',sets:'20 tekrar',done:false},
+    {name:'Kneeling Hip Flexor Stretch',sets:'Her bacak için 30 saniye',done:false},
+    {name:'Glute Bridge',sets:'2 set x 20 tekrar',done:false},
+    {name:'Deadbug',sets:'20 tekrar (10 sağ, 10 sol)',done:false},
   ],
   fri: [
     {name:'Warm-up: Light shoulder circles',sets:'5 min',done:false},
@@ -495,6 +530,10 @@ const DEFAULT_POSTURE_PROGRAMS = {
     {name:'Doorway Stretch',sets:'3 sets x 30 sec',done:false},
     {name:'Thoracic Extension',sets:'2 sets x 60 sec',done:false},
     {name:'Wrist Stretch',sets:'2 sets x 30 sec',done:false},
+    {name:'Doorway Stretch',sets:'2 set x 30 saniye',done:false},
+    {name:'Y-T-W Raises',sets:'Her harf için 15 tekrar (Toplam 45 tekrar)',done:false},
+    {name:'Wall Angels',sets:'20 tekrar',done:false},
+    {name:'Chin Tuck',sets:'15 tekrar (Her birinde 3 sn bekleme)',done:false},
   ],
   sat: [
     {name:'Warm-up: Marching in place / walking',sets:'5 min',done:false},
@@ -505,6 +544,10 @@ const DEFAULT_POSTURE_PROGRAMS = {
     {name:'Active Plank',sets:'3 sets x 30-45 sec',done:false},
     {name:'Clamshell & Side-Lying Hip Abduction',sets:'20 reps each',done:false},
     {name:'Towel Curls & Short Foot',sets:'15 rounds / 12 reps',done:false},
+    {name:'Cat-Cow',sets:'20 tekrar',done:false},
+    {name:'Kneeling Hip Flexor Stretch',sets:'Her bacak için 30 saniye',done:false},
+    {name:'Glute Bridge',sets:'2 set x 20 tekrar',done:false},
+    {name:'Deadbug',sets:'20 tekrar (10 sağ, 10 sol)',done:false},
   ],
   sun: [
     {name:'Doorway Stretch',sets:'30 sec',done:false},
@@ -512,6 +555,9 @@ const DEFAULT_POSTURE_PROGRAMS = {
     {name:'Kneeling Hip Flexor Stretch',sets:'30 sec',done:false},
     {name:'Wrist Stretch',sets:'30 sec',done:false},
     {name:'Cat-Cow',sets:'10 reps',done:false},
+    {name:'Thoracic Extension (Rulo veya sandalye ile)',sets:'2 set x 30 saniye',done:false},
+    {name:'Child’s Pose (Çocuk Pozu)',sets:'1 dakika (Pozisyonda kal ve derin nefes al)',done:false},
+    {name:'Doorway Stretch',sets:'1 set x 30 saniye',done:false},
   ]
 };
 
@@ -885,6 +931,18 @@ function __pathToPage(pathname) {
 }
 
 function initRouter() {
+  try {
+    const url = new URL(window.location.href);
+    const p = url.searchParams.get('p');
+    if (p !== null) {
+      const clean = String(p || '').replace(/^\/+/, '').replace(/\/+$/, '');
+      const targetPath = clean ? (__ROUTER_BASE ? `${__ROUTER_BASE}/${clean}` : `/${clean}`) : (__ROUTER_BASE ? `${__ROUTER_BASE}/` : '/');
+      url.searchParams.delete('p');
+      const rest = url.searchParams.toString();
+      const finalUrl = targetPath + (rest ? `?${rest}` : '') + (url.hash || '');
+      window.history.replaceState({ page: __pathToPage(targetPath) }, '', finalUrl);
+    }
+  } catch (e) {}
   const page = __pathToPage(window.location.pathname);
   navigateTo(page, { updateUrl: false });
   window.addEventListener('popstate', (e) => {
