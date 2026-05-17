@@ -858,7 +858,54 @@ async function checkUserBan(user) {
 // =============================================
 // NAVIGATION
 // =============================================
-function navigateTo(page){
+function __routerBasePath() {
+  const p = window.location.pathname || '/';
+  if (p === '/zyro' || p.startsWith('/zyro/')) return '/zyro';
+  return '';
+}
+
+const __ROUTER_BASE = __routerBasePath();
+const __ROUTER_PAGES = new Set(['dashboard','workouts','posture','progress','notes','comments','calculators','beforeafter','achievements','profile','admin']);
+
+function __pageToPath(page) {
+  const p = page || 'dashboard';
+  const base = __ROUTER_BASE;
+  if (p === 'dashboard') return base ? `${base}/` : '/';
+  return base ? `${base}/${p}` : `/${p}`;
+}
+
+function __pathToPage(pathname) {
+  let p = pathname || '/';
+  if (__ROUTER_BASE && p.startsWith(__ROUTER_BASE)) p = p.slice(__ROUTER_BASE.length) || '/';
+  p = p.split('?')[0].split('#')[0];
+  p = p.replace(/^\/+/, '').replace(/\/+$/, '');
+  if (!p || p === 'index.html') return 'dashboard';
+  const first = p.split('/')[0];
+  return __ROUTER_PAGES.has(first) ? first : 'dashboard';
+}
+
+function initRouter() {
+  const page = __pathToPage(window.location.pathname);
+  navigateTo(page, { updateUrl: false });
+  window.addEventListener('popstate', (e) => {
+    const statePage = e && e.state && e.state.page;
+    navigateTo(statePage || __pathToPage(window.location.pathname), { updateUrl: false });
+  });
+}
+
+function navigateTo(page, opts){
+  opts = opts || {};
+  const updateUrl = opts.updateUrl !== false;
+  const replace = opts.replace === true;
+  if (updateUrl && window.history && window.history.pushState) {
+    const target = __pageToPath(page);
+    const current = window.location.pathname;
+    if (target !== current) {
+      const st = { page };
+      if (replace) window.history.replaceState(st, '', target);
+      else window.history.pushState(st, '', target);
+    }
+  }
   currentPage=page;
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
   const nav=document.querySelector(`.nav-item[data-page="${page}"]`);
@@ -2331,6 +2378,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   applyTranslations();
   setGreeting();setDate();
   initAuth();initNav();initAttendanceNav();
+  initRouter();
   initWorkoutTabs();initLogForm();initWeightLog();
   initPostureTabs();initVideoModal();
   initNotes();initDashboardChartTabs();

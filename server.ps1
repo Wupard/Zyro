@@ -17,6 +17,13 @@ try {
         $relPath = $path.TrimStart('/')
         $fullPath = Join-Path $PWD $relPath
 
+        if (!(Test-Path $fullPath -PathType Leaf)) {
+            $hasExt = $relPath -match '\.[a-zA-Z0-9]+$'
+            if (-not $hasExt) {
+                $fullPath = Join-Path $PWD "index.html"
+            }
+        }
+
         if (Test-Path $fullPath -PathType Leaf) {
             $extension = [System.IO.Path]::GetExtension($fullPath).ToLower()
             $contentType = switch ($extension) {
