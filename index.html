@@ -1408,8 +1408,7 @@
         <!-- Shimmer sweep -->
         <div class="profile-shimmer"></div>
 
-        <div
-          style="display:grid; grid-template-columns:1fr 1fr; gap:32px; align-items:start; position:relative; z-index:1;">
+        <div class="profile-hero-grid">
           <!-- Left: Profile Picture -->
           <div style="display:flex; flex-direction:column; align-items:center; gap:16px;">
             <div id="profileAvatarLarge"
@@ -1450,7 +1449,9 @@
                 style="padding:10px 14px; max-width:220px; background:rgba(139,124,247,0.08); border:1px solid rgba(139,124,247,0.2); border-radius:12px;">
                 <div style="display:flex; justify-content:space-between; align-items:center; gap:8px;">
                   <span id="profileRank" style="font-weight:700; font-size:0.9rem; color:var(--accent-primary);">Üye</span>
-                  <span id="profileRankPct" style="font-size:0.72rem; color:var(--text-muted);">0%</span>
+                </div>
+                <div class="profile-rank-bar-track">
+                  <div id="profileRankBar" class="profile-rank-bar"></div>
                 </div>
               </div>
             </div>
@@ -1461,11 +1462,11 @@
       <!-- Tabs -->
       <div
         style="display:flex; gap:8px; margin-bottom:24px; border-bottom:1px solid var(--border-subtle); overflow-x:auto;">
-        <button class="profile-tab-btn active" onclick="switchProfileTab('bio')"
+        <button class="profile-tab-btn active" onclick="switchProfileTab('bio', event)"
           style="padding:12px 20px; border:none; background:none; color:var(--text-primary); font-weight:600; cursor:pointer; border-bottom:3px solid var(--accent-primary); transition:all 0.2s;">Biyografi</button>
-        <button class="profile-tab-btn" onclick="switchProfileTab('achievements')"
+        <button class="profile-tab-btn" onclick="switchProfileTab('achievements', event)"
           style="padding:12px 20px; border:none; background:none; color:var(--text-muted); font-weight:600; cursor:pointer; border-bottom:3px solid transparent; transition:all 0.2s;">Başarımlar</button>
-        <button class="profile-tab-btn" onclick="switchProfileTab('security')"
+        <button class="profile-tab-btn" onclick="switchProfileTab('security', event)"
           style="padding:12px 20px; border:none; background:none; color:var(--text-muted); font-weight:600; cursor:pointer; border-bottom:3px solid transparent; transition:all 0.2s;">Güvenlik</button>
       </div>
 
@@ -1481,7 +1482,7 @@
                 style="font-size:0.75rem; font-weight:700; color:var(--text-muted); display:block; margin-bottom:6px;">Biyografi</label>
               <textarea id="profileBio" class="note-input" rows="4" placeholder="Kendiniz hakkında yazın..."></textarea>
             </div>
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+            <div class="profile-bio-grid">
               <div>
                 <label
                   style="font-size:0.75rem; font-weight:700; color:var(--text-muted); display:block; margin-bottom:6px;">Boy

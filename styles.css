@@ -2586,6 +2586,48 @@ html {
   border: 1px solid rgba(139,124,247,0.18);
 }
 
+.profile-hero-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:32px;
+  align-items:start;
+  position:relative;
+  z-index:1;
+}
+
+.profile-bio-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:16px;
+}
+
+.profile-rank-bar-track{
+  margin-top:10px;
+  height:4px;
+  background:rgba(255,255,255,0.08);
+  border-radius:999px;
+  overflow:hidden;
+}
+
+.profile-rank-bar{
+  height:100%;
+  width:0%;
+  background:linear-gradient(90deg,var(--accent-primary),var(--accent-secondary));
+  border-radius:999px;
+  transition:width 0.25s ease;
+}
+
+@media(max-width:768px){
+  .profile-hero-card{padding:22px 16px}
+  .profile-hero-grid{grid-template-columns:1fr;gap:18px}
+  #profileAvatarLarge{width:110px !important;height:110px !important;border-radius:18px !important}
+  #profileRankWrap{max-width:100% !important}
+}
+
+@media(max-width:480px){
+  .profile-bio-grid{grid-template-columns:1fr}
+}
+
 /* Floating orbs — the ONLY color source, smoothly animatable */
 .profile-orb {
   position: absolute;

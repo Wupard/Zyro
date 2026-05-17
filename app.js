@@ -407,24 +407,13 @@ const DEFAULT_PROGRAMS = {
 // POSTURE VIDEO URLS
 // =============================================
 const POSTURE_VIDEO_URLS = {
-  'Warm-up: Light shoulder circles': 'https://www.youtube.com/watch?v=-dXpizOGkxI',
   'Doorway Stretch': 'https://www.youtube.com/watch?v=kXgmUP81c6U',
   'Y-T-W Raises': 'https://www.youtube.com/watch?v=0pq5oFywQDc',
   'Wall Angels': 'https://www.youtube.com/watch?v=XdCsMsaY90k',
-  'Chin Tuck & Neck Nod': 'https://www.youtube.com/watch?v=kaplx1ocaw8',
-  'Doorway Stretch': 'https://www.youtube.com/watch?v=kXgmUP81c6U',
-  'Thoracic Extension': 'https://www.youtube.com/watch?v=1uFnObPDZz0',
-  'Wrist Stretch': 'https://www.youtube.com/watch?v=xiRFZD7eh4U',
-  'Warm-up: Marching in place / walking': 'https://www.youtube.com/watch?v=tM6hPeF7O4I',
   'Chin Tuck': 'https://www.youtube.com/watch?v=kaplx1ocaw8',
   'Cat-Cow': 'https://www.youtube.com/watch?v=lgFQUsbpF6I',
-  'Pelvic Tilt + Deadbug': 'https://www.youtube.com/watch?v=zd160L4tPPs',
   'Kneeling Hip Flexor Stretch': 'https://www.youtube.com/watch?v=8kfH_OhZNAg',
   'Glute Bridge': 'https://www.youtube.com/watch?v=R1OXPHRqehw',
-  'Kneeling Hip Flexor Stretch': 'https://www.youtube.com/watch?v=8kfH_OhZNAg',
-  'Active Plank': 'https://www.youtube.com/watch?v=7m3DGFtS3yA',
-  'Clamshell & Side-Lying Hip Abduction': 'https://www.youtube.com/watch?v=d6mS1WUnvOw',
-  'Towel Curls & Short Foot': 'https://www.youtube.com/watch?v=kemS6qku8d0',
   'Deadbug': 'https://www.youtube.com/watch?v=zd160L4tPPs',
   'Thoracic Extension (Rulo veya sandalye ile)': 'https://www.youtube.com/watch?v=1uFnObPDZz0',
   'Child’s Pose (Çocuk Pozu)': 'https://www.youtube.com/watch?v=2vJK_d3I_oU'
@@ -444,7 +433,7 @@ const WORKOUT_VIDEO_URLS = {
   'Single-Arm Cable Tricep Kickback': 'https://www.youtube.com/shorts/7_C9_SWHZbo',
   'Seated Barbell Overhead Press': 'https://www.youtube.com/shorts/tKPtgQI-VFM',
   'Cable Lateral Raise': 'https://www.youtube.com/shorts/xrBcuPNTxLg',
-  'Dumbbell Reverse Wrist Curl': 'https://www.youtube.com/watch?v=osYPwlBiCRM',
+  'Dumbbell Reverse Wrist Curl': 'https://www.youtube.com/watch?v=osYPwlBiCRM&pp=ygUmSG93IHRvIGRvIGEgRHVtYmJlbGwgUmV2ZXJzZSBXcmlzdCBDdXI%3D',
 
   // PERŞEMBE
   'Flat Barbell Bench Press': 'https://www.youtube.com/shorts/hWbUlkb5Ms4',
@@ -463,98 +452,48 @@ const WORKOUT_VIDEO_URLS = {
   'Adductor Machine': 'https://www.youtube.com/shorts/BXs0PIkdXGs',
   'Smith Machine Calf Raise': 'https://www.youtube.com/shorts/wlqTemUXPXY',
   'Dumbbell Shrug': 'https://www.youtube.com/shorts/rFsSeClGnNA',
-  'Reverse Curl': 'https://www.youtube.com/watch?v=osYPwlBiCRM',
+  'Reverse Curl': 'https://www.youtube.com/watch?v=osYPwlBiCRM&pp=ygUmSG93IHRvIGRvIGEgRHVtYmJlbGwgUmV2ZXJzZSBXcmlzdCBDdXI%3D',
   '4 Temel Bilek DB': 'https://www.youtube.com/shorts/sKXqNO2KQp8',
 };
 
 const DEFAULT_POSTURE_PROGRAMS = {
   mon: [
-    {name:'Warm-up: Light shoulder circles',sets:'5 min',done:false},
-    {name:'Y-T-W Raises',sets:'10 reps per letter (2s hold)',done:false},
-    {name:'Wall Angels',sets:'15 reps',done:false},
-    {name:'Chin Tuck & Neck Nod',sets:'10 reps each (5s hold)',done:false},
-    {name:'Doorway Stretch',sets:'3 sets x 30 sec',done:false},
-    {name:'Thoracic Extension',sets:'2 sets x 60 sec',done:false},
-    {name:'Wrist Stretch',sets:'2 sets x 30 sec',done:false},
     {name:'Doorway Stretch',sets:'2 set x 30 saniye',done:false},
     {name:'Y-T-W Raises',sets:'Her harf için 15 tekrar (Toplam 45 tekrar)',done:false},
     {name:'Wall Angels',sets:'20 tekrar',done:false},
     {name:'Chin Tuck',sets:'15 tekrar (Her birinde 3 sn bekleme)',done:false},
   ],
   tue: [
-    {name:'Warm-up: Marching in place / walking',sets:'5 min',done:false},
-    {name:'Cat-Cow',sets:'12 reps',done:false},
-    {name:'Pelvic Tilt + Deadbug',sets:'20 slow reps',done:false},
-    {name:'Glute Bridge',sets:'3 sets x 15 reps',done:false},
-    {name:'Kneeling Hip Flexor Stretch',sets:'30 sec each side',done:false},
-    {name:'Active Plank',sets:'3 sets x 30-45 sec',done:false},
-    {name:'Clamshell & Side-Lying Hip Abduction',sets:'20 reps each',done:false},
-    {name:'Towel Curls & Short Foot',sets:'15 rounds / 12 reps',done:false},
     {name:'Cat-Cow',sets:'20 tekrar',done:false},
     {name:'Kneeling Hip Flexor Stretch',sets:'Her bacak için 30 saniye',done:false},
     {name:'Glute Bridge',sets:'2 set x 20 tekrar',done:false},
     {name:'Deadbug',sets:'20 tekrar (10 sağ, 10 sol)',done:false},
   ],
   wed: [
-    {name:'Warm-up: Light shoulder circles',sets:'5 min',done:false},
-    {name:'Y-T-W Raises',sets:'10 reps per letter (2s hold)',done:false},
-    {name:'Wall Angels',sets:'15 reps',done:false},
-    {name:'Chin Tuck & Neck Nod',sets:'10 reps each (5s hold)',done:false},
-    {name:'Doorway Stretch',sets:'3 sets x 30 sec',done:false},
-    {name:'Thoracic Extension',sets:'2 sets x 60 sec',done:false},
-    {name:'Wrist Stretch',sets:'2 sets x 30 sec',done:false},
     {name:'Doorway Stretch',sets:'2 set x 30 saniye',done:false},
     {name:'Y-T-W Raises',sets:'Her harf için 15 tekrar (Toplam 45 tekrar)',done:false},
     {name:'Wall Angels',sets:'20 tekrar',done:false},
     {name:'Chin Tuck',sets:'15 tekrar (Her birinde 3 sn bekleme)',done:false},
   ],
   thu: [
-    {name:'Warm-up: Marching in place / walking',sets:'5 min',done:false},
-    {name:'Cat-Cow',sets:'12 reps',done:false},
-    {name:'Pelvic Tilt + Deadbug',sets:'20 slow reps',done:false},
-    {name:'Glute Bridge',sets:'3 sets x 15 reps',done:false},
-    {name:'Kneeling Hip Flexor Stretch',sets:'30 sec each side',done:false},
-    {name:'Active Plank',sets:'3 sets x 30-45 sec',done:false},
-    {name:'Clamshell & Side-Lying Hip Abduction',sets:'20 reps each',done:false},
-    {name:'Towel Curls & Short Foot',sets:'15 rounds / 12 reps',done:false},
     {name:'Cat-Cow',sets:'20 tekrar',done:false},
     {name:'Kneeling Hip Flexor Stretch',sets:'Her bacak için 30 saniye',done:false},
     {name:'Glute Bridge',sets:'2 set x 20 tekrar',done:false},
     {name:'Deadbug',sets:'20 tekrar (10 sağ, 10 sol)',done:false},
   ],
   fri: [
-    {name:'Warm-up: Light shoulder circles',sets:'5 min',done:false},
-    {name:'Y-T-W Raises',sets:'10 reps per letter (2s hold)',done:false},
-    {name:'Wall Angels',sets:'15 reps',done:false},
-    {name:'Chin Tuck & Neck Nod',sets:'10 reps each (5s hold)',done:false},
-    {name:'Doorway Stretch',sets:'3 sets x 30 sec',done:false},
-    {name:'Thoracic Extension',sets:'2 sets x 60 sec',done:false},
-    {name:'Wrist Stretch',sets:'2 sets x 30 sec',done:false},
     {name:'Doorway Stretch',sets:'2 set x 30 saniye',done:false},
     {name:'Y-T-W Raises',sets:'Her harf için 15 tekrar (Toplam 45 tekrar)',done:false},
     {name:'Wall Angels',sets:'20 tekrar',done:false},
     {name:'Chin Tuck',sets:'15 tekrar (Her birinde 3 sn bekleme)',done:false},
   ],
   sat: [
-    {name:'Warm-up: Marching in place / walking',sets:'5 min',done:false},
-    {name:'Cat-Cow',sets:'12 reps',done:false},
-    {name:'Pelvic Tilt + Deadbug',sets:'20 slow reps',done:false},
-    {name:'Glute Bridge',sets:'3 sets x 15 reps',done:false},
-    {name:'Kneeling Hip Flexor Stretch',sets:'30 sec each side',done:false},
-    {name:'Active Plank',sets:'3 sets x 30-45 sec',done:false},
-    {name:'Clamshell & Side-Lying Hip Abduction',sets:'20 reps each',done:false},
-    {name:'Towel Curls & Short Foot',sets:'15 rounds / 12 reps',done:false},
     {name:'Cat-Cow',sets:'20 tekrar',done:false},
     {name:'Kneeling Hip Flexor Stretch',sets:'Her bacak için 30 saniye',done:false},
     {name:'Glute Bridge',sets:'2 set x 20 tekrar',done:false},
     {name:'Deadbug',sets:'20 tekrar (10 sağ, 10 sol)',done:false},
   ],
   sun: [
-    {name:'Doorway Stretch',sets:'30 sec',done:false},
-    {name:'Thoracic Extension',sets:'60 sec',done:false},
-    {name:'Kneeling Hip Flexor Stretch',sets:'30 sec',done:false},
-    {name:'Wrist Stretch',sets:'30 sec',done:false},
-    {name:'Cat-Cow',sets:'10 reps',done:false},
     {name:'Thoracic Extension (Rulo veya sandalye ile)',sets:'2 set x 30 saniye',done:false},
     {name:'Child’s Pose (Çocuk Pozu)',sets:'1 dakika (Pozisyonda kal ve derin nefes al)',done:false},
     {name:'Doorway Stretch',sets:'1 set x 30 saniye',done:false},
@@ -621,7 +560,7 @@ function saveData(){
   localStorage.setItem('zyro_data',JSON.stringify(appData));
 }
 
-const CURRENT_PROGRAM_VERSION = 10; // Force full cache reset and clear notes
+const CURRENT_PROGRAM_VERSION = 11; // Force full cache reset and clear notes
 
 function enforceVersion() {
   if(appData.programVersion !== CURRENT_PROGRAM_VERSION) {
@@ -4747,10 +4686,7 @@ function updateUserUI(user){
       }
       if (userData.profile) {
         appData.profile = { ...appData.profile, ...userData.profile };
-        const profileN = appData.profile.displayName;
-        if (profileN && document.getElementById('userName')) {
-          document.getElementById('userName').textContent = profileN.split(' ')[0];
-        }
+        renderSidebarProfile(user);
       }
       applyAdminVisibility();
     });
@@ -5588,7 +5524,7 @@ if (document.readyState === 'loading') {
 
 let selectedProfileAchievements = [];
 
-window.switchProfileTab = function(tab) {
+window.switchProfileTab = function(tab, ev) {
   // Hide all tabs
   document.getElementById('profileTabBio').style.display = 'none';
   document.getElementById('profileTabAchievements').style.display = 'none';
@@ -5602,8 +5538,11 @@ window.switchProfileTab = function(tab) {
   
   // Show selected tab
   document.getElementById('profileTab' + tab.charAt(0).toUpperCase() + tab.slice(1)).style.display = 'block';
-  event.target.style.color = 'var(--text-primary)';
-  event.target.style.borderBottomColor = 'var(--accent-primary)';
+  const btn = ev && (ev.currentTarget || ev.target);
+  if (btn) {
+    btn.style.color = 'var(--text-primary)';
+    btn.style.borderBottomColor = 'var(--accent-primary)';
+  }
   
   // Load security tab content if needed
   if (tab === 'security') {
@@ -5625,6 +5564,7 @@ window.loadProfileData = function() {
       if (doc.exists) {
         const userData = doc.data().data || {};
         const profile = userData.profile || {};
+        appData.profile = { ...appData.profile, ...profile };
         
         // Fill form
         document.getElementById('profileDisplayName').value = profile.displayName || currentUser.displayName || '';
@@ -5640,6 +5580,7 @@ window.loadProfileData = function() {
           document.getElementById('profileAvatarLarge').style.backgroundImage = `url('${profile.photoURL}')`;
           document.getElementById('profileAvatarLarge').style.backgroundSize = 'cover';
           document.getElementById('profileAvatarLarge').style.backgroundPosition = 'center';
+          document.getElementById('profileAvatarLarge').style.backgroundRepeat = 'no-repeat';
           document.getElementById('profileAvatarLarge').textContent = '';
         }
         
@@ -5659,41 +5600,94 @@ window.loadProfileData = function() {
           labelEl.style.color = rank.color;
         }
         const pct = Math.max(0, Math.min(100, parseInt(rootSnap.rankProgress, 10) || 0));
-        if (pctEl) pctEl.textContent = pct + '%';
+        if (pctEl) pctEl.textContent = '';
         if (barEl) barEl.style.width = pct + '%';
       }
     });
   }
 };
 
+function renderSidebarProfile(user){
+  const avatar=document.getElementById('userAvatar');
+  const name=document.getElementById('userName');
+  if(!avatar||!name) return;
+  const profilePhoto = appData.profile && appData.profile.photoURL;
+  const profileName = appData.profile && appData.profile.displayName;
+  if(profilePhoto){
+    avatar.innerHTML=`<img src="${profilePhoto}" alt="Avatar" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">`;
+  } else if(user && user.photoURL){
+    avatar.innerHTML=`<img src="${user.photoURL}" alt="Avatar" referrerpolicy="no-referrer">`;
+  } else {
+    const n = profileName || (user && user.displayName) || 'U';
+    avatar.textContent = n[0].toUpperCase();
+  }
+  const displayN = profileName || (user && user.displayName ? user.displayName.split(' ')[0] : 'User');
+  name.textContent = displayN;
+}
+
 window.handleProfilePhotoUpload = async function(event) {
   const file = event.target.files[0];
   if (!file || !currentUser) return;
   
-  const reader = new FileReader();
-  reader.onload = async (e) => {
-    const photoURL = e.target.result;
-    
-    // Update UI immediately
-    document.getElementById('profileAvatarLarge').style.backgroundImage = `url('${photoURL}')`;
-    document.getElementById('profileAvatarLarge').style.backgroundSize = 'cover';
-    document.getElementById('profileAvatarLarge').style.backgroundPosition = 'center';
-    document.getElementById('profileAvatarLarge').textContent = '';
-    
-    // Save to Firestore
-    if (isFirebaseConfigured && db) {
+  const toAvatarDataUrl = (f) => new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(f);
+    const img = new Image();
+    img.onload = () => {
       try {
-        await db.collection('users').doc(currentUser.uid).update({
-          'data.profile.photoURL': photoURL
-        });
-        showToast('Profil fotoğrafı güncellendi!', 'success');
-      } catch (err) {
-        console.error('Photo upload error:', err);
-        showToast('Fotoğraf yüklenemedi: ' + err.message, 'error');
+        const size = Math.min(img.width, img.height);
+        const sx = Math.floor((img.width - size) / 2);
+        const sy = Math.floor((img.height - size) / 2);
+        const canvas = document.createElement('canvas');
+        const out = 256;
+        canvas.width = out;
+        canvas.height = out;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, sx, sy, size, size, 0, 0, out, out);
+        let q = 0.88;
+        let dataUrl = canvas.toDataURL('image/jpeg', q);
+        while (dataUrl.length > 300_000 && q > 0.6) {
+          q = Math.round((q - 0.08) * 100) / 100;
+          dataUrl = canvas.toDataURL('image/jpeg', q);
+        }
+        URL.revokeObjectURL(url);
+        resolve(dataUrl);
+      } catch (e) {
+        URL.revokeObjectURL(url);
+        reject(e);
       }
+    };
+    img.onerror = (e) => {
+      URL.revokeObjectURL(url);
+      reject(e);
+    };
+    img.src = url;
+  });
+
+  try {
+    const photoURL = await toAvatarDataUrl(file);
+    appData.profile = { ...appData.profile, photoURL };
+    const avatarLarge = document.getElementById('profileAvatarLarge');
+    if (avatarLarge) {
+      avatarLarge.style.backgroundImage = `url('${photoURL}')`;
+      avatarLarge.style.backgroundSize = 'cover';
+      avatarLarge.style.backgroundPosition = 'center';
+      avatarLarge.style.backgroundRepeat = 'no-repeat';
+      avatarLarge.textContent = '';
     }
-  };
-  reader.readAsDataURL(file);
+    renderSidebarProfile(currentUser);
+
+    if (isFirebaseConfigured && db) {
+      await db.collection('users').doc(currentUser.uid).update({
+        'data.profile.photoURL': photoURL
+      });
+      showToast('Profil fotoğrafı güncellendi!', 'success');
+    }
+  } catch (err) {
+    console.error('Photo upload error:', err);
+    showToast('Fotoğraf yüklenemedi: ' + (err && err.message ? err.message : ''), 'error');
+  } finally {
+    event.target.value = '';
+  }
 };
 
 window.saveProfileBio = async function() {
@@ -5725,8 +5719,8 @@ window.saveProfileBio = async function() {
         }
       });
       
-      // Update sidebar
-      document.getElementById('userName').textContent = displayName.split(' ')[0];
+      appData.profile = { ...appData.profile, displayName, bio, height: height ? parseInt(height) : null, weight: weight ? parseFloat(weight) : null, age: age ? parseInt(age) : null, gender, selectedAchievements: selectedProfileAchievements };
+      renderSidebarProfile(currentUser);
       
       showToast('Profil bilgileri kaydedildi!', 'success');
     } catch (err) {
