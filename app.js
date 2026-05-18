@@ -850,7 +850,7 @@ function __routerBasePath() {
 }
 
 const __ROUTER_BASE = __routerBasePath();
-const __ROUTER_PAGES = new Set(['dashboard','workouts','posture','progress','notes','comments','calculators','beforeafter','achievements','profile','admin']);
+const __ROUTER_PAGES = new Set(['dashboard','workouts','posture','progress','updates','notes','comments','calculators','beforeafter','achievements','profile','admin']);
 
 function __pageToPath(page) {
   const p = page || 'dashboard';
@@ -915,6 +915,7 @@ function navigateTo(page, opts){
   else if(page==='workouts'){renderWorkout(currentWorkoutTab);renderLoggedExercises()}
   else if(page==='posture'){renderPosture(currentPostureTab)}
   else if(page==='progress')setTimeout(()=>{drawWeightChart();renderProgressTracker();renderPRTable();renderMonthlyTracker();},50);
+  else if(page==='updates')renderUpdatesPage();
   else if(page==='notes')renderNotes();
   else if(page==='comments')renderComments();
   else if(page==='beforeafter'){
@@ -930,6 +931,13 @@ function navigateTo(page, opts){
   else if(page==='profile')renderProfilePage();
 
   if(window.innerWidth<=768)document.getElementById('sidebar').classList.remove('open');
+}
+
+function renderUpdatesPage(){
+  const badge = document.getElementById('updatesDateBadge');
+  if (badge) badge.textContent = formatDateLong(new Date());
+  const entryDate = document.getElementById('updatesEntryDate');
+  if (entryDate) entryDate.textContent = formatDateLong(new Date());
 }
 
 function initNav(){
@@ -2354,6 +2362,7 @@ function refreshAllViews(){
     drawWeightChart();drawStrengthChart();
     renderMonthlyTracker();renderProgressTracker();
   },50);
+  else if(currentPage==='updates')renderUpdatesPage();
   else if(currentPage==='notes')renderNotes();
   else if(currentPage==='comments')renderComments();
   else if(currentPage==='beforeafter'){renderProgressPhotos();renderPRTable();renderBodyMeasurements();}

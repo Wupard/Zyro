@@ -2628,6 +2628,125 @@ html {
   .profile-bio-grid{grid-template-columns:1fr}
 }
 
+#pageUpdates{
+  animation: pageIn 0.35s ease both;
+}
+
+.updates-card{
+  padding: 22px;
+  border-radius: 22px;
+  border: 1px solid rgba(139,124,247,0.14);
+  background:
+    radial-gradient(1200px 420px at 20% -10%, rgba(139,124,247,0.16), transparent 60%),
+    radial-gradient(900px 360px at 90% 0%, rgba(217,110,163,0.10), transparent 55%),
+    rgba(255,255,255,0.02);
+  overflow: hidden;
+}
+
+.updates-head{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding: 10px 10px 16px;
+}
+
+.updates-head-icon{
+  width:40px;
+  height:40px;
+  border-radius: 14px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background: rgba(139,124,247,0.12);
+  border: 1px solid rgba(139,124,247,0.22);
+  color: var(--accent-primary);
+  flex-shrink:0;
+}
+
+.updates-title{
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+}
+
+.updates-subtitle{
+  font-size: 0.8rem;
+  color: var(--text-tertiary);
+  font-weight: 600;
+}
+
+.updates-timeline{
+  margin-top: 6px;
+  padding: 0 10px 10px;
+}
+
+.updates-entry{
+  display:grid;
+  grid-template-columns: 32px 1fr;
+  gap: 12px;
+  align-items:start;
+  position: relative;
+}
+
+.updates-entry::before{
+  content:'';
+  position:absolute;
+  left: 15px;
+  top: 32px;
+  bottom: 0;
+  width: 2px;
+  background: linear-gradient(180deg, rgba(139,124,247,0.35), rgba(139,124,247,0.0));
+}
+
+.updates-entry-marker{
+  width: 30px;
+  height: 30px;
+  border-radius: 12px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background: rgba(34,197,94,0.10);
+  border: 1px solid rgba(34,197,94,0.25);
+  color: rgba(34,197,94,0.95);
+  margin-top: 2px;
+  z-index: 1;
+}
+
+.updates-entry-body{
+  padding: 14px 14px 16px;
+  border-radius: 18px;
+  background: rgba(0,0,0,0.18);
+  border: 1px solid rgba(255,255,255,0.06);
+}
+
+.updates-entry-date{
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+.updates-list{
+  margin: 0;
+  padding-left: 18px;
+  color: var(--text-primary);
+  font-size: 0.92rem;
+  line-height: 1.55;
+}
+
+.updates-list li{
+  margin: 8px 0;
+}
+
+@media(max-width:768px){
+  .updates-card{padding:18px}
+  .updates-entry-body{padding:12px}
+}
+
 /* Floating orbs — the ONLY color source, smoothly animatable */
 .profile-orb {
   position: absolute;
