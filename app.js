@@ -6618,15 +6618,20 @@ function renderWeeklyReport() {
 
   const topMuscle = Object.entries(muscleSets).sort((a,b)=>b[1]-a[1])[0];
   const el = id => document.getElementById(id);
-  if (el('wrWorkouts')) el('wrWorkouts').textContent = thisWorkouts;
+  if (el('wrWorkouts')) el('wrWorkouts').innerHTML = `${thisWorkouts} <span style="font-size:0.8rem;color:var(--text-tertiary);font-weight:600;">/ 3</span>`;
   if (el('wrVolume')) el('wrVolume').textContent = Math.round(thisVolume).toLocaleString('tr-TR');
   if (el('wrTopMuscle')) el('wrTopMuscle').textContent = topMuscle ? topMuscle[0] : '—';
   if (el('wrBestPR')) el('wrBestPR').textContent = bestPR > 0 ? `${bestPR} kg` : '— kg';
   const wdiff = thisWorkouts - prevWorkouts;
   const vdiff = Math.round(thisVolume - prevVolume);
   if (el('wrWorkoutsChange')) {
-    el('wrWorkoutsChange').textContent = wdiff===0 ? '= Geçen hafta gibi' : (wdiff>0?`↑ ${wdiff} fazla`:`↓ ${Math.abs(wdiff)} az`);
-    el('wrWorkoutsChange').className = 'wr-stat-change '+(wdiff>0?'wr-change-up':wdiff<0?'wr-change-down':'wr-change-same');
+    if (thisWorkouts >= 3) {
+      el('wrWorkoutsChange').textContent = '✨ Hedef Tamamlandı';
+      el('wrWorkoutsChange').className = 'wr-stat-change wr-change-up';
+    } else {
+      el('wrWorkoutsChange').textContent = wdiff===0 ? '= Geçen hafta gibi' : (wdiff>0?`↑ ${wdiff} gün fazla`:`↓ ${Math.abs(wdiff)} gün az`);
+      el('wrWorkoutsChange').className = 'wr-stat-change '+(wdiff>0?'wr-change-up':wdiff<0?'wr-change-down':'wr-change-same');
+    }
   }
   if (el('wrVolumeChange')) {
     el('wrVolumeChange').textContent = vdiff===0?'= Geçen hafta gibi':(vdiff>0?`↑ ${vdiff.toLocaleString('tr-TR')} kg fazla`:`↓ ${Math.abs(vdiff).toLocaleString('tr-TR')} kg az`);
@@ -6691,7 +6696,12 @@ function init1RMCalculator() {
 }
 window.calc1RMFromLogs = function() {
   const exercise = document.getElementById('oneRMExerciseSelect')?.value;
-  if (!exercise) return;
+  if (!exercise) {
+    if (document.getElementById('oneRMWeight')) document.getElementById('oneRMWeight').value = '';
+    if (document.getElementById('oneRMReps')) document.getElementById('oneRMReps').value = '';
+    if (document.getElementById('oneRMResult')) document.getElementById('oneRMResult').style.display = 'none';
+    return;
+  }
   let bestWeight = 0, bestReps = 0;
   Object.values(appData.workoutLogs || {}).forEach(logs => {
     logs.forEach(l => {
