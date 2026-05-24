@@ -345,10 +345,10 @@ const EXERCISE_CATEGORIES = {
     'Hammer Curl', 'Seated Incline Dumbbell Curl', 'Single-Arm Cable Curl'
   ],
   'triceps': [
-    'V-bar Pushdown', 'Seated Dumbbell Overhead Tricep', 'Single-Arm Cable Tricep Kickback'
+    'Straight-Bar Pushdown', 'Seated Dumbbell Overhead Tricep', 'Single-Arm Cable Tricep Kickback'
   ],
   'wrists': [
-    'Dumbbell Reverse Wrist Curl', 'Dumbbell Radial/Ulnar Deviation', 'Reverse Curl', '4 Temel Bilek DB'
+    'Dumbbell Reverse Wrist Curl', 'Dumbbell Radial/Ulnar Deviation', 'Reverse Curl', 'Dumbbell Forearm'
   ],
   'core': []
 };
@@ -377,39 +377,38 @@ const CATEGORY_ICONS = {
 
 const DEFAULT_PROGRAMS = {
   day1: [ // SALI
-    {name:'Medium-Grip Lat Pulldown',sets:'3x12',weight:'-'},
-    {name:'Reverse-Grip Lat Pulldown',sets:'3x12',weight:'-'},
-    {name:'Barbell Row',sets:'3x12',weight:'-'},
-    {name:'Single-Arm Seated Cable Row',sets:'3x12',weight:'-'},
-    {name:'V-bar Pushdown',sets:'3x12',weight:'-'},
-    {name:'Seated Dumbbell Overhead Tricep',sets:'3x12',weight:'-'},
-    {name:'Single-Arm Cable Tricep Kickback',sets:'3x12',weight:'-'},
-    {name:'Seated Barbell Overhead Press',sets:'3x12',weight:'-'},
-    {name:'Cable Lateral Raise',sets:'3x12',weight:'-'},
-    {name:'Dumbbell Reverse Wrist Curl',sets:'3x12',weight:'-'},
-    {name:'Dumbbell Radial/Ulnar Deviation',sets:'3x12',weight:'-'},
+    {name:'Medium-Grip Lat Pulldown',sets:'3x6-8',weight:'-'},
+    {name:'Barbell Row',sets:'3x6-8',weight:'-'},
+    {name:'Single-Arm Seated Cable Row',sets:'3x6-8',weight:'-'},
+    {name:'Straight-Bar Pushdown',sets:'3x6-8',weight:'-'},
+    {name:'Seated Dumbbell Overhead Tricep',sets:'3x6-8',weight:'-'},
+    {name:'Single-Arm Cable Tricep Kickback',sets:'3x6-8',weight:'-'},
+    {name:'Seated Barbell Overhead Press',sets:'3x6-8',weight:'-'},
+    {name:'Cable Lateral Raise',sets:'3x6-8',weight:'-'},
+    {name:'Dumbbell Reverse Wrist Curl',sets:'3x6-8',weight:'-'},
+    {name:'Dumbbell Radial/Ulnar Deviation',sets:'3x6-8',weight:'-'},
   ],
   day2: [ // PERŞEMBE
-    {name:'Flat Barbell Bench Press',sets:'3x12',weight:'-'},
-    {name:'Incline Dumbbell Press',sets:'3x12',weight:'-'},
-    {name:'Decline Barbell Bench Press',sets:'3x12',weight:'-'},
-    {name:'Cable Rope Face Pull',sets:'3x12',weight:'-'},
-    {name:'Seated Rear Delt Fly',sets:'3x12',weight:'-'},
-    {name:'Seated Incline Dumbbell Curl',sets:'3x12',weight:'-'},
-    {name:'Hammer Curl',sets:'3x12',weight:'-'},
-    {name:'Single-Arm Cable Curl',sets:'3x12',weight:'-'},
+    {name:'Flat Barbell Bench Press',sets:'3x6-8',weight:'-'},
+    {name:'Incline Dumbbell Press',sets:'3x6-8',weight:'-'},
+    {name:'Decline Barbell Bench Press',sets:'3x6-8',weight:'-'},
+    {name:'Cable Rope Face Pull',sets:'3x6-8',weight:'-'},
+    {name:'Seated Rear Delt Fly',sets:'3x6-8',weight:'-'},
+    {name:'Seated Incline Dumbbell Curl',sets:'3x6-8',weight:'-'},
+    {name:'Hammer Curl',sets:'3x6-8',weight:'-'},
+    {name:'Single-Arm Cable Curl',sets:'3x6-8',weight:'-'},
   ],
   day3: [ // CUMARTESİ
-    {name:'Romanian Deadlift',sets:'2x12',weight:'-'},
-    {name:'Leg Extension',sets:'3x12',weight:'-'},
-    {name:'Reverse Leg Extension',sets:'2x12',weight:'-'},
-    {name:'Adductor Machine',sets:'2x12',weight:'-'},
-    {name:'Smith Machine Calf Raise',sets:'3x12',weight:'-'},
-    {name:'Cable Rope Face Pull',sets:'3x12',weight:'-'},
-    {name:'Cable Lateral Raise',sets:'3x12',weight:'-'},
-    {name:'Dumbbell Shrug',sets:'3x12',weight:'-'},
-    {name:'Reverse Curl',sets:'3x12',weight:'-'},
-    {name:'4 Temel Bilek DB',sets:'3x12',weight:'-'},
+    {name:'Romanian Deadlift',sets:'3x6-8',weight:'-'},
+    {name:'Leg Extension',sets:'3x6-8',weight:'-'},
+    {name:'Reverse Leg Extension',sets:'3x6-8',weight:'-'},
+    {name:'Adductor Machine',sets:'3x6-8',weight:'-'},
+    {name:'Smith Machine Calf Raise',sets:'3x6-8',weight:'-'},
+    {name:'Cable Rope Face Pull',sets:'3x6-8',weight:'-'},
+    {name:'Cable Lateral Raise',sets:'3x6-8',weight:'-'},
+    {name:'Dumbbell Shrug',sets:'3x6-8',weight:'-'},
+    {name:'Reverse Curl',sets:'3x6-8',weight:'-'},
+    {name:'Dumbbell Forearm',sets:'3x6-8',weight:'-'},
   ],
 };
 
@@ -438,12 +437,13 @@ const WORKOUT_VIDEO_URLS = {
   'Reverse-Grip Lat Pulldown': 'https://www.youtube.com/shorts/rguA3pm73rs',
   'Barbell Row': 'https://www.youtube.com/shorts/Nqh7q3zDCoQ',
   'Single-Arm Seated Cable Row': 'https://www.youtube.com/shorts/9TWiV80cUYs',
-  'V-bar Pushdown': 'https://www.youtube.com/shorts/1FjkhpZsaxc',
+  'Straight-Bar Pushdown': 'https://www.youtube.com/shorts/1FjkhpZsaxc',
   'Seated Dumbbell Overhead Tricep': 'https://www.youtube.com/shorts/b_r_LW4HEcM',
   'Single-Arm Cable Tricep Kickback': 'https://www.youtube.com/shorts/7_C9_SWHZbo',
   'Seated Barbell Overhead Press': 'https://www.youtube.com/shorts/tKPtgQI-VFM',
   'Cable Lateral Raise': 'https://www.youtube.com/shorts/xrBcuPNTxLg',
   'Dumbbell Reverse Wrist Curl': 'https://www.youtube.com/watch?v=osYPwlBiCRM&pp=ygUmSG93IHRvIGRvIGEgRHVtYmJlbGwgUmV2ZXJzZSBXcmlzdCBDdXI%3D',
+  'Dumbbell Radial/Ulnar Deviation': 'https://www.youtube.com/watch?v=OchvFH9qWz8&pp=ygUfRHVtYmJlbGwgUmFkaWFsL1VsbmFyIERldmlhdGlvbg%3D%3D',
 
   // PERŞEMBE
   'Flat Barbell Bench Press': 'https://www.youtube.com/shorts/hWbUlkb5Ms4',
@@ -463,7 +463,7 @@ const WORKOUT_VIDEO_URLS = {
   'Smith Machine Calf Raise': 'https://www.youtube.com/shorts/wlqTemUXPXY',
   'Dumbbell Shrug': 'https://www.youtube.com/shorts/rFsSeClGnNA',
   'Reverse Curl': 'https://www.youtube.com/watch?v=osYPwlBiCRM&pp=ygUmSG93IHRvIGRvIGEgRHVtYmJlbGwgUmV2ZXJzZSBXcmlzdCBDdXI%3D',
-  '4 Temel Bilek DB': 'https://www.youtube.com/shorts/sKXqNO2KQp8',
+  'Dumbbell Forearm': 'https://www.youtube.com/shorts/sKXqNO2KQp8',
 };
 
 const DEFAULT_POSTURE_PROGRAMS = {
