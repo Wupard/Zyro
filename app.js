@@ -6643,21 +6643,50 @@ function renderWeeklyReport() {
 // LEVEL / XP SYSTEM
 // =============================================
 function calculateXP() {
-  const workoutDays = Object.keys(appData.attendance || {}).length;
-  const logCount = Object.values(appData.workoutLogs || {}).reduce((sum, logs) => sum + logs.length, 0);
-  const achCount = Object.keys(appData.achievements || {}).length;
-  return (workoutDays * 100) + (logCount * 10) + (achCount * 200);
+  let xp = 0;
+  // 1. Achievements (200 XP each)
+  xp += Object.keys(appData.achievements || {}).length * 200;
+  
+  // 2. Workouts (50 XP per day)
+  xp += Object.keys(appData.attendance || {}).length * 50;
+
+  // 3. Sets and PRs
+  const maxWeights = {};
+  Object.keys(appData.workoutLogs || {}).sort().forEach(date => {
+    const logs = appData.workoutLogs[date] || [];
+    logs.forEach(l => {
+      // 10 XP per set
+      xp += (l.sets || 1) * 10;
+      
+      // 50 XP PR Bonus
+      const ex = l.exercise;
+      const w = parseFloat(l.weight) || 0;
+      if (ex && w > 0) {
+        if (!maxWeights[ex] || w > maxWeights[ex]) {
+          maxWeights[ex] = w;
+          xp += 50;
+        }
+      }
+    });
+  });
+  return xp;
 }
+
 function calculateLevel(xp) {
   return Math.min(100, Math.max(1, Math.floor(Math.sqrt(xp / 50)) + 1));
 }
+
 function getXPForLevel(level) {
   return Math.pow(Math.max(0, level - 1), 2) * 50;
 }
+
 function updateLevelUI() {
   const xp = calculateXP();
   const level = calculateLevel(xp);
-  const prevLevel = parseInt(localStorage.getItem('zyro_level') || '1');
+  
+  const prevLevelStr = localStorage.getItem('zyro_level');
+  const prevLevel = prevLevelStr ? parseInt(prevLevelStr) : level;
+  
   const nextLevelXP = getXPForLevel(level + 1);
   const currentLevelXP = getXPForLevel(level);
   const range = nextLevelXP - currentLevelXP;
@@ -6670,10 +6699,12 @@ function updateLevelUI() {
   if (el('profileXPBar')) el('profileXPBar').style.width = xpProgress + '%';
   if (el('profileXPText')) el('profileXPText').textContent = `${xp.toLocaleString('tr-TR')} XP • ${xpProgress}% → Lv.${Math.min(100, level + 1)}`;
 
+  // Only show toast if they legitimately leveled up while using the app
   if (level > prevLevel && prevLevel > 0) {
-    showToast(`🎉 Seviye ${level} oldu! Tebrikler!`, 'success');
+    showToast(`🎉 Seviye ${level} oldunuz! Tebrikler!`, 'success');
     if (typeof runConfetti === 'function') runConfetti();
   }
+  
   localStorage.setItem('zyro_level', level);
 }
 
@@ -6818,89 +6849,15 @@ window.renderLeaderboard = async function(forceRefresh = false) {
       ? `<img src="${u.photoURL}" class="lb-avatar">` 
       : `<div class="lb-avatar lb-avatar-placeholder">👤</div>`;
       
-    return `
-      <div class="lb-card ${cardStyle}" onclick="showPublicProfileModal('${u.uid}')">
+      return `
+      <div class="lb-card ${cardStyle}">
         <div class="lb-rank-wrap">${rankBadge}</div>
         ${avatarHtml}
         <div class="lb-info">
           <div class="lb-name">${u.displayName || 'İsimsiz'}${isMe ? ' <span class="lb-me-badge">(Sen)</span>' : ''}</div>
           <div class="lb-val">${valStr}</div>
         </div>
-        <div class="lb-arrow">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
-        </div>
       </div>
     `;
   }).join('');
-};
-
-window.showPublicProfileModal = async function(uid) {
-  if (!isFirebaseConfigured || !db) return;
-  
-  try {
-    // 1. Fetch public stats
-    const docSnap = await db.collection('public_stats').doc(uid).get();
-    if (!docSnap.exists) {
-      showToast('Kullanıcı bulunamadı', 'error');
-      return;
-    }
-    const u = docSnap.data();
-    
-    // 2. Fetch full user profile to get bio and rank
-    const userSnap = await db.collection('users').doc(uid).get();
-    const userData = userSnap.exists ? (userSnap.data().data || {}) : {};
-    const profile = userData.profile || {};
-    
-    const rootRank = (userSnap.exists && userSnap.data().rank) || userData.userRank || 'default';
-    const rankObj = RANKS[rootRank] || RANKS.default;
-    
-    // Set UI
-    const avatar = document.getElementById('ppModalAvatar');
-    if (u.photoURL) {
-      avatar.style.backgroundImage = `url('${u.photoURL}')`;
-      avatar.style.backgroundSize = 'cover';
-      avatar.style.backgroundPosition = 'center';
-      avatar.textContent = '';
-    } else {
-      avatar.style.backgroundImage = 'none';
-      avatar.textContent = '👤';
-    }
-    
-    document.getElementById('ppModalName').textContent = u.displayName || 'İsimsiz';
-    
-    const rankEl = document.getElementById('ppModalRank');
-    rankEl.textContent = rankObj.name;
-    rankEl.style.color = rankObj.color;
-    
-    document.getElementById('ppModalLevel').textContent = u.level || 1;
-    document.getElementById('ppModalPR').innerHTML = `${u.bestPR || 0}<span style="font-size:0.8rem">kg</span>`;
-    
-    document.getElementById('ppModalBio').textContent = profile.bio || 'Kullanıcı henüz bir biyografi eklememiş.';
-    
-    // Achievements
-    const achContainer = document.getElementById('ppModalAchievements');
-    if (u.selectedAchievements && u.selectedAchievements.length > 0) {
-      achContainer.innerHTML = u.selectedAchievements.map(achId => {
-        const def = ACHIEVEMENT_DEFS.find(d => d.id === achId);
-        if (!def) return '';
-        return `
-          <div style="text-align:center; width:60px;">
-            <div style="font-size:1.8rem; margin-bottom:4px;">⭐</div>
-            <div style="font-size:0.55rem; font-weight:700; color:var(--text-secondary); line-height:1.2;">${def.name}</div>
-          </div>
-        `;
-      }).join('');
-    } else {
-      achContainer.innerHTML = '<span style="color:var(--text-tertiary); font-size:0.8rem;">Henüz başarım sergilemiyor.</span>';
-    }
-    
-    document.getElementById('publicProfileModal').style.display = 'flex';
-  } catch(e) {
-    console.error('showPublicProfileModal error:', e);
-    showToast('Profil yüklenirken bir hata oluştu', 'error');
-  }
-};
-
-window.closePublicProfileModal = function() {
-  document.getElementById('publicProfileModal').style.display = 'none';
 };

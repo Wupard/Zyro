@@ -215,40 +215,39 @@
       <button class="lang-btn" data-lang="tr">TR</button>
     </div>
 
-    <div class="sidebar-footer" id="sidebar-footer" style="cursor:pointer;"
+    <div class="sidebar-footer" id="sidebar-footer" style="cursor:pointer; display:flex; flex-direction:column; gap:12px; padding:12px; background:rgba(255,255,255,0.02); border-top:1px solid rgba(255,255,255,0.05); border-radius:16px; margin: 0 10px 10px 10px;"
       onclick="switchPage('profile'); document.getElementById('sidebar').classList.remove('open');">
-      <div style="display:flex; align-items:center; flex:1; gap: 10px; overflow: hidden;">
-        <div class="user-avatar" id="userAvatar" style="flex-shrink:0;">Z</div>
-        <div class="user-info" style="display:flex; flex-direction:column; align-items:flex-start; overflow: hidden; gap: 3px;">
-          <div style="display:flex; align-items:center; gap: 6px; width: 100%;">
-            <span class="user-rank" id="userRank"
-              style="font-size: 0.6rem; background: linear-gradient(135deg, var(--accent-deep), var(--accent-primary)); color: white; padding: 2px 7px; border-radius: 4px; font-weight: 800; text-transform: uppercase; flex-shrink:0; letter-spacing: 0.04em; white-space: nowrap;">Üye</span>
-            <span class="user-name" id="userName"
-              style="font-size: 0.9rem; font-weight: 700; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"></span>
+      
+      <!-- Top Row: Avatar, Name, Rank, SignOut -->
+      <div style="display:flex; align-items:center; gap: 10px; width: 100%;">
+        <div class="user-avatar" id="userAvatar" style="width:36px; height:36px; flex-shrink:0; border-radius:10px; font-size:1.2rem;">Z</div>
+        
+        <div class="user-info" style="display:flex; flex-direction:column; justify-content:center; flex:1; overflow:hidden;">
+          <div style="display:flex; align-items:center; gap: 6px;">
+            <span class="user-name" id="userName" style="font-size:0.9rem; font-weight:800; color:var(--text-primary); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Kullanıcı</span>
           </div>
-          <span class="user-status" id="userStatus"
-            style="font-size: 0.7rem; color: var(--text-muted); display:flex; align-items:center; gap: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 1px;">●
-            Local Mode</span>
+          <div style="display:flex; align-items:center; gap: 6px; margin-top:3px;">
+            <span class="user-rank" id="userRank" style="font-size:0.55rem; background:linear-gradient(135deg, var(--accent-deep), var(--accent-primary)); color:white; padding:2px 5px; border-radius:4px; font-weight:800; text-transform:uppercase;">Üye</span>
+            <span class="user-status" id="userStatus" style="font-size:0.6rem; color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">● Çevrimiçi</span>
+          </div>
+        </div>
+
+        <button class="signout-btn" id="signOutBtn" title="Çıkış Yap" style="display:none; flex-shrink:0; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); color:var(--text-muted); cursor:pointer; padding:6px; border-radius:8px;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" /></svg>
+        </button>
+      </div>
+
+      <!-- Bottom Row: XP Bar -->
+      <div id="sidebarLevelWrap" style="width:100%;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+          <span id="sidebarLevelBadge" style="font-size:0.6rem; font-weight:800; color:var(--accent-primary); background:rgba(139,124,247,0.15); padding:2px 6px; border-radius:4px;">Lv.1</span>
+          <span style="font-size:0.5rem; font-weight:700; color:var(--text-tertiary); text-transform:uppercase; letter-spacing:1px;">XP</span>
+        </div>
+        <div style="height:4px; background:rgba(255,255,255,0.06); border-radius:2px; overflow:hidden;">
+          <div id="sidebarLevelBar" style="height:100%; background:linear-gradient(90deg,var(--accent-deep),var(--accent-primary)); border-radius:2px; width:0%; transition:width 0.8s ease;"></div>
         </div>
       </div>
-      <div id="sidebarLevelWrap" style="width:100%;margin-top:5px;padding:0 2px;">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px;">
-          <span id="sidebarLevelBadge" style="font-size:0.6rem;font-weight:800;color:var(--accent-primary);background:rgba(139,124,247,0.15);padding:1px 6px;border-radius:4px;letter-spacing:0.04em;">Lv.1</span>
-          <span style="font-size:0.5rem;color:var(--text-tertiary);">XP</span>
-        </div>
-        <div style="height:2px;background:rgba(255,255,255,0.06);border-radius:2px;overflow:hidden;">
-          <div id="sidebarLevelBar" style="height:100%;background:linear-gradient(90deg,var(--accent-deep),var(--accent-primary));border-radius:2px;width:0%;transition:width 0.8s ease;"></div>
-        </div>
-      </div>
-      <button class="signout-btn" id="signOutBtn" title="Sign Out"
-        style="display:none; flex-shrink:0; background: none; border: none; color: var(--text-muted); cursor: pointer; padding: 6px; border-radius: 8px; margin-left: auto;">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
-          stroke-linecap="round">
-          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-          <polyline points="16 17 21 12 16 7" />
-          <line x1="21" y1="12" x2="9" y2="12" />
-        </svg>
-      </button>
+
     </div>
   </aside>
 
@@ -1538,116 +1537,22 @@
 
     <!-- ============ PAGE: PROFILE ============ -->
     <div class="page" data-page="profile" id="pageProfile">
-      <!-- =============================================
-       PUBLIC PROFILE MODAL
-       ============================================= -->
-  <div id="publicProfileModal" class="modal-overlay">
-    <div class="modal-content" style="max-width:450px; background:var(--bg-card); padding:0; overflow:hidden;">
-      <div style="position:relative; height:120px; background:linear-gradient(135deg, var(--accent-deep), var(--accent-primary));">
-        <button onclick="closePublicProfileModal()" style="position:absolute; top:16px; right:16px; width:32px; height:32px; border-radius:50%; background:rgba(0,0,0,0.3); border:none; color:white; font-size:1.2rem; display:flex; align-items:center; justify-content:center; cursor:pointer; z-index:10;">✕</button>
-      </div>
-      <div style="padding:0 24px 24px 24px; position:relative; text-align:center;">
-        <div id="ppModalAvatar" style="width:90px; height:90px; border-radius:24px; background:var(--bg-card-alt); border:4px solid var(--bg-card); margin:-45px auto 16px auto; display:flex; align-items:center; justify-content:center; font-size:2rem; box-shadow:0 8px 16px rgba(0,0,0,0.2);">
-          👤
-        </div>
-        <h2 id="ppModalName" style="margin:0 0 4px 0; font-size:1.6rem;">Kullanıcı</h2>
-        <div id="ppModalRank" style="font-size:0.8rem; font-weight:800; color:var(--accent-primary); text-transform:uppercase; letter-spacing:1px; margin-bottom:16px;">Üye</div>
+      <!-- Profile Page (Simplified) -->
+      <div style="padding: 24px; max-width: 600px; margin: 0 auto;">
+        <h2 style="font-size: 1.5rem; font-weight: 800; margin-bottom: 24px; color: var(--text-primary);">Profil Bilgileri</h2>
         
-        <div style="display:flex; justify-content:center; gap:16px; margin-bottom:20px;">
-          <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); padding:12px; border-radius:12px; min-width:80px;">
-            <div id="ppModalLevel" style="font-family:'Space Grotesk',sans-serif; font-size:1.4rem; font-weight:800; color:var(--text-primary);">1</div>
-            <div style="font-size:0.65rem; color:var(--text-muted); text-transform:uppercase; font-weight:700; margin-top:2px;">Seviye</div>
+        <div style="background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 16px; padding: 24px;">
+          <div style="margin-bottom: 20px;">
+            <label style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 8px; text-transform: uppercase;">Ad Soyad</label>
+            <input type="text" id="profileDisplayName" class="log-input" placeholder="Adınızı girin" style="font-size: 1rem; padding: 12px; background: rgba(255,255,255,0.03);">
           </div>
-          <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); padding:12px; border-radius:12px; min-width:80px;">
-            <div id="ppModalPR" style="font-family:'Space Grotesk',sans-serif; font-size:1.4rem; font-weight:800; color:var(--text-primary);">0<span style="font-size:0.8rem">kg</span></div>
-            <div style="font-size:0.65rem; color:var(--text-muted); text-transform:uppercase; font-weight:700; margin-top:2px;">En İyi PR</div>
+          
+          <div style="margin-bottom: 24px;">
+            <label style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 8px; text-transform: uppercase;">E-Mail</label>
+            <input type="email" id="profileEmail" class="log-input" placeholder="E-mail adresi" readonly style="font-size: 1rem; padding: 12px; background: rgba(255,255,255,0.02); opacity: 0.7; cursor: not-allowed;">
           </div>
-        </div>
-
-        <div id="ppModalBio" style="font-size:0.85rem; color:var(--text-secondary); line-height:1.5; margin-bottom:20px; text-align:left; padding:12px; background:rgba(255,255,255,0.02); border-radius:8px;">
-          Hakkında bilgi yok.
-        </div>
-
-        <div style="text-align:left; margin-bottom:8px; font-size:0.7rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px;">Sergilenen Başarımlar</div>
-        <div id="ppModalAchievements" style="display:flex; gap:10px; justify-content:center; background:rgba(255,255,255,0.02); padding:16px; border-radius:12px; border:1px solid rgba(255,255,255,0.04);">
-          <!-- Selected achievements injected here -->
-          <span style="color:var(--text-tertiary); font-size:0.8rem;">Henüz başarım sergilemiyor.</span>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- PWA Install Prompt -->
-      <div class="profile-hero-card">
-        <!-- Animated orbs -->
-        <div class="profile-orb profile-orb-1"></div>
-        <div class="profile-orb profile-orb-2"></div>
-        <div class="profile-orb profile-orb-3"></div>
-        <!-- Shimmer sweep -->
-        <div class="profile-shimmer"></div>
-
-        <div class="profile-hero-grid">
-          <!-- Left: Profile Picture -->
-          <div style="display:flex; flex-direction:column; align-items:center; gap:16px;">
-            <div id="profileAvatarLarge"
-              style="width:140px; height:140px; border-radius:20px; background:linear-gradient(135deg,var(--accent-primary),var(--accent-secondary)); display:flex; align-items:center; justify-content:center; font-size:3rem; font-weight:700; color:white; cursor:pointer; transition:all 0.3s; border:3px solid rgba(139,124,247,0.3); position:relative; overflow:hidden;"
-              onclick="document.getElementById('profilePhotoInput').click();">Z</div>
-            <button class="btn-small" onclick="document.getElementById('profilePhotoInput').click()"
-              style="background:var(--accent-primary); color:white; border:none;">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
-                style="margin-right:4px;">
-                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
-                <circle cx="12" cy="13" r="4" />
-              </svg>
-              Fotoğraf Değiştir
-            </button>
-            <input type="file" id="profilePhotoInput" accept="image/*" style="display:none;"
-              onchange="handleProfilePhotoUpload(event)">
-          </div>
-
-          <!-- Right: Basic Info -->
-          <div style="display:flex; flex-direction:column; gap:16px;">
-            <div>
-              <label
-                style="font-size:0.75rem; font-weight:700; color:var(--text-muted); display:block; margin-bottom:6px;">Ad
-                Soyad</label>
-              <input type="text" id="profileDisplayName" class="log-input" placeholder="Adınızı girin"
-                style="font-size:1rem; font-weight:600;">
-            </div>
-            <div>
-              <label
-                style="font-size:0.75rem; font-weight:700; color:var(--text-muted); display:block; margin-bottom:6px;">E-Mail</label>
-              <input type="email" id="profileEmail" class="log-input" placeholder="E-mail" readonly
-                style="opacity:0.7;">
-            </div>
-            <div style="min-width:0;">
-              <label
-                style="font-size:0.75rem; font-weight:700; color:var(--text-muted); display:block; margin-bottom:6px;">Rank</label>
-              <div id="profileRankWrap"
-                style="padding:12px 20px; max-width:220px; background:linear-gradient(135deg, rgba(139,124,247,0.15), rgba(217,110,163,0.15)); border:1px solid rgba(139,124,247,0.4); border-radius:12px; box-shadow: 0 0 15px rgba(139,124,247,0.2); display:inline-block;">
-                <div style="display:flex; justify-content:center; align-items:center;">
-                  <span id="profileRank" style="font-weight:800; font-size:1.15rem; letter-spacing:0.5px; text-transform:uppercase; text-shadow: 0 0 10px currentColor;">Üye</span>
-                </div>
-              </div>
-            </div>
-
-            <!-- Level & XP Section -->
-            <div id="profileLevelCard" style="margin-top:16px;background:linear-gradient(135deg,rgba(139,124,247,0.1),rgba(78,203,141,0.05));border:1px solid rgba(139,124,247,0.2);border-radius:16px;padding:16px 20px;">
-              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-                <div style="display:flex;align-items:center;gap:10px;">
-                  <div style="width:36px;height:36px;border-radius:12px;background:linear-gradient(135deg,var(--accent-primary),var(--accent-secondary));display:flex;align-items:center;justify-content:center;font-size:1.1rem;">⭐</div>
-                  <div>
-                    <div id="profileLevelBadge" style="font-family:'Space Grotesk',sans-serif;font-size:1.3rem;font-weight:900;color:var(--text-primary);">Level 1</div>
-                    <div id="profileXPText" style="font-size:0.72rem;color:var(--text-muted);">0 XP • 0% → Lv.2</div>
-                  </div>
-                </div>
-              </div>
-              <div style="height:6px;background:rgba(255,255,255,0.06);border-radius:4px;overflow:hidden;">
-                <div id="profileXPBar" style="height:100%;background:linear-gradient(90deg,var(--accent-primary),var(--accent-secondary));border-radius:4px;width:0%;transition:width 1s ease;"></div>
-              </div>
-            </div>
-            
-          </div>
+          
+          <button class="btn-primary" onclick="saveProfile()" style="width: 100%; padding: 14px; font-size: 1rem;">Kaydet</button>
         </div>
       </div>
 
