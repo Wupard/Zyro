@@ -2868,8 +2868,23 @@ html {
 }
 
 @media(max-width:768px){
-  .updates-card{padding:18px}
+  .updates-card{padding:18px; overflow: visible;}
   .updates-entry-body{padding:12px}
+  .update-section-heading {
+    font-size: 0.97rem;
+    margin-top: 14px;
+    margin-bottom: 4px;
+    flex-wrap: wrap;
+    word-break: break-word;
+  }
+  .update-bullet-item {
+    font-size: 0.87rem;
+    gap: 8px;
+    align-items: flex-start;
+  }
+  .update-plain-line {
+    font-size: 0.85rem;
+  }
 }
 
 .updates-delete-btn{
