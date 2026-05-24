@@ -1391,10 +1391,44 @@ function initAttendanceNav(){
 }
 
 // =============================================
+// WORKOUT DAILY AUTO-RESET
+// Each tab stores the date its exercises were last touched.
+// If today != that date, reset all done states so old checkmarks vanish.
+// =============================================
+function autoResetWorkoutTab(tab) {
+  if (!appData.programs || !appData.programs[tab]) return;
+
+  // Track per-tab last-touched date in appData.workoutDoneDate
+  if (!appData.workoutDoneDate) appData.workoutDoneDate = {};
+
+  const today = todayStr();
+  const lastDate = appData.workoutDoneDate[tab];
+
+  // If the stored date is missing or before today, wipe done flags
+  if (!lastDate || lastDate !== today) {
+    // Only reset if any exercise is actually marked done
+    const hasAnyDone = appData.programs[tab].some(ex => ex.done);
+    if (hasAnyDone) {
+      appData.programs[tab].forEach(ex => ex.done = false);
+      // Keep the date blank until user actually marks something today
+      delete appData.workoutDoneDate[tab];
+      saveData();
+    }
+  }
+}
+
+// =============================================
 // WORKOUTS
 // =============================================
 function renderWorkout(tab){
   currentWorkoutTab=tab;
+
+  // Ensure programs exist before reset check
+  if (!appData.programs) appData.programs = JSON.parse(JSON.stringify(DEFAULT_PROGRAMS));
+
+  // Auto-reset if we're in a new day
+  autoResetWorkoutTab(tab);
+
   const list=document.getElementById('workoutList');
   const programs=appData.programs||DEFAULT_PROGRAMS;
   const exercises=programs[tab]||[];
@@ -1403,7 +1437,7 @@ function renderWorkout(tab){
   if(allDone) {
     btnHtml = `
     <button class="btn-primary complete-btn" style="width:100%; margin-top:16px; justify-content:center; padding:12px; font-weight: bold; font-size: 1.1rem;" onclick="completeDay('workout','${tab}')">
-      ${currentLang==='tr'?'g�?� Spor Programını Tamamla (Bugün) g�?�':'g�?� Complete Workout (Today) g�?�'}
+      ${currentLang==='tr'?'🏋 Spor Programını Tamamla (Bugün)':'🏋 Complete Workout (Today)'}
     </button>`;
   }
 
@@ -1428,6 +1462,10 @@ function renderWorkout(tab){
       const idx=parseInt(btn.dataset.index);
       if(!appData.programs)appData.programs=JSON.parse(JSON.stringify(DEFAULT_PROGRAMS));
       appData.programs[tab][idx].done=!appData.programs[tab][idx].done;
+
+      // Record the date of this interaction so we can reset tomorrow
+      if (!appData.workoutDoneDate) appData.workoutDoneDate = {};
+      appData.workoutDoneDate[tab] = todayStr();
       
       // Auto-complete if all exercises done
       const allDone = appData.programs[tab].every(ex => ex.done);
