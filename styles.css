@@ -2893,6 +2893,27 @@ html {
   transform: scale(1.08);
 }
 
+.updates-edit-btn{
+  background: rgba(139,124,247,0.08);
+  border: 1px solid rgba(139,124,247,0.2);
+  color: rgba(139,124,247,0.7);
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+.updates-edit-btn:hover{
+  background: rgba(139,124,247,0.18);
+  border-color: rgba(139,124,247,0.5);
+  color: var(--accent-primary);
+  transform: scale(1.08);
+}
+
 /* Admin update form — collapsible panel */
 .admin-update-form-wrap{
   border-radius: 18px;
