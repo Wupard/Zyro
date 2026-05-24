@@ -1088,10 +1088,7 @@ select.log-input option {
 }
 
 body.is-admin .sidebar { border-right: 2px solid var(--accent-primary); }
-body.is-admin .nav-item[data-page="comments"] { 
-  border: 1.5px dashed rgba(139, 124, 247, 0.5); 
-  background: rgba(139, 124, 247, 0.04);
-}
+
 
 .admin-card-premium {
   padding: 0 !important;

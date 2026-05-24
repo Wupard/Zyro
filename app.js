@@ -2829,7 +2829,7 @@ function renderNotificationList() {
   container.innerHTML = activeNotifications.map(n => {
     const isUnread = !__isNotifRead(n);
     const date = new Date(n.timestamp).toLocaleDateString(currentLang === 'tr' ? 'tr-TR' : 'en-US', { hour: '2-digit', minute: '2-digit' });
-    const icon = n.type === 'broadcast' ? 'g���' : 'g���';
+    const icon = n.type === 'broadcast' ? '📢' : '🔔';
     const canDelete = n.scope !== 'broadcast' || (currentUser && currentUser.email === 'wupard@gmail.com');
     
     return `
@@ -3057,7 +3057,7 @@ window.confirmWeeklyGoal = function() {
   appData.weeklyGoal = val;
   document.getElementById('weeklyGoalSheet')?.classList.remove('show');
   updateStats();
-  showToast(`Haftalık hedef ${val} gün olarak kaydedildi! g�?�`, 'success');
+  showToast(`Haftalık hedef ${val} gün olarak kaydedildi! 🎯`, 'success');
 };
 
 // Update stat to show weekly goal ratio
@@ -3246,8 +3246,8 @@ function showAchievementPopup(def) {
   const popup = document.getElementById('achievementPopup');
   if (!popup) return;
   document.getElementById('achievementIcon').innerHTML = ACH_ICONS[def.icon] || ACH_ICONS['star'];
-  document.getElementById('achievementTitle').textContent = 'g��� ' + def.name;
-  document.getElementById('achievementDesc').textContent = def.desc + ' g�?�';
+  document.getElementById('achievementTitle').textContent = '🏆 ' + def.name;
+  document.getElementById('achievementDesc').textContent = def.desc + ' 🚀';
   // Add "Go to Achievements" button
   let goBtn = document.getElementById('achievementGoBtn');
   if (!goBtn) {
@@ -4878,9 +4878,7 @@ function updateUserUI(user){
     if (isAdminCapable) {
       document.body.classList.add('is-admin');
       const navComments = document.getElementById('nav-comments');
-      if (navComments && !navComments.querySelector('.admin-badge')) {
-        navComments.insertAdjacentHTML('beforeend', ` <span class="admin-badge" style="background:var(--accent-primary); color:white; font-size:0.6rem; padding:2px 4px; border-radius:4px; margin-left:4px;">ADMIN</span>`);
-      }
+      // Admin badge on comments removed
       if (typeof renderAdminPanel === 'function') {
         renderAdminPanel();
       } else if (typeof adminShowSection === 'function') {
