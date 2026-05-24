@@ -1,30 +1,6 @@
-import os
+import sys
+lines = open('app.js', 'r', encoding='utf-8').read().splitlines()
+new_lines = ['  } else {', '    section.innerHTML = `', '      <div style="padding:16px; background:rgba(76,203,141,0.1); border:1px solid rgba(76,203,141,0.2); border-radius:10px; margin-bottom:16px;">', '        <div style="font-size:0.85rem; color:var(--green-vivid); font-weight:600; margin-bottom:8px;">?? Bilgi</div>', '        <div style="font-size:0.8rem; color:var(--text-secondary);">Google ile giri� yapt���n�z i�in �u anda �ifreniz yok. A�a��dan bir �ifre belirleyebilirsiniz.</div>', '      </div>', '      <div>', '        <label style="font-size:0.75rem; font-weight:700; color:var(--text-muted); display:block; margin-bottom:6px;">Yeni �ifre</label>', '        <input type="password" id="newPassword" class="log-input" placeholder="�ifre belirleyin (min 6 karakter)">', '      </div>', '      <div>', '        <label style="font-size:0.75rem; font-weight:700; color:var(--text-muted); display:block; margin-bottom:6px;">Yeni �ifre (Tekrar)</label>', '        <input type="password" id="confirmPassword" class="log-input" placeholder="�ifreyi tekrar girin">', '      </div>', '      <button class="btn-primary" onclick="setNewPassword()" style="width:100%; margin-top:12px;">�ifre Belirle</button>', '    `;', '  }']
+lines = lines[:6056] + new_lines + lines[6067:]
+open('app.js', 'w', encoding='utf-8').write('\n'.join(lines))
 
-files = ['index.html', 'app.js', 'styles.css']
-
-map_chars = {
-    'ÃƒÂ¼': 'ü', 'ÃƒÂ¶': 'ö', 'ÃƒÂ§': 'ç', 'Ã„Â±': 'ı', 'Ã…Å¸': 'ş', 'Ã„Å¸': 'ğ',
-    'ÃƒÅ“': 'Ü', 'Ãƒâ€“': 'Ö', 'Ãƒâ€¡': 'Ç', 'Ã„Â°': 'İ', 'Ã…Âž': 'Ş', 'Ã„Âž': 'Ğ',
-    'Ã¢â‚¬â€ ': '—', 'Ã¢â‚¬Âº': '›', 'Ã¢â€”â€ ': '◆', 'Ã¢â€”Â ': '●', 'Ã‚Â·': '·',
-    'Ã¢Å“â€œ': '✓', 'Ã¢â‚¬â€œ': '-', 'ÄŸÅ¸Å’Â ': '🌐', 'ÄŸÅ¸â€˜Â¤': '👤', 'ÄŸÅ¸â€ â€ ': '🔔',
-    
-    'Ã¼': 'ü', 'Ã¶': 'ö', 'Ã§': 'ç', 'Ä±': 'ı', 'ÅŸ': 'ş', 'ÄŸ': 'ğ',
-    'Ãœ': 'Ü', 'Ã–': 'Ö', 'Ã‡': 'Ç', 'Ä°': 'İ', 'Åž': 'Ş', 'Äž': 'Ğ',
-    'â€”': '—', 'â€º': '›', 'â—†': '◆', 'â— ': '●', 'Â·': '·',
-    'âœ“': '✓', 'ğŸŒ ': '🌐', 'ğŸ‘¤': '👤', 'ğŸ””': '🔔',
-    
-    '&#214;': 'Ö', '&#252;': 'ü'
-}
-
-for f in files:
-    if not os.path.exists(f): continue
-    with open(f, 'rb') as file:
-        content = file.read().decode('utf-8', errors='ignore')
-    
-    for k, v in map_chars.items():
-        content = content.replace(k, v)
-        
-    with open(f, 'w', encoding='utf-8') as file:
-        file.write(content)
-
-print('Fixed files')

@@ -51,17 +51,17 @@
   </div>
 
   <!-- ========== SIDEBAR ========== -->
+  <button class="sidebar-collapse-btn" id="sidebarCollapseBtn" aria-label="Toggle Sidebar">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+      stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="15 18 9 12 15 6"></polyline>
+    </svg>
+  </button>
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-brand">
       <span class="brand-icon">◆</span>
       <span class="brand-text">Zyro</span>
     </div>
-    <button class="sidebar-collapse-btn" id="sidebarCollapseBtn" aria-label="Toggle Sidebar">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-        stroke-linecap="round" stroke-linejoin="round">
-        <polyline points="15 18 9 12 15 6"></polyline>
-      </svg>
-    </button>
     <nav class="sidebar-nav">
       <a href="./" class="nav-item active" data-page="dashboard" id="nav-dashboard">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
@@ -209,15 +209,15 @@
       onclick="switchPage('profile'); document.getElementById('sidebar').classList.remove('open');">
       <div style="display:flex; align-items:center; flex:1; gap: 10px; overflow: hidden;">
         <div class="user-avatar" id="userAvatar" style="flex-shrink:0;">Z</div>
-        <div class="user-info" style="display:flex; flex-direction:column; align-items:flex-start; overflow: hidden;">
+        <div class="user-info" style="display:flex; flex-direction:column; align-items:flex-start; overflow: hidden; gap: 3px;">
           <div style="display:flex; align-items:center; gap: 6px; width: 100%;">
             <span class="user-rank" id="userRank"
-              style="font-size: 0.65rem; background: var(--accent-primary); color: white; padding: 2px 6px; border-radius: 4px; font-weight: bold; text-transform: uppercase; flex-shrink:0;">Üye</span>
+              style="font-size: 0.6rem; background: linear-gradient(135deg, var(--accent-deep), var(--accent-primary)); color: white; padding: 2px 7px; border-radius: 4px; font-weight: 800; text-transform: uppercase; flex-shrink:0; letter-spacing: 0.04em; white-space: nowrap;">Üye</span>
             <span class="user-name" id="userName"
-              style="font-size: 0.95rem; font-weight: bold; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">User</span>
+              style="font-size: 0.9rem; font-weight: 700; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"></span>
           </div>
           <span class="user-status" id="userStatus"
-            style="font-size: 0.75rem; color: var(--text-muted); display:flex; align-items:center; gap: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">●
+            style="font-size: 0.7rem; color: var(--text-muted); display:flex; align-items:center; gap: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 1px;">●
             Local Mode</span>
         </div>
       </div>
@@ -262,7 +262,13 @@
             <path d="M13.73 21a2 2 0 0 1-3.46 0" />
           </svg>
           <span class="notif-badge" id="notifBadge"
-            style="display:none; position:absolute; top:4px; right:4px; width:8px; height:8px; background:var(--accent-primary); border:2px solid var(--bg-primary); border-radius:50%;"></span>
+            style="display:none; position:absolute; top:-4px; right:-4px; background:#ef4444; color:white; font-size:0.7rem; font-weight:800; border:2px solid var(--bg-card); border-radius:12px; padding:0 4px; min-width:18px; height:18px; align-items:center; justify-content:center; box-shadow:0 0 10px rgba(239,68,68,0.4); z-index:10;"></span>
+          <!-- New notification popup -->
+          <div id="newNotifPopup" onclick="toggleNotifDrawer(); this.style.display='none';"
+            style="display:none; position:absolute; top:36px; right:0; background:var(--accent-primary); color:white; font-size:0.8rem; font-weight:600; padding:8px 12px; border-radius:8px; white-space:nowrap; box-shadow:0 8px 24px rgba(139,124,247,0.4); z-index:20; cursor:pointer; transform-origin:top right; animation:popIn 0.3s cubic-bezier(0.34,1.56,0.64,1);">
+            <div style="position:absolute; top:-4px; right:12px; width:8px; height:8px; background:var(--accent-primary); transform:rotate(45deg);"></div>
+            <span id="newNotifPopupText">1 yeni bildiriminiz var</span>
+          </div>
         </button>
         <div class="streak-badge" id="streakBadge">
           <div class="streak-flame" id="streakFlame"
@@ -1428,15 +1434,24 @@
 
       <!-- Admin: Collapsible Post Form -->
       <div class="admin-only admin-update-form-wrap" id="adminUpdateFormWrap"
-        style="display:none; overflow:hidden; max-height:0; transition:max-height 0.35s cubic-bezier(0.4,0,0.2,1), opacity 0.3s ease; opacity:0; margin-bottom:0;">
+        style="display:none; overflow:hidden; max-height:0; transition:max-height 0.45s cubic-bezier(0.4,0,0.2,1), opacity 0.3s ease; opacity:0; margin-bottom:0;">
         <div class="admin-update-form-inner">
-          <div style="display:flex; flex-direction:column; gap:12px;">
+          <div style="display:flex; flex-direction:column; gap:14px;">
             <div style="width:100%;">
+              <div style="font-size:0.72rem; color:var(--text-secondary); margin-bottom:8px; line-height:1.6; padding:10px 14px; background:rgba(139,124,247,0.06); border-radius:10px; border-left:3px solid var(--accent-primary);">
+                <strong style="color:var(--accent-primary);">Söz dizimi:</strong>
+                &nbsp;<code style="color:#e0943a;">*Başlık</code> = bölüm başlığı &nbsp;|&nbsp;
+                <code style="color:#4ecb8d;">-madde</code> = liste maddesi &nbsp;|&nbsp;
+                <code style="color:#d96ea3;">**bold**</code> = kalın yazı &nbsp;|&nbsp;
+                Boş satırlar gösterilmez
+              </div>
               <textarea id="adminUpdateContent" class="log-input admin-update-textarea"
-                rows="6"
-                placeholder="Satır başı = madde. '--' ile başlayan satırlar başlık olur.&#10;&#10;Örn:&#10;--Yenilikler&#10;Profil güncellendi.&#10;--Düzeltmeler&#10;Hatalar giderildi."></textarea>
+                rows="16"
+                style="width:100%; min-height:340px; resize:vertical; font-family:'Inter',monospace; font-size:0.88rem; line-height:1.7; padding:16px; border-radius:12px;"
+                placeholder="*Spor Programı&#10;-Ağırlıklar güncellendi&#10;-Yeni hareketler eklendi&#10;&#10;*UI Güncellemeleri&#10;-Tasarım **tamamen** yenilendi&#10;-Animasyonlar eklendi"></textarea>
             </div>
-            <button class="btn-primary admin-update-send-btn" onclick="adminPostUpdate()" id="adminUpdateSendBtn">
+            <button class="btn-primary admin-update-send-btn" onclick="adminPostUpdate()" id="adminUpdateSendBtn"
+              style="width:fit-content; padding:12px 28px;">
               <span id="adminUpdateSendText" style="font-weight:700; margin-right:8px;">Paylaş</span>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" id="adminUpdateSendIcon">
                 <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>

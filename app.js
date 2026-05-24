@@ -296,9 +296,11 @@ const EXERCISE_MUSCLES = {
   'Barbell Row': ['traps'],
   'Single-Arm Seated Cable Row': ['traps'],
   'Dumbbell Shrug': ['traps'],
+  'Lat Pulldown': ['traps'],
+  'Seated Row Machine': ['traps'],
 
   // Arka Kol / Triceps
-  'V-bar Pushdown': ['triceps'],
+  'Straight-Bar Pushdown': ['triceps'],
   'Seated Dumbbell Overhead Tricep': ['triceps'],
   'Single-Arm Cable Tricep Kickback': ['triceps'],
 
@@ -307,6 +309,7 @@ const EXERCISE_MUSCLES = {
   'Cable Lateral Raise': ['shoulders'],
   'Cable Rope Face Pull': ['shoulders', 'traps'],
   'Seated Rear Delt Fly': ['shoulders', 'traps'],
+  'Cable Shoulder': ['shoulders'],
 
   // Bilek / Forearm
   'Dumbbell Reverse Wrist Curl': ['forearms'],
@@ -318,6 +321,8 @@ const EXERCISE_MUSCLES = {
   'Flat Barbell Bench Press': ['chest', 'triceps'],
   'Incline Dumbbell Press': ['chest', 'triceps'],
   'Decline Barbell Bench Press': ['chest'],
+  'Barbell Bench Press': ['chest', 'triceps'],
+  'İncline Bench Press': ['chest', 'triceps'],
 
   // Ön Kol / Biceps
   'Seated Incline Dumbbell Curl': ['biceps'],
@@ -330,6 +335,7 @@ const EXERCISE_MUSCLES = {
   'Reverse Leg Extension': ['glutes'],
   'Adductor Machine': ['glutes'],
   'Smith Machine Calf Raise': ['calves'],
+  'Squat': ['quads', 'glutes'],
 };
 const ALL_EXERCISES = Object.keys(EXERCISE_MUSCLES).sort();
 
@@ -337,10 +343,10 @@ const ALL_EXERCISES = Object.keys(EXERCISE_MUSCLES).sort();
 // GLOBAL EXERCISE CATEGORIES
 // =============================================
 const EXERCISE_CATEGORIES = {
-  'chest': ['Flat Barbell Bench Press', 'Incline Dumbbell Press', 'Decline Barbell Bench Press'],
-  'shoulders': ['Seated Barbell Overhead Press', 'Cable Lateral Raise', 'Cable Rope Face Pull', 'Seated Rear Delt Fly', 'Dumbbell Shrug'],
-  'back': ['Medium-Grip Lat Pulldown', 'Reverse-Grip Lat Pulldown', 'Barbell Row', 'Single-Arm Seated Cable Row'],
-  'legs': ['Romanian Deadlift', 'Leg Extension', 'Reverse Leg Extension', 'Adductor Machine', 'Smith Machine Calf Raise'],
+  'chest': ['Flat Barbell Bench Press', 'Incline Dumbbell Press', 'Decline Barbell Bench Press', 'Barbell Bench Press', 'İncline Bench Press'],
+  'shoulders': ['Seated Barbell Overhead Press', 'Cable Lateral Raise', 'Cable Rope Face Pull', 'Seated Rear Delt Fly', 'Dumbbell Shrug', 'Cable Shoulder'],
+  'back': ['Medium-Grip Lat Pulldown', 'Reverse-Grip Lat Pulldown', 'Barbell Row', 'Single-Arm Seated Cable Row', 'Lat Pulldown', 'Seated Row Machine'],
+  'legs': ['Romanian Deadlift', 'Leg Extension', 'Reverse Leg Extension', 'Adductor Machine', 'Smith Machine Calf Raise', 'Squat'],
   'biceps': [
     'Hammer Curl', 'Seated Incline Dumbbell Curl', 'Single-Arm Cable Curl'
   ],
@@ -570,7 +576,7 @@ function saveData(){
   localStorage.setItem('zyro_data',JSON.stringify(appData));
 }
 
-const CURRENT_PROGRAM_VERSION = 11; // Force full cache reset and clear notes
+const CURRENT_PROGRAM_VERSION = 12; // Force full cache reset and clear notes
 
 function enforceVersion() {
   if(appData.programVersion !== CURRENT_PROGRAM_VERSION) {
@@ -1012,9 +1018,9 @@ function renderUpdatesPage(){
               </div>
               <div class="updates-entry-body">
                 <div class="updates-entry-date">${dateStr.toUpperCase()} — ${timeStr}</div>
-                <ul class="updates-list">
-                  ${items.map(item => item.startsWith('--') ? `<li style="list-style:none; margin-left:-20px; font-weight:800; color:var(--accent-primary); margin-top:16px; margin-bottom:8px; font-size:1.05rem;">${item.substring(2).trim()}</li>` : `<li>${item}</li>`).join('')}
-                </ul>
+                <div class="updates-content-parsed">
+                  ${parseUpdateContent(items)}
+                </div>
               </div>
             </div>
           </div>
@@ -1039,7 +1045,7 @@ function renderUpdatesPage(){
             const dateStr = createdAt.toLocaleDateString('tr-TR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
             const timeStr = createdAt.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
             const deleteBtn = isAdmin ? `<button class="updates-delete-btn" onclick="adminDeleteUpdate('${id}')" title="Sil"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>` : '';
-            html += `<section class="card updates-card" style="margin-bottom:16px;"><div class="updates-head"><div class="updates-head-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4"/><path d="M12 18v4"/><path d="M4.93 4.93l2.83 2.83"/><path d="M16.24 16.24l2.83 2.83"/><path d="M2 12h4"/><path d="M18 12h4"/><path d="M4.93 19.07l2.83-2.83"/><path d="M16.24 7.76l2.83-2.83"/></svg></div><div style="display:flex;flex-direction:column;gap:4px;min-width:0;flex:1;"><div class="updates-title">Geliştirme Özeti</div><div class="updates-subtitle">Yapımcı: Wupard</div></div>${deleteBtn}</div><div class="updates-timeline"><div class="updates-entry"><div class="updates-entry-marker"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div><div class="updates-entry-body"><div class="updates-entry-date">${dateStr.toUpperCase()} — ${timeStr}</div><ul class="updates-list">${items.map(i => i.startsWith('--') ? `<li style="list-style:none; margin-left:-20px; font-weight:800; color:var(--accent-primary); margin-top:16px; margin-bottom:8px; font-size:1.05rem;">${i.substring(2).trim()}</li>` : `<li>${i}</li>`).join('')}</ul></div></div></div></section>`;
+            html += `<section class="card updates-card" style="margin-bottom:16px;"><div class="updates-head"><div class="updates-head-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4"/><path d="M12 18v4"/><path d="M4.93 4.93l2.83 2.83"/><path d="M16.24 16.24l2.83 2.83"/><path d="M2 12h4"/><path d="M18 12h4"/><path d="M4.93 19.07l2.83-2.83"/><path d="M16.24 7.76l2.83-2.83"/></svg></div><div style="display:flex;flex-direction:column;gap:4px;min-width:0;flex:1;"><div class="updates-title">Geliştirme Özeti</div><div class="updates-subtitle">Yapımcı: Wupard</div></div>${deleteBtn}</div><div class="updates-timeline"><div class="updates-entry"><div class="updates-entry-marker"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div><div class="updates-entry-body"><div class="updates-entry-date">${dateStr.toUpperCase()} — ${timeStr}</div><div class="updates-content-parsed">${parseUpdateContent(items)}</div></div></div></div></section>`;
           });
           container.innerHTML = html;
         }).catch(() => { container.innerHTML = '<div class="updates-loading" style="text-align:center;padding:40px;color:var(--text-tertiary);">Güncellemeler yüklenemedi.</div>'; });
@@ -1061,13 +1067,47 @@ window.toggleAdminUpdateForm = function() {
     wrap.style.marginBottom = '0';
     if (btn) btn.style.opacity = '1';
   } else {
-    wrap.style.maxHeight = '400px';
+    wrap.style.maxHeight = '700px';
     wrap.style.opacity = '1';
     wrap.style.marginBottom = '20px';
     if (btn) btn.style.opacity = '0.7';
     setTimeout(() => { const ta = document.getElementById('adminUpdateContent'); if (ta) ta.focus(); }, 350);
   }
 };
+
+// =============================================
+// UPDATE CONTENT PARSER — new syntax:
+//   *Title  → heading
+//   -item   → bullet item
+//   **bold** → bold inline
+//   empty lines → ignored
+// =============================================
+function parseUpdateContent(items) {
+  // Apply **bold** inline formatting
+  function applyBold(text) {
+    return text.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+  }
+
+  let html = '';
+  items.forEach(line => {
+    const raw = line.trim();
+    if (!raw) return; // skip empty lines
+
+    if (raw.startsWith('*')) {
+      // Heading
+      const title = raw.substring(1).trim();
+      html += `<div class="update-section-heading">${applyBold(title)}</div>`;
+    } else if (raw.startsWith('-')) {
+      // Bullet item
+      const text = raw.substring(1).trim();
+      html += `<div class="update-bullet-item"><span class="update-bullet-dot">›</span><span>${applyBold(text)}</span></div>`;
+    } else {
+      // Plain line — show as paragraph
+      html += `<div class="update-plain-line">${applyBold(raw)}</div>`;
+    }
+  });
+  return html || '<em style="color:var(--text-tertiary)">İçerik yok</em>';
+}
 
 // Admin: Post a new update to Firestore
 window.adminPostUpdate = async function() {
@@ -1089,8 +1129,9 @@ window.adminPostUpdate = async function() {
     return;
   }
 
-  const items = raw.split('\n').map(l => l.trim()).filter(l => l.length > 0);
-  if (items.length === 0) {
+  // Save each line (including empty ones as-is so the parser can handle them)
+  const items = raw.split('\n').map(l => l.trimEnd());
+  if (items.every(l => !l.trim())) {
     showToast('En az bir madde girin.', 'error');
     return;
   }
@@ -1138,8 +1179,13 @@ window.adminDeleteUpdate = async function(docId) {
 };
 
 function initNav(){
-  if(localStorage.getItem('zyro_sidebar_collapsed')==='true'){
+  // Only restore collapsed state on desktop (>1024px)
+  if(window.innerWidth > 1024 && localStorage.getItem('zyro_sidebar_collapsed')==='true'){
     document.body.classList.add('sidebar-collapsed');
+  } else if(window.innerWidth <= 1024) {
+    // On smaller screens, always start expanded (overlay mode)
+    localStorage.removeItem('zyro_sidebar_collapsed');
+    document.body.classList.remove('sidebar-collapsed');
   }
   const collapseBtn=document.getElementById('sidebarCollapseBtn');
   if(collapseBtn){
@@ -1149,6 +1195,12 @@ function initNav(){
       setTimeout(()=>{if(currentPage==='dashboard')drawDashboardChart();else if(currentPage==='progress'){drawWeightChart();drawStrengthChart()}},350);
     });
   }
+  // On resize: if viewport shrinks below 1024px, remove collapsed mode
+  window.addEventListener('resize', () => {
+    if(window.innerWidth <= 1024) {
+      document.body.classList.remove('sidebar-collapsed');
+    }
+  });
   document.querySelectorAll('.nav-item').forEach(item=>{
     item.addEventListener('click',e=>{
       if(!item.dataset.page) return;
@@ -2722,6 +2774,8 @@ function initNotifications() {
   };
 
   // Set up listeners for real-time updates
+  let prevUnreadCount = 0;
+  
   const unsub1 = broadcastsRef.onSnapshot(snap => {
     // Check for NEW system broadcast to auto-open
     snap.docChanges().forEach(change => {
@@ -2736,7 +2790,32 @@ function initNotifications() {
     syncNotifs();
   });
 
-  const unsub2 = personalRef.onSnapshot(() => syncNotifs());
+  const unsub2 = personalRef.onSnapshot(snap => {
+    let hasNewUnread = false;
+    snap.docChanges().forEach(change => {
+      if (change.type === 'added') {
+        const data = change.doc.data();
+        const isNew = (Date.now() - data.timestamp) < 10000; // Last 10 seconds
+        if (isNew && !data.read) {
+          hasNewUnread = true;
+        }
+      }
+    });
+    
+    syncNotifs();
+    
+    if (hasNewUnread) {
+      const popup = document.getElementById('newNotifPopup');
+      const textEl = document.getElementById('newNotifPopupText');
+      if (popup && textEl) {
+        const unreadCount = activeNotifications.filter(n => !__isNotifRead(n)).length;
+        textEl.textContent = unreadCount > 1 ? `${unreadCount} yeni bildiriminiz var` : `1 yeni bildiriminiz var`;
+        popup.style.display = 'block';
+        setTimeout(() => { popup.style.display = 'none'; }, 6000);
+      }
+    }
+  });
+
   let unsub3 = null;
   if (isAdmin) {
     unsub3 = db.collection('admin_notifications').orderBy('timestamp', 'desc').limit(25).onSnapshot(snap => {
@@ -2876,7 +2955,7 @@ function updateNotifBadge() {
   if (!badge) return;
   const unreadCount = activeNotifications.filter(n => !__isNotifRead(n)).length;
   if (unreadCount > 0) {
-    badge.textContent = unreadCount;
+    badge.textContent = unreadCount > 9 ? '9+' : unreadCount;
     badge.style.display = 'flex';
   } else {
     badge.style.display = 'none';
@@ -2905,6 +2984,29 @@ window.openNotifFromList = function(id, scope) {
   if (!currentUser) return;
   const n = activeNotifications.find(x => x.id === id && x.scope === scope);
   if (!n) return;
+  
+  // Mark as read
+  if (scope === 'broadcast') {
+    if ((n.timestamp || 0) > __getBroadcastLastRead()) __setBroadcastLastRead(n.timestamp);
+    n.read = true;
+  } else {
+    const path = `users/${currentUser.uid}/notifications/${id}`;
+    if (typeof isFirebaseConfigured !== 'undefined' && isFirebaseConfigured && db) {
+      db.doc(path).update({ read: true }).catch(e => console.error('Mark read failed', e));
+    }
+    n.read = true;
+  }
+  renderNotificationList();
+  updateNotifBadge();
+
+  // Direct navigation for comment replies
+  if (n.type === 'reply' || n.link === 'comments') {
+    if (typeof toggleNotifDrawer === 'function') toggleNotifDrawer();
+    navigateTo('comments');
+    return;
+  }
+
+  // Fallback to modal for other notifications
   __pendingNotifDetail = n;
   const titleEl = document.getElementById('notifDetailTitle');
   const bodyEl = document.getElementById('notifDetailBody');
@@ -2919,23 +3021,8 @@ window.openNotifFromList = function(id, scope) {
     modal.style.alignItems = 'center';
     modal.style.justifyContent = 'center';
   }
-
-  if (scope === 'broadcast') {
-    if ((n.timestamp || 0) > __getBroadcastLastRead()) __setBroadcastLastRead(n.timestamp);
-    n.read = true;
-    renderNotificationList();
-    updateNotifBadge();
-    return;
-  }
-
-  const path = `users/${currentUser.uid}/notifications/${id}`;
-  if (!n.read) {
-    db.doc(path).update({ read: true }).catch(e => console.error('Mark read failed:', e));
-    n.read = true;
-    renderNotificationList();
-    updateNotifBadge();
-  }
 };
+
 
 window.closeNotifDetailModal = function() {
   const modal = document.getElementById('notifDetailModal');
@@ -3194,8 +3281,8 @@ const ACHIEVEMENT_GROUPS = [
     id: 'single_group', label: 'Diğer Hareketler', icon: 'dumbbell',
     badges: [
       { id: 'hammer_25',        name: '25 kg Hammer Curl',   exercise: 'Cross-Body Hammer Curl',     target: 25,  desc: 'Hammer Curl ile 25 kg kaldır.' },
-      { id: 'triceps_40',       name: '40 kg Pushdown',      exercise: 'V-Bar Triceps Pushdown',     target: 40,  desc: 'Triceps Pushdown ile 40 kg it.' },
-      { id: 'triceps_60',       name: '60 kg Pushdown',      exercise: 'V-Bar Triceps Pushdown',     target: 60,  desc: 'Triceps Pushdown ile 60 kg it.' },
+      { id: 'triceps_40',       name: '40 kg Pushdown',      exercise: 'Straight-Bar Pushdown',     target: 40,  desc: 'Straight-Bar Pushdown ile 40 kg it.' },
+      { id: 'triceps_60',       name: '60 kg Pushdown',      exercise: 'Straight-Bar Pushdown',     target: 60,  desc: 'Straight-Bar Pushdown ile 60 kg it.' },
       { id: 'shoulder_50',      name: '50 kg Shoulder',      exercise: 'Cable Shoulder',             target: 50,  desc: 'Cable Shoulder ile 50 kg çek.' },
       { id: 'crunch_60',        name: '60 kg Crunch',        exercise: 'Straight Bar Cable Crunch',  target: 60,  desc: 'Cable Crunch ile 60 kg çek.' },
       { id: 'incline_bench_60', name: '60 kg İncline',       exercise: 'İncline Bench Press',        target: 60,  desc: 'İncline ile 60 kg kaldır.' },
@@ -3808,10 +3895,14 @@ function displayComments(comments) {
   list.innerHTML = topLevel.map((c, i) => {
     const showPhoto = !c.isAnonymous && c.userPhoto;
     
-    // Upvote logic
+    // Upvote/Downvote logic
     const upvotes = c.upvotes || 0;
     const upvotedBy = c.upvotedBy || [];
     const hasUpvoted = currentUser && upvotedBy.includes(currentUser.uid);
+
+    const downvotes = c.downvotes || 0;
+    const downvotedBy = c.downvotedBy || [];
+    const hasDownvoted = currentUser && downvotedBy.includes(currentUser.uid);
 
     // Get replies for this comment
     const commentReplies = replies.filter(r => r.parentId === c.id).sort((a,b) => a.timestamp - b.timestamp);
@@ -3826,8 +3917,12 @@ function displayComments(comments) {
     const canDelete = isOwnComment || isAdminUser;
     
     const isAdminComment = c.rank === 'admin' || c.rank === 'mod' || c.userEmail === 'wupard@gmail.com';
-    const upvoteAttr = isOwnComment && !hasUpvoted ? '' : `onclick="upvoteComment('${c.id}')"`;
-    const upvoteCursor = isOwnComment && !hasUpvoted ? 'cursor:not-allowed;opacity:0.35;' : 'cursor:pointer;';
+    
+    const upvoteAttr = isOwnComment ? '' : `onclick="upvoteComment('${c.id}')"`;
+    const upvoteStyle = isOwnComment ? 'opacity:0.4; cursor:not-allowed;' : (hasUpvoted ? 'background:var(--accent-glow); border:1px solid var(--accent-primary); color:var(--accent-primary);' : 'background:transparent; border:1px solid transparent; color:var(--text-muted); cursor:pointer;');
+    
+    const downvoteAttr = isOwnComment ? '' : `onclick="downvoteComment('${c.id}')"`;
+    const downvoteStyle = isOwnComment ? 'opacity:0.4; cursor:not-allowed;' : (hasDownvoted ? 'background:rgba(239,68,68,0.15); border:1px solid rgba(239,68,68,0.5); color:#ef4444;' : 'background:transparent; border:1px solid transparent; color:var(--text-muted); cursor:pointer;');
 
     return `
       <div class="comment-item" id="comment_${c.id}" style="padding: 16px; border-bottom: 1px solid var(--border-subtle); background: var(--bg-card-alt); border-radius: 12px; margin-bottom: 12px; position: relative;">
@@ -3850,10 +3945,16 @@ function displayComments(comments) {
         <p style="margin: 0; font-size: 0.9rem; line-height: 1.5; color: var(--text-primary); padding-left: 34px;">${c.text}</p>
         
         <div style="margin-top: 12px; display: flex; gap: 16px; padding-left: 34px;">
-          <button ${upvoteAttr} style="background:${hasUpvoted ? 'var(--accent-glow)' : 'transparent'}; border:1px solid ${hasUpvoted ? 'var(--accent-primary)' : 'transparent'}; color:${hasUpvoted ? 'var(--accent-primary)' : 'var(--text-muted)'}; font-size:0.8rem; ${upvoteCursor} display:flex; align-items:center; gap:4px; padding: 4px 8px; border-radius: 6px; transition: all 0.2s;">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg>
-            <span style="font-weight: bold;">${upvotes}</span>
-          </button>
+          <div style="display: flex; gap: 6px;">
+            <button ${upvoteAttr} style="${upvoteStyle} font-size:0.8rem; display:flex; align-items:center; gap:4px; padding: 4px 8px; border-radius: 6px; transition: all 0.2s;" title="Beğen">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg>
+              <span style="font-weight: bold;">${upvotes}</span>
+            </button>
+            <button ${downvoteAttr} style="${downvoteStyle} font-size:0.8rem; display:flex; align-items:center; gap:4px; padding: 4px 8px; border-radius: 6px; transition: all 0.2s;" title="Beğenme">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+              <span style="font-weight: bold;">${downvotes}</span>
+            </button>
+          </div>
           <button onclick="showReplyForm('${c.id}')" style="background:transparent; border:none; color:var(--text-muted); font-size:0.8rem; cursor:pointer; display:flex; align-items:center; gap:4px;">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
             <span>Cevapla</span>
@@ -4027,26 +4128,75 @@ window.upvoteComment = async function(commentId) {
     const doc = await docRef.get();
     if (doc.exists) {
       const data = doc.data();
-      const upvotedBy = data.upvotedBy || [];
-      if (data.userId === currentUser.uid && !upvotedBy.includes(currentUser.uid)) {
+      if (data.userId === currentUser.uid) {
         showToast(currentLang === 'tr' ? 'Kendi yorumunu begenemezsin!' : 'You cannot upvote your own comment!', 'error');
         return;
       }
+
+      const upvotedBy = data.upvotedBy || [];
+      const downvotedBy = data.downvotedBy || [];
+      
+      let updateData = {};
       
       if (upvotedBy.includes(currentUser.uid)) {
         // Remove upvote
-        await docRef.update({
-          upvotes: firebase.firestore.FieldValue.increment(-1),
-          upvotedBy: firebase.firestore.FieldValue.arrayRemove(currentUser.uid)
-        });
+        updateData.upvotes = firebase.firestore.FieldValue.increment(-1);
+        updateData.upvotedBy = firebase.firestore.FieldValue.arrayRemove(currentUser.uid);
       } else {
         // Add upvote
-        await docRef.update({
-          upvotes: firebase.firestore.FieldValue.increment(1),
-          upvotedBy: firebase.firestore.FieldValue.arrayUnion(currentUser.uid)
-        });
+        updateData.upvotes = firebase.firestore.FieldValue.increment(1);
+        updateData.upvotedBy = firebase.firestore.FieldValue.arrayUnion(currentUser.uid);
+        
+        // Remove downvote if exists
+        if (downvotedBy.includes(currentUser.uid)) {
+          updateData.downvotes = firebase.firestore.FieldValue.increment(-1);
+          updateData.downvotedBy = firebase.firestore.FieldValue.arrayRemove(currentUser.uid);
+        }
       }
-      renderComments();
+      
+      await docRef.update(updateData);
+    }
+  }
+};
+
+window.downvoteComment = async function(commentId) {
+  if (!currentUser) {
+    showToast('Beğenmemek için giriş yapmalısın!', 'error');
+    return;
+  }
+
+  if (isFirebaseConfigured && db) {
+    const docRef = db.collection('public_comments').doc(commentId);
+    const doc = await docRef.get();
+    if (doc.exists) {
+      const data = doc.data();
+      if (data.userId === currentUser.uid) {
+        showToast('Kendi yorumunu beğenmemezlik edemezsin!', 'error');
+        return;
+      }
+
+      const upvotedBy = data.upvotedBy || [];
+      const downvotedBy = data.downvotedBy || [];
+      
+      let updateData = {};
+      
+      if (downvotedBy.includes(currentUser.uid)) {
+        // Remove downvote
+        updateData.downvotes = firebase.firestore.FieldValue.increment(-1);
+        updateData.downvotedBy = firebase.firestore.FieldValue.arrayRemove(currentUser.uid);
+      } else {
+        // Add downvote
+        updateData.downvotes = firebase.firestore.FieldValue.increment(1);
+        updateData.downvotedBy = firebase.firestore.FieldValue.arrayUnion(currentUser.uid);
+        
+        // Remove upvote if exists
+        if (upvotedBy.includes(currentUser.uid)) {
+          updateData.upvotes = firebase.firestore.FieldValue.increment(-1);
+          updateData.upvotedBy = firebase.firestore.FieldValue.arrayRemove(currentUser.uid);
+        }
+      }
+      
+      await docRef.update(updateData);
     }
   }
 };
@@ -4516,7 +4666,7 @@ function renderProgressTracker() {
       <button onclick="setTrackerExercise('${ex.name}')" class="tracker-list-item ${isSelected ? 'selected' : ''}">
         <div style="display: flex; align-items: center; gap: 12px;">
           <div class="tracker-list-icon" style="background: rgba(139,124,247,0.1); color: #8B7CF7;">
-            ${CATEGORY_ICONS[ex.category] || 'g���️'}
+            ${CATEGORY_ICONS[ex.category] || '🏋️'}
           </div>
           <div style="text-align: left;">
             <p style="margin: 0; font-weight: 500; font-size: 0.875rem;">${ex.name}</p>
