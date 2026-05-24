@@ -2798,9 +2798,12 @@ html {
 .admin-update-form-wrap{
   border-radius: 18px;
   margin-bottom: 0;
+  width: 100%;
+  flex-direction: column;
 }
 .admin-update-form-inner{
   padding: 14px 0 14px;
+  width: 100%;
 }
 .admin-update-textarea{
   width: 100%;
