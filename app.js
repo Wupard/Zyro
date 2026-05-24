@@ -91,7 +91,9 @@ const I18N = {
     catChest: 'Chest',
     catBack: 'Back & Lats',
     catShoulders: 'Shoulders',
-    catArms: 'Arms',
+    catBiceps: 'Biceps / Front Arm',
+    catTriceps: 'Triceps / Back Arm',
+    catWrists: 'Wrists / Forearm',
     catCore: 'Core & Abs',
     lblCategory: 'Category',
     repetitions: 'Reps',
@@ -190,7 +192,9 @@ const I18N = {
     catChest: 'Göğüs',
     catBack: 'Sırt & Kanat',
     catShoulders: 'Omuz',
-    catArms: 'Kollar',
+    catBiceps: 'Ön Kol',
+    catTriceps: 'Arka Kol',
+    catWrists: 'Bilek',
     catCore: 'Karın & Merkez',
     lblCategory: 'Kategori',
     repetitions: 'Tekrar',
@@ -337,10 +341,14 @@ const EXERCISE_CATEGORIES = {
   'shoulders': ['Seated Barbell Overhead Press', 'Cable Lateral Raise', 'Cable Rope Face Pull', 'Seated Rear Delt Fly', 'Dumbbell Shrug'],
   'back': ['Medium-Grip Lat Pulldown', 'Reverse-Grip Lat Pulldown', 'Barbell Row', 'Single-Arm Seated Cable Row'],
   'legs': ['Romanian Deadlift', 'Leg Extension', 'Reverse Leg Extension', 'Adductor Machine', 'Smith Machine Calf Raise'],
-  'arms': [
-    'V-bar Pushdown', 'Seated Dumbbell Overhead Tricep', 'Single-Arm Cable Tricep Kickback', // Triceps
-    'Seated Incline Dumbbell Curl', 'Hammer Curl', 'Single-Arm Cable Curl', // Biceps
-    'Dumbbell Reverse Wrist Curl', 'Dumbbell Radial/Ulnar Deviation', 'Reverse Curl', '4 Temel Bilek DB' // Forearm
+  'biceps': [
+    'Hammer Curl', 'Seated Incline Dumbbell Curl', 'Single-Arm Cable Curl'
+  ],
+  'triceps': [
+    'V-bar Pushdown', 'Seated Dumbbell Overhead Tricep', 'Single-Arm Cable Tricep Kickback'
+  ],
+  'wrists': [
+    'Dumbbell Reverse Wrist Curl', 'Dumbbell Radial/Ulnar Deviation', 'Reverse Curl', '4 Temel Bilek DB'
   ],
   'core': []
 };
@@ -360,7 +368,9 @@ const CATEGORY_ICONS = {
   'shoulders': '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>',
   'back':      '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>',
   'legs':      '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 4v16M18 4v16M6 12h12"/></svg>',
-  'arms':      '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6.5 6.5h11M6.5 17.5h11M12 2v4M12 18v4M4.5 8.5v7M19.5 8.5v7"/></svg>',
+  'biceps':    '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6.5 6.5h11M6.5 17.5h11M12 2v4M12 18v4M4.5 8.5v7M19.5 8.5v7"/></svg>',
+  'triceps':   '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6.5 6.5h11M6.5 17.5h11M12 2v4M12 18v4M4.5 8.5v7M19.5 8.5v7"/></svg>',
+  'wrists':    '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6.5 6.5h11M6.5 17.5h11M12 2v4M12 18v4M4.5 8.5v7M19.5 8.5v7"/></svg>',
   'core':      '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="4"/><path d="M3 9h18M3 15h18M9 3v18M15 3v18"/></svg>'
 };
 
