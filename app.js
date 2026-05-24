@@ -961,9 +961,13 @@ function renderUpdatesPage(){
 
   container.innerHTML = '<div class="updates-loading" style="text-align:center; padding:40px; color:var(--text-tertiary);"><div class="loader-mini" style="margin:0 auto 12px;"></div>Güncellemeler yükleniyor...</div>';
 
+  if (window.updatesUnsubscribe) {
+    window.updatesUnsubscribe();
+  }
+
   // Listen for updates from Firestore — use orderBy only (no compound index needed)
   // Filter type === 'update' on the client side to avoid requiring a composite index
-  db.collection('systemAnnouncements')
+  window.updatesUnsubscribe = db.collection('systemAnnouncements')
     .orderBy('createdAt', 'desc')
     .limit(40)
     .onSnapshot(snap => {
@@ -1107,13 +1111,13 @@ function parseUpdateContent(items) {
     const raw = line.trim();
     if (!raw) return; // skip empty lines
 
-    if (raw.startsWith('*')) {
+    if (/^[\*\•]\s*/.test(raw)) {
       // Heading
-      const title = raw.substring(1).trim();
+      const title = raw.replace(/^[\*\•]\s*/, '').trim();
       html += `<div class="update-section-heading">${applyBold(title)}</div>`;
-    } else if (raw.startsWith('-')) {
+    } else if (/^[\-\—\–]\s*/.test(raw)) {
       // Bullet item
-      const text = raw.substring(1).trim();
+      const text = raw.replace(/^[\-\—\–]\s*/, '').trim();
       html += `<div class="update-bullet-item"><span class="update-bullet-dot">›</span><span>${applyBold(text)}</span></div>`;
     } else {
       // Plain line — show as paragraph
