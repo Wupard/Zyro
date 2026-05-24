@@ -979,17 +979,23 @@ function renderUpdatesPage(){
         return;
       }
 
+      window.currentUpdatesData = window.currentUpdatesData || {};
       const isAdmin = currentUser && (currentUser.email === 'wupard@gmail.com' || appData.firestoreAdmin === true || appData.userRank === 'admin' || appData.userRank === 'mod');
 
       let html = '';
       docs.forEach(({ id, data }) => {
+        window.currentUpdatesData[id] = data.items || [];
         const items = data.items || [];
         const createdAt = data.createdAt ? data.createdAt.toDate() : new Date();
         const dateStr = createdAt.toLocaleDateString('tr-TR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
         const timeStr = createdAt.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
 
-        const deleteBtn = isAdmin ? `<button class="updates-delete-btn" onclick="adminDeleteUpdate('${id}')" title="Sil">
+        const deleteBtn = isAdmin ? `<button class="updates-delete-btn" onclick="adminDeleteUpdate('${id}')" title="Sil" style="background:none;border:none;color:var(--text-muted);cursor:pointer;padding:6px;transition:all 0.2s;opacity:0.7;" onmouseenter="this.style.opacity='1';this.style.color='#ef4444'" onmouseleave="this.style.opacity='0.7';this.style.color='var(--text-muted)'">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>` : '';
+
+        const editBtn = isAdmin ? `<button class="updates-edit-btn" onclick="adminEditUpdate('${id}')" title="Düzenle" style="background:none;border:none;color:var(--text-muted);cursor:pointer;padding:6px;transition:all 0.2s;opacity:0.7;" onmouseenter="this.style.opacity='1';this.style.color='var(--accent-primary)'" onmouseleave="this.style.opacity='0.7';this.style.color='var(--text-muted)'">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
         </button>` : '';
 
         html += `
@@ -1008,7 +1014,10 @@ function renderUpdatesPage(){
               <div class="updates-title">Geliştirme Özeti</div>
               <div class="updates-subtitle">Yapımcı: Wupard</div>
             </div>
-            ${deleteBtn}
+            <div style="display:flex;align-items:center;gap:2px;">
+              ${editBtn}
+              ${deleteBtn}
+            </div>
           </div>
           <div class="updates-timeline">
             <div class="updates-entry">
@@ -1018,8 +1027,10 @@ function renderUpdatesPage(){
               </div>
               <div class="updates-entry-body">
                 <div class="updates-entry-date">${dateStr.toUpperCase()} — ${timeStr}</div>
-                <div class="updates-content-parsed">
-                  ${parseUpdateContent(items)}
+                <div id="update-content-${id}">
+                  <div class="updates-content-parsed">
+                    ${parseUpdateContent(items)}
+                  </div>
                 </div>
               </div>
             </div>
@@ -1038,14 +1049,17 @@ function renderUpdatesPage(){
           docs.sort((a, b) => { const ta = a.data.createdAt ? a.data.createdAt.seconds : 0; const tb = b.data.createdAt ? b.data.createdAt.seconds : 0; return tb - ta; });
           if (docs.length === 0) { container.innerHTML = '<div class="updates-loading" style="text-align:center;padding:40px;color:var(--text-tertiary);">Henüz güncelleme paylaşılmadı.</div>'; return; }
           const isAdmin = currentUser && (currentUser.email === 'wupard@gmail.com' || appData.firestoreAdmin === true);
+          window.currentUpdatesData = window.currentUpdatesData || {};
           let html = '';
           docs.forEach(({ id, data }) => {
+            window.currentUpdatesData[id] = data.items || [];
             const items = data.items || [];
             const createdAt = data.createdAt ? data.createdAt.toDate() : new Date();
             const dateStr = createdAt.toLocaleDateString('tr-TR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
             const timeStr = createdAt.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
-            const deleteBtn = isAdmin ? `<button class="updates-delete-btn" onclick="adminDeleteUpdate('${id}')" title="Sil"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>` : '';
-            html += `<section class="card updates-card" style="margin-bottom:16px;"><div class="updates-head"><div class="updates-head-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4"/><path d="M12 18v4"/><path d="M4.93 4.93l2.83 2.83"/><path d="M16.24 16.24l2.83 2.83"/><path d="M2 12h4"/><path d="M18 12h4"/><path d="M4.93 19.07l2.83-2.83"/><path d="M16.24 7.76l2.83-2.83"/></svg></div><div style="display:flex;flex-direction:column;gap:4px;min-width:0;flex:1;"><div class="updates-title">Geliştirme Özeti</div><div class="updates-subtitle">Yapımcı: Wupard</div></div>${deleteBtn}</div><div class="updates-timeline"><div class="updates-entry"><div class="updates-entry-marker"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div><div class="updates-entry-body"><div class="updates-entry-date">${dateStr.toUpperCase()} — ${timeStr}</div><div class="updates-content-parsed">${parseUpdateContent(items)}</div></div></div></div></section>`;
+            const deleteBtn = isAdmin ? `<button class="updates-delete-btn" onclick="adminDeleteUpdate('${id}')" title="Sil" style="background:none;border:none;color:var(--text-muted);cursor:pointer;padding:6px;transition:all 0.2s;opacity:0.7;" onmouseenter="this.style.opacity='1';this.style.color='#ef4444'" onmouseleave="this.style.opacity='0.7';this.style.color='var(--text-muted)'"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>` : '';
+            const editBtn = isAdmin ? `<button class="updates-edit-btn" onclick="adminEditUpdate('${id}')" title="Düzenle" style="background:none;border:none;color:var(--text-muted);cursor:pointer;padding:6px;transition:all 0.2s;opacity:0.7;" onmouseenter="this.style.opacity='1';this.style.color='var(--accent-primary)'" onmouseleave="this.style.opacity='0.7';this.style.color='var(--text-muted)'"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>` : '';
+            html += `<section class="card updates-card" style="margin-bottom:16px;"><div class="updates-head"><div class="updates-head-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4"/><path d="M12 18v4"/><path d="M4.93 4.93l2.83 2.83"/><path d="M16.24 16.24l2.83 2.83"/><path d="M2 12h4"/><path d="M18 12h4"/><path d="M4.93 19.07l2.83-2.83"/><path d="M16.24 7.76l2.83-2.83"/></svg></div><div style="display:flex;flex-direction:column;gap:4px;min-width:0;flex:1;"><div class="updates-title">Geliştirme Özeti</div><div class="updates-subtitle">Yapımcı: Wupard</div></div><div style="display:flex;align-items:center;gap:2px;">${editBtn}${deleteBtn}</div></div><div class="updates-timeline"><div class="updates-entry"><div class="updates-entry-marker"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div><div class="updates-entry-body"><div class="updates-entry-date">${dateStr.toUpperCase()} — ${timeStr}</div><div id="update-content-${id}"><div class="updates-content-parsed">${parseUpdateContent(items)}</div></div></div></div></div></section>`;
           });
           container.innerHTML = html;
         }).catch(() => { container.innerHTML = '<div class="updates-loading" style="text-align:center;padding:40px;color:var(--text-tertiary);">Güncellemeler yüklenemedi.</div>'; });
@@ -1165,7 +1179,6 @@ window.adminPostUpdate = async function() {
   }
 };
 
-// Admin: Delete an update from Firestore
 window.adminDeleteUpdate = async function(docId) {
   if (!confirm('Bu güncellemeyi silmek istediğinize emin misiniz?')) return;
 
@@ -1175,6 +1188,68 @@ window.adminDeleteUpdate = async function(docId) {
   } catch (e) {
     console.error('Update delete error:', e);
     showToast('Silinemedi: ' + e.message, 'error');
+  }
+};
+
+window.adminEditUpdate = function(docId) {
+  const container = document.getElementById(`update-content-${docId}`);
+  if (!container) return;
+  const items = window.currentUpdatesData[docId] || [];
+  const rawText = items.join('\n');
+  
+  // Disable the edit button temporarily so user doesn't double click
+  const card = container.closest('.updates-card');
+  const editBtns = card.querySelectorAll('.updates-edit-btn');
+  editBtns.forEach(b => b.style.display = 'none');
+  
+  container.innerHTML = `
+    <div style="margin-top: 10px;">
+      <textarea id="edit-textarea-${docId}" class="log-input admin-update-textarea" rows="12" style="width:100%; min-height:200px; resize:vertical; font-family:'Inter',monospace; font-size:0.88rem; line-height:1.7; padding:12px; border-radius:10px;">${rawText.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</textarea>
+      <div style="display:flex; gap:8px; margin-top:12px;">
+        <button class="btn-primary" style="padding:6px 16px; font-size:0.85rem;" onclick="adminSaveUpdate('${docId}')">Kaydet</button>
+        <button class="btn-small" style="padding:6px 16px; font-size:0.85rem;" onclick="adminCancelEditUpdate('${docId}')">İptal</button>
+      </div>
+    </div>
+  `;
+};
+
+window.adminCancelEditUpdate = function(docId) {
+  const container = document.getElementById(`update-content-${docId}`);
+  if (!container) return;
+  const items = window.currentUpdatesData[docId] || [];
+  
+  // Re-enable edit buttons
+  const card = container.closest('.updates-card');
+  const editBtns = card.querySelectorAll('.updates-edit-btn');
+  editBtns.forEach(b => b.style.display = 'inline-block');
+  
+  container.innerHTML = `
+    <div class="updates-content-parsed">
+      ${parseUpdateContent(items)}
+    </div>
+  `;
+};
+
+window.adminSaveUpdate = async function(docId) {
+  const textarea = document.getElementById(`edit-textarea-${docId}`);
+  if (!textarea) return;
+  
+  const raw = textarea.value;
+  const items = raw.split('\n').map(l => l.trimEnd());
+  if (items.every(l => !l.trim())) {
+    showToast('En az bir madde girin.', 'error');
+    return;
+  }
+  
+  try {
+    await db.collection('systemAnnouncements').doc(docId).update({
+      items: items
+    });
+    showToast('Güncelleme düzenlendi.', 'success');
+    // We don't strictly need to do anything else because the onSnapshot listener will re-render
+  } catch (e) {
+    console.error('Update save error:', e);
+    showToast('Düzenlenemedi: ' + e.message, 'error');
   }
 };
 
