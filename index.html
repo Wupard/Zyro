@@ -1362,19 +1362,21 @@
 
     <!-- ===== PAGE: LEADERBOARD ===== -->
     <div class="page" data-page="leaderboard" id="pageLeaderboard">
-      <div class="header">
-        <h1>Liderlik Tablosu</h1>
-        <p>Topluluğun en iyileriyle yarışın</p>
+      <div class="lb-header-section">
+        <div class="lb-header-icon">👑</div>
+        <h1 class="lb-header-title">Liderlik Tablosu</h1>
+        <p class="lb-header-subtitle">Topluluğun en iyileriyle yarışın</p>
       </div>
       
-      <div style="display:flex; gap:10px; margin-bottom:20px; overflow-x:auto;">
-        <button class="filter-btn active" onclick="setLeaderboardFilter('level')" id="lbFilterLevel">Seviye (XP)</button>
-        <button class="filter-btn" onclick="setLeaderboardFilter('pr')" id="lbFilterPR">En Yüksek PR</button>
+      <div class="lb-filters">
+        <button class="lb-filter-btn active" onclick="setLeaderboardFilter('level')" id="lbFilterLevel">Seviye (XP)</button>
+        <button class="lb-filter-btn" onclick="setLeaderboardFilter('pr')" id="lbFilterPR">En Yüksek PR</button>
       </div>
 
-      <div id="leaderboardList" style="display:flex; flex-direction:column; gap:12px;">
+      <div id="leaderboardList" class="lb-list">
         <!-- Leaderboard items injected here -->
         <div style="text-align:center; padding:40px; color:var(--text-muted);">
+          <div class="loader-mini" style="margin:0 auto 12px;"></div>
           Yükleniyor...
         </div>
       </div>

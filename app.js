@@ -644,11 +644,13 @@ function loadData(cb){
          localStorage.setItem('zyro_data', JSON.stringify(appData));
          if(cb) cb();
          refreshAllViews();
+         if (typeof syncPublicStats === 'function') syncPublicStats();
       } else {
          // Eğer sunucuda (hesapta) hiç veri yoksa, ilk giriş demektir: Local veriyi sunucuya gönder
          docRef.set({ data: appData }, { merge: true });
          if(cb) cb();
          refreshAllViews();
+         if (typeof syncPublicStats === 'function') syncPublicStats();
       }
     }, err => {
       console.error("Firebase Sync Error:", err);
@@ -6739,69 +6741,87 @@ window.setLeaderboardFilter = function(filter) {
   renderLeaderboard();
 };
 
-window.renderLeaderboard = async function() {
+let leaderboardDataCache = null;
+let leaderboardLastFetch = 0;
+
+window.renderLeaderboard = async function(forceRefresh = false) {
   const list = document.getElementById('leaderboardList');
   if (!list) return;
   
   if (!isFirebaseConfigured || !db) {
-    list.innerHTML = '<div style="text-align:center; padding:40px; color:var(--text-muted);">Leaderboard requires internet connection.</div>';
+    list.innerHTML = '<div style="text-align:center; padding:40px; color:var(--text-muted);">Liderlik tablosu internet bağlantısı gerektirir.</div>';
     return;
   }
   
-  list.innerHTML = '<div style="text-align:center; padding:40px; color:var(--text-muted);">Yükleniyor...</div>';
-  
-  try {
-    const snap = await db.collection('public_stats').get();
-    let users = [];
-    snap.forEach(doc => { users.push(doc.data()); });
-    
-    // Sort
-    if (currentLeaderboardFilter === 'level') {
-      users.sort((a, b) => (b.xp || 0) - (a.xp || 0));
-    } else if (currentLeaderboardFilter === 'pr') {
-      users.sort((a, b) => (b.bestPR || 0) - (a.bestPR || 0));
-    }
-    
-    // Limit to top 50
-    users = users.slice(0, 50);
-    
-    if (users.length === 0) {
-      list.innerHTML = '<div style="text-align:center; padding:40px; color:var(--text-muted);">Henüz kimse yok. İlk sen ol!</div>';
+  if (!leaderboardDataCache || forceRefresh || Date.now() - leaderboardLastFetch > 60000) {
+    list.innerHTML = '<div style="text-align:center; padding:40px; color:var(--text-muted);"><div class="loader-mini" style="margin:0 auto 12px;"></div>Yükleniyor...</div>';
+    try {
+      const snap = await db.collection('public_stats').get();
+      leaderboardDataCache = [];
+      snap.forEach(doc => { leaderboardDataCache.push(doc.data()); });
+      leaderboardLastFetch = Date.now();
+    } catch (err) {
+      console.error('Leaderboard error:', err);
+      list.innerHTML = '<div style="text-align:center; padding:40px; color:var(--red-vivid);">Liderlik tablosu yüklenemedi.</div>';
       return;
     }
-    
-    list.innerHTML = users.map((u, index) => {
-      const isMe = currentUser && u.uid === currentUser.uid;
-      const valStr = currentLeaderboardFilter === 'level' ? `Lv.${u.level || 1} • ${(u.xp||0).toLocaleString('tr-TR')} XP` : `${u.bestPR || 0} kg PR`;
-      let rankEmoji = '';
-      if (index === 0) rankEmoji = '🥇';
-      else if (index === 1) rankEmoji = '🥈';
-      else if (index === 2) rankEmoji = '🥉';
-      else rankEmoji = `<span style="color:var(--text-muted); font-size:0.9rem; font-weight:800; min-width:20px; display:inline-block; text-align:center;">#${index+1}</span>`;
-      
-      const avatarHtml = u.photoURL 
-        ? `<img src="${u.photoURL}" style="width:40px; height:40px; border-radius:12px; object-fit:cover; border:2px solid ${isMe ? 'var(--accent-primary)' : 'rgba(255,255,255,0.1)'};">` 
-        : `<div style="width:40px; height:40px; border-radius:12px; background:var(--bg-card-alt); border:2px solid ${isMe ? 'var(--accent-primary)' : 'rgba(255,255,255,0.1)'}; display:flex; align-items:center; justify-content:center; font-size:1.2rem;">👤</div>`;
-        
-      return `
-        <div style="background:var(--bg-card); border:1px solid ${isMe ? 'var(--accent-primary)' : 'var(--border-subtle)'}; border-radius:16px; padding:12px 16px; display:flex; align-items:center; gap:12px; cursor:pointer; transition:all 0.2s;" onclick="showPublicProfileModal('${u.uid}')">
-          <div style="width:24px; text-align:center;">${rankEmoji}</div>
-          ${avatarHtml}
-          <div style="flex:1;">
-            <div style="font-weight:700; color:${isMe ? 'var(--accent-primary)' : 'var(--text-primary)'};">${u.displayName || 'İsimsiz'} ${isMe ? ' (Sen)' : ''}</div>
-            <div style="font-size:0.75rem; color:var(--text-secondary); margin-top:2px;">${valStr}</div>
-          </div>
-          <div style="color:var(--text-tertiary);">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
-          </div>
-        </div>
-      `;
-    }).join('');
-    
-  } catch (err) {
-    console.error('Leaderboard error:', err);
-    list.innerHTML = '<div style="text-align:center; padding:40px; color:var(--red-vivid);">Bir hata oluştu.</div>';
   }
+  
+  let users = [...(leaderboardDataCache || [])];
+  
+  if (currentLeaderboardFilter === 'level') {
+    users.sort((a, b) => (b.xp || 0) - (a.xp || 0));
+  } else if (currentLeaderboardFilter === 'pr') {
+    users.sort((a, b) => (b.bestPR || 0) - (a.bestPR || 0));
+  }
+  
+  users = users.slice(0, 50);
+  
+  if (users.length === 0) {
+    list.innerHTML = '<div style="text-align:center; padding:40px; color:var(--text-muted);">Henüz kimse yok. İlk sen ol!</div>';
+    return;
+  }
+  
+  list.innerHTML = users.map((u, index) => {
+    const isMe = currentUser && u.uid === currentUser.uid;
+    const valStr = currentLeaderboardFilter === 'level' ? `<span style="color:var(--accent-primary); font-weight:800;">Lv.${u.level || 1}</span> <span style="opacity:0.4; margin:0 4px;">•</span> ${(u.xp||0).toLocaleString('tr-TR')} XP` : `<span style="color:var(--accent-primary); font-weight:800;">${u.bestPR || 0}</span> <span style="font-size:0.75rem; opacity:0.7;">kg PR</span>`;
+    
+    let rankBadge = '';
+    let cardStyle = '';
+    
+    if (index === 0) {
+      rankBadge = `<div class="lb-rank lb-rank-1">👑</div>`;
+      cardStyle = 'lb-card-1';
+    } else if (index === 1) {
+      rankBadge = `<div class="lb-rank lb-rank-2">2</div>`;
+      cardStyle = 'lb-card-2';
+    } else if (index === 2) {
+      rankBadge = `<div class="lb-rank lb-rank-3">3</div>`;
+      cardStyle = 'lb-card-3';
+    } else {
+      rankBadge = `<div class="lb-rank lb-rank-other">#${index+1}</div>`;
+    }
+    
+    if (isMe) cardStyle += ' lb-card-me';
+    
+    const avatarHtml = u.photoURL 
+      ? `<img src="${u.photoURL}" class="lb-avatar">` 
+      : `<div class="lb-avatar lb-avatar-placeholder">👤</div>`;
+      
+    return `
+      <div class="lb-card ${cardStyle}" onclick="showPublicProfileModal('${u.uid}')">
+        <div class="lb-rank-wrap">${rankBadge}</div>
+        ${avatarHtml}
+        <div class="lb-info">
+          <div class="lb-name">${u.displayName || 'İsimsiz'}${isMe ? ' <span class="lb-me-badge">(Sen)</span>' : ''}</div>
+          <div class="lb-val">${valStr}</div>
+        </div>
+        <div class="lb-arrow">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+        </div>
+      </div>
+    `;
+  }).join('');
 };
 
 window.showPublicProfileModal = async function(uid) {
