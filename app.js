@@ -934,11 +934,153 @@ function navigateTo(page, opts){
 }
 
 function renderUpdatesPage(){
-  const badge = document.getElementById('updatesDateBadge');
-  if (badge) badge.textContent = formatDateLong(new Date());
-  const entryDate = document.getElementById('updatesEntryDate');
-  if (entryDate) entryDate.textContent = formatDateLong(new Date());
+  const container = document.getElementById('updatesContainer');
+  if (!container) return;
+
+  // If Firebase is not available, show fallback
+  if (!isFirebaseConfigured || !db) {
+    container.innerHTML = '<div class="updates-loading" style="text-align:center; padding:40px; color:var(--text-tertiary);">Güncellemeler yüklenemedi (Firebase bağlantısı yok).</div>';
+    return;
+  }
+
+  container.innerHTML = '<div class="updates-loading" style="text-align:center; padding:40px; color:var(--text-tertiary);"><div class="loader-mini" style="margin:0 auto 12px;"></div>Güncellemeler yükleniyor...</div>';
+
+  // Listen for updates from Firestore (systemAnnouncements collection where type == 'update')
+  db.collection('systemAnnouncements')
+    .where('type', '==', 'update')
+    .orderBy('createdAt', 'desc')
+    .limit(20)
+    .onSnapshot(snap => {
+      if (snap.empty) {
+        container.innerHTML = '<div class="updates-loading" style="text-align:center; padding:40px; color:var(--text-tertiary);">Henüz güncelleme paylaşılmadı.</div>';
+        return;
+      }
+
+      let html = '';
+      snap.forEach(doc => {
+        const data = doc.data();
+        const items = data.items || [];
+        const createdAt = data.createdAt ? data.createdAt.toDate() : new Date();
+        const dateStr = createdAt.toLocaleDateString('tr-TR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+        const timeStr = createdAt.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
+
+        // Admin delete button
+        const isAdmin = currentUser && (currentUser.email === 'wupard@gmail.com' || appData.firestoreAdmin === true || appData.userRank === 'admin' || appData.userRank === 'mod');
+        const deleteBtn = isAdmin ? `<button class="updates-delete-btn" onclick="adminDeleteUpdate('${doc.id}')" title="Sil">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>` : '';
+
+        html += `
+        <section class="card updates-card" style="margin-bottom:16px;">
+          <div class="updates-head">
+            <div class="updates-head-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 2v4" />
+                <path d="M12 18v4" />
+                <path d="M4.93 4.93l2.83 2.83" />
+                <path d="M16.24 16.24l2.83 2.83" />
+                <path d="M2 12h4" />
+                <path d="M18 12h4" />
+                <path d="M4.93 19.07l2.83-2.83" />
+                <path d="M16.24 7.76l2.83-2.83" />
+              </svg>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:4px;min-width:0;flex:1;">
+              <div class="updates-title">Geliştirme Özeti</div>
+              <div class="updates-subtitle">Yapımcı: Wupard</div>
+            </div>
+            ${deleteBtn}
+          </div>
+          <div class="updates-timeline">
+            <div class="updates-entry">
+              <div class="updates-entry-marker">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M20 6 9 17l-5-5" />
+                </svg>
+              </div>
+              <div class="updates-entry-body">
+                <div class="updates-entry-date">${dateStr.toUpperCase()} — ${timeStr}</div>
+                <ul class="updates-list">
+                  ${items.map(item => `<li>${item}</li>`).join('')}
+                </ul>
+              </div>
+            </div>
+          </div>
+        </section>`;
+      });
+
+      container.innerHTML = html;
+    }, err => {
+      console.error('Updates load error:', err);
+      container.innerHTML = '<div class="updates-loading" style="text-align:center; padding:40px; color:var(--text-tertiary);">Güncellemeler yüklenirken hata oluştu.</div>';
+    });
 }
+
+// Admin: Post a new update to Firestore
+window.adminPostUpdate = async function() {
+  if (!currentUser || !isFirebaseConfigured || !db) {
+    showToast('Firebase bağlantısı gerekli.', 'error');
+    return;
+  }
+
+  const isAdmin = currentUser.email === 'wupard@gmail.com' || appData.firestoreAdmin === true || appData.userRank === 'admin' || appData.userRank === 'mod';
+  if (!isAdmin) {
+    showToast('Bu işlem için yetkiniz yok.', 'error');
+    return;
+  }
+
+  const contentEl = document.getElementById('adminUpdateContent');
+  const raw = (contentEl ? contentEl.value : '').trim();
+  if (!raw) {
+    showToast('Güncelleme içeriği boş olamaz.', 'error');
+    return;
+  }
+
+  // Parse lines as items (filter empty lines)
+  const items = raw.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+  if (items.length === 0) {
+    showToast('En az bir madde girin.', 'error');
+    return;
+  }
+
+  const btnText = document.getElementById('adminUpdateBtnText');
+  const loader = document.getElementById('adminUpdateLoader');
+  if (btnText) btnText.style.display = 'none';
+  if (loader) loader.style.display = 'inline-block';
+
+  try {
+    await db.collection('systemAnnouncements').add({
+      type: 'update',
+      items: items,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+      postedBy: currentUser.email || 'admin'
+    });
+
+    if (contentEl) contentEl.value = '';
+    showToast('Güncelleme başarıyla yayınlandı!', 'success');
+  } catch (e) {
+    console.error('Update post error:', e);
+    showToast('Güncelleme paylaşılamadı: ' + e.message, 'error');
+  } finally {
+    if (btnText) btnText.style.display = 'inline';
+    if (loader) loader.style.display = 'none';
+  }
+};
+
+// Admin: Delete an update from Firestore
+window.adminDeleteUpdate = async function(docId) {
+  if (!confirm('Bu güncellemeyi silmek istediğinize emin misiniz?')) return;
+
+  try {
+    await db.collection('systemAnnouncements').doc(docId).delete();
+    showToast('Güncelleme silindi.', 'success');
+  } catch (e) {
+    console.error('Update delete error:', e);
+    showToast('Silinemedi: ' + e.message, 'error');
+  }
+};
 
 function initNav(){
   if(localStorage.getItem('zyro_sidebar_collapsed')==='true'){
