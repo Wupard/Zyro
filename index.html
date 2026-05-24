@@ -1430,13 +1430,14 @@
       <div class="admin-only admin-update-form-wrap" id="adminUpdateFormWrap"
         style="display:none; overflow:hidden; max-height:0; transition:max-height 0.35s cubic-bezier(0.4,0,0.2,1), opacity 0.3s ease; opacity:0; margin-bottom:0;">
         <div class="admin-update-form-inner">
-          <div style="display:flex; align-items:flex-start; gap:12px;">
-            <div style="flex:1;">
+          <div style="display:flex; flex-direction:column; gap:12px;">
+            <div style="width:100%;">
               <textarea id="adminUpdateContent" class="log-input admin-update-textarea"
-                rows="4"
+                rows="6"
                 placeholder="Her satır bir madde başlığı olacak. Satır başı = yeni madde.&#10;&#10;Örn:&#10;Profil sayfası güncellendi.&#10;Yeni özellik eklendi."></textarea>
             </div>
             <button class="btn-primary admin-update-send-btn" onclick="adminPostUpdate()" id="adminUpdateSendBtn">
+              <span id="adminUpdateSendText" style="font-weight:700; margin-right:8px;">Paylaş</span>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" id="adminUpdateSendIcon">
                 <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
               </svg>

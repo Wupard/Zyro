@@ -1096,8 +1096,10 @@ window.adminPostUpdate = async function() {
   }
 
   const sendIcon = document.getElementById('adminUpdateSendIcon');
+  const sendText = document.getElementById('adminUpdateSendText');
   const loader = document.getElementById('adminUpdateLoader');
   if (sendIcon) sendIcon.style.display = 'none';
+  if (sendText) sendText.style.display = 'none';
   if (loader) loader.style.display = 'inline-block';
 
   try {
@@ -1117,6 +1119,7 @@ window.adminPostUpdate = async function() {
     showToast('Güncelleme paylaşılamadı: ' + e.message, 'error');
   } finally {
     if (sendIcon) sendIcon.style.display = '';
+    if (sendText) sendText.style.display = '';
     if (loader) loader.style.display = 'none';
   }
 };
