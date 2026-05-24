@@ -3115,3 +3115,59 @@ html {
   0%   { background-position: 250% 0; }
   100% { background-position: -250% 0; }
 }
+
+/* ===========================
+   SWIPE ANIMATIONS & WEEKLY REPORT
+   =========================== */
+@keyframes swipeInLeft {
+  from { opacity: 0; transform: translateX(40px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+@keyframes swipeInRight {
+  from { opacity: 0; transform: translateX(-40px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+.page-swipe-in-left { animation: swipeInLeft 0.28s cubic-bezier(0.25,0.46,0.45,0.94) both; }
+.page-swipe-in-right { animation: swipeInRight 0.28s cubic-bezier(0.25,0.46,0.45,0.94) both; }
+
+.weekly-report-card { animation: pageIn 0.4s ease both; }
+.wr-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 8px;
+}
+.wr-stat {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 12px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.wr-stat-val {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  line-height: 1;
+}
+.wr-stat-label {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.wr-stat-change {
+  font-size: 0.72rem;
+  font-weight: 700;
+  margin-top: 2px;
+}
+.wr-change-up { color: var(--green-vivid); }
+.wr-change-down { color: #ef4444; }
+.wr-change-same { color: var(--text-tertiary); }
+@media(max-width:480px) {
+  .wr-stat-val { font-size: 1.15rem; }
+}

@@ -572,8 +572,43 @@ function formatDateLong(d){return d.toLocaleDateString(currentLang==='tr'?'tr-TR
 function saveData(){
   if(isFirebaseConfigured&&currentUser&&db){
     db.collection('users').doc(currentUser.uid).set({data:appData},{merge:true}).catch(e=>console.error('Save:',e));
+    
+    // Feature 10 & 12: Public Stats Sync for Leaderboard
+    syncPublicStats();
   }
   localStorage.setItem('zyro_data',JSON.stringify(appData));
+}
+
+function syncPublicStats() {
+  if (!isFirebaseConfigured || !currentUser || !db) return;
+  try {
+    const p = appData.profile || {};
+    const dName = p.displayName || currentUser.displayName || currentUser.email.split('@')[0];
+    const photo = p.photoURL || currentUser.photoURL || '';
+    
+    let xp = 0;
+    if (typeof calculateXP === 'function') xp = calculateXP();
+    let level = 1;
+    if (typeof calculateLevel === 'function') level = calculateLevel(xp);
+    
+    let allTimePRMax = 0;
+    Object.values(appData.workoutLogs || {}).forEach(logs => {
+      logs.forEach(l => { if ((l.weight || 0) > allTimePRMax) allTimePRMax = l.weight; });
+    });
+
+    db.collection('public_stats').doc(currentUser.uid).set({
+      uid: currentUser.uid,
+      displayName: dName,
+      photoURL: photo,
+      xp: xp,
+      level: level,
+      bestPR: allTimePRMax,
+      selectedAchievements: p.selectedAchievements || [],
+      lastActive: firebase.firestore.FieldValue.serverTimestamp()
+    }, { merge: true }).catch(e => console.error('Public stats sync failed:', e));
+  } catch(e) {
+    console.error('syncPublicStats error:', e);
+  }
 }
 
 const CURRENT_PROGRAM_VERSION = 12; // Force full cache reset and clear notes
@@ -925,7 +960,13 @@ function navigateTo(page, opts){
   if(nav)nav.classList.add('active');
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   const pg=document.querySelector(`.page[data-page="${page}"]`);
-  if(pg)pg.classList.add('active');
+  if(pg) {
+    pg.classList.add('active');
+    if (opts.swipeDir) {
+      pg.classList.add(opts.swipeDir === 'left' ? 'page-swipe-in-left' : 'page-swipe-in-right');
+      setTimeout(() => pg.classList.remove('page-swipe-in-left', 'page-swipe-in-right'), 350);
+    }
+  }
 
   if(page==='dashboard')refreshDashboard();
   else if(page==='workouts'){renderWorkout(currentWorkoutTab);renderLoggedExercises()}
@@ -934,6 +975,7 @@ function navigateTo(page, opts){
   else if(page==='updates')renderUpdatesPage();
   else if(page==='notes')renderNotes();
   else if(page==='comments')renderComments();
+  else if(page==='calculators'){setTimeout(init1RMCalculator,50);}
   else if(page==='beforeafter'){
     renderProgressPhotos();
     renderPRTable();
@@ -959,13 +1001,14 @@ function renderUpdatesPage(){
     return;
   }
 
-  container.innerHTML = '<div class="updates-loading" style="text-align:center; padding:40px; color:var(--text-tertiary);"><div class="loader-mini" style="margin:0 auto 12px;"></div>Güncellemeler yükleniyor...</div>';
-
   // Unsubscribe any existing listener to prevent duplicate listeners (mobile flicker fix)
   if (window._updatesUnsubscribe) {
-    window._updatesUnsubscribe();
-    window._updatesUnsubscribe = null;
+    // Already listening. The snapshot callback will keep the container updated automatically.
+    return;
   }
+
+  // Only show loader if we don't have a listener yet
+  container.innerHTML = '<div class="updates-loading" style="text-align:center; padding:40px; color:var(--text-tertiary);"><div class="loader-mini" style="margin:0 auto 12px;"></div>Güncellemeler yükleniyor...</div>';
 
   // Listen for updates from Firestore — use orderBy only (no compound index needed)
   // Filter type === 'update' on the client side to avoid requiring a composite index
@@ -1113,13 +1156,13 @@ function parseUpdateContent(items) {
     const raw = line.trim();
     if (!raw) return; // skip empty lines
 
-    // Heading: starts with * or • (mobile bullet) — optionally followed by space
-    if (/^[*\u2022]\s*/.test(raw)) {
-      const title = raw.replace(/^[*\u2022]\s*/, '').trim();
+    // Heading: starts with * or • (mobile bullet) — optionally followed by space, but not **
+    if (/^([*\u2022])(?!\*)\s*/.test(raw)) {
+      const title = raw.replace(/^([*\u2022])(?!\*)\s*/, '').trim();
       html += `<div class="update-section-heading">${applyBold(title)}</div>`;
     // Bullet: starts with - or – or — (mobile dash variants) — optionally followed by space
-    } else if (/^[-\u2013\u2014]\s*/.test(raw)) {
-      const text = raw.replace(/^[-\u2013\u2014]\s*/, '').trim();
+    } else if (/^([-\u2013\u2014])\s*/.test(raw)) {
+      const text = raw.replace(/^([-\u2013\u2014])\s*/, '').trim();
       html += `<div class="update-bullet-item"><span class="update-bullet-dot">›</span><span>${applyBold(text)}</span></div>`;
     } else {
       // Plain line — show as paragraph
@@ -1446,6 +1489,14 @@ function initGestures() {
         sidebar.classList.add('open');
       } else if (dx < -minDistance && sidebar.classList.contains('open')) {
         sidebar.classList.remove('open');
+      } else if (!sidebar.classList.contains('open')) {
+        const SWIPE_PAGES = ['dashboard','workouts','posture','progress','updates','notes','comments','calculators','beforeafter','achievements','profile'];
+        const curIdx = SWIPE_PAGES.indexOf(currentPage);
+        if (dx < -minDistance && curIdx >= 0 && curIdx < SWIPE_PAGES.length - 1) {
+          navigateTo(SWIPE_PAGES[curIdx + 1], { swipeDir: 'left' });
+        } else if (dx > minDistance && curIdx > 0) {
+          navigateTo(SWIPE_PAGES[curIdx - 1], { swipeDir: 'right' });
+        }
       }
     }
   };
@@ -2291,7 +2342,9 @@ function initWeightLog(){
 function initNotes() {
   const saveBtn = document.getElementById('saveNoteBtn');
   const input = document.getElementById('noteInput');
+  const titleInput = document.getElementById('noteTitleInput');
   const tags = document.querySelectorAll('#pageNotes .tag-btn');
+  const colorBtns = document.querySelectorAll('.note-color-btn');
 
   if (!saveBtn || !input) return;
 
@@ -2301,9 +2354,24 @@ function initNotes() {
     });
   });
 
+  colorBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      colorBtns.forEach(b => {
+        b.classList.remove('active');
+        b.style.borderColor = 'transparent';
+      });
+      btn.classList.add('active');
+      btn.style.borderColor = 'var(--accent-primary)';
+    });
+  });
+
   saveBtn.addEventListener('click', async () => {
     const text = input.value.trim();
     if (!text) return;
+    
+    const title = titleInput ? titleInput.value.trim() : '';
+    const activeColorBtn = document.querySelector('.note-color-btn.active');
+    const color = activeColorBtn ? activeColorBtn.dataset.color : 'default';
     
     // 4.1: Only allow valid tags: 'Daha sonra', 'Fikir', 'GYM'
     const VALID_TAGS = ['Daha sonra', 'Fikir', 'GYM'];
@@ -2315,7 +2383,9 @@ function initNotes() {
     const noteId = Date.now().toString();
     const note = {
       id: noteId,
+      title,
       text,
+      color,
       tags: selectedTags,
       timestamp: Date.now(),
       date: todayStr()
@@ -2326,7 +2396,16 @@ function initNotes() {
     saveData();
     
     input.value = '';
+    if (titleInput) titleInput.value = '';
     document.querySelectorAll('#pageNotes .tag-btn.active').forEach(b => b.classList.remove('active'));
+    colorBtns.forEach(b => {
+      b.classList.remove('active');
+      b.style.borderColor = 'transparent';
+    });
+    if(colorBtns[0]) {
+      colorBtns[0].classList.add('active');
+      colorBtns[0].style.borderColor = 'var(--accent-primary)';
+    }
     
     showToast(currentLang === 'tr' ? 'Not kaydedildi!' : 'Note saved!', 'success');
     renderNotes();
@@ -2353,13 +2432,24 @@ function renderNotes() {
     'GYM': '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6.5 6.5h11M6.5 17.5h11M12 2v4M12 18v4M4.5 8.5v7M19.5 8.5v7"/></svg>'
   };
   
+  const COLOR_STYLES = {
+    'default': 'background:var(--bg-card-alt); border:1px solid var(--border-subtle);',
+    'red': 'background:rgba(224,84,84,0.05); border:1px solid rgba(224,84,84,0.2);',
+    'blue': 'background:rgba(92,138,222,0.05); border:1px solid rgba(92,138,222,0.2);',
+    'green': 'background:rgba(78,203,141,0.05); border:1px solid rgba(78,203,141,0.2);',
+    'orange': 'background:rgba(224,148,58,0.05); border:1px solid rgba(224,148,58,0.2);'
+  };
+
   container.innerHTML = entries.map(note => {
     const d = new Date(note.timestamp);
     const dateLabel = note.date === todayStr() ? (currentLang === 'tr' ? 'Bugün' : 'Today') : d.toLocaleDateString(currentLang === 'tr' ? 'tr-TR' : 'en-US', { weekday: 'short', month: 'short', day: 'numeric' });
     const tagsHtml = (note.tags || []).map(tg => `<span style="display:inline-flex;align-items:center;gap:3px;font-size:0.65rem;padding:2px 8px;border-radius:12px;background:var(--accent-glow);color:var(--accent-primary);font-weight:600;margin-right:4px;">${TAG_SVG[tg]||''}${tg}</span>`).join('');
     
+    const noteStyle = COLOR_STYLES[note.color] || COLOR_STYLES['default'];
+    const titleHtml = note.title ? `<div style="font-size:1.05rem;font-weight:800;color:var(--text-primary);margin-bottom:6px;">${note.title}</div>` : '';
+
     return `
-      <div class="note-entry" style="padding:16px;background:var(--bg-card-alt);border-radius:12px;margin-bottom:12px;border:1px solid var(--border-subtle); display:flex; gap:12px;">
+      <div class="note-entry" style="padding:16px;border-radius:12px;margin-bottom:12px;display:flex;gap:12px;${noteStyle}">
         <div style="padding-top:2px;">
           <input type="checkbox" class="note-checkbox" value="${note.id}" style="width:18px; height:18px; accent-color:var(--accent-primary); cursor:pointer;">
         </div>
@@ -2371,6 +2461,7 @@ function renderNotes() {
               Sil
             </button>
           </div>
+          ${titleHtml}
           <div style="font-size:0.9rem;line-height:1.5;color:var(--text-primary);margin-bottom:10px;white-space:pre-wrap;">${note.text}</div>
           <div style="display:flex;flex-wrap:wrap;gap:4px;">${tagsHtml}</div>
         </div>
@@ -2520,6 +2611,8 @@ function updateStats(){
       volDetail.style.color = 'var(--text-tertiary)';
     }
   }
+  
+  if (typeof updateLevelUI === 'function') updateLevelUI();
 }
 
 // =============================================
@@ -2624,6 +2717,7 @@ window.showStrengthDetails = function(targetExercise = null) {
   // If specific exercise is selected
   title.textContent = selectedEx;
   const history = exerciseData[selectedEx].sort((a, b) => b.timestamp - a.timestamp); // Chronological desc
+  const historyAsc = [...history].reverse(); // Chronological asc for chart
   const latest = history[0];
   const earliest = history[history.length-1];
   
@@ -2660,6 +2754,16 @@ window.showStrengthDetails = function(targetExercise = null) {
         </div>
       </div>
       <p style="font-size:0.65rem; color:var(--text-muted); margin-top:12px; font-style:italic;">* Bu tahminler lineer gelişim ve düzenli antrenman baz alınarak hesaplanmıştır.</p>
+    </div>
+  `;
+
+  // Mini Chart HTML
+  let chartHtml = `
+    <div style="background:var(--bg-card-alt); border:1px solid var(--border-subtle); border-radius:16px; padding:16px; margin-bottom:24px;">
+      <h4 style="font-size:0.75rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px; margin-bottom:12px;">Gelişim Grafiği</h4>
+      <div style="position:relative; height:180px; width:100%;">
+        <canvas id="strengthMiniChart"></canvas>
+      </div>
     </div>
   `;
 
@@ -2710,8 +2814,67 @@ window.showStrengthDetails = function(targetExercise = null) {
   });
   historyHtml += '</div>';
 
-  content.innerHTML = selectorHtml + predictionHtml + historyHtml;
+  content.innerHTML = selectorHtml + predictionHtml + chartHtml + historyHtml;
   modal.style.display = 'flex';
+
+  // Render Chart.js
+  setTimeout(() => {
+    const ctx = document.getElementById('strengthMiniChart');
+    if (ctx && window.Chart) {
+      const labels = historyAsc.map(h => new Date(h.timestamp).toLocaleDateString('tr-TR', {day:'numeric', month:'short'}));
+      const dataPoints = historyAsc.map(h => h.weight);
+      
+      new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Ağırlık (kg)',
+            data: dataPoints,
+            borderColor: '#8b7cf7',
+            backgroundColor: 'rgba(139, 124, 247, 0.15)',
+            borderWidth: 3,
+            fill: true,
+            tension: 0.4,
+            pointBackgroundColor: '#8b7cf7',
+            pointBorderColor: '#181822',
+            pointBorderWidth: 2,
+            pointRadius: 4,
+            pointHoverRadius: 6
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: 'rgba(24, 24, 34, 0.95)',
+              titleColor: '#eae8f5',
+              bodyColor: '#eae8f5',
+              borderColor: 'rgba(139,124,247,0.3)',
+              borderWidth: 1,
+              padding: 10,
+              displayColors: false,
+              callbacks: {
+                label: function(context) { return context.parsed.y + ' kg'; }
+              }
+            }
+          },
+          scales: {
+            x: {
+              grid: { display: false, drawBorder: false },
+              ticks: { color: '#625f7a', font: { family: "'Inter', sans-serif", size: 10 }, maxTicksLimit: 5 }
+            },
+            y: {
+              grid: { color: 'rgba(255,255,255,0.05)', drawBorder: false },
+              ticks: { color: '#625f7a', font: { family: "'Space Grotesk', sans-serif", size: 10 }, padding: 8 }
+            }
+          }
+        }
+      });
+    }
+  }, 100);
 };
 
 window.closeStrengthDetails = function() {
@@ -2721,10 +2884,10 @@ window.closeStrengthDetails = function() {
 // =============================================
 // REFRESH
 // =============================================
-function refreshDashboard(){updateStats();updateMuscleMap();setTimeout(drawDashboardChart,50)}
+function refreshDashboard(){updateStats();updateMuscleMap();if(typeof renderWeeklyReport==='function')renderWeeklyReport();setTimeout(drawDashboardChart,50)}
 function refreshAllViews(){
   renderAttendance();updateStats();updateMuscleMap();
-  if(currentPage==='dashboard')setTimeout(drawDashboardChart,50);
+  if(currentPage==='dashboard'){if(typeof renderWeeklyReport==='function')renderWeeklyReport();setTimeout(drawDashboardChart,50);}
   else if(currentPage==='workouts'){renderWorkout(currentWorkoutTab);renderLoggedExercises()}
   else if(currentPage==='progress')setTimeout(()=>{
     drawWeightChart();drawStrengthChart();
@@ -2735,6 +2898,7 @@ function refreshAllViews(){
   else if(currentPage==='comments')renderComments();
   else if(currentPage==='beforeafter'){renderProgressPhotos();renderPRTable();renderBodyMeasurements();}
   else if(currentPage==='achievements')renderAchievements();
+  else if(currentPage==='leaderboard') { if (typeof renderLeaderboard === 'function') renderLeaderboard(); }
   else if(currentPage==='profile')renderProfilePage();
 }
 
@@ -6204,6 +6368,9 @@ window.saveProfileBio = async function() {
       appData.profile = { ...appData.profile, displayName, bio, height: height ? parseInt(height) : null, weight: weight ? parseFloat(weight) : null, age: age ? parseInt(age) : null, gender, selectedAchievements: selectedProfileAchievements };
       renderSidebarProfile(currentUser);
       
+      // Feature 10 & 12: Sync public stats when profile is saved
+      if (typeof syncPublicStats === 'function') syncPublicStats();
+
       showToast('Profil bilgileri kaydedildi!', 'success');
     } catch (err) {
       console.error('Profile save error:', err);
@@ -6256,6 +6423,8 @@ window.saveProfileAchievements = async function() {
       await db.collection('users').doc(currentUser.uid).update({
         'data.profile.selectedAchievements': selectedProfileAchievements
       });
+      // Feature 10 & 12: Sync public stats when achievements are saved
+      if (typeof syncPublicStats === 'function') syncPublicStats();
       showToast('Başarımlar kaydedildi!', 'success');
     } catch (err) {
       console.error('Achievement save error:', err);
@@ -6407,3 +6576,301 @@ if ('serviceWorker' in navigator) {
       .catch(err => console.warn('PWA Service Worker registration failed:', err));
   });
 }
+
+// =============================================
+// WEEKLY REPORT
+// =============================================
+function renderWeeklyReport() {
+  const monday = getMonday(new Date());
+  const prevMonday = new Date(monday);
+  prevMonday.setDate(prevMonday.getDate() - 7);
+
+  let thisWorkouts = 0, thisVolume = 0, prevWorkouts = 0, prevVolume = 0;
+  const muscleSets = {};
+  let bestPR = 0;
+
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(monday); d.setDate(d.getDate() + i);
+    const ds = dateStr(d);
+    if (appData.attendance[ds]) thisWorkouts++;
+    (appData.workoutLogs[ds] || []).forEach(l => {
+      thisVolume += (l.weight||0)*(l.reps||0)*(l.sets||1);
+      if ((l.weight||0) > bestPR) bestPR = l.weight;
+      const ex = (l.exercise||'').toLowerCase();
+      let m = 'Diğer';
+      if (ex.includes('bench')||ex.includes('chest')||ex.includes('fly')||ex.includes('pec')) m='Göğüs';
+      else if (ex.includes('pull')||ex.includes('row')||ex.includes('lat')||ex.includes('back')) m='Sırt';
+      else if (ex.includes('press')||ex.includes('lateral')||ex.includes('shoulder')||ex.includes('overhead')) m='Omuz';
+      else if (ex.includes('squat')||ex.includes('leg')||ex.includes('lunge')||ex.includes('deadlift')) m='Bacak';
+      else if (ex.includes('curl')||ex.includes('bicep')) m='Biceps';
+      else if (ex.includes('tricep')||ex.includes('pushdown')||ex.includes('kickback')) m='Triceps';
+      muscleSets[m] = (muscleSets[m]||0) + (l.sets||1);
+    });
+  }
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(prevMonday); d.setDate(d.getDate() + i);
+    const ds = dateStr(d);
+    if (appData.attendance[ds]) prevWorkouts++;
+    (appData.workoutLogs[ds] || []).forEach(l => { prevVolume += (l.weight||0)*(l.reps||0)*(l.sets||1); });
+  }
+
+  const topMuscle = Object.entries(muscleSets).sort((a,b)=>b[1]-a[1])[0];
+  const el = id => document.getElementById(id);
+  if (el('wrWorkouts')) el('wrWorkouts').textContent = thisWorkouts;
+  if (el('wrVolume')) el('wrVolume').textContent = Math.round(thisVolume).toLocaleString('tr-TR');
+  if (el('wrTopMuscle')) el('wrTopMuscle').textContent = topMuscle ? topMuscle[0] : '—';
+  if (el('wrBestPR')) el('wrBestPR').textContent = bestPR > 0 ? `${bestPR} kg` : '— kg';
+  const wdiff = thisWorkouts - prevWorkouts;
+  const vdiff = Math.round(thisVolume - prevVolume);
+  if (el('wrWorkoutsChange')) {
+    el('wrWorkoutsChange').textContent = wdiff===0 ? '= Geçen hafta gibi' : (wdiff>0?`↑ ${wdiff} fazla`:`↓ ${Math.abs(wdiff)} az`);
+    el('wrWorkoutsChange').className = 'wr-stat-change '+(wdiff>0?'wr-change-up':wdiff<0?'wr-change-down':'wr-change-same');
+  }
+  if (el('wrVolumeChange')) {
+    el('wrVolumeChange').textContent = vdiff===0?'= Geçen hafta gibi':(vdiff>0?`↑ ${vdiff.toLocaleString('tr-TR')} kg fazla`:`↓ ${Math.abs(vdiff).toLocaleString('tr-TR')} kg az`);
+    el('wrVolumeChange').className = 'wr-stat-change '+(vdiff>0?'wr-change-up':vdiff<0?'wr-change-down':'wr-change-same');
+  }
+}
+
+// =============================================
+// LEVEL / XP SYSTEM
+// =============================================
+function calculateXP() {
+  const workoutDays = Object.keys(appData.attendance || {}).length;
+  const logCount = Object.values(appData.workoutLogs || {}).reduce((sum, logs) => sum + logs.length, 0);
+  const achCount = Object.keys(appData.achievements || {}).length;
+  return (workoutDays * 100) + (logCount * 10) + (achCount * 200);
+}
+function calculateLevel(xp) {
+  return Math.min(100, Math.max(1, Math.floor(Math.sqrt(xp / 50)) + 1));
+}
+function getXPForLevel(level) {
+  return Math.pow(Math.max(0, level - 1), 2) * 50;
+}
+function updateLevelUI() {
+  const xp = calculateXP();
+  const level = calculateLevel(xp);
+  const prevLevel = parseInt(localStorage.getItem('zyro_level') || '1');
+  const nextLevelXP = getXPForLevel(level + 1);
+  const currentLevelXP = getXPForLevel(level);
+  const range = nextLevelXP - currentLevelXP;
+  const xpProgress = range > 0 ? Math.round(((xp - currentLevelXP) / range) * 100) : 100;
+
+  const el = id => document.getElementById(id);
+  if (el('sidebarLevelBadge')) el('sidebarLevelBadge').textContent = `Lv.${level}`;
+  if (el('sidebarLevelBar')) el('sidebarLevelBar').style.width = xpProgress + '%';
+  if (el('profileLevelBadge')) el('profileLevelBadge').textContent = `Level ${level}`;
+  if (el('profileXPBar')) el('profileXPBar').style.width = xpProgress + '%';
+  if (el('profileXPText')) el('profileXPText').textContent = `${xp.toLocaleString('tr-TR')} XP • ${xpProgress}% → Lv.${Math.min(100, level + 1)}`;
+
+  if (level > prevLevel && prevLevel > 0) {
+    showToast(`🎉 Seviye ${level} oldu! Tebrikler!`, 'success');
+    if (typeof runConfetti === 'function') runConfetti();
+  }
+  localStorage.setItem('zyro_level', level);
+}
+
+// =============================================
+// 1RM CALCULATOR
+// =============================================
+function init1RMCalculator() {
+  const sel = document.getElementById('oneRMExerciseSelect');
+  if (!sel) return;
+  sel.innerHTML = '<option value="">Egzersiz seçin...</option>';
+  const exercises = new Set();
+  Object.values(appData.workoutLogs || {}).forEach(logs => {
+    logs.forEach(l => { if (l.exercise) exercises.add(l.exercise); });
+  });
+  [...exercises].sort().forEach(ex => {
+    const opt = document.createElement('option');
+    opt.value = ex; opt.textContent = ex;
+    sel.appendChild(opt);
+  });
+}
+window.calc1RMFromLogs = function() {
+  const exercise = document.getElementById('oneRMExerciseSelect')?.value;
+  if (!exercise) return;
+  let bestWeight = 0, bestReps = 0;
+  Object.values(appData.workoutLogs || {}).forEach(logs => {
+    logs.forEach(l => {
+      if (l.exercise === exercise) {
+        const score = (l.weight||0) * (1 + (l.reps||0)/30);
+        const best = bestWeight * (1 + bestReps/30);
+        if (score > best) { bestWeight = l.weight||0; bestReps = l.reps||0; }
+      }
+    });
+  });
+  if (bestWeight > 0) {
+    document.getElementById('oneRMWeight').value = bestWeight;
+    document.getElementById('oneRMReps').value = bestReps;
+    showOneRMResult(bestWeight, bestReps);
+  }
+};
+window.calc1RMManual = function() {
+  const w = parseFloat(document.getElementById('oneRMWeight')?.value);
+  const r = parseInt(document.getElementById('oneRMReps')?.value);
+  if (!isNaN(w) && w > 0 && !isNaN(r) && r > 0) showOneRMResult(w, r);
+};
+function showOneRMResult(weight, reps) {
+  const oneRM = Math.round(weight * (1 + reps / 30));
+  const result = document.getElementById('oneRMResult');
+  const value = document.getElementById('oneRMValue');
+  const breakdown = document.getElementById('oneRMBreakdown');
+  if (!result || !value) return;
+  value.textContent = `${oneRM} kg`;
+  result.style.display = 'block';
+  const percents = [100, 90, 80, 70, 60, 50];
+  breakdown.innerHTML = percents.map(p => `
+    <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:8px 4px;text-align:center;">
+      <div style="font-family:'Space Grotesk',sans-serif;font-size:0.9rem;font-weight:800;color:var(--text-primary);">${Math.round(oneRM*p/100)}<small style="font-size:0.5rem;opacity:0.6;">kg</small></div>
+      <div style="font-size:0.6rem;color:var(--text-muted);margin-top:2px;">${p}%</div>
+    </div>
+  `).join('');
+}
+
+// =============================================
+// LEADERBOARD & PUBLIC PROFILE
+// =============================================
+let currentLeaderboardFilter = 'level';
+window.setLeaderboardFilter = function(filter) {
+  currentLeaderboardFilter = filter;
+  document.getElementById('lbFilterLevel').classList.toggle('active', filter === 'level');
+  document.getElementById('lbFilterPR').classList.toggle('active', filter === 'pr');
+  renderLeaderboard();
+};
+
+window.renderLeaderboard = async function() {
+  const list = document.getElementById('leaderboardList');
+  if (!list) return;
+  
+  if (!isFirebaseConfigured || !db) {
+    list.innerHTML = '<div style="text-align:center; padding:40px; color:var(--text-muted);">Leaderboard requires internet connection.</div>';
+    return;
+  }
+  
+  list.innerHTML = '<div style="text-align:center; padding:40px; color:var(--text-muted);">Yükleniyor...</div>';
+  
+  try {
+    const snap = await db.collection('public_stats').get();
+    let users = [];
+    snap.forEach(doc => { users.push(doc.data()); });
+    
+    // Sort
+    if (currentLeaderboardFilter === 'level') {
+      users.sort((a, b) => (b.xp || 0) - (a.xp || 0));
+    } else if (currentLeaderboardFilter === 'pr') {
+      users.sort((a, b) => (b.bestPR || 0) - (a.bestPR || 0));
+    }
+    
+    // Limit to top 50
+    users = users.slice(0, 50);
+    
+    if (users.length === 0) {
+      list.innerHTML = '<div style="text-align:center; padding:40px; color:var(--text-muted);">Henüz kimse yok. İlk sen ol!</div>';
+      return;
+    }
+    
+    list.innerHTML = users.map((u, index) => {
+      const isMe = currentUser && u.uid === currentUser.uid;
+      const valStr = currentLeaderboardFilter === 'level' ? `Lv.${u.level || 1} • ${(u.xp||0).toLocaleString('tr-TR')} XP` : `${u.bestPR || 0} kg PR`;
+      let rankEmoji = '';
+      if (index === 0) rankEmoji = '🥇';
+      else if (index === 1) rankEmoji = '🥈';
+      else if (index === 2) rankEmoji = '🥉';
+      else rankEmoji = `<span style="color:var(--text-muted); font-size:0.9rem; font-weight:800; min-width:20px; display:inline-block; text-align:center;">#${index+1}</span>`;
+      
+      const avatarHtml = u.photoURL 
+        ? `<img src="${u.photoURL}" style="width:40px; height:40px; border-radius:12px; object-fit:cover; border:2px solid ${isMe ? 'var(--accent-primary)' : 'rgba(255,255,255,0.1)'};">` 
+        : `<div style="width:40px; height:40px; border-radius:12px; background:var(--bg-card-alt); border:2px solid ${isMe ? 'var(--accent-primary)' : 'rgba(255,255,255,0.1)'}; display:flex; align-items:center; justify-content:center; font-size:1.2rem;">👤</div>`;
+        
+      return `
+        <div style="background:var(--bg-card); border:1px solid ${isMe ? 'var(--accent-primary)' : 'var(--border-subtle)'}; border-radius:16px; padding:12px 16px; display:flex; align-items:center; gap:12px; cursor:pointer; transition:all 0.2s;" onclick="showPublicProfileModal('${u.uid}')">
+          <div style="width:24px; text-align:center;">${rankEmoji}</div>
+          ${avatarHtml}
+          <div style="flex:1;">
+            <div style="font-weight:700; color:${isMe ? 'var(--accent-primary)' : 'var(--text-primary)'};">${u.displayName || 'İsimsiz'} ${isMe ? ' (Sen)' : ''}</div>
+            <div style="font-size:0.75rem; color:var(--text-secondary); margin-top:2px;">${valStr}</div>
+          </div>
+          <div style="color:var(--text-tertiary);">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+          </div>
+        </div>
+      `;
+    }).join('');
+    
+  } catch (err) {
+    console.error('Leaderboard error:', err);
+    list.innerHTML = '<div style="text-align:center; padding:40px; color:var(--red-vivid);">Bir hata oluştu.</div>';
+  }
+};
+
+window.showPublicProfileModal = async function(uid) {
+  if (!isFirebaseConfigured || !db) return;
+  
+  try {
+    // 1. Fetch public stats
+    const docSnap = await db.collection('public_stats').doc(uid).get();
+    if (!docSnap.exists) {
+      showToast('Kullanıcı bulunamadı', 'error');
+      return;
+    }
+    const u = docSnap.data();
+    
+    // 2. Fetch full user profile to get bio and rank
+    const userSnap = await db.collection('users').doc(uid).get();
+    const userData = userSnap.exists ? (userSnap.data().data || {}) : {};
+    const profile = userData.profile || {};
+    
+    const rootRank = (userSnap.exists && userSnap.data().rank) || userData.userRank || 'default';
+    const rankObj = RANKS[rootRank] || RANKS.default;
+    
+    // Set UI
+    const avatar = document.getElementById('ppModalAvatar');
+    if (u.photoURL) {
+      avatar.style.backgroundImage = `url('${u.photoURL}')`;
+      avatar.style.backgroundSize = 'cover';
+      avatar.style.backgroundPosition = 'center';
+      avatar.textContent = '';
+    } else {
+      avatar.style.backgroundImage = 'none';
+      avatar.textContent = '👤';
+    }
+    
+    document.getElementById('ppModalName').textContent = u.displayName || 'İsimsiz';
+    
+    const rankEl = document.getElementById('ppModalRank');
+    rankEl.textContent = rankObj.name;
+    rankEl.style.color = rankObj.color;
+    
+    document.getElementById('ppModalLevel').textContent = u.level || 1;
+    document.getElementById('ppModalPR').innerHTML = `${u.bestPR || 0}<span style="font-size:0.8rem">kg</span>`;
+    
+    document.getElementById('ppModalBio').textContent = profile.bio || 'Kullanıcı henüz bir biyografi eklememiş.';
+    
+    // Achievements
+    const achContainer = document.getElementById('ppModalAchievements');
+    if (u.selectedAchievements && u.selectedAchievements.length > 0) {
+      achContainer.innerHTML = u.selectedAchievements.map(achId => {
+        const def = ACHIEVEMENT_DEFS.find(d => d.id === achId);
+        if (!def) return '';
+        return `
+          <div style="text-align:center; width:60px;">
+            <div style="font-size:1.8rem; margin-bottom:4px;">⭐</div>
+            <div style="font-size:0.55rem; font-weight:700; color:var(--text-secondary); line-height:1.2;">${def.name}</div>
+          </div>
+        `;
+      }).join('');
+    } else {
+      achContainer.innerHTML = '<span style="color:var(--text-tertiary); font-size:0.8rem;">Henüz başarım sergilemiyor.</span>';
+    }
+    
+    document.getElementById('publicProfileModal').style.display = 'flex';
+  } catch(e) {
+    console.error('showPublicProfileModal error:', e);
+    showToast('Profil yüklenirken bir hata oluştu', 'error');
+  }
+};
+
+window.closePublicProfileModal = function() {
+  document.getElementById('publicProfileModal').style.display = 'none';
+};
