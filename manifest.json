@@ -1,0 +1,17 @@
+{
+  "name": "Zyro Dashboard",
+  "short_name": "Zyro",
+  "description": "Personal Development Dashboard",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0d0f1a",
+  "theme_color": "#181a2f",
+  "icons": [
+    {
+      "src": "favicon.svg",
+      "sizes": "192x192 512x512 any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
