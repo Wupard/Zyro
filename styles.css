@@ -1112,6 +1112,8 @@ body.is-admin .sidebar { border-right: 2px solid var(--accent-primary); }
     linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0)),
     radial-gradient(circle at top right, rgba(139, 124, 247, 0.2), transparent);
   border-bottom: 1px solid rgba(255,255,255,0.06);
+  flex-wrap: wrap;
+  gap: 16px;
 }
 .admin-brand-section { display: flex; align-items: center; gap: 20px; }
 .admin-crown-icon {
@@ -1149,13 +1151,21 @@ body.is-admin .sidebar { border-right: 2px solid var(--accent-primary); }
   border: 1px solid rgba(255,255,255,0.06);
   border-radius: 18px;
   backdrop-filter: blur(16px);
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  flex-wrap: nowrap;
+  scrollbar-width: none;
 }
+.admin-nav-tabs::-webkit-scrollbar { display: none; }
 .admin-tab-btn {
   flex: 1; padding: 16px 18px; background: transparent; border: none;
   color: var(--text-secondary); font-weight: 700; cursor: pointer;
   font-size: 0.9rem; border-radius: 14px; display: flex;
   align-items: center; justify-content: center; gap: 10px; transition: all 0.22s ease;
   min-height: 56px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  min-width: 140px;
 }
 .admin-tab-btn:hover {
   background: rgba(255,255,255,0.04);
@@ -1172,6 +1182,25 @@ body.is-admin .sidebar { border-right: 2px solid var(--accent-primary); }
   border: 1px solid rgba(255,255,255,0.06);
   background: linear-gradient(180deg, rgba(24,24,36,0.96), rgba(17,18,29,0.96));
   box-shadow: 0 14px 34px rgba(0,0,0,0.24);
+}
+
+/* Premium Admin Inputs */
+.admin-content-section .log-input {
+  background: rgba(0,0,0,0.2);
+  border: 1px solid rgba(255,255,255,0.08);
+  box-shadow: inset 0 2px 6px rgba(0,0,0,0.4);
+  transition: all 0.3s ease;
+}
+.admin-content-section .log-input:focus {
+  background: rgba(0,0,0,0.3);
+  border-color: rgba(139,124,247,0.5);
+  box-shadow: inset 0 2px 6px rgba(0,0,0,0.4), 0 0 0 4px rgba(139,124,247,0.15);
+}
+.admin-content-section .input-group label {
+  color: rgba(255,255,255,0.7) !important;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-size: 0.7rem !important;
 }
 .admin-history-item {
   padding: 10px 12px;
