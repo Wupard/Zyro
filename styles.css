@@ -2768,13 +2768,43 @@ html {
   transform: scale(1.08);
 }
 
-.admin-update-form-card{
-  border: 1px solid rgba(139,124,247,0.18);
-  background:
-    radial-gradient(800px 300px at 10% -5%, rgba(139,124,247,0.1), transparent 60%),
-    var(--bg-card);
+/* Admin update form — collapsible panel */
+.admin-update-form-wrap{
+  border-radius: 18px;
+  margin-bottom: 0;
+}
+.admin-update-form-inner{
+  padding: 14px 0 14px;
+}
+.admin-update-textarea{
+  width: 100%;
+  min-height: 90px;
+  resize: vertical;
+  font-size: 0.9rem;
+  line-height: 1.55;
+  border-radius: 14px;
+  padding: 12px 14px;
+  font-family: inherit;
+}
+.admin-update-send-btn{
+  padding: 0;
+  width: 44px;
+  min-width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  align-self: flex-end;
+  margin-bottom: 2px;
+}
+.admin-update-toggle-btn{
+  display: flex !important;
+  transition: opacity 0.2s;
 }
 
+/* Staggered card animations */
 #updatesContainer .updates-card{
   animation: updateCardIn 0.4s ease both;
 }

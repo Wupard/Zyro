@@ -1408,32 +1408,38 @@
 
     <!-- ============ PAGE: UPDATES ============ -->
     <div class="page" data-page="updates" id="pageUpdates">
-      <div class="page-header-row">
+      <div class="page-header-row" style="margin-bottom:20px;">
         <h2 class="page-title">Güncellemeler</h2>
+        <!-- Admin: Quick post button (only visible to admins via .admin-only) -->
+        <button class="admin-only btn-small admin-update-toggle-btn" id="adminUpdateToggleBtn"
+          onclick="toggleAdminUpdateForm()"
+          style="display:none; gap:6px; align-items:center; background:rgba(139,124,247,0.12); border:1px solid rgba(139,124,247,0.3); color:var(--accent-primary);">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
+          </svg>
+          Güncelleme Paylaş
+        </button>
       </div>
 
-      <!-- Admin: Post Update Form -->
-      <section class="card admin-only admin-update-form-card" id="adminUpdateFormCard" style="display:none; margin-bottom:20px;">
-        <div class="card-header">
-          <h3 class="card-title" style="display:flex;align-items:center;gap:8px;">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <line x1="12" y1="5" x2="12" y2="19" />
-              <line x1="5" y1="12" x2="19" y2="12" />
-            </svg>
-            Güncelleme Paylaş
-          </h3>
-        </div>
-        <div style="padding:20px; display:flex; flex-direction:column; gap:16px;">
-          <div class="input-group">
-            <label style="font-size:0.75rem; font-weight:700; color:var(--text-muted); margin-bottom:6px; display:block;">Güncelleme İçeriği</label>
-            <textarea id="adminUpdateContent" class="note-input" rows="6" placeholder="Her satır bir madde olarak görünecektir. Örn:&#10;Profil sayfası yeniden tasarlandı.&#10;Yeni tema seçenekleri eklendi.&#10;Hata düzeltmeleri yapıldı."></textarea>
+      <!-- Admin: Collapsible Post Form -->
+      <div class="admin-only admin-update-form-wrap" id="adminUpdateFormWrap"
+        style="display:none; overflow:hidden; max-height:0; transition:max-height 0.35s cubic-bezier(0.4,0,0.2,1), opacity 0.3s ease; opacity:0; margin-bottom:0;">
+        <div class="admin-update-form-inner">
+          <div style="display:flex; align-items:flex-start; gap:12px;">
+            <div style="flex:1;">
+              <textarea id="adminUpdateContent" class="log-input admin-update-textarea"
+                rows="4"
+                placeholder="Her satır bir madde başlığı olacak. Satır başı = yeni madde.&#10;&#10;Örn:&#10;Profil sayfası güncellendi.&#10;Yeni özellik eklendi."></textarea>
+            </div>
+            <button class="btn-primary admin-update-send-btn" onclick="adminPostUpdate()" id="adminUpdateSendBtn">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" id="adminUpdateSendIcon">
+                <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
+              </svg>
+              <div class="loader-mini" id="adminUpdateLoader" style="display:none;"></div>
+            </button>
           </div>
-          <button class="btn-primary" onclick="adminPostUpdate()" style="width:100%;">
-            <span id="adminUpdateBtnText">Güncellemeyi Yayınla</span>
-            <div class="loader-mini" id="adminUpdateLoader" style="display:none;"></div>
-          </button>
         </div>
-      </section>
+      </div>
 
       <!-- Dynamic Updates Container -->
       <div id="updatesContainer">
