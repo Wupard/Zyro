@@ -5817,12 +5817,16 @@ window.loadProfileData = function() {
         document.getElementById('profileGender').value = profile.gender || '';
         
         // Load avatar
-        if (profile.photoURL) {
-          document.getElementById('profileAvatarLarge').style.backgroundImage = `url('${profile.photoURL}')`;
-          document.getElementById('profileAvatarLarge').style.backgroundSize = 'cover';
-          document.getElementById('profileAvatarLarge').style.backgroundPosition = 'center';
-          document.getElementById('profileAvatarLarge').style.backgroundRepeat = 'no-repeat';
-          document.getElementById('profileAvatarLarge').textContent = '';
+        const photo = profile.photoURL || (currentUser && currentUser.photoURL);
+        if (photo) {
+          const avatarLarge = document.getElementById('profileAvatarLarge');
+          if (avatarLarge) {
+            avatarLarge.style.backgroundImage = `url('${photo}')`;
+            avatarLarge.style.backgroundSize = 'cover';
+            avatarLarge.style.backgroundPosition = 'center';
+            avatarLarge.style.backgroundRepeat = 'no-repeat';
+            avatarLarge.textContent = '';
+          }
         }
         
         // Load selected achievements
@@ -5921,6 +5925,11 @@ window.handleProfilePhotoUpload = async function(event) {
       await db.collection('users').doc(currentUser.uid).update({
         'data.profile.photoURL': photoURL
       });
+      if (currentUser.updateProfile) {
+        try {
+          await currentUser.updateProfile({ photoURL: photoURL });
+        } catch (e) { console.warn('Auth profile update failed:', e); }
+      }
       showToast('Profil fotoğrafı güncellendi!', 'success');
     }
   } catch (err) {
@@ -6036,12 +6045,12 @@ window.renderPasswordSection = function() {
         <input type="password" id="currentPassword" class="log-input" placeholder="Mevcut şifreniz">
       </div>
       <div>
-        <label style="font-size:0.75rem; font-weight:700; color:var(--text-muted); display:block; margin-bottom:6px;">Yeni �?ifre</label>
+        <label style="font-size:0.75rem; font-weight:700; color:var(--text-muted); display:block; margin-bottom:6px;">Yeni Şifre</label>
         <input type="password" id="newPassword" class="log-input" placeholder="Yeni şifre (min 6 karakter)">
       </div>
       <div>
-        <label style="font-size:0.75rem; font-weight:700; color:var(--text-muted); display:block; margin-bottom:6px;">Yeni �?ifre (Tekrar)</label>
-        <input type="password" id="confirmPassword" class="log-input" placeholder="�?ifreyi tekrar girin">
+        <label style="font-size:0.75rem; font-weight:700; color:var(--text-muted); display:block; margin-bottom:6px;">Yeni Şifre (Tekrar)</label>
+        <input type="password" id="confirmPassword" class="log-input" placeholder="Şifreyi tekrar girin">
       </div>
       <button class="btn-primary" onclick="changePassword()" style="width:100%; margin-top:12px;">Şifreyi Değiştir</button>
     `;
@@ -6052,12 +6061,12 @@ window.renderPasswordSection = function() {
         <div style="font-size:0.8rem; color:var(--text-secondary);">Google ile giriş yaptığınız için şu anda şifreniz yok. Aşağıdan bir şifre belirleyebilirsiniz.</div>
       </div>
       <div>
-        <label style="font-size:0.75rem; font-weight:700; color:var(--text-muted); display:block; margin-bottom:6px;">Yeni �?ifre</label>
-        <input type="password" id="newPassword" class="log-input" placeholder="�?ifre belirleyin (min 6 karakter)">
+        <label style="font-size:0.75rem; font-weight:700; color:var(--text-muted); display:block; margin-bottom:6px;">Yeni Şifre</label>
+        <input type="password" id="newPassword" class="log-input" placeholder="Şifre belirleyin (min 6 karakter)">
       </div>
       <div>
-        <label style="font-size:0.75rem; font-weight:700; color:var(--text-muted); display:block; margin-bottom:6px;">Yeni �?ifre (Tekrar)</label>
-        <input type="password" id="confirmPassword" class="log-input" placeholder="�?ifreyi tekrar girin">
+        <label style="font-size:0.75rem; font-weight:700; color:var(--text-muted); display:block; margin-bottom:6px;">Yeni Şifre (Tekrar)</label>
+        <input type="password" id="confirmPassword" class="log-input" placeholder="Şifreyi tekrar girin">
       </div>
       <button class="btn-primary" onclick="setNewPassword()" style="width:100%; margin-top:12px;\">�?ifre Belirle</button>
     `;
