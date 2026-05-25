@@ -62,6 +62,11 @@ service cloud.firestore {
       allow update: if false;
     }
 
+    match /public_stats/{userId} {
+      allow read: if authed();
+      allow write: if authed() && request.auth.uid == userId;
+    }
+
     match /public_comments/{commentId} {
       allow read: if authed();
       allow create: if authed()
