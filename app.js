@@ -5414,12 +5414,18 @@ function updateStreakFlame() {
   if (dayNum === 0) {
     // Day 0: No flame — hide the flame wrapper and center the text
     if (flameWrap) flameWrap.style.display = 'none';
-    if (badgeEl) badgeEl.style.justifyContent = 'center';
+    if (badgeEl) {
+      badgeEl.style.justifyContent = 'center';
+      badgeEl.style.display = 'none';
+    }
     flameContent.style.display = 'none';
   } else {
     // Day > 0: Restore flame wrapper and original flex layout
     if (flameWrap) flameWrap.style.display = 'flex';
-    if (badgeEl) badgeEl.style.justifyContent = '';
+    if (badgeEl) {
+      badgeEl.style.justifyContent = '';
+      badgeEl.style.display = 'flex';
+    }
     flameContent.style.display = '';
   }
 

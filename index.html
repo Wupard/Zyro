@@ -288,13 +288,13 @@
             <span id="newNotifPopupText">1 yeni bildiriminiz var</span>
           </div>
         </button>
-        <div class="streak-badge" id="streakBadge">
+        <div class="streak-badge" id="streakBadge" style="display:none;">
           <div class="streak-flame" id="streakFlame"
             style="position:relative; width:22px; height:22px; display:flex; align-items:center; justify-content:center;">
             <!-- Flame will be rendered here by JavaScript -->
             <span id="streakFlameContent" style="font-size:1.2rem;">🔥</span>
           </div>
-          <span id="streakText">Day 1</span>
+          <span id="streakText">Day 0</span>
         </div>
       </div>
     </header>
@@ -1565,7 +1565,7 @@
               <div id="profilePageAvatar" style="width: 90px; height: 90px; border-radius: 50%; background: rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: center; overflow: hidden; border: 2px solid var(--accent-primary); box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
                 <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="1.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
               </div>
-              <label for="profilePhotoFile" style="cursor: pointer; font-size: 0.75rem; font-weight: 700; color: var(--text-primary); text-transform: uppercase; letter-spacing: 0.05em; text-align: center; background: rgba(139,124,247,0.15); border: 1px solid rgba(139,124,247,0.3); padding: 8px 12px; border-radius: 20px; transition: all 0.2s; white-space: nowrap;">
+              <label for="profilePhotoFile" style="cursor: pointer; font-size: 0.65rem; font-weight: 700; color: var(--text-primary); text-transform: uppercase; letter-spacing: 0.05em; text-align: center; background: rgba(139,124,247,0.15); border: 1px solid rgba(139,124,247,0.3); padding: 5px 10px; border-radius: 12px; transition: all 0.2s; white-space: nowrap;">
                 Fotoğrafı Değiştir
               </label>
               <input type="file" id="profilePhotoFile" accept="image/*" onchange="handleProfilePhotoUpload(event)" style="display: none;">
