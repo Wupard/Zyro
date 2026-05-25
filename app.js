@@ -5519,7 +5519,7 @@ function updateStreakFlame() {
     if (flameWrap) flameWrap.style.display = 'none';
     if (badgeEl) {
       badgeEl.style.justifyContent = 'center';
-      badgeEl.style.display = 'none';
+      badgeEl.style.display = 'flex'; // Fix: Show badge even on Day 0
     }
     flameContent.style.display = 'none';
   } else {
