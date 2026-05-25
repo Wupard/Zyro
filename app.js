@@ -2244,7 +2244,8 @@ function getVolumePerWeek(){
 }
 function drawStrengthChart(){} // Deprecated
 function drawDashboardChart(){
-  const{data,labels}=getWeightChartData();drawChartGeneric('dashboardChart',data,labels,'rgb(139,124,247)')
+  const {data, labels} = (typeof currentChartType !== 'undefined' && currentChartType === 'volume') ? getVolumePerWeek() : getWeightChartData();
+  drawChartGeneric('dashboardChart', data, labels, 'rgb(139,124,247)');
 }
 function initDashboardChartTabs(){
   document.querySelectorAll('.chart-card-mini .tab-btn').forEach(btn=>{
@@ -2556,60 +2557,36 @@ function updateStats(){
     if (appData.attendance[dateStr(d)]) weeklyStreak++;
   }
 
-  
-  // 1. Update only streakText span — the static g��� in HTML is already removed
-  const streakEl = document.getElementById('streakText');
-  if (streakEl) {
-    streakEl.textContent = `Day ${weeklyStreak}`;
-  }
-  if (typeof checkStreakAchievements === 'function') checkStreakAchievements(weeklyStreak);
-  
-  // Update flame animation
-  if (typeof updateStreakFlame === 'function') updateStreakFlame();
-
-  // ── Strength Progress (4th stat card) — Top PR ──
+  // ── Strength Progress (4th stat card) — Top Progress ──
   const volEl = document.getElementById('statVolumeVal');
   const volBar = document.getElementById('statVolumeBar');
   const volDetail = document.getElementById('statVolumeDetail');
-  let topPR = { exercise: '', weight: 0, date: '' };
-  let allTimePRMax = 0;
   
-  const hasLogs = Object.keys(appData.workoutLogs || {}).length > 0;
-  if (!hasLogs) {
-    localStorage.removeItem('zyro_prMax');
-  }
-
-  Object.entries(appData.workoutLogs || {}).forEach(([date, logs]) => {
-    logs.forEach(l => {
-      if ((l.weight || 0) > topPR.weight) {
-        topPR = { exercise: l.exercise, weight: l.weight, date };
-      }
-      if ((l.weight || 0) > allTimePRMax) allTimePRMax = l.weight;
-    });
+  const allStats = typeof computeExerciseStats === 'function' ? computeExerciseStats() : [];
+  let bestProgEx = null;
+  let maxProg = 0;
+  
+  allStats.forEach(s => {
+    const diff = s.currentWeight - s.baselineWeight;
+    if (diff > maxProg) { maxProg = diff; bestProgEx = s; }
   });
+
   if (volEl) {
-    volEl.textContent = topPR.weight > 0 ? `${topPR.weight} kg` : '— kg';
+    volEl.textContent = bestProgEx ? `+${maxProg} kg` : '0 kg';
   }
   if (volBar) {
-    let storedMax = parseFloat(localStorage.getItem('zyro_prMax') || '0');
-    if (allTimePRMax > storedMax) {
-      storedMax = allTimePRMax;
-      localStorage.setItem('zyro_prMax', allTimePRMax);
-    }
-    // If we have no logs, bar should be 0. If we have logs, compare to a target (e.g. 20% more than max)
-    const barMax = Math.max(allTimePRMax * 1.2, storedMax, 1);
-    volBar.style.width = topPR.weight > 0 ? `${Math.min((topPR.weight / barMax) * 100, 100)}%` : '0%';
+    volBar.style.width = bestProgEx ? '100%' : '0%';
   }
   if (volDetail) {
-    if (topPR.weight > 0) {
-      const prDate = new Date(topPR.date + 'T00:00:00');
+    if (bestProgEx) {
+      const prDate = new Date(bestProgEx.lastUpdated + 'T00:00:00');
       const daysDiff = Math.round((new Date() - prDate) / 86400000);
       const ago = daysDiff === 0 ? 'bugün' : daysDiff === 1 ? 'dün' : `${daysDiff} gün önce`;
-      const exShort = topPR.exercise.length > 18 ? topPR.exercise.substring(0, 17) + '…' : topPR.exercise;
+      const exShort = bestProgEx.name.length > 18 ? bestProgEx.name.substring(0, 17) + '…' : bestProgEx.name;
       volDetail.innerHTML = `<span style='cursor:pointer;' onmouseenter="this.style.color='var(--accent-primary)'" onmouseleave="this.style.color='var(--orange-vivid)'">${exShort} · ${ago}</span>`;
       volDetail.style.color = 'var(--orange-vivid)';
     } else {
-      volDetail.textContent = 'Henüz egzersiz kaydı yok';
+      volDetail.textContent = 'Henüz ilerleme yok';
       volDetail.style.color = 'var(--text-tertiary)';
     }
   }
@@ -4166,10 +4143,10 @@ function displayComments(comments) {
     const isAdminComment = c.rank === 'admin' || c.rank === 'mod' || c.userEmail === 'wupard@gmail.com';
     
     const upvoteAttr = isOwnComment ? '' : `onclick="upvoteComment('${c.id}')"`;
-    const upvoteStyle = isOwnComment ? 'opacity:0.4; cursor:not-allowed;' : (hasUpvoted ? 'background:var(--accent-glow); border:1px solid var(--accent-primary); color:var(--accent-primary);' : 'background:transparent; border:1px solid transparent; color:var(--text-muted); cursor:pointer;');
+    const upvoteClass = 'vote-btn upvote-btn' + (hasUpvoted ? ' active' : '') + (isOwnComment ? ' disabled' : '');
     
     const downvoteAttr = isOwnComment ? '' : `onclick="downvoteComment('${c.id}')"`;
-    const downvoteStyle = isOwnComment ? 'opacity:0.4; cursor:not-allowed;' : (hasDownvoted ? 'background:rgba(239,68,68,0.15); border:1px solid rgba(239,68,68,0.5); color:#ef4444;' : 'background:transparent; border:1px solid transparent; color:var(--text-muted); cursor:pointer;');
+    const downvoteClass = 'vote-btn downvote-btn' + (hasDownvoted ? ' active' : '') + (isOwnComment ? ' disabled' : '');
 
     return `
       <div class="comment-item" id="comment_${c.id}" style="padding: 16px; border-bottom: 1px solid var(--border-subtle); background: var(--bg-card-alt); border-radius: 12px; margin-bottom: 12px; position: relative;">
@@ -4192,14 +4169,14 @@ function displayComments(comments) {
         <p style="margin: 0; font-size: 0.9rem; line-height: 1.5; color: var(--text-primary); padding-left: 34px;">${c.text}</p>
         
         <div style="margin-top: 12px; display: flex; gap: 16px; padding-left: 34px;">
-          <div style="display: flex; gap: 6px;">
-            <button ${upvoteAttr} style="${upvoteStyle} font-size:0.8rem; display:flex; align-items:center; gap:4px; padding: 4px 8px; border-radius: 6px; transition: all 0.2s;" title="Beğen">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg>
-              <span style="font-weight: bold;">${upvotes}</span>
+          <div style="display: flex; gap: 8px;">
+            <button class="${upvoteClass}" ${upvoteAttr} title="Beğen">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+              <span>${upvotes}</span>
             </button>
-            <button ${downvoteAttr} style="${downvoteStyle} font-size:0.8rem; display:flex; align-items:center; gap:4px; padding: 4px 8px; border-radius: 6px; transition: all 0.2s;" title="Beğenme">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
-              <span style="font-weight: bold;">${downvotes}</span>
+            <button class="${downvoteClass}" ${downvoteAttr} title="Beğenme">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+              <span>${downvotes}</span>
             </button>
           </div>
           <button onclick="showReplyForm('${c.id}')" style="background:transparent; border:none; color:var(--text-muted); font-size:0.8rem; cursor:pointer; display:flex; align-items:center; gap:4px;">
@@ -6253,20 +6230,49 @@ window.loadProfileData = function() {
 function renderSidebarProfile(user){
   const avatar=document.getElementById('userAvatar');
   const name=document.getElementById('userName');
+  const rankEl=document.getElementById('userRank');
   if(!avatar||!name) return;
   const profilePhoto = appData.profile && appData.profile.photoURL;
   const profileName = appData.profile && appData.profile.displayName;
   if(profilePhoto){
-    avatar.innerHTML=`<img src="${profilePhoto}" alt="Avatar" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">`;
+    avatar.innerHTML=`<img src="${profilePhoto}" alt="Avatar" style="width:100%;height:100%;border-radius:10px;object-fit:cover;" referrerpolicy="no-referrer">`;
   } else if(user && user.photoURL){
-    avatar.innerHTML=`<img src="${user.photoURL}" alt="Avatar" referrerpolicy="no-referrer">`;
+    avatar.innerHTML=`<img src="${user.photoURL}" alt="Avatar" style="width:100%;height:100%;border-radius:10px;object-fit:cover;" referrerpolicy="no-referrer">`;
   } else {
     const n = profileName || (user && user.displayName) || 'U';
     avatar.textContent = n[0].toUpperCase();
   }
   const displayN = profileName || (user && user.displayName ? user.displayName.split(' ')[0] : 'User');
   name.textContent = displayN;
+  
+  if (rankEl) {
+    const isAdmin = user && (user.email === 'wupard@gmail.com' || appData.userRank === 'admin' || appData.userRank === 'mod');
+    const uRank = appData.userRank || (isAdmin ? 'mod' : 'default');
+    const rankObj = RANKS[uRank] || RANKS.default;
+    rankEl.textContent = rankObj.name;
+    rankEl.style.background = rankObj.bg;
+    rankEl.style.color = rankObj.color;
+  }
 }
+
+window.saveProfile = async function() {
+  const nameInput = document.getElementById('profileDisplayName');
+  const photoInput = document.getElementById('profilePhotoUrl');
+  if (!nameInput || !currentUser) return;
+  
+  if (!appData.profile) appData.profile = {};
+  
+  if (nameInput.value.trim() !== '') {
+    appData.profile.displayName = nameInput.value.trim();
+  }
+  if (photoInput && photoInput.value.trim() !== '') {
+    appData.profile.photoURL = photoInput.value.trim();
+  }
+  
+  saveData();
+  renderSidebarProfile(currentUser);
+  showToast(currentLang === 'tr' ? 'Profil güncellendi!' : 'Profile updated!', 'success');
+};
 
 window.handleProfilePhotoUpload = async function(event) {
   const file = event.target.files[0];
@@ -6617,11 +6623,14 @@ function renderWeeklyReport() {
   }
 
   const topMuscle = Object.entries(muscleSets).sort((a,b)=>b[1]-a[1])[0];
+  const allStats = typeof computeExerciseStats === 'function' ? computeExerciseStats() : [];
+  const bestCurrentWeight = allStats.length > 0 ? Math.max(...allStats.map(s => s.currentWeight)) : 0;
+  
   const el = id => document.getElementById(id);
   if (el('wrWorkouts')) el('wrWorkouts').innerHTML = `${thisWorkouts} <span style="font-size:0.8rem;color:var(--text-tertiary);font-weight:600;">/ 3</span>`;
   if (el('wrVolume')) el('wrVolume').textContent = Math.round(thisVolume).toLocaleString('tr-TR');
   if (el('wrTopMuscle')) el('wrTopMuscle').textContent = topMuscle ? topMuscle[0] : '—';
-  if (el('wrBestPR')) el('wrBestPR').textContent = bestPR > 0 ? `${bestPR} kg` : '— kg';
+  if (el('wrBestPR')) el('wrBestPR').textContent = bestCurrentWeight > 0 ? `${bestCurrentWeight} kg` : '— kg';
   const wdiff = thisWorkouts - prevWorkouts;
   const vdiff = Math.round(thisVolume - prevVolume);
   if (el('wrWorkoutsChange')) {

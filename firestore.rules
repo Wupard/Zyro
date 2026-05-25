@@ -26,8 +26,8 @@ service cloud.firestore {
         isAdmin() ||
         (
           request.auth.uid == userId &&
-          request.resource.data.isAdmin == resource.data.isAdmin &&
-          request.resource.data.data.userRank == resource.data.data.userRank
+          request.resource.data.get('isAdmin', false) == resource.data.get('isAdmin', false) &&
+          request.resource.data.get('data', {}).get('userRank', 'user') == resource.data.get('data', {}).get('userRank', 'user')
         )
       );
       allow delete: if false;

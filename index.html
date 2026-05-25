@@ -222,11 +222,11 @@
       <div style="display:flex; align-items:center; gap: 10px; width: 100%;">
         <div class="user-avatar" id="userAvatar" style="width:36px; height:36px; flex-shrink:0; border-radius:10px; font-size:1.2rem;">Z</div>
         
-        <div class="user-info" style="display:flex; flex-direction:column; justify-content:center; flex:1; overflow:hidden;">
+        <div class="user-info" style="display:flex; flex-direction:column; justify-content:center; flex:1; min-width: 0;">
           <div style="display:flex; align-items:center; gap: 6px;">
             <span class="user-name" id="userName" style="font-size:0.9rem; font-weight:800; color:var(--text-primary); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Kullanıcı</span>
           </div>
-          <div style="display:flex; align-items:center; gap: 6px; margin-top:3px;">
+          <div style="display:flex; align-items:center; gap: 6px; margin-top:3px; flex-wrap: wrap;">
             <span class="user-rank" id="userRank" style="font-size:0.55rem; background:linear-gradient(135deg, var(--accent-deep), var(--accent-primary)); color:white; padding:2px 5px; border-radius:4px; font-weight:800; text-transform:uppercase;">Üye</span>
             <span class="user-status" id="userStatus" style="font-size:0.6rem; color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">● Çevrimiçi</span>
           </div>
@@ -1542,6 +1542,11 @@
         <h2 style="font-size: 1.5rem; font-weight: 800; margin-bottom: 24px; color: var(--text-primary);">Profil Bilgileri</h2>
         
         <div style="background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 16px; padding: 24px;">
+          <div style="margin-bottom: 20px;">
+            <label style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 8px; text-transform: uppercase;">Profil Fotoğrafı (URL)</label>
+            <input type="text" id="profilePhotoUrl" class="log-input" placeholder="Fotoğraf linki yapıştırın (isteğe bağlı)" style="font-size: 1rem; padding: 12px; background: rgba(255,255,255,0.03);">
+          </div>
+          
           <div style="margin-bottom: 20px;">
             <label style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 8px; text-transform: uppercase;">Ad Soyad</label>
             <input type="text" id="profileDisplayName" class="log-input" placeholder="Adınızı girin" style="font-size: 1rem; padding: 12px; background: rgba(255,255,255,0.03);">
