@@ -6213,6 +6213,7 @@ window.switchProfileTab = function(tab, ev) {
   // Load security tab content if needed
   if (tab === 'security') {
     renderPasswordSection();
+    if (typeof checkPushNotificationStatus === 'function') checkPushNotificationStatus();
   }
   
   // Load achievements if needed
@@ -6597,6 +6598,60 @@ window.setNewPassword = async function() {
     console.error('Password set error:', err);
     showToast('Şifre belirlenemedi: ' + err.message, 'error');
   }
+};
+
+window.checkPushNotificationStatus = async function() {
+  const statusEl = document.getElementById('pushNotificationStatus');
+  const btnEl = document.getElementById('btnEnablePush');
+  
+  if (!statusEl || !btnEl) return;
+  
+  if (!('Notification' in window)) {
+    statusEl.textContent = 'Durum: Tarayıcınız bildirimleri desteklemiyor.';
+    statusEl.style.color = 'var(--text-muted)';
+    return;
+  }
+  
+  if (Notification.permission === 'granted') {
+    statusEl.textContent = 'Durum: Aktif (Bildirimlere izin verdiniz)';
+    statusEl.style.color = 'var(--green-vivid)';
+    btnEl.style.display = 'none';
+  } else if (Notification.permission === 'denied') {
+    statusEl.textContent = 'Durum: Reddedildi (Tarayıcı ayarlarından izni açmanız gerekir)';
+    statusEl.style.color = 'var(--red-vivid)';
+    btnEl.style.display = 'none';
+  } else {
+    statusEl.textContent = 'Durum: İzin Bekleniyor';
+    statusEl.style.color = 'var(--text-secondary)';
+    btnEl.style.display = 'block';
+  }
+};
+
+window.requestNotificationPermission = async function() {
+  if (!('Notification' in window)) return;
+  
+  try {
+    const permission = await Notification.requestPermission();
+    if (permission === 'granted' && typeof messaging !== 'undefined' && messaging) {
+      const token = await messaging.getToken({
+        vapidKey: 'YOUR_VAPID_KEY_HERE'
+      });
+      
+      if (token && currentUser) {
+        await db.collection('users').doc(currentUser.uid).update({
+          'data.profile.fcmToken': token
+        });
+        if (appData && appData.profile) appData.profile.fcmToken = token;
+        showToast('Bildirimler başarıyla aktifleştirildi!', 'success');
+      }
+    } else if (permission === 'denied') {
+      showToast('Bildirim izni reddedildi.', 'error');
+    }
+  } catch (err) {
+    console.error('FCM Token error:', err);
+    showToast('Bildirimler ayarlanamadı: ' + err.message, 'error');
+  }
+  checkPushNotificationStatus();
 };
 
 // Load profile data when switching to profile page

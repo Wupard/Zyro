@@ -54,7 +54,7 @@ exports.onCommentCreatedEmail = functions.firestore
   });
 
 /**
- * Web sitesi `public_comments` koleksiyonu
+ * Web sitesi `public_comments` koleksiyonu (Email + FCM)
  */
 exports.onPublicCommentCreatedEmail = functions.firestore
   .document("public_comments/{commentId}")
@@ -62,7 +62,92 @@ exports.onPublicCommentCreatedEmail = functions.firestore
     const d = snap.data() || {};
     const author = d.userName || d.userEmail || d.userId || "Bilinmeyen";
     const text = d.text || "";
-    return sendCommentEmail(snap, author, text, "web");
+    
+    // Email gönder
+    const emailPromise = sendCommentEmail(snap, author, text, "web");
+
+    // Yorum yanıtı ise FCM bildirim gönder
+    const fcmPromise = (async () => {
+      try {
+        if (d.parentId) {
+          const parentSnap = await admin.firestore().collection("public_comments").doc(d.parentId).get();
+          if (parentSnap.exists) {
+            const parentData = parentSnap.data();
+            const parentUserId = parentData.userId;
+            
+            if (parentUserId && parentUserId !== d.userId) {
+              const userSnap = await admin.firestore().collection("users").doc(parentUserId).get();
+              if (userSnap.exists) {
+                const userData = userSnap.data();
+                const fcmToken = userData?.data?.profile?.fcmToken;
+                
+                if (fcmToken) {
+                  const payload = {
+                    notification: {
+                      title: `${author} yorumuna yanıt verdi`,
+                      body: text.length > 100 ? text.substring(0, 97) + '...' : text,
+                    },
+                    data: {
+                      link: '/community' // Adjust link depending on client routing
+                    }
+                  };
+                  await admin.messaging().sendToDevice(fcmToken, payload);
+                  console.log(`Push notification sent to ${parentUserId} for comment reply.`);
+                }
+              }
+            }
+          }
+        }
+      } catch (err) {
+        console.error("FCM Comment Reply Error:", err);
+      }
+    })();
+
+    await Promise.all([emailPromise, fcmPromise]);
+    return null;
+  });
+
+/**
+ * Admin Duyuruları (Broadcast) FCM Bildirimi
+ */
+exports.onAdminNotificationCreated = functions.firestore
+  .document("admin_notifications/{notifId}")
+  .onCreate(async (snap) => {
+    const data = snap.data() || {};
+    const title = data.title || "Yeni Duyuru";
+    const message = data.message || "Admin'den yeni bir mesajınız var.";
+    
+    try {
+      const usersSnap = await admin.firestore().collection("users").get();
+      const tokens = [];
+      
+      usersSnap.forEach(doc => {
+        const u = doc.data();
+        const fcmToken = u?.data?.profile?.fcmToken;
+        if (fcmToken) {
+          tokens.push(fcmToken);
+        }
+      });
+      
+      if (tokens.length > 0) {
+        const payload = {
+          notification: {
+            title: title,
+            body: message,
+          },
+          data: {
+            link: '/dashboard'
+          }
+        };
+        // Batch send to all tokens (up to 1000 per batch)
+        await admin.messaging().sendToDevice(tokens, payload);
+        console.log(`Push notification broadcast sent to ${tokens.length} devices.`);
+      }
+    } catch (err) {
+      console.error("FCM Broadcast Error:", err);
+    }
+    
+    return null;
   });
 
 function escapeHtml(s) {

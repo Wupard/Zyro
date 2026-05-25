@@ -17,11 +17,16 @@ var isFirebaseConfigured = firebaseConfig.apiKey !== "YOUR_API_KEY";
 var app = null;
 var auth = null;
 var db = null;
+var messaging = null;
 
 if (isFirebaseConfigured && typeof firebase !== 'undefined') {
   app = firebase.initializeApp(firebaseConfig);
   auth = firebase.auth();
   db = firebase.firestore();
+  
+  if (firebase.messaging.isSupported()) {
+    messaging = firebase.messaging();
+  }
 
   // Enable offline persistence (modern API to avoid deprecation warning)
   // Note: We wrap this in a try-catch to handle SDK version mismatches gracefully
@@ -45,3 +50,4 @@ window.isFirebaseConfigured = isFirebaseConfigured;
 window.app = app;
 window.auth = auth;
 window.db = db;
+window.messaging = messaging;

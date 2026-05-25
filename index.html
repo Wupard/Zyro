@@ -1670,6 +1670,17 @@
             <!-- Will be rendered by JavaScript -->
           </div>
         </section>
+
+        <section class="card" style="margin-top: 20px;">
+          <div class="card-header">
+            <h3 class="card-title">Bildirim Ayarları (Push)</h3>
+          </div>
+          <div style="padding:20px; display:flex; flex-direction:column; gap:16px;">
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0;">Anlık uygulama bildirimleri ile yorum yanıtlarını ve önemli duyuruları kaçırmayın.</p>
+            <div id="pushNotificationStatus" style="font-size: 0.85rem; font-weight: bold; margin-bottom: 8px;">Durum: Yükleniyor...</div>
+            <button id="btnEnablePush" class="btn-primary" onclick="requestNotificationPermission()" style="width:100%; display:none;">Bildirimlere İzin Ver</button>
+          </div>
+        </section>
       </div>
     </div>
 
@@ -1909,6 +1920,7 @@
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-messaging-compat.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
