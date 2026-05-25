@@ -200,7 +200,7 @@ const I18N = {
     repetitions: 'Tekrar',
     sets: 'Set',
     achievements: 'Başarımlar',
-    beforeAfter: 'Gelişim Fotoğrafları',
+    beforeAfter: 'Gelişim',
     // Posture Exercises
     'Warm-up: Light shoulder circles': 'Isınma: Hafif omuz daireleri ve kafa hareketleri',
     'Y-T-W Raises': 'Y-T-W Raises',
@@ -592,8 +592,14 @@ function syncPublicStats() {
     if (typeof calculateLevel === 'function') level = calculateLevel(xp);
     
     let allTimePRMax = 0;
+    let allTimePRExercise = '';
     Object.values(appData.workoutLogs || {}).forEach(logs => {
-      logs.forEach(l => { if ((l.weight || 0) > allTimePRMax) allTimePRMax = l.weight; });
+      logs.forEach(l => {
+        if ((l.weight || 0) > allTimePRMax) {
+          allTimePRMax = l.weight;
+          allTimePRExercise = l.exercise || '';
+        }
+      });
     });
 
     db.collection('public_stats').doc(currentUser.uid).set({
@@ -603,6 +609,7 @@ function syncPublicStats() {
       xp: xp,
       level: level,
       bestPR: allTimePRMax,
+      bestPRExercise: allTimePRExercise,
       selectedAchievements: p.selectedAchievements || [],
       lastActive: firebase.firestore.FieldValue.serverTimestamp()
     }, { merge: true }).catch(e => console.error('Public stats sync failed:', e));
@@ -2949,6 +2956,15 @@ document.addEventListener('DOMContentLoaded',()=>{
     initNotifications(); // 2.5: Initialize notifications system
     // Update sidebar after data load
     if(currentUser) updateUserUI(currentUser);
+    // Mark app as ready: level-up toasts will fire after this point
+    // First capture the current level as baseline (no toast)
+    if (typeof calculateXP === 'function' && typeof calculateLevel === 'function') {
+      const _xp = calculateXP();
+      const _lvl = calculateLevel(_xp);
+      window.zyroSessionLevel = _lvl;
+    }
+    // Small delay to allow Firebase realtime sync to settle before enabling toasts
+    setTimeout(() => { window.zyroAppReady = true; }, 3000);
   });
 });
 
@@ -4190,7 +4206,12 @@ function displayComments(comments) {
     );
     const canDelete = isOwnComment || isAdminUser;
     
-    const isAdminComment = c.rank === 'admin' || c.rank === 'mod' || c.userEmail === 'wupard@gmail.com';
+    // Rank badge for comment author
+    const commentRankKey = c.rank && RANKS[c.rank] ? c.rank : ((c.userEmail === 'wupard@gmail.com') ? 'mod' : null);
+    const commentRankInfo = commentRankKey ? RANKS[commentRankKey] : null;
+    const commentRankBadge = commentRankInfo
+      ? `<span style="background:${commentRankInfo.bg}; color:${commentRankInfo.color}; font-size:0.6rem; padding:2px 6px; border-radius:4px; font-weight:800; letter-spacing:0.05em; text-transform:uppercase; border: 1px solid ${commentRankInfo.color}40;">${commentRankInfo.label}</span>`
+      : '';
     
     const upvoteAttr = isOwnComment ? '' : `onclick="upvoteComment('${c.id}')"`;
     const upvoteClass = 'vote-btn upvote-btn' + (hasUpvoted ? ' active' : '') + (isOwnComment ? ' disabled' : '');
@@ -4208,7 +4229,7 @@ function displayComments(comments) {
             }
             <div style="display: flex; align-items: center; gap: 6px;">
               <span style="font-weight: 600; font-size: 0.9rem; color: var(--accent-primary);">${c.userName}</span>
-              ${isAdminComment ? `<span style="background:var(--accent-primary); color:white; font-size:0.65rem; padding:2px 6px; border-radius:4px; font-weight:bold; text-transform:uppercase;">Admin</span>` : ''}
+              ${commentRankBadge}
             </div>
           </div>
           <div style="display: flex; align-items: center; gap: 8px;">
@@ -4248,14 +4269,18 @@ function displayComments(comments) {
             ${commentReplies.map(r => {
               const isOwnReply = currentUser && r.userId === currentUser.uid;
               const canDeleteReply = isOwnReply || isAdminUser;
-              const isAdminReply = r.rank === 'admin' || r.rank === 'mod' || r.userEmail === 'wupard@gmail.com';
+              const replyRankKey = r.rank && RANKS[r.rank] ? r.rank : ((r.userEmail === 'wupard@gmail.com') ? 'mod' : null);
+              const replyRankInfo = replyRankKey ? RANKS[replyRankKey] : null;
+              const replyRankBadge = replyRankInfo
+                ? `<span style="background:${replyRankInfo.bg}; color:${replyRankInfo.color}; font-size:0.55rem; padding:2px 5px; border-radius:4px; font-weight:800; letter-spacing:0.05em; text-transform:uppercase; border: 1px solid ${replyRankInfo.color}40;">${replyRankInfo.label}</span>`
+                : '';
               return `
               <div style="margin-top:12px; padding:10px; background:rgba(255,255,255,0.02); border-radius:8px; position:relative;">
                 <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
                   <div style="display:flex; align-items:center; gap:8px;">
                     ${r.userPhoto ? `<img src="${r.userPhoto}" style="width:18px; height:18px; border-radius:50%;" referrerpolicy="no-referrer">` : `<div style="width:18px; height:18px; border-radius:50%; background:var(--bg-primary); display:flex; align-items:center; justify-content:center; font-size:0.6rem;">?</div>`}
                     <span style="font-weight:600; font-size:0.8rem; color:var(--accent-primary);">${r.userName}</span>
-                    ${isAdminReply ? `<span style="background:var(--accent-primary); color:white; font-size:0.6rem; padding:2px 4px; border-radius:4px; font-weight:bold; text-transform:uppercase;">Admin</span>` : ''}
+                    ${replyRankBadge}
                   </div>
                   <div style="display:flex; align-items:center; gap:6px;">
                     <span style="font-size:0.65rem; color:var(--text-muted);">${new Date(r.timestamp).toLocaleDateString()}</span>
@@ -4381,8 +4406,18 @@ window.deletePublicComment = async function(commentId) {
   if (!confirm('Bu yorumu silmek istediğine emin misin?')) return;
   
   try {
-    // Note: Firestore security rules must allow this. Assuming user can delete their own comment.
-    await db.collection('public_comments').doc(commentId).delete();
+    if (isFirebaseConfigured && db) {
+      await db.collection('public_comments').doc(commentId).delete();
+    } else {
+      // Local fallback
+      let localComments = JSON.parse(localStorage.getItem('zyro_local_comments') || '[]');
+      localComments = localComments.filter(c => c.id !== commentId);
+      localStorage.setItem('zyro_local_comments', JSON.stringify(localComments));
+    }
+    // Also clean from local cache in case it was there
+    let localComments = JSON.parse(localStorage.getItem('zyro_local_comments') || '[]');
+    localComments = localComments.filter(c => c.id !== commentId);
+    localStorage.setItem('zyro_local_comments', JSON.stringify(localComments));
     showToast('Yorum silindi.', 'success');
     renderComments();
   } catch (e) {
@@ -5351,7 +5386,13 @@ function updateUserUI(user){
         rb.style.background = r2.bg;
       }
       if (userData.profile) {
-        appData.profile = { ...appData.profile, ...userData.profile };
+        // Merge carefully — never overwrite photoURL with empty/undefined
+        const incoming = userData.profile;
+        const existingPhoto = appData.profile && appData.profile.photoURL;
+        appData.profile = { ...appData.profile, ...incoming };
+        if (!appData.profile.photoURL && existingPhoto) {
+          appData.profile.photoURL = existingPhoto;
+        }
         renderSidebarProfile(user);
       }
       applyAdminVisibility();
@@ -6415,19 +6456,30 @@ window.saveProfileBio = async function() {
   
   if (isFirebaseConfigured && db) {
     try {
+      // Preserve existing photoURL when updating bio fields
+      const existingPhotoURL = (appData.profile && appData.profile.photoURL) || null;
+      
       await db.collection('users').doc(currentUser.uid).update({
-        'data.profile': {
-          displayName,
-          bio,
-          height: height ? parseInt(height) : null,
-          weight: weight ? parseFloat(weight) : null,
-          age: age ? parseInt(age) : null,
-          gender,
-          selectedAchievements: selectedProfileAchievements
-        }
+        'data.profile.displayName': displayName,
+        'data.profile.bio': bio,
+        'data.profile.height': height ? parseInt(height) : null,
+        'data.profile.weight': weight ? parseFloat(weight) : null,
+        'data.profile.age': age ? parseInt(age) : null,
+        'data.profile.gender': gender,
+        'data.profile.selectedAchievements': selectedProfileAchievements
       });
       
-      appData.profile = { ...appData.profile, displayName, bio, height: height ? parseInt(height) : null, weight: weight ? parseFloat(weight) : null, age: age ? parseInt(age) : null, gender, selectedAchievements: selectedProfileAchievements };
+      appData.profile = { 
+        ...appData.profile, 
+        displayName, bio, 
+        height: height ? parseInt(height) : null, 
+        weight: weight ? parseFloat(weight) : null, 
+        age: age ? parseInt(age) : null, 
+        gender, 
+        selectedAchievements: selectedProfileAchievements,
+        // Preserve photoURL - never wipe it on bio save
+        photoURL: existingPhotoURL
+      };
       renderSidebarProfile(currentUser);
       
       // Feature 10 & 12: Sync public stats when profile is saved
@@ -6821,10 +6873,10 @@ function updateLevelUI() {
   if (el('profileXPBar')) el('profileXPBar').style.width = xpProgress + '%';
   if (el('profileXPText')) el('profileXPText').textContent = `${xp.toLocaleString('tr-TR')} XP • ${xpProgress}% → Lv.${Math.min(100, level + 1)}`;
 
-  // Only show toast if they legitimately leveled up while using the app
-  // Use a session variable to avoid showing it on initial async data load
-  if (window.zyroSessionLevel !== undefined) {
-    if (level > window.zyroSessionLevel && window.zyroSessionLevel > 0) {
+  // Only show toast when actually leveling up (not on page load/reload)
+  // zyroAppReady flag ensures we only check after initial data is fully loaded
+  if (window.zyroAppReady && window.zyroSessionLevel !== undefined && window.zyroSessionLevel > 0) {
+    if (level > window.zyroSessionLevel) {
       showToast(`🎉 Seviye ${level} oldunuz! Tebrikler!`, 'success');
       if (typeof runConfetti === 'function') runConfetti();
     }
@@ -6957,7 +7009,12 @@ window.renderLeaderboard = async function(forceRefresh = false) {
   
   list.innerHTML = users.map((u, index) => {
     const isMe = currentUser && u.uid === currentUser.uid;
-    const valStr = currentLeaderboardFilter === 'level' ? `<span style="color:var(--accent-primary); font-weight:800;">Lv.${u.level || 1}</span> <span style="opacity:0.4; margin:0 4px;">•</span> ${(u.xp||0).toLocaleString('tr-TR')} XP` : `<span style="color:var(--accent-primary); font-weight:800;">${u.bestPR || 0}</span> <span style="font-size:0.75rem; opacity:0.7;">kg PR</span>`;
+    const prExercise = (currentLeaderboardFilter === 'pr' && u.bestPRExercise) 
+      ? `<div style="font-size:0.65rem; color:var(--text-muted); margin-top:2px; max-width:160px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${u.bestPRExercise}">💪 ${u.bestPRExercise}</div>` 
+      : '';
+    const valStr = currentLeaderboardFilter === 'level' 
+      ? `<span style="color:var(--accent-primary); font-weight:800;">Lv.${u.level || 1}</span> <span style="opacity:0.4; margin:0 4px;">•</span> ${(u.xp||0).toLocaleString('tr-TR')} XP` 
+      : `<span style="color:var(--accent-primary); font-weight:800;">${u.bestPR || 0}</span> <span style="font-size:0.75rem; opacity:0.7;">kg PR</span>`;
     
     let rankBadge = '';
     let cardStyle = '';
@@ -6987,7 +7044,8 @@ window.renderLeaderboard = async function(forceRefresh = false) {
         ${avatarHtml}
         <div class="lb-info">
           <div class="lb-name">${u.displayName || 'İsimsiz'}${isMe ? ' <span class="lb-me-badge">(Sen)</span>' : ''}</div>
-          <div class="lb-val">${valStr}</div>
+           <div class="lb-val">${valStr}</div>
+           ${prExercise}
         </div>
       </div>
     `;
