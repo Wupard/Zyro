@@ -2665,7 +2665,8 @@ window.showStrengthDetails = function(targetExercise = null) {
       const history = exerciseData[ex].sort((a,b) => a.timestamp - b.timestamp);
       const first = history[0];
       const last = history[history.length-1];
-      const weightGain = last.weight - first.weight;
+      const weightGainRaw = last.weight - first.weight;
+      const weightGain = Math.round(weightGainRaw * 10) / 10;
       const scoreGain = calculateStrengthScore(last.weight, last.reps) - calculateStrengthScore(first.weight, first.reps);
       
       if (weightGain > 0 || scoreGain > 0) {
