@@ -3184,10 +3184,11 @@ html {
   margin-bottom: 12px;
   filter: drop-shadow(0 4px 12px rgba(255,215,0,0.3));
   animation: lbCrownFloat 3s ease-in-out infinite;
+  will-change: transform;
 }
 @keyframes lbCrownFloat {
   0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-8px); filter: drop-shadow(0 8px 16px rgba(255,215,0,0.5)); }
+  50% { transform: translateY(-8px); }
 }
 .lb-header-title {
   font-family: 'Space Grotesk', sans-serif;
