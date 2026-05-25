@@ -3384,7 +3384,7 @@ window.sendAdminBroadcast = function() {
     sender: currentUser ? currentUser.displayName || 'Admin' : 'Admin'
   };
 
-  const collection = recipient === 'all' ? 'broadcasts' : `users/${uid}/notifications`;
+  const collection = recipient === 'all' ? 'notifications' : `users/${uid}/notifications`;
   
   db.collection(collection).add(notifData).then(() => {
     showToast('Bildirim başarıyla gönderildi!', 'success');

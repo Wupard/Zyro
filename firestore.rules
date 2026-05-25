@@ -35,10 +35,7 @@ service cloud.firestore {
       match /notifications/{nid} {
         allow read: if authed() && request.auth.uid == userId;
         allow update: if authed() && request.auth.uid == userId;
-        allow create: if authed() && (
-          request.auth.uid == userId ||
-          isAdmin()
-        );
+        allow create: if authed();
         allow delete: if authed() && request.auth.uid == userId;
       }
     }
@@ -79,7 +76,7 @@ service cloud.firestore {
         isAdmin()
       );
       allow update: if authed()
-        && request.resource.data.diff(resource.data).changedKeys().hasOnly(['upvotes','upvotedBy']);
+        && request.resource.data.diff(resource.data).changedKeys().hasOnly(['upvotes','upvotedBy','downvotes','downvotedBy']);
     }
 
     match /systemAnnouncements/{aid} {
