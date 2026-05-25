@@ -6483,9 +6483,13 @@ window.handleProfilePhotoUpload = async function(event) {
     renderSidebarProfile(currentUser);
 
     if (isFirebaseConfigured && db) {
-      await db.collection('users').doc(currentUser.uid).update({
-        'data.profile.photoURL': photoURL
-      });
+      await db.collection('users').doc(currentUser.uid).set({
+        data: {
+          profile: {
+            photoURL: photoURL
+          }
+        }
+      }, { merge: true });
       if (currentUser.updateProfile) {
         try {
           await currentUser.updateProfile({ photoURL: photoURL });
@@ -6521,15 +6525,19 @@ window.saveProfileBio = async function() {
       // Preserve existing photoURL when updating bio fields
       const existingPhotoURL = (appData.profile && appData.profile.photoURL) || null;
       
-      await db.collection('users').doc(currentUser.uid).update({
-        'data.profile.displayName': displayName,
-        'data.profile.bio': bio,
-        'data.profile.height': height ? parseInt(height) : null,
-        'data.profile.weight': weight ? parseFloat(weight) : null,
-        'data.profile.age': age ? parseInt(age) : null,
-        'data.profile.gender': gender,
-        'data.profile.selectedAchievements': selectedProfileAchievements
-      });
+      await db.collection('users').doc(currentUser.uid).set({
+        data: {
+          profile: {
+            displayName: displayName,
+            bio: bio,
+            height: height ? parseInt(height) : null,
+            weight: weight ? parseFloat(weight) : null,
+            age: age ? parseInt(age) : null,
+            gender: gender,
+            selectedAchievements: selectedProfileAchievements
+          }
+        }
+      }, { merge: true });
       
       appData.profile = { 
         ...appData.profile, 
