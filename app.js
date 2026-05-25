@@ -360,6 +360,7 @@ const EXERCISE_CATEGORIES = {
 };
 
 const RANKS = {
+  'kurucu': { label: 'KURUCU', color: '#EF4444', bg: 'rgba(239, 68, 68, 0.15)', canAdmin: true },
   'admin': { label: 'ADMIN', color: '#F472B6', bg: 'rgba(244, 114, 182, 0.15)', canAdmin: true },
   'mod': { label: 'MOD', color: '#FFD700', bg: 'rgba(255, 215, 0, 0.15)', canAdmin: true },
   'special': { label: 'SPECIAL', color: '#A855F7', bg: 'rgba(168, 85, 247, 0.15)', canAdmin: false },
@@ -548,7 +549,8 @@ let userProfileListenerUnsub = null;
 
 function commentAuthorRankKey() {
   if (!currentUser) return 'default';
-  if (currentUser.email === 'wupard@gmail.com' || appData.firestoreAdmin) return 'mod';
+  if (currentUser.email === 'wupard@gmail.com') return 'kurucu';
+  if (appData.firestoreAdmin) return 'admin';
   if (appData.userRank === 'admin') return 'admin';
   if (appData.userRank === 'mod') return 'mod';
   return appData.userRank || 'default';
@@ -4207,7 +4209,7 @@ function displayComments(comments) {
     const canDelete = isOwnComment || isAdminUser;
     
     // Rank badge for comment author
-    const commentRankKey = c.rank && RANKS[c.rank] ? c.rank : ((c.userEmail === 'wupard@gmail.com') ? 'mod' : null);
+    const commentRankKey = c.rank && RANKS[c.rank] ? c.rank : ((c.userEmail === 'wupard@gmail.com') ? 'kurucu' : null);
     const commentRankInfo = commentRankKey ? RANKS[commentRankKey] : null;
     const commentRankBadge = commentRankInfo
       ? `<span style="background:${commentRankInfo.bg}; color:${commentRankInfo.color}; font-size:0.6rem; padding:2px 6px; border-radius:4px; font-weight:800; letter-spacing:0.05em; text-transform:uppercase; border: 1px solid ${commentRankInfo.color}40;">${commentRankInfo.label}</span>`
@@ -4269,7 +4271,7 @@ function displayComments(comments) {
             ${commentReplies.map(r => {
               const isOwnReply = currentUser && r.userId === currentUser.uid;
               const canDeleteReply = isOwnReply || isAdminUser;
-              const replyRankKey = r.rank && RANKS[r.rank] ? r.rank : ((r.userEmail === 'wupard@gmail.com') ? 'mod' : null);
+              const replyRankKey = r.rank && RANKS[r.rank] ? r.rank : ((r.userEmail === 'wupard@gmail.com') ? 'kurucu' : null);
               const replyRankInfo = replyRankKey ? RANKS[replyRankKey] : null;
               const replyRankBadge = replyRankInfo
                 ? `<span style="background:${replyRankInfo.bg}; color:${replyRankInfo.color}; font-size:0.55rem; padding:2px 5px; border-radius:4px; font-weight:800; letter-spacing:0.05em; text-transform:uppercase; border: 1px solid ${replyRankInfo.color}40;">${replyRankInfo.label}</span>`
@@ -5370,7 +5372,7 @@ function updateUserUI(user){
 
   // Rank Display
   let userRankKey = appData.userRank || 'default';
-  if (user && user.email === 'wupard@gmail.com') userRankKey = 'mod';
+  if (user && user.email === 'wupard@gmail.com') userRankKey = 'kurucu';
   if (appData.firestoreAdmin && userRankKey === 'default') userRankKey = 'mod';
   const rank = RANKS[userRankKey] || RANKS.default;
 
@@ -5440,7 +5442,7 @@ function updateUserUI(user){
       const rb = document.getElementById('userRank');
       if (rb && currentUser) {
         let key = appData.userRank || 'default';
-        if (currentUser.email === 'wupard@gmail.com') key = 'mod';
+        if (currentUser.email === 'wupard@gmail.com') key = 'kurucu';
         if (appData.firestoreAdmin && key === 'default') key = 'mod';
         const r2 = RANKS[key] || RANKS.default;
         rb.textContent = r2.label;
