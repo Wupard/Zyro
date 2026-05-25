@@ -2587,7 +2587,7 @@ function updateStats(){
   });
 
   if (volEl) {
-    volEl.textContent = bestProgEx ? `+${maxProg} kg` : '0 kg';
+    volEl.textContent = bestProgEx ? `+${parseFloat(maxProg.toFixed(4))} kg` : '0 kg';
   }
   if (volBar) {
     volBar.style.width = bestProgEx ? '100%' : '0%';
@@ -2685,7 +2685,7 @@ window.showStrengthDetails = function(targetExercise = null) {
               <div style="font-size:0.7rem; color:var(--text-muted);">Son: ${g.lastWeight}kg · ${new Date(g.lastDate).toLocaleDateString('tr-TR', {day:'numeric', month:'short'})}</div>
             </div>
             <div style="text-align:right;">
-              <div style="font-size:0.85rem; font-weight:800; color:#4ecb8d;">+${g.weightGain}kg</div>
+              <div style="font-size:0.85rem; font-weight:800; color:#4ecb8d;">+${parseFloat(g.weightGain.toFixed(4))}kg</div>
               <div style="font-size:0.6rem; color:var(--text-muted);">Gelişim</div>
             </div>
           </div>
@@ -2798,7 +2798,7 @@ window.showStrengthDetails = function(targetExercise = null) {
                 <div style="display:flex; align-items:baseline; gap:8px;">
                   <span style="font-size:1.2rem; font-weight:900;">${curr.weight}kg</span>
                   <span style="font-size:0.75rem; color:var(--text-muted);">${curr.reps} Tekrar</span>
-                  ${weightDiff > 0 ? `<span style="font-size:0.7rem; font-weight:800; color:#4ecb8d; margin-left:auto;">+${weightDiff}kg ↑</span>` : ''}
+                  ${weightDiff > 0 ? `<span style="font-size:0.7rem; font-weight:800; color:#4ecb8d; margin-left:auto;">+${parseFloat(weightDiff.toFixed(4))}kg ↑</span>` : ''}
                 </div>
               </div>
             `;
