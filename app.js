@@ -6243,13 +6243,13 @@ window.loadProfileData = function() {
         // Load avatar
         const photo = profile.photoURL || (currentUser && currentUser.photoURL);
         if (photo) {
-          const avatarLarge = document.getElementById('profileAvatarLarge');
+          const avatarLarge = document.getElementById('profilePageAvatar');
           if (avatarLarge) {
             avatarLarge.style.backgroundImage = `url('${photo}')`;
             avatarLarge.style.backgroundSize = 'cover';
             avatarLarge.style.backgroundPosition = 'center';
             avatarLarge.style.backgroundRepeat = 'no-repeat';
-            avatarLarge.textContent = '';
+            avatarLarge.innerHTML = ''; // Remove default SVG
           }
         }
         
@@ -6360,13 +6360,13 @@ window.handleProfilePhotoUpload = async function(event) {
   try {
     const photoURL = await toAvatarDataUrl(file);
     appData.profile = { ...appData.profile, photoURL };
-    const avatarLarge = document.getElementById('profileAvatarLarge');
+    const avatarLarge = document.getElementById('profilePageAvatar');
     if (avatarLarge) {
       avatarLarge.style.backgroundImage = `url('${photoURL}')`;
       avatarLarge.style.backgroundSize = 'cover';
       avatarLarge.style.backgroundPosition = 'center';
       avatarLarge.style.backgroundRepeat = 'no-repeat';
-      avatarLarge.textContent = '';
+      avatarLarge.innerHTML = '';
     }
     renderSidebarProfile(currentUser);
 
