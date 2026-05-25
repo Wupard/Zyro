@@ -989,8 +989,19 @@ function navigateTo(page, opts){
   }
   else if(page==='achievements')renderAchievements();
   else if(page==='profile')renderProfilePage();
+  else if(page==='leaderboard') { if (typeof renderLeaderboard === 'function') renderLeaderboard(true); }
 
-  if(window.innerWidth<=768)document.getElementById('sidebar').classList.remove('open');
+  if(window.innerWidth<=768){
+    const sidebar = document.getElementById('sidebar');
+    if (sidebar) sidebar.classList.remove('open');
+    const bd = document.getElementById('sidebarBackdrop');
+    if (bd) { bd.classList.remove('show'); bd.setAttribute('aria-hidden', 'true'); }
+    const tg = document.getElementById('menuToggle');
+    if (tg) tg.setAttribute('aria-expanded', 'false');
+    const wpO = document.getElementById('wpOverlay');
+    if (wpO) wpO.classList.remove('show');
+    document.body.style.overflow = '';
+  }
 }
 
 function renderUpdatesPage(){
@@ -2998,6 +3009,18 @@ function initNotifications() {
       renderNotificationList();
       updateNotifBadge();
       renderAdminNotificationHistory();
+
+      const activeBroadcasts = all.filter(n => n.scope === 'broadcast' && (!n.expiry || Date.now() < n.expiry));
+      if (activeBroadcasts.length > 0) {
+        const latest = activeBroadcasts[0];
+        const dismissed = localStorage.getItem('dismissed_banner_' + latest.id);
+        if (!dismissed) {
+          showPersistentBanner(latest);
+        }
+      } else {
+        const banner = document.getElementById('notifBanner');
+        if (banner && !banner.dataset.temp) banner.style.display = 'none';
+      }
     });
   };
 
@@ -3190,6 +3213,19 @@ function updateNotifBadge() {
   }
 }
 
+function showPersistentBanner(data) {
+  const banner = document.getElementById('notifBanner');
+  const title = document.getElementById('notifBannerTitle');
+  const body = document.getElementById('notifBannerBody');
+  if (!banner || !title || !body) return;
+
+  title.textContent = data.title;
+  body.textContent = data.body || data.message || '';
+  banner.style.display = 'flex';
+  banner.dataset.notifId = data.id || '';
+  banner.dataset.temp = '';
+}
+
 function showSystemNotification(data) {
   const banner = document.getElementById('notifBanner');
   const title = document.getElementById('notifBannerTitle');
@@ -3199,10 +3235,14 @@ function showSystemNotification(data) {
   title.textContent = data.title;
   body.textContent = data.body;
   banner.style.display = 'flex';
+  banner.dataset.temp = 'true';
   
   // Auto-hide after 10s
   setTimeout(() => {
-    banner.style.display = 'none';
+    if (banner.dataset.temp === 'true') {
+      banner.style.display = 'none';
+      banner.dataset.temp = '';
+    }
   }, 10000);
 }
 
@@ -3274,7 +3314,12 @@ window.markAsRead = function(id, scope) {
 
 window.closeNotifBanner = function() {
   const banner = document.getElementById('notifBanner');
-  if (banner) banner.style.display = 'none';
+  if (banner) {
+    banner.style.display = 'none';
+    if (banner.dataset.notifId) {
+      localStorage.setItem('dismissed_banner_' + banner.dataset.notifId, 'true');
+    }
+  }
 };
 
 window.sendAdminBroadcast = function() {
@@ -6261,16 +6306,12 @@ function renderSidebarProfile(user){
 
 window.saveProfile = async function() {
   const nameInput = document.getElementById('profileDisplayName');
-  const photoInput = document.getElementById('profilePhotoUrl');
   if (!nameInput || !currentUser) return;
   
   if (!appData.profile) appData.profile = {};
   
   if (nameInput.value.trim() !== '') {
     appData.profile.displayName = nameInput.value.trim();
-  }
-  if (photoInput && photoInput.value.trim() !== '') {
-    appData.profile.photoURL = photoInput.value.trim();
   }
   
   saveData();
@@ -6727,12 +6768,18 @@ function updateLevelUI() {
 // =============================================
 function init1RMCalculator() {
   const sel = document.getElementById('oneRMExerciseSelect');
+  const catSel = document.getElementById('oneRMCategorySelect');
   if (!sel) return;
   sel.innerHTML = '<option value="">Egzersiz seçin...</option>';
   const exercises = new Set();
-  Object.values(appData.workoutLogs || {}).forEach(logs => {
-    logs.forEach(l => { if (l.exercise) exercises.add(l.exercise); });
-  });
+  const selectedCat = catSel ? catSel.value : 'all';
+
+  if (selectedCat === 'all') {
+    ALL_EXERCISES.forEach(ex => exercises.add(ex));
+  } else if (EXERCISE_CATEGORIES[selectedCat]) {
+    EXERCISE_CATEGORIES[selectedCat].forEach(ex => exercises.add(ex));
+  }
+
   [...exercises].sort().forEach(ex => {
     const opt = document.createElement('option');
     opt.value = ex; opt.textContent = ex;

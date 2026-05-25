@@ -1009,7 +1009,18 @@
               </div>
               <div style="margin-top:16px;">
                 <div style="margin-bottom:12px;">
-                  <label style="font-size:0.7rem;font-weight:700;color:var(--text-muted);display:block;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.04em;">Loglanmış Egzersizden Seç</label>
+                  <label style="font-size:0.7rem;font-weight:700;color:var(--text-muted);display:block;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.04em;">Kategori Seç</label>
+                  <select id="oneRMCategorySelect" class="log-input" onchange="init1RMCalculator()" style="margin-bottom: 8px;">
+                    <option value="all">Tüm Kategoriler</option>
+                    <option value="chest">Göğüs</option>
+                    <option value="back">Sırt</option>
+                    <option value="legs">Bacak</option>
+                    <option value="shoulders">Omuz</option>
+                    <option value="arms">Kol</option>
+                    <option value="core">Karın & Core</option>
+                    <option value="cardio">Kardiyo</option>
+                  </select>
+                  <label style="font-size:0.7rem;font-weight:700;color:var(--text-muted);display:block;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.04em;">Egzersiz</label>
                   <select id="oneRMExerciseSelect" class="log-input" onchange="calc1RMFromLogs()">
                     <option value="">Egzersiz seçin...</option>
                   </select>
@@ -1543,8 +1554,8 @@
         
         <div style="background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 16px; padding: 24px;">
           <div style="margin-bottom: 20px;">
-            <label style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 8px; text-transform: uppercase;">Profil Fotoğrafı (URL)</label>
-            <input type="text" id="profilePhotoUrl" class="log-input" placeholder="Fotoğraf linki yapıştırın (isteğe bağlı)" style="font-size: 1rem; padding: 12px; background: rgba(255,255,255,0.03);">
+            <label style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 8px; text-transform: uppercase;">Profil Fotoğrafı Seç</label>
+            <input type="file" id="profilePhotoFile" accept="image/*" onchange="handleProfilePhotoUpload(event)" class="log-input" style="font-size: 1rem; padding: 12px; background: rgba(255,255,255,0.03);">
           </div>
           
           <div style="margin-bottom: 20px;">
