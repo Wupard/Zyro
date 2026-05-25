@@ -1296,8 +1296,12 @@ window.adminSaveUpdate = async function(docId) {
     await db.collection('systemAnnouncements').doc(docId).update({
       items: items
     });
+    
+    // Update local data and exit edit mode manually so it doesn't wait for snapshot (or if snapshot failed)
+    window.currentUpdatesData[docId] = items;
+    adminCancelEditUpdate(docId);
+    
     showToast('Güncelleme düzenlendi.', 'success');
-    // We don't strictly need to do anything else because the onSnapshot listener will re-render
   } catch (e) {
     console.error('Update save error:', e);
     showToast('Düzenlenemedi: ' + e.message, 'error');
