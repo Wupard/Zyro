@@ -5746,7 +5746,8 @@ window.showStrengthDetailsEnhanced = function(targetExercise = null) {
   let timelineHtml = '<div style="margin-top:20px;"><h4 style="font-size:0.85rem; font-weight:700; margin-bottom:12px;">Son Hareketler</h4>';
   timelineHtml += recentLogs.map((log, idx) => {
     const date = new Date(log.date).toLocaleDateString('tr-TR');
-    const progress = idx > 0 ? log.weight - recentLogs[idx - 1].weight : 0;
+    const progressRaw = idx > 0 ? log.weight - recentLogs[idx - 1].weight : 0;
+    const progress = Math.round(progressRaw * 10) / 10;
     const progressText = progress > 0 ? `+${progress} kg ↑` : progress < 0 ? `${progress} kg ↓` : 'Aynı';
     const progressColor = progress > 0 ? 'var(--green-vivid)' : progress < 0 ? 'var(--red-vivid)' : 'var(--text-muted)';
     
@@ -6679,7 +6680,10 @@ function renderWeeklyReport() {
   const wdiff = thisWorkouts - prevWorkouts;
   const vdiff = Math.round(thisVolume - prevVolume);
   if (el('wrWorkoutsChange')) {
-    if (thisWorkouts >= 3) {
+    if (thisWorkouts === 0) {
+      el('wrWorkoutsChange').textContent = 'Henüz antrenman yok';
+      el('wrWorkoutsChange').className = 'wr-stat-change wr-change-same';
+    } else if (thisWorkouts >= 3) {
       el('wrWorkoutsChange').textContent = '✨ Hedef Tamamlandı';
       el('wrWorkoutsChange').className = 'wr-stat-change wr-change-up';
     } else {
@@ -6688,8 +6692,13 @@ function renderWeeklyReport() {
     }
   }
   if (el('wrVolumeChange')) {
-    el('wrVolumeChange').textContent = vdiff===0?'= Geçen hafta gibi':(vdiff>0?`↑ ${vdiff.toLocaleString('tr-TR')} kg fazla`:`↓ ${Math.abs(vdiff).toLocaleString('tr-TR')} kg az`);
-    el('wrVolumeChange').className = 'wr-stat-change '+(vdiff>0?'wr-change-up':vdiff<0?'wr-change-down':'wr-change-same');
+    if (thisWorkouts === 0) {
+      el('wrVolumeChange').textContent = '';
+      el('wrVolumeChange').className = 'wr-stat-change';
+    } else {
+      el('wrVolumeChange').textContent = vdiff===0?'= Geçen hafta gibi':(vdiff>0?`↑ ${vdiff.toLocaleString('tr-TR')} kg fazla`:`↓ ${Math.abs(vdiff).toLocaleString('tr-TR')} kg az`);
+      el('wrVolumeChange').className = 'wr-stat-change '+(vdiff>0?'wr-change-up':vdiff<0?'wr-change-down':'wr-change-same');
+    }
   }
 }
 

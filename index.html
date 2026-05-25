@@ -1330,9 +1330,14 @@
 
     <!-- ===== PAGE: ACHIEVEMENTS ===== -->
     <div class="page" data-page="achievements" id="pageAchievements">
-      <div class="header">
-        <h1>Başarımlar</h1>
-        <p>Açtığınız başarımlar ve rozetler</p>
+      <div style="margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; padding: 20px; background: linear-gradient(135deg, rgba(139,124,247,0.1) 0%, rgba(139,124,247,0.02) 100%); border-radius: 16px; border: 1px solid rgba(139,124,247,0.15);">
+        <div>
+          <h1 style="font-size: 1.6rem; font-weight: 800; margin: 0 0 4px 0; color: var(--text-primary); letter-spacing: -0.5px;">Başarımlar & Rozetler</h1>
+          <p style="margin: 0; font-size: 0.85rem; color: var(--text-muted); font-weight: 500;">Kilidini açtığınız ödüller ve hedefler</p>
+        </div>
+        <div style="width: 48px; height: 48px; border-radius: 14px; background: rgba(139,124,247,0.15); display: flex; align-items: center; justify-content: center; color: var(--accent-primary);">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15l-3.5 3 1.5-6.5-5-4h6.5L12 2l2.5 5.5H21l-5 4 1.5 6.5L12 15z"/></svg>
+        </div>
       </div>
       <div id="achievementsGrid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(140px, 1fr)); gap:16px;">
         <!-- Achievements rendered here -->
