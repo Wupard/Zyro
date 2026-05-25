@@ -4426,89 +4426,151 @@ window.deletePublicComment = async function(commentId) {
   }
 };
 
+// Per-comment vote lock: prevents rapid double-click race conditions
+const _voteLocks = new Set();
+
 window.upvoteComment = async function(commentId) {
   if (!currentUser) {
-    showToast('Begenmek icin giris yapmalisin!', 'error');
+    showToast(currentLang === 'tr' ? 'Beğenmek için giriş yapmalısın!' : 'You must be logged in to vote!', 'error');
     return;
   }
+  // Lock: ignore if already processing this comment's vote
+  if (_voteLocks.has(commentId)) return;
+  _voteLocks.add(commentId);
 
-  if (isFirebaseConfigured && db) {
+  try {
+    if (!isFirebaseConfigured || !db) return;
+
     const docRef = db.collection('public_comments').doc(commentId);
     const doc = await docRef.get();
-    if (doc.exists) {
-      const data = doc.data();
-      if (data.userId === currentUser.uid) {
-        showToast(currentLang === 'tr' ? 'Kendi yorumunu begenemezsin!' : 'You cannot upvote your own comment!', 'error');
-        return;
-      }
+    if (!doc.exists) return;
 
-      const upvotedBy = data.upvotedBy || [];
-      const downvotedBy = data.downvotedBy || [];
-      
-      let updateData = {};
-      
-      if (upvotedBy.includes(currentUser.uid)) {
-        // Remove upvote
-        updateData.upvotes = firebase.firestore.FieldValue.increment(-1);
-        updateData.upvotedBy = firebase.firestore.FieldValue.arrayRemove(currentUser.uid);
-      } else {
-        // Add upvote
-        updateData.upvotes = firebase.firestore.FieldValue.increment(1);
-        updateData.upvotedBy = firebase.firestore.FieldValue.arrayUnion(currentUser.uid);
-        
-        // Remove downvote if exists
-        if (downvotedBy.includes(currentUser.uid)) {
-          updateData.downvotes = firebase.firestore.FieldValue.increment(-1);
-          updateData.downvotedBy = firebase.firestore.FieldValue.arrayRemove(currentUser.uid);
-        }
-      }
-      
-      await docRef.update(updateData);
+    const data = doc.data();
+    if (data.userId === currentUser.uid) {
+      showToast(currentLang === 'tr' ? 'Kendi yorumunu beğenemezsin!' : 'You cannot vote on your own comment!', 'error');
+      return;
     }
+
+    const upvotedBy = Array.isArray(data.upvotedBy) ? data.upvotedBy : [];
+    const downvotedBy = Array.isArray(data.downvotedBy) ? data.downvotedBy : [];
+    const alreadyUpvoted = upvotedBy.includes(currentUser.uid);
+    const alreadyDownvoted = downvotedBy.includes(currentUser.uid);
+
+    const updateData = {};
+    if (alreadyUpvoted) {
+      // Toggle off: remove upvote
+      updateData.upvotes = firebase.firestore.FieldValue.increment(-1);
+      updateData.upvotedBy = firebase.firestore.FieldValue.arrayRemove(currentUser.uid);
+    } else {
+      // Add upvote; also remove downvote if present (mutual exclusion)
+      updateData.upvotes = firebase.firestore.FieldValue.increment(1);
+      updateData.upvotedBy = firebase.firestore.FieldValue.arrayUnion(currentUser.uid);
+      if (alreadyDownvoted) {
+        updateData.downvotes = firebase.firestore.FieldValue.increment(-1);
+        updateData.downvotedBy = firebase.firestore.FieldValue.arrayRemove(currentUser.uid);
+      }
+    }
+
+    // Optimistic UI update (instant feedback, no re-render lag)
+    _applyVoteOptimistic(commentId, alreadyUpvoted ? 'remove-up' : 'add-up', alreadyDownvoted);
+
+    await docRef.update(updateData);
+  } catch(e) {
+    console.error('Upvote error:', e);
+  } finally {
+    _voteLocks.delete(commentId);
   }
 };
 
 window.downvoteComment = async function(commentId) {
   if (!currentUser) {
-    showToast('Beğenmemek için giriş yapmalısın!', 'error');
+    showToast(currentLang === 'tr' ? 'Beğenmemek için giriş yapmalısın!' : 'You must be logged in to vote!', 'error');
     return;
   }
+  if (_voteLocks.has(commentId)) return;
+  _voteLocks.add(commentId);
 
-  if (isFirebaseConfigured && db) {
+  try {
+    if (!isFirebaseConfigured || !db) return;
+
     const docRef = db.collection('public_comments').doc(commentId);
     const doc = await docRef.get();
-    if (doc.exists) {
-      const data = doc.data();
-      if (data.userId === currentUser.uid) {
-        showToast('Kendi yorumunu beğenmemezlik edemezsin!', 'error');
-        return;
-      }
+    if (!doc.exists) return;
 
-      const upvotedBy = data.upvotedBy || [];
-      const downvotedBy = data.downvotedBy || [];
-      
-      let updateData = {};
-      
-      if (downvotedBy.includes(currentUser.uid)) {
-        // Remove downvote
-        updateData.downvotes = firebase.firestore.FieldValue.increment(-1);
-        updateData.downvotedBy = firebase.firestore.FieldValue.arrayRemove(currentUser.uid);
-      } else {
-        // Add downvote
-        updateData.downvotes = firebase.firestore.FieldValue.increment(1);
-        updateData.downvotedBy = firebase.firestore.FieldValue.arrayUnion(currentUser.uid);
-        
-        // Remove upvote if exists
-        if (upvotedBy.includes(currentUser.uid)) {
-          updateData.upvotes = firebase.firestore.FieldValue.increment(-1);
-          updateData.upvotedBy = firebase.firestore.FieldValue.arrayRemove(currentUser.uid);
-        }
-      }
-      
-      await docRef.update(updateData);
+    const data = doc.data();
+    if (data.userId === currentUser.uid) {
+      showToast(currentLang === 'tr' ? 'Kendi yorumuna oy veremezsin!' : 'You cannot vote on your own comment!', 'error');
+      return;
     }
+
+    const upvotedBy = Array.isArray(data.upvotedBy) ? data.upvotedBy : [];
+    const downvotedBy = Array.isArray(data.downvotedBy) ? data.downvotedBy : [];
+    const alreadyUpvoted = upvotedBy.includes(currentUser.uid);
+    const alreadyDownvoted = downvotedBy.includes(currentUser.uid);
+
+    const updateData = {};
+    if (alreadyDownvoted) {
+      // Toggle off: remove downvote
+      updateData.downvotes = firebase.firestore.FieldValue.increment(-1);
+      updateData.downvotedBy = firebase.firestore.FieldValue.arrayRemove(currentUser.uid);
+    } else {
+      // Add downvote; also remove upvote if present (mutual exclusion)
+      updateData.downvotes = firebase.firestore.FieldValue.increment(1);
+      updateData.downvotedBy = firebase.firestore.FieldValue.arrayUnion(currentUser.uid);
+      if (alreadyUpvoted) {
+        updateData.upvotes = firebase.firestore.FieldValue.increment(-1);
+        updateData.upvotedBy = firebase.firestore.FieldValue.arrayRemove(currentUser.uid);
+      }
+    }
+
+    // Optimistic UI update
+    _applyVoteOptimistic(commentId, alreadyDownvoted ? 'remove-down' : 'add-down', alreadyUpvoted);
+
+    await docRef.update(updateData);
+  } catch(e) {
+    console.error('Downvote error:', e);
+  } finally {
+    _voteLocks.delete(commentId);
   }
 };
+
+// Updates vote button counts & styles instantly without re-rendering the whole list
+function _applyVoteOptimistic(commentId, action, hadOpposite) {
+  const card = document.getElementById('comment_' + commentId);
+  if (!card) return;
+
+  const upBtn = card.querySelector('.upvote-btn');
+  const downBtn = card.querySelector('.downvote-btn');
+  if (!upBtn || !downBtn) return;
+
+  const upCount = upBtn.querySelector('span');
+  const downCount = downBtn.querySelector('span');
+  if (!upCount || !downCount) return;
+
+  let up = parseInt(upCount.textContent) || 0;
+  let down = parseInt(downCount.textContent) || 0;
+
+  if (action === 'add-up') {
+    up++;
+    if (hadOpposite) down = Math.max(0, down - 1);
+    upBtn.classList.add('active');
+    downBtn.classList.remove('active');
+  } else if (action === 'remove-up') {
+    up = Math.max(0, up - 1);
+    upBtn.classList.remove('active');
+  } else if (action === 'add-down') {
+    down++;
+    if (hadOpposite) up = Math.max(0, up - 1);
+    downBtn.classList.add('active');
+    upBtn.classList.remove('active');
+  } else if (action === 'remove-down') {
+    down = Math.max(0, down - 1);
+    downBtn.classList.remove('active');
+  }
+
+  upCount.textContent = up;
+  downCount.textContent = down;
+}
 
 // =============================================
 // ADMIN PANEL (Special for Wupard)
