@@ -6693,9 +6693,6 @@ function updateLevelUI() {
   const xp = calculateXP();
   const level = calculateLevel(xp);
   
-  const prevLevelStr = localStorage.getItem('zyro_level');
-  const prevLevel = prevLevelStr ? parseInt(prevLevelStr) : level;
-  
   const nextLevelXP = getXPForLevel(level + 1);
   const currentLevelXP = getXPForLevel(level);
   const range = nextLevelXP - currentLevelXP;
@@ -6709,11 +6706,15 @@ function updateLevelUI() {
   if (el('profileXPText')) el('profileXPText').textContent = `${xp.toLocaleString('tr-TR')} XP • ${xpProgress}% → Lv.${Math.min(100, level + 1)}`;
 
   // Only show toast if they legitimately leveled up while using the app
-  if (level > prevLevel && prevLevel > 0) {
-    showToast(`🎉 Seviye ${level} oldunuz! Tebrikler!`, 'success');
-    if (typeof runConfetti === 'function') runConfetti();
+  // Use a session variable to avoid showing it on initial async data load
+  if (window.zyroSessionLevel !== undefined) {
+    if (level > window.zyroSessionLevel && window.zyroSessionLevel > 0) {
+      showToast(`🎉 Seviye ${level} oldunuz! Tebrikler!`, 'success');
+      if (typeof runConfetti === 'function') runConfetti();
+    }
   }
   
+  window.zyroSessionLevel = level;
   localStorage.setItem('zyro_level', level);
 }
 
