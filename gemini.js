@@ -205,13 +205,14 @@ window.geminiAnalyzeImages = async function(imageBase64Array, customPrompt) {
     
 İlk fotoğraf "Önceki" (eski hal), ikinci fotoğraf "Sonraki" (yeni hal) durumu gösteriyor.
 
-Lütfen şunları değerlendir:
-1. 💪 Hangi kas gruplarında belirgin gelişim var?
-2. 📉 Hangi bölgelerde hâlâ eksiklik veya geliştirme alanı var?
-3. ⚖️ Genel vücut kompozisyonu (yağ/kas oranı) nasıl değişmiş?
-4. 🎯 Bundan sonra odaklanılması gereken 2-3 öncelik nedir?
+Lütfen değerlendirmeni aşağıdaki JSON formatında, belirtilen anahtarlarla (keys) tam olarak eşleşecek şekilde ver:
+{
+  "photo1_analysis": "Birinci (eski) fotoğraf için vücut durumu, iyi yanlar ve eksik/kötü yanların kısa bir özeti.",
+  "photo2_analysis": "İkinci (yeni) fotoğraf için vücut durumu, iyi yanlar ve eksik/kötü yanların kısa bir özeti.",
+  "comparison_and_suggestions": "İki fotoğraf arasındaki genel karşılaştırma (kas/yağ gelişimi) ve bundan sonra odaklanılması gereken gelişim önerileri."
+}
 
-Türkçe, spor koçu gibi gerçekçi ama motive edici bir üslupla yorum yap. Fotoğrafları göremediğini söyleme — görebiliyorsun.` }
+Türkçe, spor koçu gibi gerçekçi ama motive edici bir üslupla yorum yap. Sadece geçerli bir JSON objesi döndür.` }
   ];
 
   imageBase64Array.forEach((b64, i) => {
@@ -229,7 +230,11 @@ Türkçe, spor koçu gibi gerçekçi ama motive edici bir üslupla yorum yap. Fo
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       contents: [{ role: 'user', parts }],
-      generationConfig: { temperature: 0.7, maxOutputTokens: 2048 }
+      generationConfig: { 
+        temperature: 0.7, 
+        maxOutputTokens: 2048,
+        responseMimeType: "application/json" 
+      }
     })
   });
 

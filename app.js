@@ -7687,29 +7687,20 @@ function aiWidgetAsk(text) {
 // --- BEFORE / AFTER AI ANALYSIS ---
 let lastSelectedBeforeAfterImgs = []; // Store base64 of selected images
 
-// Hook into existing handleProgressPhoto if needed, or just extract images from the UI
 function openBeforeAfterAnalysis() {
   if (!window.hasGeminiKey || !window.hasGeminiKey()) {
     showToast('Önce profil ayarlarına gidip API Key girmelisin!', 'error');
     return;
   }
 
-  // Find selected compare images
-  const compareCheckboxes = document.querySelectorAll('.compare-checkbox:checked');
-  if (compareCheckboxes.length !== 2) {
-    showToast('Lütfen karşılaştırmak için tam olarak 2 fotoğraf seçin.', 'error');
+  const photos = (appData.progressImages || []).sort((a, b) => a.date.localeCompare(b.date));
+  if (photos.length < 2) {
+    showToast('Karşılaştırma için en az 2 fotoğrafınız olması gerekiyor.', 'error');
     return;
   }
 
-  // Get image URLs from the parent elements
-  const imgUrls = Array.from(compareCheckboxes).map(cb => {
-    const parent = cb.closest('.progress-photo-card');
-    const img = parent.querySelector('img');
-    return img.src; // These are base64 strings in this app
-  });
-
-  // Create Modal
-  const modalId = 'aiAnalysisModal';
+  // Create Photo Selection Modal
+  const modalId = 'aiSelectPhotosModal';
   document.getElementById(modalId)?.remove();
 
   const modalHtml = `
@@ -7722,83 +7713,165 @@ function openBeforeAfterAnalysis() {
             </svg>
           </div>
           <div style="flex:1;">
-            <h3 style="margin:0;font-size:1.05rem;font-weight:800;color:var(--text-primary);">AI Gelişim Analizi</h3>
-            <div style="font-size:0.75rem;color:var(--text-muted);margin-top:2px;">Önceki ve sonraki durumunun profesyonel analizi</div>
+            <h3 style="margin:0;font-size:1.05rem;font-weight:800;color:var(--text-primary);">Fotoğraf Seçimi</h3>
+            <div style="font-size:0.75rem;color:var(--text-muted);margin-top:2px;">Analiz edilecek iki fotoğrafı (Önce / Sonra) seçin</div>
           </div>
           <button class="btn-small" onclick="document.getElementById('${modalId}Overlay').remove()" style="background:rgba(255,255,255,0.05);border:none;padding:8px;">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
           </button>
         </div>
-        <div class="ai-analysis-modal-body" id="${modalId}Body">
-          <div class="ai-analysis-loading" id="${modalId}Loading">
-            <div class="ai-analysis-spinner"></div>
-            <div style="text-align:center;">
-              <div style="font-weight:700;color:var(--text-primary);margin-bottom:4px;">Fotoğraflar inceleniyor...</div>
-              <div style="font-size:0.8rem;color:var(--text-muted);">Kas gelişimi, yağ oranı ve postür değerlendiriliyor</div>
-            </div>
+        <div class="ai-analysis-modal-body" style="padding:16px;">
+          <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 12px; max-height:400px; overflow-y:auto; padding-right:8px;" id="aiPhotoSelectorGrid">
+            ${photos.map((p, i) => `
+              <div class="ai-photo-select-item" data-id="${p.id}" data-b64="${p.image}" onclick="toggleAIPhotoSelection(this)" style="position:relative; cursor:pointer; border-radius:12px; overflow:hidden; border:2px solid transparent; transition:all 0.2s;">
+                <img src="${p.image}" style="width:100%; height:110px; object-fit:cover; display:block;">
+                <div style="position:absolute; bottom:0; left:0; right:0; background:rgba(0,0,0,0.65); color:white; font-size:0.75rem; padding:6px; text-align:center; font-weight:600; backdrop-filter:blur(4px);">${p.date}</div>
+                <div class="ai-photo-select-check" style="position:absolute; top:8px; right:8px; width:22px; height:22px; background:rgba(0,0,0,0.5); border:1.5px solid white; border-radius:50%; display:flex; align-items:center; justify-content:center; opacity:0; transition:all 0.2s; backdrop-filter:blur(2px);">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+                </div>
+              </div>
+            `).join('')}
           </div>
-          <div class="ai-analysis-text" id="${modalId}Result" style="display:none;"></div>
+          <div style="margin-top:24px; text-align:right;">
+            <button class="btn-primary" id="aiStartAnalyzeBtn" onclick="startAIAnalysis()" disabled style="width:100%; padding:14px; opacity:0.5; font-size:1rem;">Analiz Et (2 Fotoğraf Seçin)</button>
+          </div>
         </div>
       </div>
     </div>
   `;
+  document.body.insertAdjacentHTML('beforeend', modalHtml);
+}
 
+window.toggleAIPhotoSelection = function(el) {
+  el.classList.toggle('selected');
+  const check = el.querySelector('.ai-photo-select-check');
+  if(el.classList.contains('selected')) {
+    el.style.borderColor = 'var(--accent-primary)';
+    el.style.boxShadow = '0 4px 12px rgba(139,124,247,0.3)';
+    check.style.opacity = '1';
+    check.style.background = 'var(--accent-primary)';
+    check.style.borderColor = 'var(--accent-primary)';
+  } else {
+    el.style.borderColor = 'transparent';
+    el.style.boxShadow = 'none';
+    check.style.opacity = '0';
+  }
+  
+  const selectedCount = document.querySelectorAll('.ai-photo-select-item.selected').length;
+  const btn = document.getElementById('aiStartAnalyzeBtn');
+  if(selectedCount === 2) {
+    btn.disabled = false;
+    btn.style.opacity = '1';
+    btn.innerText = 'Analiz Et';
+  } else {
+    btn.disabled = true;
+    btn.style.opacity = '0.5';
+    btn.innerText = 'Analiz Et (2 Fotoğraf Seçin)';
+  }
+};
+
+window.startAIAnalysis = function() {
+  const selectedEls = Array.from(document.querySelectorAll('.ai-photo-select-item.selected'));
+  if(selectedEls.length !== 2) return;
+  
+  const photosData = selectedEls.map(el => ({
+    b64: el.getAttribute('data-b64'),
+    dateText: el.querySelector('div').innerText
+  })).sort((a,b) => a.dateText.localeCompare(b.dateText));
+  
+  const beforePhoto = photosData[0];
+  const afterPhoto = photosData[1];
+  
+  document.getElementById('aiSelectPhotosModalOverlay')?.remove();
+  
+  const modalId = 'aiAnalysisResultModal';
+  document.getElementById(modalId)?.remove();
+
+  const modalHtml = `
+    <div class="ai-analysis-modal-overlay" id="${modalId}Overlay" style="align-items:flex-start; padding-top:40px; overflow-y:auto;">
+      <div class="ai-analysis-modal" id="${modalId}" style="width: min(840px, 95vw); max-height: none; margin-bottom:40px;">
+        <div class="ai-analysis-modal-header">
+          <div style="width:36px;height:36px;border-radius:12px;background:linear-gradient(135deg,#8b7cf7,#5a4cc9);display:flex;align-items:center;justify-content:center;color:white;font-size:1.2rem;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 2C12 2 12.5 7.5 14.5 9.5C16.5 11.5 22 12 22 12C22 12 16.5 12.5 14.5 14.5C12.5 16.5 12 22 12 22C12 22 11.5 16.5 9.5 14.5C7.5 12.5 2 12 2 12C2 12 7.5 11.5 9.5 9.5C11.5 7.5 12 2 12 2Z" fill="#ffffff"/>
+            </svg>
+          </div>
+          <div style="flex:1;">
+            <h3 style="margin:0;font-size:1.05rem;font-weight:800;color:var(--text-primary);">AI Gelişim Analizi Sonucu</h3>
+          </div>
+          <button class="btn-small" onclick="document.getElementById('${modalId}Overlay').remove()" style="background:rgba(255,255,255,0.05);border:none;padding:8px;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+        <div class="ai-analysis-modal-body" id="${modalId}Body" style="padding:24px;">
+          <div class="ai-analysis-loading" id="${modalId}Loading">
+            <div class="ai-analysis-spinner"></div>
+            <div style="text-align:center;">
+              <div style="font-weight:700;color:var(--text-primary);margin-bottom:4px;">Fotoğraflar analiz ediliyor...</div>
+              <div style="font-size:0.85rem;color:var(--text-muted);">Bu işlem birkaç saniye sürebilir.</div>
+            </div>
+          </div>
+          
+          <div id="${modalId}Content" style="display:none; flex-direction:column; gap:24px;">
+            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap:24px;">
+              <!-- Before -->
+              <div style="display:flex; flex-direction:column; gap:16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:20px; padding:16px;">
+                <div style="text-align:center; font-weight:700; color:var(--text-secondary); font-size:0.9rem; text-transform:uppercase; letter-spacing:0.05em;">Önceki <span style="opacity:0.7;">(${beforePhoto.dateText})</span></div>
+                <img src="${beforePhoto.b64}" style="width:100%; border-radius:12px; object-fit:cover; aspect-ratio:3/4; box-shadow:0 4px 16px rgba(0,0,0,0.2);">
+                <div id="${modalId}BeforeAnalysis" style="font-size:0.88rem; color:var(--text-primary); line-height:1.6; padding:0 4px;"></div>
+              </div>
+              <!-- After -->
+              <div style="display:flex; flex-direction:column; gap:16px; background:linear-gradient(135deg, rgba(139,124,247,0.08), rgba(90,76,201,0.03)); border:1px solid rgba(139,124,247,0.25); border-radius:20px; padding:16px; box-shadow:0 8px 32px rgba(139,124,247,0.08);">
+                <div style="text-align:center; font-weight:800; color:var(--accent-primary); font-size:0.9rem; text-transform:uppercase; letter-spacing:0.05em;">Sonraki <span style="opacity:0.8;">(${afterPhoto.dateText})</span></div>
+                <img src="${afterPhoto.b64}" style="width:100%; border-radius:12px; object-fit:cover; aspect-ratio:3/4; box-shadow:0 4px 16px rgba(0,0,0,0.2);">
+                <div id="${modalId}AfterAnalysis" style="font-size:0.88rem; color:var(--text-primary); line-height:1.6; padding:0 4px;"></div>
+              </div>
+            </div>
+            
+            <!-- Comparison & Suggestions -->
+            <div style="background:rgba(0,0,0,0.25); border:1px solid rgba(255,255,255,0.08); border-radius:20px; padding:20px; margin-top:8px;">
+              <h4 style="margin:0 0 12px 0; font-size:1.05rem; display:flex; align-items:center; gap:8px; color:var(--text-primary);">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent-primary)" stroke-width="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                Genel Değerlendirme & Öneriler
+              </h4>
+              <div id="${modalId}Comparison" style="font-size:0.9rem; color:var(--text-secondary); line-height:1.65;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
   document.body.insertAdjacentHTML('beforeend', modalHtml);
 
-  // Close on outside click
-  document.getElementById(`${modalId}Overlay`).addEventListener('click', (e) => {
-    if(e.target.id === `${modalId}Overlay`) e.target.remove();
-  });
-
-  // Call API
   if (window.geminiAnalyzeImages) {
-    window.geminiAnalyzeImages(imgUrls)
-      .then(result => {
+    window.geminiAnalyzeImages([beforePhoto.b64, afterPhoto.b64])
+      .then(resultStr => {
         document.getElementById(`${modalId}Loading`).style.display = 'none';
-        const resultEl = document.getElementById(`${modalId}Result`);
-        resultEl.style.display = 'block';
-        resultEl.innerHTML = formatAIMessage(result);
+        const contentEl = document.getElementById(`${modalId}Content`);
+        contentEl.style.display = 'flex';
+        
+        let parsed;
+        try {
+          const cleanJson = resultStr.replace(/```json/gi, '').replace(/```/g, '').trim();
+          parsed = JSON.parse(cleanJson);
+        } catch(e) {
+          // Fallback if AI didn't return valid JSON
+          parsed = {
+            photo1_analysis: "Analiz ayrıştırılamadı.",
+            photo2_analysis: "Analiz ayrıştırılamadı.",
+            comparison_and_suggestions: resultStr
+          };
+        }
+        
+        document.getElementById(`${modalId}BeforeAnalysis`).innerHTML = formatAIMessage(parsed.photo1_analysis || "");
+        document.getElementById(`${modalId}AfterAnalysis`).innerHTML = formatAIMessage(parsed.photo2_analysis || "");
+        document.getElementById(`${modalId}Comparison`).innerHTML = formatAIMessage(parsed.comparison_and_suggestions || "");
       })
       .catch(err => {
         document.getElementById(`${modalId}Loading`).style.display = 'none';
-        const resultEl = document.getElementById(`${modalId}Result`);
-        resultEl.style.display = 'block';
-        resultEl.innerHTML = `<div style="padding:16px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);border-radius:12px;color:#ef4444;">${window.geminiErrorMessage(err)}</div>`;
+        const contentEl = document.getElementById(`${modalId}Content`);
+        contentEl.style.display = 'flex';
+        contentEl.innerHTML = `<div style="padding:16px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);border-radius:12px;color:#ef4444;">${window.geminiErrorMessage ? window.geminiErrorMessage(err) : err.message}</div>`;
       });
   }
-}
-
-// Hook into existing toggleCompareMode to enable/disable the AI button
-const originalToggleCompareMode = window.toggleCompareMode;
-window.toggleCompareMode = function() {
-  if(originalToggleCompareMode) originalToggleCompareMode();
-  
-  // Setup listener for checkboxes to enable AI button when 2 are selected
-  setTimeout(() => {
-    const checkboxes = document.querySelectorAll('.compare-checkbox');
-    const aiBtn = document.getElementById('aiAnalyzePhotosBtn');
-    
-    if(!checkboxes.length || !aiBtn) return;
-    
-    // Show AI button only in compare mode
-    if (document.body.classList.contains('compare-mode-active')) {
-      aiBtn.style.display = 'flex';
-      
-      checkboxes.forEach(cb => {
-        cb.addEventListener('change', () => {
-          const checkedCount = document.querySelectorAll('.compare-checkbox:checked').length;
-          if (checkedCount === 2) {
-            aiBtn.removeAttribute('disabled');
-            aiBtn.style.animation = 'aiBtnPulse 2s infinite';
-          } else {
-            aiBtn.setAttribute('disabled', 'true');
-            aiBtn.style.animation = 'none';
-          }
-        });
-      });
-    } else {
-      aiBtn.style.display = 'none';
-      aiBtn.setAttribute('disabled', 'true');
-    }
-  }, 100);
 };
