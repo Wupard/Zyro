@@ -479,6 +479,51 @@ body.sidebar-collapsed .signout-btn { display:none; }
 .page-header-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
 
 /* ===========================
+   PAGE BANNERS (colored hover borders)
+   =========================== */
+.page-banner {
+  transition: border-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease;
+  cursor: default;
+}
+.page-banner:hover { transform: translateY(-2px); }
+
+/* Purple — Workouts, Achievements, Profile */
+.page-banner--purple:hover {
+  border-color: rgba(139,124,247,0.55) !important;
+  box-shadow: 0 0 0 1px rgba(139,124,247,0.3), 0 8px 24px rgba(139,124,247,0.15);
+}
+/* Green — Posture */
+.page-banner--green:hover {
+  border-color: rgba(78,203,141,0.55) !important;
+  box-shadow: 0 0 0 1px rgba(78,203,141,0.3), 0 8px 24px rgba(78,203,141,0.15);
+}
+/* Orange — Progress */
+.page-banner--orange:hover {
+  border-color: rgba(255,112,67,0.55) !important;
+  box-shadow: 0 0 0 1px rgba(255,112,67,0.3), 0 8px 24px rgba(255,112,67,0.15);
+}
+/* Yellow — Notes */
+.page-banner--yellow:hover {
+  border-color: rgba(251,191,36,0.55) !important;
+  box-shadow: 0 0 0 1px rgba(251,191,36,0.3), 0 8px 24px rgba(251,191,36,0.15);
+}
+/* Blue — Comments */
+.page-banner--blue:hover {
+  border-color: rgba(92,138,222,0.55) !important;
+  box-shadow: 0 0 0 1px rgba(92,138,222,0.3), 0 8px 24px rgba(92,138,222,0.15);
+}
+/* Pink — Before/After */
+.page-banner--pink:hover {
+  border-color: rgba(236,72,153,0.55) !important;
+  box-shadow: 0 0 0 1px rgba(236,72,153,0.3), 0 8px 24px rgba(236,72,153,0.15);
+}
+/* Emerald — Updates */
+.page-banner--emerald:hover {
+  border-color: rgba(16,185,129,0.55) !important;
+  box-shadow: 0 0 0 1px rgba(16,185,129,0.3), 0 8px 24px rgba(16,185,129,0.15);
+}
+
+/* ===========================
    STATS
    =========================== */
 .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px}
