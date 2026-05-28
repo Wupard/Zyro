@@ -6322,6 +6322,9 @@ window.switchProfileTab = function(tab, ev) {
   document.getElementById('profileTabBio').style.display = 'none';
   document.getElementById('profileTabAchievements').style.display = 'none';
   document.getElementById('profileTabSecurity').style.display = 'none';
+  if (document.getElementById('profileTabAi')) {
+    document.getElementById('profileTabAi').style.display = 'none';
+  }
   
   // Update buttons
   document.querySelectorAll('.profile-tab-btn').forEach(btn => {
