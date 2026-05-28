@@ -3630,26 +3630,47 @@ html {
   z-index: 9000;
   width: 58px;
   height: 58px;
-  border-radius: 18px;
-  background: linear-gradient(135deg, #8b7cf7, #5a4cc9);
-  border: none;
+  border-radius: 19px;
+  background: linear-gradient(135deg, #a396ff 0%, #6b5ce0 50%, #4a3cb0 100%);
+  border: 1.5px solid rgba(255, 255, 255, 0.25);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 8px 32px rgba(139,124,247,0.45), 0 2px 8px rgba(0,0,0,0.3);
-  transition: all 0.3s cubic-bezier(0.175,0.885,0.32,1.275);
+  box-shadow: 0 8px 32px rgba(139, 124, 247, 0.45), 0 0 0 1px rgba(139, 124, 247, 0.15);
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   animation: aiBtnPulse 3s ease-in-out infinite;
+  color: #ffffff;
 }
 .ai-float-btn:hover {
-  transform: scale(1.12) translateY(-3px);
-  box-shadow: 0 14px 40px rgba(139,124,247,0.6);
+  transform: scale(1.1) translateY(-4px);
+  background: linear-gradient(135deg, #b2a8ff 0%, #7c6eff 50%, #5345c7 100%);
+  border-color: rgba(255, 255, 255, 0.45);
+  box-shadow: 0 16px 40px rgba(139, 124, 247, 0.7), 0 0 18px 6px rgba(255, 255, 255, 0.25);
 }
-.ai-float-btn:active { transform: scale(0.95); }
-.ai-float-icon { font-size: 1.5rem; }
+.ai-float-btn:active {
+  transform: scale(0.95);
+}
+.ai-float-btn svg {
+  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+.ai-float-btn:hover svg {
+  transform: rotate(25deg) scale(1.15);
+}
+.ai-float-icon {
+  font-size: 1.5rem;
+  color: #ffffff;
+  text-shadow: 0 0 10px rgba(255,255,255,0.8);
+}
 @keyframes aiBtnPulse {
-  0%, 100% { box-shadow: 0 8px 32px rgba(139,124,247,0.45); }
-  50% { box-shadow: 0 8px 40px rgba(139,124,247,0.7); }
+  0%, 100% {
+    transform: scale(1) translateY(0);
+    box-shadow: 0 8px 32px rgba(139, 124, 247, 0.45), 0 0 0 0px rgba(139, 124, 247, 0.2);
+  }
+  50% {
+    transform: scale(1.04) translateY(-3px);
+    box-shadow: 0 14px 44px rgba(139, 124, 247, 0.7), 0 0 12px 3px rgba(139, 124, 247, 0.3);
+  }
 }
 
 /* ---- AI Floating Chat Drawer ---- */

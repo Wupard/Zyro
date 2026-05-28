@@ -7410,7 +7410,11 @@ function createMsgHTML(role, text) {
   } else {
     return `
       <div class="ai-msg ai">
-        <div class="ai-msg-avatar">✦</div>
+        <div class="ai-msg-avatar">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 2C12 2 12.5 7.5 14.5 9.5C16.5 11.5 22 12 22 12C22 12 16.5 12.5 14.5 14.5C12.5 16.5 12 22 12 22C12 22 11.5 16.5 9.5 14.5C7.5 12.5 2 12 2 12C2 12 7.5 11.5 9.5 9.5C11.5 7.5 12 2 12 2Z" fill="#ffffff"/>
+          </svg>
+        </div>
         <div class="ai-msg-bubble">${formatAIMessage(text)}</div>
       </div>
     `;
@@ -7513,7 +7517,11 @@ async function doAIChat(inputEl, sendBtn, containerId, context = 'chat') {
   if (container) {
     container.insertAdjacentHTML('beforeend', `
       <div class="ai-msg ai" id="${typingId}">
-        <div class="ai-msg-avatar">✦</div>
+        <div class="ai-msg-avatar">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 2C12 2 12.5 7.5 14.5 9.5C16.5 11.5 22 12 22 12C22 12 16.5 12.5 14.5 14.5C12.5 16.5 12 22 12 22C12 22 11.5 16.5 9.5 14.5C7.5 12.5 2 12 2 12C2 12 7.5 11.5 9.5 9.5C11.5 7.5 12 2 12 2Z" fill="#ffffff"/>
+          </svg>
+        </div>
         <div class="ai-typing"><span></span><span></span><span></span></div>
       </div>
     `);
@@ -7535,7 +7543,11 @@ async function doAIChat(inputEl, sendBtn, containerId, context = 'chat') {
         document.getElementById(typingId)?.remove();
         container.insertAdjacentHTML('beforeend', `
           <div class="ai-msg ai" id="${msgId}_wrap">
-            <div class="ai-msg-avatar">✦</div>
+            <div class="ai-msg-avatar">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 2C12 2 12.5 7.5 14.5 9.5C16.5 11.5 22 12 22 12C22 12 16.5 12.5 14.5 14.5C12.5 16.5 12 22 12 22C12 22 11.5 16.5 9.5 14.5C7.5 12.5 2 12 2 12C2 12 7.5 11.5 9.5 9.5C11.5 7.5 12 2 12 2Z" fill="#ffffff"/>
+              </svg>
+            </div>
             <div class="ai-msg-bubble" id="${msgId}"></div>
           </div>
         `);
@@ -7701,7 +7713,11 @@ function openBeforeAfterAnalysis() {
     <div class="ai-analysis-modal-overlay" id="${modalId}Overlay">
       <div class="ai-analysis-modal" id="${modalId}">
         <div class="ai-analysis-modal-header">
-          <div style="width:36px;height:36px;border-radius:12px;background:linear-gradient(135deg,#8b7cf7,#5a4cc9);display:flex;align-items:center;justify-content:center;color:white;font-size:1.2rem;">✦</div>
+          <div style="width:36px;height:36px;border-radius:12px;background:linear-gradient(135deg,#8b7cf7,#5a4cc9);display:flex;align-items:center;justify-content:center;color:white;font-size:1.2rem;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 2C12 2 12.5 7.5 14.5 9.5C16.5 11.5 22 12 22 12C22 12 16.5 12.5 14.5 14.5C12.5 16.5 12 22 12 22C12 22 11.5 16.5 9.5 14.5C7.5 12.5 2 12 2 12C2 12 7.5 11.5 9.5 9.5C11.5 7.5 12 2 12 2Z" fill="#ffffff"/>
+            </svg>
+          </div>
           <div style="flex:1;">
             <h3 style="margin:0;font-size:1.05rem;font-weight:800;color:var(--text-primary);">AI Gelişim Analizi</h3>
             <div style="font-size:0.75rem;color:var(--text-muted);margin-top:2px;">Önceki ve sonraki durumunun profesyonel analizi</div>
