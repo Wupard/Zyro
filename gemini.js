@@ -1,0 +1,258 @@
+// =============================================
+// GEMINI AI — Core API Layer
+// =============================================
+// Google Gemini 1.5 Flash (ücretsiz tier) entegrasyonu
+// Kullanıcı kendi key'ini Profil > AI Ayarları'ndan girer
+
+const GEMINI_API_BASE = 'https://generativelanguage.googleapis.com/v1beta/models';
+const GEMINI_MODEL = 'gemini-1.5-flash';
+
+// ---- Key Management ----
+window.getGeminiKey = function() {
+  return localStorage.getItem('zyro_gemini_key') || '';
+};
+
+window.setGeminiKey = function(key) {
+  if (key && key.trim()) {
+    localStorage.setItem('zyro_gemini_key', key.trim());
+    return true;
+  }
+  return false;
+};
+
+window.hasGeminiKey = function() {
+  return !!localStorage.getItem('zyro_gemini_key');
+};
+
+// ---- Build system context from user data ----
+window.buildAISystemContext = function() {
+  const p = (window.appData && window.appData.profile) || {};
+  const name = p.displayName || (window.currentUser && window.currentUser.displayName) || 'Kullanıcı';
+  const weight = p.weight ? `${p.weight} kg` : 'Belirtilmemiş';
+  const height = p.height ? `${p.height} cm` : 'Belirtilmemiş';
+  const age = p.age || 'Belirtilmemiş';
+  const gender = p.gender === 'male' ? 'Erkek' : p.gender === 'female' ? 'Kadın' : 'Belirtilmemiş';
+
+  // Last 7 days workout summary
+  let totalSets = 0, totalExercises = new Set(), recentPR = 0, recentPREx = '';
+  const today = new Date();
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(today); d.setDate(d.getDate() - i);
+    const ds = d.toISOString().split('T')[0];
+    const logs = (window.appData && window.appData.workoutLogs && window.appData.workoutLogs[ds]) || [];
+    logs.forEach(l => {
+      totalSets += (l.sets || 1);
+      if (l.exercise) totalExercises.add(l.exercise);
+      if ((l.weight || 0) > recentPR) { recentPR = l.weight; recentPREx = l.exercise || ''; }
+    });
+  }
+
+  let xp = 0, level = 1;
+  try {
+    if (typeof calculateXP === 'function') xp = calculateXP();
+    if (typeof calculateLevel === 'function') level = calculateLevel(xp);
+  } catch(e) {}
+
+  return `Sen Zyro fitness uygulamasının AI antrenman koçusun. Adın "Zyro AI".
+
+Kullanıcı Bilgileri:
+- Ad: ${name}
+- Kilo: ${weight}
+- Boy: ${height}
+- Yaş: ${age}
+- Cinsiyet: ${gender}
+- Seviye: ${level} (${xp} XP)
+- Son 7 günde toplam set: ${totalSets}
+- Son 7 günde çalışılan egzersiz sayısı: ${totalExercises.size}
+${recentPR > 0 ? `- Son hafta en yüksek ağırlık: ${recentPR} kg (${recentPREx})` : ''}
+
+Kurallar:
+- Türkçe konuş, motive edici ve pozitif ol
+- Kısa ve öz cevaplar ver (1-3 paragraf maksimum)
+- Spor bilimini temele al, abartma
+- Kullanıcı verilerini kullanarak kişiselleştirilmiş tavsiyeler ver
+- Beslenme soruları için besin değerlerini belirt (kalori, protein, karbonhidrat, yağ)
+- Emoji kullanabilirsin ama aşırıya kaçma`;
+};
+
+// ---- Text Chat ----
+window.geminiChat = async function(messages, options = {}) {
+  const key = getGeminiKey();
+  if (!key) throw new Error('NO_KEY');
+
+  const systemPrompt = options.systemPrompt || buildAISystemContext();
+  const url = `${GEMINI_API_BASE}/${GEMINI_MODEL}:generateContent?key=${key}`;
+
+  const contents = [];
+  
+  // Add system prompt as first user/model pair (Gemini doesn't have system role)
+  if (systemPrompt) {
+    contents.push({ role: 'user', parts: [{ text: systemPrompt }] });
+    contents.push({ role: 'model', parts: [{ text: 'Anlaşıldı! Sana yardımcı olmaktan mutluluk duyarım. 💪' }] });
+  }
+
+  // Add conversation messages
+  messages.forEach(msg => {
+    contents.push({
+      role: msg.role === 'user' ? 'user' : 'model',
+      parts: [{ text: msg.content }]
+    });
+  });
+
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      contents,
+      generationConfig: {
+        temperature: options.temperature || 0.8,
+        maxOutputTokens: options.maxTokens || 1024,
+        topP: 0.95
+      },
+      safetySettings: [
+        { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_NONE' },
+        { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_NONE' }
+      ]
+    })
+  });
+
+  if (!response.ok) {
+    const err = await response.json().catch(() => ({}));
+    if (response.status === 400) throw new Error('INVALID_KEY');
+    if (response.status === 429) throw new Error('RATE_LIMIT');
+    throw new Error(err.error?.message || `HTTP ${response.status}`);
+  }
+
+  const data = await response.json();
+  const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+  return text;
+};
+
+// ---- Streaming Chat ----
+window.geminiChatStream = async function(messages, onChunk, onDone, options = {}) {
+  const key = getGeminiKey();
+  if (!key) throw new Error('NO_KEY');
+
+  const systemPrompt = options.systemPrompt || buildAISystemContext();
+  const url = `${GEMINI_API_BASE}/${GEMINI_MODEL}:streamGenerateContent?alt=sse&key=${key}`;
+
+  const contents = [];
+  if (systemPrompt) {
+    contents.push({ role: 'user', parts: [{ text: systemPrompt }] });
+    contents.push({ role: 'model', parts: [{ text: 'Anlaşıldı! 💪' }] });
+  }
+  messages.forEach(msg => {
+    contents.push({
+      role: msg.role === 'user' ? 'user' : 'model',
+      parts: [{ text: msg.content }]
+    });
+  });
+
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      contents,
+      generationConfig: { temperature: 0.8, maxOutputTokens: 1024 }
+    })
+  });
+
+  if (!response.ok) {
+    if (response.status === 400 || response.status === 403) throw new Error('INVALID_KEY');
+    if (response.status === 429) throw new Error('RATE_LIMIT');
+    throw new Error(`HTTP ${response.status}`);
+  }
+
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let fullText = '';
+  let buffer = '';
+
+  while (true) {
+    const { value, done } = await reader.read();
+    if (done) break;
+    buffer += decoder.decode(value, { stream: true });
+    const lines = buffer.split('\n');
+    buffer = lines.pop() || '';
+    for (const line of lines) {
+      if (line.startsWith('data: ')) {
+        const jsonStr = line.slice(6).trim();
+        if (jsonStr === '[DONE]') continue;
+        try {
+          const parsed = JSON.parse(jsonStr);
+          const chunk = parsed.candidates?.[0]?.content?.parts?.[0]?.text || '';
+          if (chunk) {
+            fullText += chunk;
+            onChunk(chunk, fullText);
+          }
+        } catch(e) { /* skip malformed */ }
+      }
+    }
+  }
+  if (onDone) onDone(fullText);
+  return fullText;
+};
+
+// ---- Image Analysis (Before/After) ----
+window.geminiAnalyzeImages = async function(imageBase64Array, customPrompt) {
+  const key = getGeminiKey();
+  if (!key) throw new Error('NO_KEY');
+
+  const url = `${GEMINI_API_BASE}/gemini-1.5-flash:generateContent?key=${key}`;
+
+  const parts = [
+    { text: customPrompt || `Bu iki fitness gelişim fotoğrafını karşılaştır. 
+    
+İlk fotoğraf "Önceki" (eski hal), ikinci fotoğraf "Sonraki" (yeni hal) durumu gösteriyor.
+
+Lütfen şunları değerlendir:
+1. 💪 Hangi kas gruplarında belirgin gelişim var?
+2. 📉 Hangi bölgelerde hâlâ eksiklik veya geliştirme alanı var?
+3. ⚖️ Genel vücut kompozisyonu (yağ/kas oranı) nasıl değişmiş?
+4. 🎯 Bundan sonra odaklanılması gereken 2-3 öncelik nedir?
+
+Türkçe, spor koçu gibi gerçekçi ama motive edici bir üslupla yorum yap. Fotoğrafları göremediğini söyleme — görebiliyorsun.` }
+  ];
+
+  imageBase64Array.forEach((b64, i) => {
+    const mimeType = b64.startsWith('data:image/png') ? 'image/png' : 
+                     b64.startsWith('data:image/webp') ? 'image/webp' : 'image/jpeg';
+    const data = b64.replace(/^data:image\/[a-z]+;base64,/, '');
+    parts.push({
+      inlineData: { mimeType, data }
+    });
+    parts.push({ text: i === 0 ? '(Bu birinci / eski fotoğraf)' : '(Bu ikinci / yeni fotoğraf)' });
+  });
+
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      contents: [{ role: 'user', parts }],
+      generationConfig: { temperature: 0.7, maxOutputTokens: 2048 }
+    })
+  });
+
+  if (!response.ok) {
+    const err = await response.json().catch(() => ({}));
+    if (response.status === 400 || response.status === 403) throw new Error('INVALID_KEY');
+    if (response.status === 429) throw new Error('RATE_LIMIT');
+    throw new Error(err.error?.message || `HTTP ${response.status}`);
+  }
+
+  const data = await response.json();
+  return data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+};
+
+// ---- Error message helper ----
+window.geminiErrorMessage = function(err) {
+  if (!err) return 'Bilinmeyen hata';
+  const msg = err.message || String(err);
+  if (msg === 'NO_KEY') return '⚙️ Önce AI ayarlarından Gemini API key\'ini gir. <a href="#" onclick="switchPage(\'profile\');setTimeout(()=>switchProfileTab(\'ai\'),200);return false;" style="color:var(--accent-primary);">Ayarlara git →</a>';
+  if (msg === 'INVALID_KEY') return '🔑 API key geçersiz. Profil > AI Ayarları\'ndan kontrol et.';
+  if (msg === 'RATE_LIMIT') return '⏳ Çok fazla istek gönderildi. 1 dakika bekle ve tekrar dene.';
+  if (msg.includes('Failed to fetch') || msg.includes('NetworkError')) return '🌐 İnternet bağlantısı yok. Kontrol et ve tekrar dene.';
+  return `Hata: ${msg}`;
+};
+
+console.log('[Zyro] Gemini AI module loaded ✓');

@@ -595,11 +595,15 @@ function syncPublicStats() {
     
     let allTimePRMax = 0;
     let allTimePRExercise = '';
+    let allTimePRSets = 0;
+    let allTimePRReps = 0;
     Object.values(appData.workoutLogs || {}).forEach(logs => {
       logs.forEach(l => {
         if ((l.weight || 0) > allTimePRMax) {
           allTimePRMax = l.weight;
           allTimePRExercise = l.exercise || '';
+          allTimePRSets = l.sets || 1;
+          allTimePRReps = l.reps || 0;
         }
       });
     });
@@ -612,6 +616,8 @@ function syncPublicStats() {
       level: level,
       bestPR: allTimePRMax,
       bestPRExercise: allTimePRExercise,
+      bestPRSets: allTimePRSets,
+      bestPRReps: allTimePRReps,
       selectedAchievements: p.selectedAchievements || [],
       lastActive: firebase.firestore.FieldValue.serverTimestamp()
     }, { merge: true }).catch(e => console.error('Public stats sync failed:', e));
@@ -7118,9 +7124,13 @@ window.renderLeaderboard = async function(forceRefresh = false) {
     const avatarHtml = u.photoURL 
       ? `<img src="${u.photoURL}" class="lb-avatar">` 
       : `<div class="lb-avatar lb-avatar-placeholder">👤</div>`;
+
+    const clickHandler = currentLeaderboardFilter === 'pr' && u.bestPR > 0
+      ? `onclick="showPRDetailPopup(${JSON.stringify(u).replace(/"/g, '&quot;')})"`
+      : '';
       
       return `
-      <div class="lb-card ${cardStyle}">
+      <div class="lb-card ${cardStyle}" ${clickHandler}>
         <div class="lb-rank-wrap">${rankBadge}</div>
         ${avatarHtml}
         <div class="lb-info">
@@ -7128,7 +7138,648 @@ window.renderLeaderboard = async function(forceRefresh = false) {
            <div class="lb-val">${valStr}</div>
            ${prExercise}
         </div>
+        ${currentLeaderboardFilter === 'pr' && u.bestPR > 0 ? '<div class="lb-arrow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg></div>' : ''}
       </div>
     `;
   }).join('');
+};
+
+// =============================================
+// PR DETAIL POPUP
+// =============================================
+window.showPRDetailPopup = function(userData) {
+  // Remove any existing popup
+  const existing = document.getElementById('prDetailPopup');
+  if (existing) existing.remove();
+
+  const u = typeof userData === 'string' ? JSON.parse(userData) : userData;
+  const name = u.displayName || 'İsimsiz';
+  const exercise = u.bestPRExercise || 'Bilinmeyen Hareket';
+  const weight = u.bestPR || 0;
+  const sets = u.bestPRSets || 1;
+  const reps = u.bestPRReps || 0;
+  const avatarHtml = u.photoURL
+    ? `<img src="${u.photoURL}" style="width:64px;height:64px;border-radius:16px;object-fit:cover;border:2px solid rgba(139,124,247,0.4);" referrerpolicy="no-referrer">`
+    : `<div style="width:64px;height:64px;border-radius:16px;background:linear-gradient(135deg,var(--accent-deep),var(--accent-primary));display:flex;align-items:center;justify-content:center;font-size:1.8rem;border:2px solid rgba(139,124,247,0.4);">👤</div>`;
+
+  const overlay = document.createElement('div');
+  overlay.id = 'prDetailPopup';
+  overlay.style.cssText = `
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding: 0 0 24px;
+    animation: prOverlayIn 0.25s ease both;
+  `;
+  overlay.innerHTML = `
+    <style>
+      @keyframes prOverlayIn { from { opacity:0; } to { opacity:1; } }
+      @keyframes prCardIn { from { opacity:0; transform: translateY(40px) scale(0.95); } to { opacity:1; transform: translateY(0) scale(1); } }
+      @keyframes prStatPop { from { opacity:0; transform: scale(0.7); } to { opacity:1; transform: scale(1); } }
+      .pr-popup-backdrop { position:fixed; inset:0; background:rgba(0,0,0,0.65); backdrop-filter:blur(8px); }
+      .pr-popup-card {
+        position: relative;
+        z-index: 1;
+        width: min(420px, calc(100vw - 32px));
+        background: linear-gradient(145deg, rgba(26,22,46,0.98), rgba(13,13,18,0.99));
+        border: 1px solid rgba(139,124,247,0.3);
+        border-radius: 28px;
+        padding: 28px 24px 24px;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.6), 0 0 0 1px rgba(139,124,247,0.1), inset 0 1px 0 rgba(255,255,255,0.05);
+        animation: prCardIn 0.35s cubic-bezier(0.175,0.885,0.32,1.275) both;
+        animation-delay: 0.05s;
+      }
+      .pr-popup-close {
+        position: absolute;
+        top: 16px; right: 16px;
+        width: 32px; height: 32px;
+        background: rgba(255,255,255,0.06);
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 10px;
+        display: flex; align-items: center; justify-content: center;
+        cursor: pointer;
+        font-size: 1rem;
+        color: var(--text-muted);
+        transition: all 0.2s ease;
+      }
+      .pr-popup-close:hover { background: rgba(239,68,68,0.15); border-color: rgba(239,68,68,0.3); color: #ef4444; }
+      .pr-stat-box {
+        background: rgba(139,124,247,0.07);
+        border: 1px solid rgba(139,124,247,0.18);
+        border-radius: 16px;
+        padding: 16px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+        animation: prStatPop 0.4s cubic-bezier(0.34,1.56,0.64,1) both;
+      }
+      .pr-stat-box:nth-child(1) { animation-delay: 0.18s; }
+      .pr-stat-box:nth-child(2) { animation-delay: 0.26s; }
+      .pr-stat-box:nth-child(3) { animation-delay: 0.34s; }
+      .pr-stat-val {
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: 1.6rem;
+        font-weight: 900;
+        background: linear-gradient(135deg, #fff 0%, var(--accent-primary) 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        line-height: 1;
+      }
+      .pr-stat-label {
+        font-size: 0.65rem;
+        font-weight: 700;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+      }
+      .pr-exercise-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: rgba(139,124,247,0.12);
+        border: 1px solid rgba(139,124,247,0.25);
+        border-radius: 12px;
+        padding: 8px 14px;
+        font-size: 0.88rem;
+        font-weight: 700;
+        color: var(--accent-primary);
+        max-width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+    </style>
+    <div class="pr-popup-backdrop" onclick="document.getElementById('prDetailPopup').remove()"></div>
+    <div class="pr-popup-card">
+      <div class="pr-popup-close" onclick="document.getElementById('prDetailPopup').remove()">✕</div>
+      
+      <!-- Header -->
+      <div style="display:flex; align-items:center; gap:14px; margin-bottom:20px;">
+        ${avatarHtml}
+        <div style="flex:1; min-width:0;">
+          <div style="font-size:0.65rem; font-weight:700; color:var(--accent-primary); text-transform:uppercase; letter-spacing:0.08em; margin-bottom:4px;">🏆 Kişisel Rekor</div>
+          <div style="font-family:'Space Grotesk',sans-serif; font-size:1.15rem; font-weight:900; color:var(--text-primary); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${name}</div>
+          <div style="font-size:0.75rem; color:var(--text-muted); margin-top:2px;">En yüksek PR detayları</div>
+        </div>
+      </div>
+
+      <!-- Exercise chip -->
+      <div style="margin-bottom:18px;">
+        <div style="font-size:0.65rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:8px;">Hareket</div>
+        <div class="pr-exercise-chip">💪 ${exercise}</div>
+      </div>
+
+      <!-- Stats grid -->
+      <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px;">
+        <div class="pr-stat-box">
+          <div class="pr-stat-val">${weight}<small style="font-size:0.6em;opacity:0.7;">kg</small></div>
+          <div class="pr-stat-label">Ağırlık</div>
+        </div>
+        <div class="pr-stat-box">
+          <div class="pr-stat-val">${sets}</div>
+          <div class="pr-stat-label">Set</div>
+        </div>
+        <div class="pr-stat-box">
+          <div class="pr-stat-val">${reps}</div>
+          <div class="pr-stat-label">Tekrar</div>
+        </div>
+      </div>
+
+      <!-- Volume indicator -->
+      ${sets > 0 && reps > 0 ? `
+      <div style="margin-top:16px; padding:12px 16px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:14px; display:flex; align-items:center; justify-content:space-between;">
+        <div style="font-size:0.75rem; color:var(--text-muted); font-weight:600;">Toplam Hacim</div>
+        <div style="font-family:'Space Grotesk',sans-serif; font-size:0.95rem; font-weight:800; color:var(--text-primary);">${(weight * sets * reps).toLocaleString('tr-TR')} <span style="font-size:0.7rem;opacity:0.6;">kg</span></div>
+      </div>` : ''}
+    </div>
+  `;
+
+  document.body.appendChild(overlay);
+};
+
+/* ==========================================================================
+   ZYRO AI — GEMINI INTEGRATION LOGIC
+   ========================================================================== */
+
+// --- STATE ---
+let aiChatHistory = JSON.parse(localStorage.getItem('zyro_ai_history') || '[]');
+if (!Array.isArray(aiChatHistory)) aiChatHistory = [];
+let aiDrawerOpen = false;
+
+// --- INIT ---
+function initAI() {
+  checkAIKeyStatus();
+  renderAIChatHistory();
+  
+  // Floating badge logic (if there are no messages, show badge)
+  const badge = document.querySelector('.ai-float-badge');
+  if (badge && aiChatHistory.length === 0) {
+    badge.style.display = 'block';
+    badge.textContent = '1';
+  }
+}
+document.addEventListener('DOMContentLoaded', initAI);
+
+// --- KEY MANAGEMENT ---
+function toggleAIKeyVisibility() {
+  const input = document.getElementById('aiKeyInput');
+  input.type = input.type === 'password' ? 'text' : 'password';
+}
+
+function checkAIKeyStatus() {
+  const statusEl = document.getElementById('aiKeyStatus');
+  const input = document.getElementById('aiKeyInput');
+  if (!statusEl || !input) return;
+
+  const key = window.getGeminiKey && window.getGeminiKey();
+  if (key) {
+    input.value = key;
+    statusEl.className = 'ai-key-status valid';
+    statusEl.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> API key aktif';
+    document.getElementById('aiAnalyzePhotosBtn')?.removeAttribute('disabled');
+  } else {
+    input.value = '';
+    statusEl.className = 'ai-key-status empty';
+    statusEl.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> API key girilmemiş';
+    document.getElementById('aiAnalyzePhotosBtn')?.setAttribute('disabled', 'true');
+  }
+}
+
+function saveAIKey() {
+  const input = document.getElementById('aiKeyInput');
+  if (!input) return;
+  const val = input.value.trim();
+  if (!val) {
+    showToast('Lütfen geçerli bir key girin', 'error');
+    return;
+  }
+  if (window.setGeminiKey) {
+    window.setGeminiKey(val);
+    checkAIKeyStatus();
+    showToast('API Key başarıyla kaydedildi!', 'success');
+  }
+}
+
+function deleteAIKey() {
+  localStorage.removeItem('zyro_gemini_key');
+  checkAIKeyStatus();
+  showToast('API Key silindi', 'info');
+}
+
+// --- CHAT HISTORY RENDER ---
+function saveAIChatHistory() {
+  // Keep last 40 messages to prevent localstorage bloat
+  if (aiChatHistory.length > 40) aiChatHistory = aiChatHistory.slice(aiChatHistory.length - 40);
+  localStorage.setItem('zyro_ai_history', JSON.stringify(aiChatHistory));
+}
+
+function clearAIChatHistory() {
+  if(confirm('Sohbet geçmişini tamamen silmek istediğine emin misin?')) {
+    aiChatHistory = [];
+    saveAIChatHistory();
+    renderAIChatHistory();
+    showToast('Sohbet geçmişi temizlendi', 'info');
+  }
+}
+
+function formatAIMessage(text) {
+  // Basic markdown parser for bold and lists
+  let formatted = text
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.*?)\*/g, '<em>$1</em>')
+    .replace(/\n\n/g, '<br><br>')
+    .replace(/\n/g, '<br>');
+  
+  // Format list items
+  formatted = formatted.replace(/- (.*?)<br>/g, '• $1<br>');
+  return formatted;
+}
+
+function createMsgHTML(role, text) {
+  if (role === 'user') {
+    return `
+      <div class="ai-msg user">
+        <div class="ai-msg-bubble">${formatAIMessage(text)}</div>
+      </div>
+    `;
+  } else {
+    return `
+      <div class="ai-msg ai">
+        <div class="ai-msg-avatar">✦</div>
+        <div class="ai-msg-bubble">${formatAIMessage(text)}</div>
+      </div>
+    `;
+  }
+}
+
+function renderAIChatHistory() {
+  const drawerContainer = document.getElementById('aiDrawerMessages');
+  const pageContainer = document.getElementById('aiPageMessages');
+  
+  let html = '';
+  if (aiChatHistory.length === 0) {
+    html = `
+      <div style="text-align:center; padding:30px 10px; color:var(--text-muted); font-size:0.85rem; display:flex; flex-direction:column; align-items:center; gap:12px;">
+        <div style="width:50px; height:50px; border-radius:14px; background:rgba(139,124,247,0.1); border:1px solid rgba(139,124,247,0.2); display:flex; align-items:center; justify-content:center; font-size:1.4rem; color:var(--accent-primary);">👋</div>
+        <div>Merhaba! Ben senin kişisel AI koçunum.<br>Sana nasıl yardımcı olabilirim?</div>
+      </div>
+    `;
+  } else {
+    html = aiChatHistory.map(m => createMsgHTML(m.role, m.content)).join('');
+  }
+
+  if (drawerContainer) drawerContainer.innerHTML = html;
+  if (pageContainer) pageContainer.innerHTML = html;
+  
+  scrollToBottom(drawerContainer);
+  scrollToBottom(pageContainer);
+}
+
+function scrollToBottom(el) {
+  if (el) el.scrollTop = el.scrollHeight;
+}
+
+// --- DRAWER LOGIC ---
+function toggleAIDrawer() {
+  aiDrawerOpen = !aiDrawerOpen;
+  const drawer = document.getElementById('aiChatDrawer');
+  const badge = document.querySelector('.ai-float-badge');
+  if (badge) badge.style.display = 'none'; // hide badge on open
+  
+  if (aiDrawerOpen) {
+    drawer.classList.add('open');
+    setTimeout(() => document.getElementById('aiDrawerInput')?.focus(), 100);
+    scrollToBottom(document.getElementById('aiDrawerMessages'));
+  } else {
+    drawer.classList.remove('open');
+  }
+}
+
+function closeAIDrawer() {
+  aiDrawerOpen = false;
+  document.getElementById('aiChatDrawer')?.classList.remove('open');
+}
+
+function aiDrawerSendChip(text) {
+  const input = document.getElementById('aiDrawerInput');
+  if(input) { input.value = text; aiDrawerSend(); }
+}
+function aiPageSendChip(text) {
+  const input = document.getElementById('aiPageInput');
+  if(input) { input.value = text; aiPageSend(); }
+}
+
+function aiDrawerKeydown(e) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    aiDrawerSend();
+  }
+}
+function aiPageKeydown(e) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    aiPageSend();
+  }
+}
+
+async function doAIChat(inputEl, sendBtn, containerId, context = 'chat') {
+  if (!window.hasGeminiKey || !window.hasGeminiKey()) {
+    showToast('Önce profil ayarlarına gidip API Key girmelisin!', 'error');
+    setTimeout(() => { closeAIDrawer(); switchPage('profile'); setTimeout(()=>switchProfileTab('ai'),200); }, 1000);
+    return;
+  }
+
+  const text = inputEl.value.trim();
+  if (!text) return;
+
+  // Optimistic UI update
+  inputEl.value = '';
+  inputEl.style.height = 'auto'; // reset height
+  sendBtn.disabled = true;
+  
+  aiChatHistory.push({ role: 'user', content: text });
+  saveAIChatHistory();
+  renderAIChatHistory();
+
+  const container = document.getElementById(containerId);
+  
+  // Add loading/typing indicator
+  const typingId = 'typing_' + Date.now();
+  if (container) {
+    container.insertAdjacentHTML('beforeend', `
+      <div class="ai-msg ai" id="${typingId}">
+        <div class="ai-msg-avatar">✦</div>
+        <div class="ai-typing"><span></span><span></span><span></span></div>
+      </div>
+    `);
+    scrollToBottom(container);
+  }
+
+  try {
+    // We only pass the last 10 messages for context to save tokens
+    const recentMessages = aiChatHistory.slice(Math.max(aiChatHistory.length - 11, 0), -1); // exclude the one we just added (wait, we already pushed it!)
+    // Actually slice(-10) is fine
+    const messagesToSend = aiChatHistory.slice(-10);
+
+    let finalResponse = '';
+
+    if (window.geminiChatStream) {
+      // Create empty message bubble
+      const msgId = 'msg_' + Date.now();
+      if (container) {
+        document.getElementById(typingId)?.remove();
+        container.insertAdjacentHTML('beforeend', `
+          <div class="ai-msg ai" id="${msgId}_wrap">
+            <div class="ai-msg-avatar">✦</div>
+            <div class="ai-msg-bubble" id="${msgId}"></div>
+          </div>
+        `);
+      }
+
+      await window.geminiChatStream(messagesToSend, (chunk, fullText) => {
+        finalResponse = fullText;
+        const bubble = document.getElementById(msgId);
+        if (bubble) bubble.innerHTML = formatAIMessage(fullText);
+        scrollToBottom(container);
+      });
+      
+      if(finalResponse) {
+        aiChatHistory.push({ role: 'model', content: finalResponse });
+      }
+    } else {
+      // Fallback to non-stream
+      finalResponse = await window.geminiChat(messagesToSend);
+      document.getElementById(typingId)?.remove();
+      aiChatHistory.push({ role: 'model', content: finalResponse });
+    }
+
+    saveAIChatHistory();
+    renderAIChatHistory();
+
+  } catch (err) {
+    console.error(err);
+    document.getElementById(typingId)?.remove();
+    
+    // Add error msg
+    const errMsg = window.geminiErrorMessage ? window.geminiErrorMessage(err) : 'Bir hata oluştu.';
+    aiChatHistory.pop(); // remove user msg from history on fail
+    saveAIChatHistory();
+    
+    if (container) {
+      container.insertAdjacentHTML('beforeend', `
+        <div class="ai-msg ai">
+          <div class="ai-msg-avatar" style="background:#ef4444;">!</div>
+          <div class="ai-msg-bubble" style="border-color:rgba(239,68,68,0.3); color:#ef4444;">${errMsg}</div>
+        </div>
+      `);
+      scrollToBottom(container);
+    }
+  } finally {
+    sendBtn.disabled = false;
+    setTimeout(() => inputEl.focus(), 100);
+  }
+}
+
+function aiDrawerSend() {
+  doAIChat(
+    document.getElementById('aiDrawerInput'),
+    document.getElementById('aiDrawerSendBtn'),
+    'aiDrawerMessages'
+  );
+}
+
+function aiPageSend() {
+  doAIChat(
+    document.getElementById('aiPageInput'),
+    document.getElementById('aiPageSendBtn'),
+    'aiPageMessages'
+  );
+}
+
+// Auto-resize textarea
+document.querySelectorAll('.ai-chat-input').forEach(el => {
+  el.addEventListener('input', function() {
+    this.style.height = 'auto';
+    this.style.height = (this.scrollHeight) + 'px';
+  });
+});
+
+// --- DASHBOARD WIDGET LOGIC ---
+async function aiWidgetSend() {
+  const input = document.getElementById('aiWidgetInput');
+  const btn = document.getElementById('aiWidgetSendBtn');
+  const answerBox = document.getElementById('aiWidgetAnswer');
+  
+  if (!window.hasGeminiKey || !window.hasGeminiKey()) {
+    answerBox.innerHTML = window.geminiErrorMessage({message: 'NO_KEY'});
+    answerBox.classList.add('visible');
+    return;
+  }
+
+  const text = input.value.trim();
+  if (!text) return;
+
+  input.value = '';
+  btn.disabled = true;
+  answerBox.classList.add('visible');
+  answerBox.innerHTML = '<div style="display:flex;align-items:center;gap:8px;"><span class="ai-typing" style="background:transparent;padding:0;border:none;"><span></span><span></span><span></span></span> <span>Analiz ediliyor...</span></div>';
+
+  try {
+    const response = await window.geminiChat([{ role: 'user', content: text }], { maxTokens: 400 });
+    
+    // Typewriter effect
+    answerBox.innerHTML = '';
+    let i = 0;
+    const speed = 15;
+    
+    function typeWriter() {
+      if (i < response.length) {
+        let char = response.charAt(i);
+        if (char === '\n') answerBox.innerHTML += '<br>';
+        else answerBox.innerHTML += char;
+        i++;
+        setTimeout(typeWriter, speed);
+      } else {
+        // Format bold after typing is done for simplicity
+        answerBox.innerHTML = formatAIMessage(response);
+      }
+    }
+    typeWriter();
+    
+    // Also add to global chat history silently so they can continue the chat in full page!
+    aiChatHistory.push({ role: 'user', content: text });
+    aiChatHistory.push({ role: 'model', content: response });
+    saveAIChatHistory();
+    renderAIChatHistory();
+
+  } catch(err) {
+    answerBox.innerHTML = `<span style="color:#ef4444;">${window.geminiErrorMessage(err)}</span>`;
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+function aiWidgetAsk(text) {
+  const input = document.getElementById('aiWidgetInput');
+  if(input) { input.value = text; aiWidgetSend(); }
+}
+
+// --- BEFORE / AFTER AI ANALYSIS ---
+let lastSelectedBeforeAfterImgs = []; // Store base64 of selected images
+
+// Hook into existing handleProgressPhoto if needed, or just extract images from the UI
+function openBeforeAfterAnalysis() {
+  if (!window.hasGeminiKey || !window.hasGeminiKey()) {
+    showToast('Önce profil ayarlarına gidip API Key girmelisin!', 'error');
+    return;
+  }
+
+  // Find selected compare images
+  const compareCheckboxes = document.querySelectorAll('.compare-checkbox:checked');
+  if (compareCheckboxes.length !== 2) {
+    showToast('Lütfen karşılaştırmak için tam olarak 2 fotoğraf seçin.', 'error');
+    return;
+  }
+
+  // Get image URLs from the parent elements
+  const imgUrls = Array.from(compareCheckboxes).map(cb => {
+    const parent = cb.closest('.progress-photo-card');
+    const img = parent.querySelector('img');
+    return img.src; // These are base64 strings in this app
+  });
+
+  // Create Modal
+  const modalId = 'aiAnalysisModal';
+  document.getElementById(modalId)?.remove();
+
+  const modalHtml = `
+    <div class="ai-analysis-modal-overlay" id="${modalId}Overlay">
+      <div class="ai-analysis-modal" id="${modalId}">
+        <div class="ai-analysis-modal-header">
+          <div style="width:36px;height:36px;border-radius:12px;background:linear-gradient(135deg,#8b7cf7,#5a4cc9);display:flex;align-items:center;justify-content:center;color:white;font-size:1.2rem;">✦</div>
+          <div style="flex:1;">
+            <h3 style="margin:0;font-size:1.05rem;font-weight:800;color:var(--text-primary);">AI Gelişim Analizi</h3>
+            <div style="font-size:0.75rem;color:var(--text-muted);margin-top:2px;">Önceki ve sonraki durumunun profesyonel analizi</div>
+          </div>
+          <button class="btn-small" onclick="document.getElementById('${modalId}Overlay').remove()" style="background:rgba(255,255,255,0.05);border:none;padding:8px;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+        <div class="ai-analysis-modal-body" id="${modalId}Body">
+          <div class="ai-analysis-loading" id="${modalId}Loading">
+            <div class="ai-analysis-spinner"></div>
+            <div style="text-align:center;">
+              <div style="font-weight:700;color:var(--text-primary);margin-bottom:4px;">Fotoğraflar inceleniyor...</div>
+              <div style="font-size:0.8rem;color:var(--text-muted);">Kas gelişimi, yağ oranı ve postür değerlendiriliyor</div>
+            </div>
+          </div>
+          <div class="ai-analysis-text" id="${modalId}Result" style="display:none;"></div>
+        </div>
+      </div>
+    </div>
+  `;
+
+  document.body.insertAdjacentHTML('beforeend', modalHtml);
+
+  // Close on outside click
+  document.getElementById(`${modalId}Overlay`).addEventListener('click', (e) => {
+    if(e.target.id === `${modalId}Overlay`) e.target.remove();
+  });
+
+  // Call API
+  if (window.geminiAnalyzeImages) {
+    window.geminiAnalyzeImages(imgUrls)
+      .then(result => {
+        document.getElementById(`${modalId}Loading`).style.display = 'none';
+        const resultEl = document.getElementById(`${modalId}Result`);
+        resultEl.style.display = 'block';
+        resultEl.innerHTML = formatAIMessage(result);
+      })
+      .catch(err => {
+        document.getElementById(`${modalId}Loading`).style.display = 'none';
+        const resultEl = document.getElementById(`${modalId}Result`);
+        resultEl.style.display = 'block';
+        resultEl.innerHTML = `<div style="padding:16px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);border-radius:12px;color:#ef4444;">${window.geminiErrorMessage(err)}</div>`;
+      });
+  }
+}
+
+// Hook into existing toggleCompareMode to enable/disable the AI button
+const originalToggleCompareMode = window.toggleCompareMode;
+window.toggleCompareMode = function() {
+  if(originalToggleCompareMode) originalToggleCompareMode();
+  
+  // Setup listener for checkboxes to enable AI button when 2 are selected
+  setTimeout(() => {
+    const checkboxes = document.querySelectorAll('.compare-checkbox');
+    const aiBtn = document.getElementById('aiAnalyzePhotosBtn');
+    
+    if(!checkboxes.length || !aiBtn) return;
+    
+    // Show AI button only in compare mode
+    if (document.body.classList.contains('compare-mode-active')) {
+      aiBtn.style.display = 'flex';
+      
+      checkboxes.forEach(cb => {
+        cb.addEventListener('change', () => {
+          const checkedCount = document.querySelectorAll('.compare-checkbox:checked').length;
+          if (checkedCount === 2) {
+            aiBtn.removeAttribute('disabled');
+            aiBtn.style.animation = 'aiBtnPulse 2s infinite';
+          } else {
+            aiBtn.setAttribute('disabled', 'true');
+            aiBtn.style.animation = 'none';
+          }
+        });
+      });
+    } else {
+      aiBtn.style.display = 'none';
+      aiBtn.setAttribute('disabled', 'true');
+    }
+  }, 100);
 };
