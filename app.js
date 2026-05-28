@@ -2147,17 +2147,26 @@ function updateMuscleMap() {
   let totalSets = 0;
   let allExercises = [];
   
-  Object.values(vol).forEach(data => {
-    totalSets += data.sets;
-    data.exercises.forEach(ex => {
-      const existing = allExercises.find(e => e.name === ex.name);
-      if (existing) {
-        existing.sets += ex.sets;
-      } else {
-        allExercises.push({ name: ex.name, sets: ex.sets });
-      }
-    });
-  });
+  const addRealLog = (log) => {
+    const s = parseInt(log.sets) || 0;
+    totalSets += s;
+    const existing = allExercises.find(e => e.name === log.exercise);
+    if (existing) {
+      existing.sets += s;
+    } else {
+      allExercises.push({ name: log.exercise, sets: s });
+    }
+  };
+
+  if (_muscleRange === 'today') {
+    (appData.workoutLogs[todayStr()] || []).forEach(addRealLog);
+  } else {
+    const monday = getMonday(new Date());
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(monday); d.setDate(d.getDate() + i);
+      (appData.workoutLogs[dateStr(d)] || []).forEach(addRealLog);
+    }
+  }
 
   totalSetsEl.innerText = totalSets;
   exCountEl.innerText = allExercises.length;
