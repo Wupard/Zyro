@@ -573,7 +573,12 @@ function formatDateLong(d){return d.toLocaleDateString(currentLang==='tr'?'tr-TR
 // =============================================
 function saveData(){
   if(isFirebaseConfigured&&currentUser&&db){
-    db.collection('users').doc(currentUser.uid).set({data:appData},{merge:true}).catch(e=>console.error('Save:',e));
+    db.collection('users').doc(currentUser.uid).set({
+      data:appData,
+      email: currentUser.email || '',
+      displayName: currentUser.displayName || '',
+      photoURL: currentUser.photoURL || ''
+    },{merge:true}).catch(e=>console.error('Save:',e));
     
     // Feature 10 & 12: Public Stats Sync for Leaderboard
     syncPublicStats();
@@ -662,7 +667,12 @@ function loadData(cb){
          if (typeof syncPublicStats === 'function') syncPublicStats();
       } else {
          // Eğer sunucuda (hesapta) hiç veri yoksa, ilk giriş demektir: Local veriyi sunucuya gönder
-         docRef.set({ data: appData }, { merge: true });
+         docRef.set({ 
+           data: appData,
+           email: currentUser.email || '',
+           displayName: currentUser.displayName || '',
+           photoURL: currentUser.photoURL || ''
+         }, { merge: true });
          if(cb) cb();
          refreshAllViews();
          if (typeof syncPublicStats === 'function') syncPublicStats();
@@ -869,8 +879,13 @@ async function checkUserBan(user) {
     try {
       const banDoc = await db.collection('bans').doc(user.uid).get();
       if (banDoc.exists) {
-        isBanned = true;
-        banData = banDoc.data();
+        const bd = banDoc.data();
+        if (bd.expiry && Date.now() > bd.expiry) {
+          await db.collection('bans').doc(user.uid).delete();
+        } else {
+          isBanned = true;
+          banData = bd;
+        }
       }
     } catch (permErr) {
       console.warn('Ban check permission restricted, skipping individual check');
@@ -883,8 +898,14 @@ async function checkUserBan(user) {
         const ipData = await ipRes.json();
         const ipBanDoc = await db.collection('bans').where('ip', '==', ipData.ip).get();
         if (!ipBanDoc.empty) {
-          isBanned = true;
-          banData = ipBanDoc.docs[0].data();
+          const doc = ipBanDoc.docs[0];
+          const bd = doc.data();
+          if (bd.expiry && Date.now() > bd.expiry) {
+            await doc.ref.delete();
+          } else {
+            isBanned = true;
+            banData = bd;
+          }
         }
       } catch (ipErr) {
         console.warn('IP Ban check failed or restricted');
@@ -901,7 +922,7 @@ async function checkUserBan(user) {
             <div style="text-align: left; background: rgba(0,0,0,0.2); padding: 20px; border-radius: 12px; font-size: 0.9rem;">
               <div style="margin-bottom: 8px;"><span style="color: #625f7a;">Yetkili:</span> <span style="color: #FFD700; font-weight: bold;">Wupard</span></div>
               <div style="margin-bottom: 8px;"><span style="color: #625f7a;">Sebep:</span> ${banData.reason || 'Kural ihlali'}</div>
-              <div><span style="color: #625f7a;">Süre:</span> ${banData.duration || 'Süresiz'}</div>
+              <div><span style="color: #625f7a;">Süre:</span> ${banData.expiry ? new Date(banData.expiry).toLocaleString('tr-TR') + ' tarihine kadar' : (banData.duration || 'Süresiz')}</div>
             </div>
             <button onclick="location.reload()" style="margin-top: 32px; padding: 12px 24px; background: #3d3d52; color: white; border: none; border-radius: 12px; cursor: pointer;">Yeniden Dene</button>
           </div>
@@ -3796,7 +3817,8 @@ function renderAchievements() {
   const grid = document.getElementById('achievementsGrid');
   if (!grid) return;
   if (!appData.achievements) appData.achievements = {};
-  const expanded = appData._achExpanded || {};
+  if (!window._achExpanded) window._achExpanded = {};
+  const expanded = window._achExpanded;
 
   // Update overall progress bar
   const totalAll = ACHIEVEMENT_DEFS.length;
@@ -3853,7 +3875,7 @@ function renderAchievements() {
         </div>`;
     }).join('');
 
-    const toggleFn = `(function(){if(!appData._achExpanded)appData._achExpanded={};appData._achExpanded['${group.id}']=!appData._achExpanded['${group.id}'];renderAchievements();})()`;
+    const toggleFn = `(function(){if(!window._achExpanded)window._achExpanded={};window._achExpanded['${group.id}']=!window._achExpanded['${group.id}'];renderAchievements();})()`;
 
     return `
       <div style="background:${headerBg};border:1px solid ${headerBorder};border-radius:16px;margin-bottom:10px;overflow:hidden;transition:all 0.25s;">
@@ -4241,6 +4263,22 @@ function computeExerciseStats() {
 // =============================================
 // COMMENTS
 // =============================================
+async function checkUserMute(uid) {
+  if (!isFirebaseConfigured || !db || !uid) return false;
+  try {
+    const muteDoc = await db.collection('mutes').doc(uid).get().catch(()=>null);
+    if (muteDoc && muteDoc.exists) {
+      const md = muteDoc.data();
+      if (md.expiry && Date.now() > md.expiry) {
+        await db.collection('mutes').doc(uid).delete().catch(()=>{});
+        return false;
+      }
+      return true;
+    }
+  } catch(e) {}
+  return false;
+}
+
 function initComments() {
   const sendBtn = document.getElementById('sendCommentBtn');
   if (!sendBtn) return;
@@ -4248,6 +4286,15 @@ function initComments() {
   sendBtn.addEventListener('click', async () => {
     const text = document.getElementById('commentInput').value.trim();
     if (!text) return;
+    
+    if (currentUser) {
+      const isMuted = await checkUserMute(currentUser.uid);
+      if (isMuted) {
+        showToast('Yorum yapma yetkiniz geçici veya kalıcı olarak kısıtlanmıştır!', 'error');
+        return;
+      }
+    }
+
     
     const type = document.querySelector('input[name="commentType"]:checked').value;
     const isAnonymous = type === 'anonymous';
@@ -4454,6 +4501,12 @@ window.submitReply = async function(parentId) {
 
   if (!currentUser) {
     showToast('Cevap yazmak için giriş yapmalısın!', 'error');
+    return;
+  }
+
+  const isMuted = await checkUserMute(currentUser.uid);
+  if (isMuted) {
+    showToast('Yorum yapma yetkiniz geçici veya kalıcı olarak kısıtlanmıştır!', 'error');
     return;
   }
 
@@ -4945,6 +4998,14 @@ window.adminViewUserDetails = async function(uid) {
       comments = [];
     }
 
+    const banSnap = await db.collection('bans').doc(uid).get().catch(()=>null);
+    const banData = banSnap && banSnap.exists ? banSnap.data() : null;
+    const currentBanValue = banData && banData.type ? banData.type : 'none';
+
+    const muteSnap = await db.collection('mutes').doc(uid).get().catch(()=>null);
+    const muteData = muteSnap && muteSnap.exists ? muteSnap.data() : null;
+    const currentMuteValue = muteData && muteData.type ? muteData.type : 'none';
+
     const notesHtml = notes.length === 0
       ? `<div style="font-size:0.8rem; color:var(--text-tertiary); padding:14px; text-align:center;">Not bulunamadı.</div>`
       : notes.slice(0, 50).map(n => {
@@ -5006,6 +5067,41 @@ window.adminViewUserDetails = async function(uid) {
           </div>
         </div>
 
+        <!-- Yönetim Paneli -->
+        <div class="card" style="padding:16px;">
+          <div style="font-size:0.9rem; font-weight:900; color:var(--text-primary); margin-bottom:12px;">Kullanıcı Yönetimi</div>
+          <div style="display:flex; flex-direction:column; gap:12px;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <label style="font-size:0.8rem; color:var(--text-secondary);">Rank</label>
+              <select class="log-input" style="width:150px; padding:6px; font-size:0.8rem; background:var(--bg-input);" onchange="adminUpdateRank('${uid}', this.value)">
+                ${Object.keys(RANKS).map(r => `<option value="${r}" ${rankKey === r ? 'selected' : ''}>${RANKS[r].label}</option>`).join('')}
+              </select>
+            </div>
+            
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <label style="font-size:0.8rem; color:var(--text-secondary);">Giriş Engeli (Ban)</label>
+              <select class="log-input" style="width:150px; padding:6px; font-size:0.8rem; background:var(--bg-input);" onchange="adminUpdateBan('${uid}', this.value)">
+                <option value="none" ${currentBanValue==='none'?'selected':''}>Yok</option>
+                <option value="temp_1d" ${currentBanValue==='temp_1d'?'selected':''}>1 Gün</option>
+                <option value="temp_3d" ${currentBanValue==='temp_3d'?'selected':''}>3 Gün</option>
+                <option value="temp_1w" ${currentBanValue==='temp_1w'?'selected':''}>1 Hafta</option>
+                <option value="perm" ${currentBanValue==='perm'?'selected':''}>Kalıcı</option>
+              </select>
+            </div>
+
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <label style="font-size:0.8rem; color:var(--text-secondary);">Yorum Engeli (Mute)</label>
+              <select class="log-input" style="width:150px; padding:6px; font-size:0.8rem; background:var(--bg-input);" onchange="adminUpdateMute('${uid}', this.value)">
+                <option value="none" ${currentMuteValue==='none'?'selected':''}>Yok</option>
+                <option value="temp_1d" ${currentMuteValue==='temp_1d'?'selected':''}>1 Gün</option>
+                <option value="temp_3d" ${currentMuteValue==='temp_3d'?'selected':''}>3 Gün</option>
+                <option value="temp_1w" ${currentMuteValue==='temp_1w'?'selected':''}>1 Hafta</option>
+                <option value="perm" ${currentMuteValue==='perm'?'selected':''}>Kalıcı</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
         <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:16px;">
           <div class="card" style="padding:16px;">
             <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:12px;">
@@ -5027,6 +5123,61 @@ window.adminViewUserDetails = async function(uid) {
   } catch (e) {
     content.innerHTML = `<div class="logged-empty">Hata: ${__escapeHtml(e.message)}</div>`;
   }
+};
+
+window.adminUpdateRank = async function(uid, newRank) {
+  if (!db) return;
+  try {
+    await db.collection('users').doc(uid).update({
+      userRank: newRank,
+      'data.userRank': newRank
+    });
+    showToast('Rank başarıyla güncellendi.', 'success');
+  } catch(e) {
+    showToast('Hata: ' + e.message, 'error');
+  }
+};
+
+window.adminUpdateBan = async function(uid, type) {
+  if (!db) return;
+  try {
+    if (type === 'none') {
+      await db.collection('bans').doc(uid).delete();
+    } else {
+      let expiry = null;
+      if (type === 'temp_1d') expiry = Date.now() + 24*60*60*1000;
+      if (type === 'temp_3d') expiry = Date.now() + 3*24*60*60*1000;
+      if (type === 'temp_1w') expiry = Date.now() + 7*24*60*60*1000;
+      await db.collection('bans').doc(uid).set({
+        type: type,
+        expiry: expiry,
+        reason: 'Admin kararı',
+        timestamp: Date.now()
+      });
+    }
+    showToast('Ban durumu güncellendi.', 'success');
+  } catch(e) { showToast('Hata: ' + e.message, 'error'); }
+};
+
+window.adminUpdateMute = async function(uid, type) {
+  if (!db) return;
+  try {
+    if (type === 'none') {
+      await db.collection('mutes').doc(uid).delete();
+    } else {
+      let expiry = null;
+      if (type === 'temp_1d') expiry = Date.now() + 24*60*60*1000;
+      if (type === 'temp_3d') expiry = Date.now() + 3*24*60*60*1000;
+      if (type === 'temp_1w') expiry = Date.now() + 7*24*60*60*1000;
+      await db.collection('mutes').doc(uid).set({
+        type: type,
+        expiry: expiry,
+        reason: 'Admin kararı',
+        timestamp: Date.now()
+      });
+    }
+    showToast('Yorum engeli durumu güncellendi.', 'success');
+  } catch(e) { showToast('Hata: ' + e.message, 'error'); }
 };
 
 // Unified adminShowSection: toggle pre-existing admin sections
