@@ -688,15 +688,18 @@ function initAuth(){
   if(window.isFirebaseConfigured && window.auth){
     // Listen for auth state changes
     window.auth.onAuthStateChanged(user=>{
+      const aiBtn = document.getElementById('aiFloatBtn');
       if(user){
         console.log('User signed in:', user.email);
         currentUser=user;
         overlay.classList.add('hidden');
+        if (aiBtn) aiBtn.style.display = 'flex';
         updateUserUI(user);
         loadData(()=>refreshAllViews());
       } else {
         console.log('No user signed in');
         overlay.classList.remove('hidden');
+        if (aiBtn) aiBtn.style.display = 'none';
       }
     });
 
@@ -756,6 +759,8 @@ function initAuth(){
 
   skipBtn.addEventListener('click',()=>{
     overlay.classList.add('hidden');
+    const aiBtn = document.getElementById('aiFloatBtn');
+    if (aiBtn) aiBtn.style.display = 'flex';
     loadData(()=>refreshAllViews());
   });
 }
