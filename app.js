@@ -4904,7 +4904,7 @@ async function adminLoadUsers() {
       const profile = data.profile || top.profile || {};
       const displayName = profile.displayName || data.userName || top.userName || top.displayName || '';
       const email = profile.email || data.email || top.email || '';
-      const rankKey = data.userRank || top.userRank || 'default';
+      const rankKey = email === 'wupard@gmail.com' ? 'kurucu' : (data.userRank || top.userRank || 'default');
       const rankLabel = (typeof RANKS !== 'undefined' && RANKS[rankKey] ? RANKS[rankKey].label : (rankKey || 'Üye'));
       html += `
         <div style="padding:12px; border-bottom:1px solid var(--border-subtle); display:flex; justify-content:space-between; align-items:center;">
@@ -4980,7 +4980,7 @@ window.adminViewUserDetails = async function(uid) {
     const profile = data.profile || top.profile || {};
     const displayName = profile.displayName || data.userName || top.userName || top.displayName || '';
     const email = profile.email || data.email || top.email || '';
-    const rankKey = data.userRank || top.userRank || 'default';
+    const rankKey = email === 'wupard@gmail.com' ? 'kurucu' : (data.userRank || top.userRank || 'default');
     const rank = (typeof RANKS !== 'undefined' && RANKS[rankKey]) ? RANKS[rankKey] : null;
 
     if (titleEl) titleEl.textContent = displayName ? `${displayName} — Detay` : 'Kullanıcı Detayı';
@@ -5069,34 +5069,39 @@ window.adminViewUserDetails = async function(uid) {
 
         <!-- Yönetim Paneli -->
         <div class="card" style="padding:16px;">
-          <div style="font-size:0.9rem; font-weight:900; color:var(--text-primary); margin-bottom:12px;">Kullanıcı Yönetimi</div>
-          <div style="display:flex; flex-direction:column; gap:12px;">
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-              <label style="font-size:0.8rem; color:var(--text-secondary);">Rank</label>
-              <select class="log-input" style="width:150px; padding:6px; font-size:0.8rem; background:var(--bg-input);" onchange="adminUpdateRank('${uid}', this.value)">
+          <div style="display:flex; align-items:center; gap:8px; font-size:0.95rem; font-weight:900; color:var(--text-primary); margin-bottom:16px;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color:var(--accent-primary);"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            Kullanıcı Yönetimi
+          </div>
+          ${email === 'wupard@gmail.com' ? '<div style="margin-bottom:16px; padding:10px 14px; border-radius:10px; background:rgba(239, 68, 68, 0.1); border:1px solid rgba(239, 68, 68, 0.2); color:#ef4444; font-size:0.75rem; font-weight:700; display:flex; align-items:center; gap:8px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Sistem Kurucusu üzerinde işlem yapılamaz.</div>' : ''}
+          <div style="display:flex; flex-direction:column; gap:16px; ${email === 'wupard@gmail.com' ? 'opacity:0.4; pointer-events:none;' : ''}">
+            
+            <div style="display:flex; flex-direction:column; gap:6px;">
+              <label style="font-size:0.75rem; font-weight:700; color:var(--text-secondary); text-transform:uppercase; letter-spacing:0.5px;">🎖️ Kullanıcı Rütbesi (Rank)</label>
+              <select class="log-input" style="width:100%; padding:10px; font-size:0.85rem; background:rgba(255,255,255,0.03); border:1px solid var(--border-subtle); border-radius:10px; color:var(--text-primary);" onchange="adminUpdateRank('${uid}', this.value)">
                 ${Object.keys(RANKS).map(r => `<option value="${r}" ${rankKey === r ? 'selected' : ''}>${RANKS[r].label}</option>`).join('')}
               </select>
             </div>
             
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-              <label style="font-size:0.8rem; color:var(--text-secondary);">Giriş Engeli (Ban)</label>
-              <select class="log-input" style="width:150px; padding:6px; font-size:0.8rem; background:var(--bg-input);" onchange="adminUpdateBan('${uid}', this.value)">
-                <option value="none" ${currentBanValue==='none'?'selected':''}>Yok</option>
-                <option value="temp_1d" ${currentBanValue==='temp_1d'?'selected':''}>1 Gün</option>
-                <option value="temp_3d" ${currentBanValue==='temp_3d'?'selected':''}>3 Gün</option>
-                <option value="temp_1w" ${currentBanValue==='temp_1w'?'selected':''}>1 Hafta</option>
-                <option value="perm" ${currentBanValue==='perm'?'selected':''}>Kalıcı</option>
+            <div style="display:flex; flex-direction:column; gap:6px;">
+              <label style="font-size:0.75rem; font-weight:700; color:var(--text-secondary); text-transform:uppercase; letter-spacing:0.5px;">🚫 Sisteme Giriş Engeli</label>
+              <select class="log-input" style="width:100%; padding:10px; font-size:0.85rem; background:rgba(255,255,255,0.03); border:1px solid var(--border-subtle); border-radius:10px; color:var(--text-primary);" onchange="adminUpdateBan('${uid}', this.value)">
+                <option value="none" ${currentBanValue==='none'?'selected':''}>Yok (Aktif)</option>
+                <option value="temp_1d" ${currentBanValue==='temp_1d'?'selected':''}>1 Gün Uzaklaştırma</option>
+                <option value="temp_3d" ${currentBanValue==='temp_3d'?'selected':''}>3 Gün Uzaklaştırma</option>
+                <option value="temp_1w" ${currentBanValue==='temp_1w'?'selected':''}>1 Hafta Uzaklaştırma</option>
+                <option value="perm" ${currentBanValue==='perm'?'selected':''}>Kalıcı Olarak Banla</option>
               </select>
             </div>
 
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-              <label style="font-size:0.8rem; color:var(--text-secondary);">Yorum Engeli (Mute)</label>
-              <select class="log-input" style="width:150px; padding:6px; font-size:0.8rem; background:var(--bg-input);" onchange="adminUpdateMute('${uid}', this.value)">
-                <option value="none" ${currentMuteValue==='none'?'selected':''}>Yok</option>
-                <option value="temp_1d" ${currentMuteValue==='temp_1d'?'selected':''}>1 Gün</option>
-                <option value="temp_3d" ${currentMuteValue==='temp_3d'?'selected':''}>3 Gün</option>
-                <option value="temp_1w" ${currentMuteValue==='temp_1w'?'selected':''}>1 Hafta</option>
-                <option value="perm" ${currentMuteValue==='perm'?'selected':''}>Kalıcı</option>
+            <div style="display:flex; flex-direction:column; gap:6px;">
+              <label style="font-size:0.75rem; font-weight:700; color:var(--text-secondary); text-transform:uppercase; letter-spacing:0.5px;">🔇 Yorum Engeli (Mute)</label>
+              <select class="log-input" style="width:100%; padding:10px; font-size:0.85rem; background:rgba(255,255,255,0.03); border:1px solid var(--border-subtle); border-radius:10px; color:var(--text-primary);" onchange="adminUpdateMute('${uid}', this.value)">
+                <option value="none" ${currentMuteValue==='none'?'selected':''}>Yok (Konuşabilir)</option>
+                <option value="temp_1d" ${currentMuteValue==='temp_1d'?'selected':''}>1 Gün Sustur</option>
+                <option value="temp_3d" ${currentMuteValue==='temp_3d'?'selected':''}>3 Gün Sustur</option>
+                <option value="temp_1w" ${currentMuteValue==='temp_1w'?'selected':''}>1 Hafta Sustur</option>
+                <option value="perm" ${currentMuteValue==='perm'?'selected':''}>Kalıcı Olarak Sustur</option>
               </select>
             </div>
           </div>
@@ -5128,6 +5133,13 @@ window.adminViewUserDetails = async function(uid) {
 window.adminUpdateRank = async function(uid, newRank) {
   if (!db) return;
   try {
+    const snap = await db.collection('users').doc(uid).get();
+    const email = snap.exists ? (snap.data().email || snap.data().data?.profile?.email) : null;
+    if (email === 'wupard@gmail.com') {
+      showToast('Kurucu hesabı üzerinde işlem yapılamaz!', 'error');
+      return;
+    }
+
     await db.collection('users').doc(uid).update({
       userRank: newRank,
       'data.userRank': newRank
@@ -5141,6 +5153,13 @@ window.adminUpdateRank = async function(uid, newRank) {
 window.adminUpdateBan = async function(uid, type) {
   if (!db) return;
   try {
+    const snap = await db.collection('users').doc(uid).get();
+    const email = snap.exists ? (snap.data().email || snap.data().data?.profile?.email) : null;
+    if (email === 'wupard@gmail.com') {
+      showToast('Kurucu hesabı banlanamaz!', 'error');
+      return;
+    }
+
     if (type === 'none') {
       await db.collection('bans').doc(uid).delete();
     } else {
@@ -5162,6 +5181,13 @@ window.adminUpdateBan = async function(uid, type) {
 window.adminUpdateMute = async function(uid, type) {
   if (!db) return;
   try {
+    const snap = await db.collection('users').doc(uid).get();
+    const email = snap.exists ? (snap.data().email || snap.data().data?.profile?.email) : null;
+    if (email === 'wupard@gmail.com') {
+      showToast('Kurucu hesabı susturulamaz!', 'error');
+      return;
+    }
+
     if (type === 'none') {
       await db.collection('mutes').doc(uid).delete();
     } else {
