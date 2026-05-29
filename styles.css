@@ -3664,13 +3664,16 @@ html {
 }
 
 /* ---- AI Sparkle Rotations ---- */
-.ai-sparkle-menu-icon, .ai-sparkle-btn-icon {
+.ai-sparkle-menu-icon, .ai-sparkle-btn-icon, .ai-sparkle-banner-icon {
   transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 .ai-nav-item:hover .ai-sparkle-menu-icon {
   transform: rotate(180deg) scale(1.15);
 }
 .ai-analyze-btn:hover .ai-sparkle-btn-icon {
+  transform: rotate(180deg) scale(1.2);
+}
+.ai-banner-icon-wrap:hover .ai-sparkle-banner-icon {
   transform: rotate(180deg) scale(1.2);
 }
 @keyframes aiBtnPulse {
