@@ -6899,7 +6899,7 @@ window.checkPushNotificationStatus = async function() {
   }
 };
 
-window.requestNotificationPermission = async function() {
+window.requestNotificationPermission = async function(silent = false) {
   if (!('Notification' in window)) return;
   
   try {
@@ -6914,14 +6914,14 @@ window.requestNotificationPermission = async function() {
           'data.profile.fcmToken': token
         });
         if (appData && appData.profile) appData.profile.fcmToken = token;
-        showToast('Bildirimler başarıyla aktifleştirildi!', 'success');
+        if (!silent) showToast('Bildirimler başarıyla aktifleştirildi!', 'success');
       }
     } else if (permission === 'denied') {
-      showToast('Bildirim izni reddedildi.', 'error');
+      if (!silent) showToast('Bildirim izni reddedildi.', 'error');
     }
   } catch (err) {
     console.error('FCM Token error:', err);
-    showToast('Bildirimler ayarlanamadı: ' + err.message, 'error');
+    if (!silent) showToast('Bildirimler ayarlanamadı: ' + err.message, 'error');
   }
   checkPushNotificationStatus();
 };
@@ -6937,9 +6937,72 @@ window.switchPage = function(page) {
 // Initialize profile on auth change
 const originalHandleAuthStateChange = window.handleAuthStateChange;
 window.handleAuthStateChange = function(user) {
-  originalHandleAuthStateChange(user);
-  if (user && document.getElementById('pageProfile')) {
-    loadProfileData();
+  if (typeof originalHandleAuthStateChange === 'function') {
+    originalHandleAuthStateChange(user);
+  }
+  if (user) {
+    if (document.getElementById('pageProfile')) {
+      loadProfileData();
+    }
+    
+    // Check and setup FCM Push Notifications
+    setTimeout(() => {
+      if (typeof window.checkAndPromptPushNotifications === 'function') {
+        window.checkAndPromptPushNotifications();
+      }
+    }, 2000);
+    
+    // Setup foreground message listener if not already done
+    if (typeof messaging !== 'undefined' && messaging && !window._fcmForegroundListenerAdded) {
+      window._fcmForegroundListenerAdded = true;
+      messaging.onMessage((payload) => {
+        console.log('Message received in foreground: ', payload);
+        const title = payload.notification ? payload.notification.title : 'Yeni Bildirim';
+        const body = payload.notification ? payload.notification.body : '';
+        showToast(`${title}: ${body}`, 'info');
+      });
+    }
+  }
+};
+
+window.checkAndPromptPushNotifications = function() {
+  if (!('Notification' in window)) return;
+  
+  if (Notification.permission === 'default') {
+    const dismissed = localStorage.getItem('zyro_push_prompt_dismissed');
+    if (dismissed && Date.now() - parseInt(dismissed) < 7 * 24 * 60 * 60 * 1000) return;
+    
+    if (document.getElementById('pushPromptOverlay')) return;
+    
+    const overlay = document.createElement('div');
+    overlay.id = 'pushPromptOverlay';
+    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:999999;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(5px);';
+    overlay.innerHTML = `
+      <div style="background:var(--bg-card);padding:24px;border-radius:20px;max-width:320px;text-align:center;border:1px solid rgba(255,255,255,0.1);box-shadow:0 10px 40px rgba(0,0,0,0.5);">
+        <div style="font-size:3rem;margin-bottom:16px;">🔔</div>
+        <h3 style="margin-bottom:12px;color:var(--text-primary);font-size:1.2rem;">Bildirimleri Açın</h3>
+        <p style="color:var(--text-secondary);font-size:0.9rem;margin-bottom:20px;line-height:1.4;">Duyuruları ve yorum yanıtlarını anında görebilmek için bildirimlere izin verin.</p>
+        <button id="btnAllowPushPrompt" class="btn-primary" style="width:100%;margin-bottom:10px;">İzin Ver</button>
+        <button id="btnDenyPushPrompt" style="width:100%;background:transparent;color:var(--text-muted);border:none;padding:12px;cursor:pointer;font-weight:600;font-size:0.9rem;">Daha Sonra</button>
+      </div>
+    `;
+    document.body.appendChild(overlay);
+
+    document.getElementById('btnAllowPushPrompt').onclick = async () => {
+      overlay.remove();
+      if (typeof window.requestNotificationPermission === 'function') {
+        window.requestNotificationPermission(false);
+      }
+    };
+    document.getElementById('btnDenyPushPrompt').onclick = () => {
+      overlay.remove();
+      localStorage.setItem('zyro_push_prompt_dismissed', Date.now().toString());
+    };
+  } else if (Notification.permission === 'granted') {
+    // Silently fetch token and update firestore if already granted
+    if (typeof window.requestNotificationPermission === 'function') {
+      window.requestNotificationPermission(true);
+    }
   }
 };
 
