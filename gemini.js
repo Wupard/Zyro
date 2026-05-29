@@ -1,11 +1,11 @@
 // =============================================
 // GEMINI AI — Core API Layer
 // =============================================
-// Google Gemini 2.5 Flash (ücretsiz tier) entegrasyonu
+// Google Gemini 3.5 Flash (ücretsiz tier) entegrasyonu
 // Kullanıcı kendi key'ini Profil > AI Ayarları'ndan girer
 
 const GEMINI_API_BASE = 'https://generativelanguage.googleapis.com/v1beta/models';
-const GEMINI_MODEL = 'gemini-2.5-flash';
+const GEMINI_MODEL = 'gemini-3.5-flash';
 
 // ---- Key Management ----
 window.getGeminiKey = function() {
@@ -198,7 +198,7 @@ window.geminiAnalyzeImages = async function(imageBase64Array, customPrompt) {
   const key = getGeminiKey();
   if (!key) throw new Error('NO_KEY');
 
-  const url = `${GEMINI_API_BASE}/gemini-2.5-flash:generateContent?key=${key}`;
+  const url = `${GEMINI_API_BASE}/gemini-3.5-flash:generateContent?key=${key}`;
 
   const parts = [
     { text: customPrompt || `Bu iki fitness gelişim fotoğrafını karşılaştır. 
