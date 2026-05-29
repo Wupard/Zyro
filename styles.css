@@ -4065,6 +4065,98 @@ html {
 }
 .ai-clear-btn:hover { background: rgba(239,68,68,0.15); color: #ef4444; }
 
+/* ---- Navigation Item Hover Animations ---- */
+.nav-item svg {
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* Dashboard: Scale and slight rotation */
+#nav-dashboard:hover svg { animation: dashJiggle 0.6s ease-in-out infinite alternate; }
+@keyframes dashJiggle {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1) rotate(5deg); }
+  100% { transform: scale(1.1) rotate(-5deg); }
+}
+
+/* Workouts: Dumbbell pump */
+#nav-workouts:hover svg { animation: pumpDumbbell 0.6s ease-in-out infinite alternate; }
+@keyframes pumpDumbbell {
+  0% { transform: scale(1) rotate(0); }
+  100% { transform: scale(1.15) rotate(-15deg); }
+}
+
+/* Posture: Stretch up */
+#nav-posture:hover svg { animation: stretchPosture 0.8s ease-in-out infinite alternate; }
+@keyframes stretchPosture {
+  0% { transform: scaleY(1); }
+  100% { transform: scaleY(1.15) translateY(-2px); }
+}
+
+/* Progress: Trend line arrow jump */
+#nav-progress:hover svg { animation: trendUp 0.6s ease-in-out infinite alternate; }
+@keyframes trendUp {
+  0% { transform: translate(0, 0) scale(1); }
+  100% { transform: translate(2px, -2px) scale(1.1); }
+}
+
+/* Updates: Spin backwards like a clock */
+#nav-updates:hover svg { animation: spinClock 2.5s linear infinite; }
+@keyframes spinClock {
+  100% { transform: rotate(-360deg); }
+}
+
+/* Notes/Comments: Pulse and bounce */
+#nav-notes:hover svg, #nav-comments:hover svg { animation: bounceNote 0.8s ease-in-out infinite alternate; }
+@keyframes bounceNote {
+  0% { transform: translateY(0) scale(1); }
+  100% { transform: translateY(-3px) scale(1.1); }
+}
+
+/* Calculators: Key press effect */
+#nav-calculators:hover svg { animation: typeCalc 0.4s ease-in-out infinite alternate; }
+@keyframes typeCalc {
+  0% { transform: scale(1) translateY(0); }
+  100% { transform: scale(0.92) translateY(2px); }
+}
+
+/* Before/After: Flip horizontal */
+#nav-beforeafter:hover svg { animation: flipBook 1.2s ease-in-out infinite; }
+@keyframes flipBook {
+  0% { transform: rotateY(0); }
+  50% { transform: rotateY(180deg); }
+  100% { transform: rotateY(360deg); }
+}
+
+/* Achievements: Swing medal */
+#nav-achievements:hover svg { animation: swingMedal 1.2s ease-in-out infinite; transform-origin: top center; }
+@keyframes swingMedal {
+  0%, 100% { transform: rotate(0); }
+  25% { transform: rotate(15deg); }
+  75% { transform: rotate(-15deg); }
+}
+
+/* Leaderboard: Grow */
+#nav-leaderboard:hover svg { animation: growBars 0.6s ease-in-out infinite alternate; transform-origin: bottom; }
+@keyframes growBars {
+  0% { transform: scaleY(1); }
+  100% { transform: scaleY(1.15); }
+}
+
+/* Profile: Nod */
+#nav-profile:hover svg { animation: nodHead 0.8s ease-in-out infinite; transform-origin: center; }
+@keyframes nodHead {
+  0%, 100% { transform: rotate(0) scale(1); }
+  25% { transform: rotate(-10deg) scale(1.1); }
+  75% { transform: rotate(10deg) scale(1.1); }
+}
+
+/* Admin: Layer shift */
+#nav-admin:hover svg { animation: pulseAdmin 1s ease-in-out infinite alternate; }
+@keyframes pulseAdmin {
+  0% { transform: translateY(0) scale(1); }
+  100% { transform: translateY(-3px) scale(1.1); }
+}
+
 @media (max-width: 480px) {
   .ai-float-btn { bottom: 20px; right: 16px; }
   .ai-chat-drawer { right: 8px; width: calc(100vw - 16px); bottom: 88px; }
