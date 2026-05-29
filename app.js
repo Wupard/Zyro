@@ -2378,6 +2378,8 @@ function initWeightLog(){
   });
 }
 
+let editingNoteId = null;
+
 // =============================================
 // NOTES
 // =============================================
@@ -2389,6 +2391,14 @@ function initNotes() {
   const colorBtns = document.querySelectorAll('.note-color-btn');
 
   if (!saveBtn || !input) return;
+
+  // Auto-convert "-" to bullet point
+  input.addEventListener('input', function() {
+    if (this.value.startsWith('-')) {
+      this.value = '• ' + this.value.substring(1);
+    }
+    this.value = this.value.replace(/\n-/g, '\n• ');
+  });
 
   tags.forEach(btn => {
     btn.addEventListener('click', () => {
@@ -2422,15 +2432,15 @@ function initNotes() {
       if (VALID_TAGS.includes(b.dataset.tag)) selectedTags.push(b.dataset.tag);
     });
 
-    const noteId = Date.now().toString();
+    const noteId = editingNoteId ? editingNoteId : Date.now().toString();
     const note = {
       id: noteId,
       title,
       text,
       color,
       tags: selectedTags,
-      timestamp: Date.now(),
-      date: todayStr()
+      timestamp: editingNoteId && appData.notes[noteId] ? appData.notes[noteId].timestamp : Date.now(),
+      date: editingNoteId && appData.notes[noteId] ? appData.notes[noteId].date : todayStr()
     };
 
     if (!appData.notes) appData.notes = {};
@@ -2448,6 +2458,9 @@ function initNotes() {
       colorBtns[0].classList.add('active');
       colorBtns[0].style.borderColor = 'var(--accent-primary)';
     }
+    
+    editingNoteId = null;
+    saveBtn.innerHTML = currentLang === 'tr' ? 'Notu Kaydet' : 'Save Note';
     
     showToast(currentLang === 'tr' ? 'Not kaydedildi!' : 'Note saved!', 'success');
     renderNotes();
@@ -2498,10 +2511,16 @@ function renderNotes() {
         <div style="flex:1;">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
             <span style="font-size:0.75rem;color:var(--text-muted);font-weight:600;">${dateLabel}</span>
-            <button onclick="deleteNote('${note.id}')" style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);color:#ef4444;cursor:pointer;padding:5px 7px;border-radius:7px;transition:all 0.2s;display:flex;align-items:center;gap:4px;font-size:0.7rem;" title="Notu Sil">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-              Sil
-            </button>
+            <div style="display:flex; gap:8px;">
+              <button onclick="editNote('${note.id}')" style="background:rgba(92,138,222,0.08);border:1px solid rgba(92,138,222,0.2);color:#5c8ade;cursor:pointer;padding:5px 7px;border-radius:7px;transition:all 0.2s;display:flex;align-items:center;gap:4px;font-size:0.7rem;" title="Notu Düzenle">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                Düzenle
+              </button>
+              <button onclick="deleteNote('${note.id}')" style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);color:#ef4444;cursor:pointer;padding:5px 7px;border-radius:7px;transition:all 0.2s;display:flex;align-items:center;gap:4px;font-size:0.7rem;" title="Notu Sil">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                Sil
+              </button>
+            </div>
           </div>
           ${titleHtml}
           <div style="font-size:0.9rem;line-height:1.5;color:var(--text-primary);margin-bottom:10px;white-space:pre-wrap;">${note.text}</div>
@@ -2529,6 +2548,47 @@ window.bulkDeleteNotes = function() {
   saveData();
   renderNotes();
   showToast(`${idsToDelete.length} not silindi.`, 'success');
+};
+
+window.editNote = function(noteId) {
+  const note = appData.notes[noteId];
+  if (!note) return;
+  
+  const input = document.getElementById('noteInput');
+  const titleInput = document.getElementById('noteTitleInput');
+  const saveBtn = document.getElementById('saveNoteBtn');
+  
+  if (input) input.value = note.text || '';
+  if (titleInput) titleInput.value = note.title || '';
+  
+  // Tags
+  document.querySelectorAll('#pageNotes .tag-btn').forEach(btn => {
+    if (note.tags && note.tags.includes(btn.dataset.tag)) {
+      btn.classList.add('active');
+    } else {
+      btn.classList.remove('active');
+    }
+  });
+  
+  // Colors
+  const colorBtns = document.querySelectorAll('.note-color-btn');
+  colorBtns.forEach(btn => {
+    if (btn.dataset.color === note.color) {
+      btn.classList.add('active');
+      btn.style.borderColor = 'var(--accent-primary)';
+    } else {
+      btn.classList.remove('active');
+      btn.style.borderColor = 'transparent';
+    }
+  });
+  
+  editingNoteId = noteId;
+  if (saveBtn) saveBtn.innerHTML = currentLang === 'tr' ? 'Notu Güncelle' : 'Update Note';
+  
+  // Scroll to top of notes page
+  const pageNotes = document.getElementById('pageNotes');
+  if (pageNotes) pageNotes.scrollTo({top: 0, behavior: 'smooth'});
+  window.scrollTo({top: 0, behavior: 'smooth'});
 };
 
 window.deleteNote = function(noteId) {
@@ -3549,57 +3609,120 @@ const ACHIEVEMENT_GROUPS = [
   {
     id: 'bench_group', label: 'Bench Press', icon: 'barbell',
     badges: [
-      { id: 'bench_50',  name: '50 kg Bench',  exercise: 'Barbell Bench Press', target: 50,  desc: 'Bench Press ile 50 kg kaldır.' },
-      { id: 'bench_80',  name: '80 kg Bench',  exercise: 'Barbell Bench Press', target: 80,  desc: 'Bench Press ile 80 kg kaldır.' },
-      { id: 'bench_100', name: '100 kg Bench', exercise: 'Barbell Bench Press', target: 100, desc: 'Bench Press ile 100 kg kaldır.' },
+      { id: 'bench_50',  name: '50 kg Bench',      exercise: 'Barbell Bench Press', target: 50,  desc: 'Bench Press ile 50 kg kaldır.' },
+      { id: 'bench_60',  name: 'Isınma Bitti',     exercise: 'Barbell Bench Press', target: 60,  desc: 'Bench Press ile 60 kg kaldır.' },
+      { id: 'bench_70',  name: 'Demirle Dans',     exercise: 'Barbell Bench Press', target: 70,  desc: 'Bench Press ile 70 kg kaldır.' },
+      { id: 'bench_80',  name: '80 kg Bench',      exercise: 'Barbell Bench Press', target: 80,  desc: 'Bench Press ile 80 kg kaldır.' },
+      { id: 'bench_90',  name: 'Ciddi Seviye',     exercise: 'Barbell Bench Press', target: 90,  desc: 'Bench Press ile 90 kg kaldır.' },
+      { id: 'bench_100', name: '100 kg Bench',     exercise: 'Barbell Bench Press', target: 100, desc: 'Bench Press ile 100 kg kaldır.' },
+      { id: 'bench_110', name: 'Kaldıraç Ustası',  exercise: 'Barbell Bench Press', target: 110, desc: 'Bench Press ile 110 kg kaldır.' },
+      { id: 'bench_120', name: 'Göğüs Kafesi Kralı', exercise: 'Barbell Bench Press', target: 120, desc: 'Bench Press ile 120 kg kaldır.' },
+      { id: 'bench_130', name: 'Yerçekimi İnkarcısı', exercise: 'Barbell Bench Press', target: 130, desc: 'Bench Press ile 130 kg kaldır.' },
+      { id: 'bench_150', name: 'Titanik Güç',      exercise: 'Barbell Bench Press', target: 150, desc: 'Bench Press ile 150 kg kaldır.' },
     ]
   },
   {
     id: 'squat_group', label: 'Squat', icon: 'barbell',
     badges: [
-      { id: 'squat_80',  name: '80 kg Squat',  exercise: 'Squat', target: 80,  desc: 'Squat ile 80 kg kaldır.' },
-      { id: 'squat_100', name: '100 kg Squat', exercise: 'Squat', target: 100, desc: 'Squat ile 100 kg kaldır.' },
-      { id: 'squat_140', name: '140 kg Squat', exercise: 'Squat', target: 140, desc: 'Squat ile 140 kg kaldır.' },
+      { id: 'squat_60',  name: 'Temel Atma',       exercise: 'Squat', target: 60,  desc: 'Squat ile 60 kg kaldır.' },
+      { id: 'squat_80',  name: '80 kg Squat',      exercise: 'Squat', target: 80,  desc: 'Squat ile 80 kg kaldır.' },
+      { id: 'squat_90',  name: 'Bacak Günü Savaşçısı', exercise: 'Squat', target: 90,  desc: 'Squat ile 90 kg kaldır.' },
+      { id: 'squat_100', name: '100 kg Squat',     exercise: 'Squat', target: 100, desc: 'Squat ile 100 kg kaldır.' },
+      { id: 'squat_110', name: 'Çelik Bacaklar',   exercise: 'Squat', target: 110, desc: 'Squat ile 110 kg kaldır.' },
+      { id: 'squat_120', name: 'Sarsılmaz Duruş',  exercise: 'Squat', target: 120, desc: 'Squat ile 120 kg kaldır.' },
+      { id: 'squat_130', name: 'Atlas\'ın Yükü',   exercise: 'Squat', target: 130, desc: 'Squat ile 130 kg kaldır.' },
+      { id: 'squat_140', name: '140 kg Squat',     exercise: 'Squat', target: 140, desc: 'Squat ile 140 kg kaldır.' },
+      { id: 'squat_150', name: 'Dağ Deviren',      exercise: 'Squat', target: 150, desc: 'Squat ile 150 kg kaldır.' },
+      { id: 'squat_160', name: 'Goril Gücü',       exercise: 'Squat', target: 160, desc: 'Squat ile 160 kg kaldır.' },
+      { id: 'squat_180', name: 'Beton Kırıcı',     exercise: 'Squat', target: 180, desc: 'Squat ile 180 kg kaldır.' },
+      { id: 'squat_200', name: 'Yarı Tanrı',       exercise: 'Squat', target: 200, desc: 'Squat ile 200 kg kaldır.' },
     ]
   },
   {
     id: 'deadlift_group', label: 'Deadlift', icon: 'barbell',
     badges: [
-      { id: 'deadlift_80',  name: '80 kg Deadlift',  exercise: 'Romanian Deadlift', target: 80,  desc: 'Deadlift ile 80 kg kaldır.' },
-      { id: 'deadlift_100', name: '100 kg Deadlift', exercise: 'Romanian Deadlift', target: 100, desc: 'Deadlift ile 100 kg kaldır.' },
-      { id: 'deadlift_150', name: '150 kg Deadlift', exercise: 'Romanian Deadlift', target: 150, desc: 'Deadlift ile 150 kg kaldır.' },
+      { id: 'deadlift_60',  name: 'Yerden Kesme',     exercise: 'Romanian Deadlift', target: 60,  desc: 'Deadlift ile 60 kg kaldır.' },
+      { id: 'deadlift_80',  name: '80 kg Deadlift',   exercise: 'Romanian Deadlift', target: 80,  desc: 'Deadlift ile 80 kg kaldır.' },
+      { id: 'deadlift_90',  name: 'Tutuş Gücü',       exercise: 'Romanian Deadlift', target: 90,  desc: 'Deadlift ile 90 kg kaldır.' },
+      { id: 'deadlift_100', name: '100 kg Deadlift',  exercise: 'Romanian Deadlift', target: 100, desc: 'Deadlift ile 100 kg kaldır.' },
+      { id: 'deadlift_120', name: 'Sırtın İntikamı',  exercise: 'Romanian Deadlift', target: 120, desc: 'Deadlift ile 120 kg kaldır.' },
+      { id: 'deadlift_140', name: 'Demir Koparan',    exercise: 'Romanian Deadlift', target: 140, desc: 'Deadlift ile 140 kg kaldır.' },
+      { id: 'deadlift_150', name: '150 kg Deadlift',  exercise: 'Romanian Deadlift', target: 150, desc: 'Deadlift ile 150 kg kaldır.' },
+      { id: 'deadlift_160', name: 'Ayı Boğan',        exercise: 'Romanian Deadlift', target: 160, desc: 'Deadlift ile 160 kg kaldır.' },
+      { id: 'deadlift_180', name: 'Belkemiği',        exercise: 'Romanian Deadlift', target: 180, desc: 'Deadlift ile 180 kg kaldır.' },
+      { id: 'deadlift_200', name: 'Yer Sarsıntısı',   exercise: 'Romanian Deadlift', target: 200, desc: 'Deadlift ile 200 kg kaldır.' },
+      { id: 'deadlift_220', name: 'Herkül\'ün Mirası',exercise: 'Romanian Deadlift', target: 220, desc: 'Deadlift ile 220 kg kaldır.' },
     ]
   },
   {
     id: 'lat_group', label: 'Lat Pulldown', icon: 'machine',
     badges: [
-      { id: 'lat_50', name: '50 kg Lat',  exercise: 'Lat Pulldown', target: 50, desc: 'Lat Pulldown ile 50 kg çek.' },
-      { id: 'lat_80', name: '80 kg Lat',  exercise: 'Lat Pulldown', target: 80, desc: 'Lat Pulldown ile 80 kg çek.' },
+      { id: 'lat_50',  name: '50 kg Lat',        exercise: 'Lat Pulldown', target: 50,  desc: 'Lat Pulldown ile 50 kg çek.' },
+      { id: 'lat_60',  name: 'Kanat Çırpınışı',  exercise: 'Lat Pulldown', target: 60,  desc: 'Lat Pulldown ile 60 kg çek.' },
+      { id: 'lat_70',  name: 'Sırtlan',          exercise: 'Lat Pulldown', target: 70,  desc: 'Lat Pulldown ile 70 kg çek.' },
+      { id: 'lat_80',  name: '80 kg Lat',        exercise: 'Lat Pulldown', target: 80,  desc: 'Lat Pulldown ile 80 kg çek.' },
+      { id: 'lat_90',  name: 'Geniş Omuzlar',    exercise: 'Lat Pulldown', target: 90,  desc: 'Lat Pulldown ile 90 kg çek.' },
+      { id: 'lat_100', name: 'V-Taper Hayali',   exercise: 'Lat Pulldown', target: 100, desc: 'Lat Pulldown ile 100 kg çek.' },
+      { id: 'lat_110', name: 'Kartal Kanatları', exercise: 'Lat Pulldown', target: 110, desc: 'Lat Pulldown ile 110 kg çek.' },
+      { id: 'lat_120', name: 'Makine Kırıcı',    exercise: 'Lat Pulldown', target: 120, desc: 'Lat Pulldown ile 120 kg çek.' },
     ]
   },
   {
     id: 'biceps_group', label: 'Biceps Curl', icon: 'dumbbell',
     badges: [
-      { id: 'biceps_20', name: '20 kg Biceps', exercise: 'Seated DB Biceps Curl', target: 20, desc: 'Biceps Curl ile 20 kg kaldır.' },
-      { id: 'biceps_30', name: '30 kg Biceps', exercise: 'Seated DB Biceps Curl', target: 30, desc: 'Biceps Curl ile 30 kg kaldır.' },
+      { id: 'biceps_10', name: 'İlk Şişkinlik',  exercise: 'Seated DB Biceps Curl', target: 10, desc: 'Biceps Curl ile 10 kg kaldır.' },
+      { id: 'biceps_15', name: 'Damar Yolculuğu',exercise: 'Seated DB Biceps Curl', target: 15, desc: 'Biceps Curl ile 15 kg kaldır.' },
+      { id: 'biceps_20', name: '20 kg Biceps',   exercise: 'Seated DB Biceps Curl', target: 20, desc: 'Biceps Curl ile 20 kg kaldır.' },
+      { id: 'biceps_25', name: 'Tişört Yırtan',  exercise: 'Seated DB Biceps Curl', target: 25, desc: 'Biceps Curl ile 25 kg kaldır.' },
+      { id: 'biceps_30', name: '30 kg Biceps',   exercise: 'Seated DB Biceps Curl', target: 30, desc: 'Biceps Curl ile 30 kg kaldır.' },
+      { id: 'biceps_35', name: 'Demir Kollu',    exercise: 'Seated DB Biceps Curl', target: 35, desc: 'Biceps Curl ile 35 kg kaldır.' },
+      { id: 'biceps_40', name: 'Gülle Biceps',   exercise: 'Seated DB Biceps Curl', target: 40, desc: 'Biceps Curl ile 40 kg kaldır.' },
+      { id: 'biceps_45', name: 'Dağ Tepesi',     exercise: 'Seated DB Biceps Curl', target: 45, desc: 'Biceps Curl ile 45 kg kaldır.' },
+    ]
+  },
+  {
+    id: 'legpress_group', label: 'Leg Press', icon: 'machine',
+    badges: [
+      { id: 'legpress_100', name: 'İlk İtiş',           exercise: 'Leg Press', target: 100, desc: 'Leg Press ile 100 kg it.' },
+      { id: 'legpress_150', name: 'Bacak Günü Aşığı',   exercise: 'Leg Press', target: 150, desc: 'Leg Press ile 150 kg it.' },
+      { id: 'legpress_200', name: 'Dört Tekerlek',      exercise: 'Leg Press', target: 200, desc: 'Leg Press ile 200 kg it.' },
+      { id: 'legpress_300', name: 'Tank İten',          exercise: 'Leg Press', target: 300, desc: 'Leg Press ile 300 kg it.' },
+      { id: 'legpress_400', name: 'Gezegen İtici',      exercise: 'Leg Press', target: 400, desc: 'Leg Press ile 400 kg it.' },
+    ]
+  },
+  {
+    id: 'shoulder_group', label: 'Overhead Press', icon: 'barbell',
+    badges: [
+      { id: 'ohp_40',  name: 'Gökyüzüne Doğru',  exercise: 'Overhead Press', target: 40,  desc: 'Overhead Press ile 40 kg it.' },
+      { id: 'ohp_60',  name: 'Omuz Başları',     exercise: 'Overhead Press', target: 60,  desc: 'Overhead Press ile 60 kg it.' },
+      { id: 'ohp_80',  name: 'Zirveye Ulaşan',   exercise: 'Overhead Press', target: 80,  desc: 'Overhead Press ile 80 kg it.' },
+      { id: 'ohp_100', name: 'Atlas Duruşu',     exercise: 'Overhead Press', target: 100, desc: 'Overhead Press ile 100 kg it.' },
     ]
   },
   {
     id: 'single_group', label: 'Diğer Hareketler', icon: 'dumbbell',
     badges: [
       { id: 'hammer_25',        name: '25 kg Hammer Curl',   exercise: 'Cross-Body Hammer Curl',     target: 25,  desc: 'Hammer Curl ile 25 kg kaldır.' },
-      { id: 'triceps_40',       name: '40 kg Pushdown',      exercise: 'Straight-Bar Pushdown',     target: 40,  desc: 'Straight-Bar Pushdown ile 40 kg it.' },
-      { id: 'triceps_60',       name: '60 kg Pushdown',      exercise: 'Straight-Bar Pushdown',     target: 60,  desc: 'Straight-Bar Pushdown ile 60 kg it.' },
+      { id: 'triceps_40',       name: '40 kg Pushdown',      exercise: 'Straight-Bar Pushdown',      target: 40,  desc: 'Straight-Bar Pushdown ile 40 kg it.' },
+      { id: 'triceps_60',       name: '60 kg Pushdown',      exercise: 'Straight-Bar Pushdown',      target: 60,  desc: 'Straight-Bar Pushdown ile 60 kg it.' },
       { id: 'shoulder_50',      name: '50 kg Shoulder',      exercise: 'Cable Shoulder',             target: 50,  desc: 'Cable Shoulder ile 50 kg çek.' },
       { id: 'crunch_60',        name: '60 kg Crunch',        exercise: 'Straight Bar Cable Crunch',  target: 60,  desc: 'Cable Crunch ile 60 kg çek.' },
       { id: 'incline_bench_60', name: '60 kg İncline',       exercise: 'İncline Bench Press',        target: 60,  desc: 'İncline ile 60 kg kaldır.' },
+      { id: 'pecdeck_80',       name: '80 kg Pec Deck',      exercise: 'Pec Deck Fly',               target: 80,  desc: 'Pec Deck Fly ile 80 kg sıkıştır.' },
+      { id: 'cablecross_40',    name: '40 kg Crossover',     exercise: 'Cable Crossover',            target: 40,  desc: 'Cable Crossover ile 40 kg çek.' },
     ]
   },
   {
     id: 'streak_group', label: 'Seri / Devam', icon: 'streak',
     badges: [
-      { id: 'streak_3', name: '3 Günlük Seri', exercise: null, target: 3, desc: 'Haftada 3 gün antrenman yap.' },
-      { id: 'streak_7', name: '7 Günlük Seri', exercise: null, target: 7, desc: '7 gün üst üste antrenman yap.' },
+      { id: 'streak_3',   name: '3 Günlük Seri',    exercise: null, target: 3,   desc: '3 gün antrenman yap.' },
+      { id: 'streak_7',   name: '7 Günlük Seri',    exercise: null, target: 7,   desc: '7 gün üst üste antrenman yap.' },
+      { id: 'streak_14',  name: 'İstikrar Timsali', exercise: null, target: 14,  desc: '14 gün üst üste antrenman yap.' },
+      { id: 'streak_21',  name: 'Alışkanlık Canavarı', exercise: null, target: 21, desc: '21 gün üst üste antrenman yap.' },
+      { id: 'streak_30',  name: 'Aylık Şövalye',    exercise: null, target: 30,  desc: '30 gün üst üste antrenman yap.' },
+      { id: 'streak_50',  name: 'Disiplin Elçisi',  exercise: null, target: 50,  desc: '50 gün üst üste antrenman yap.' },
+      { id: 'streak_100', name: 'Terminatör',       exercise: null, target: 100, desc: '100 gün üst üste antrenman yap.' },
+      { id: 'streak_365', name: 'Efsanevi Yıl',     exercise: null, target: 365, desc: '365 gün üst üste antrenman yap.' },
     ]
   },
 ];
