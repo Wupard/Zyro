@@ -361,13 +361,10 @@ const EXERCISE_CATEGORIES = {
 
 const RANKS = {
   'kurucu': { label: 'KURUCU', color: '#EF4444', bg: 'rgba(239, 68, 68, 0.15)', canAdmin: true },
-  'admin': { label: 'ADMIN', color: '#F472B6', bg: 'rgba(244, 114, 182, 0.15)', canAdmin: true },
   'mod': { label: 'MOD', color: '#FFD700', bg: 'rgba(255, 215, 0, 0.15)', canAdmin: true },
-  'special': { label: 'SPECIAL', color: '#A855F7', bg: 'rgba(168, 85, 247, 0.15)', canAdmin: false },
   'premium': { label: 'PREMIUM', color: '#3B82F6', bg: 'rgba(59, 130, 246, 0.15)', canAdmin: false },
-  'member': { label: 'MEMBER', color: '#22C55E', bg: 'rgba(34, 197, 94, 0.15)', canAdmin: false },
   'mal': { label: 'MAL', color: '#EF4444', bg: 'rgba(239, 68, 68, 0.15)', canAdmin: false },
-  'default': { label: 'USER', color: '#94A3B8', bg: 'rgba(148, 163, 184, 0.1)', canAdmin: false }
+  'default': { label: 'ÜYE', color: '#94A3B8', bg: 'rgba(148, 163, 184, 0.1)', canAdmin: false }
 };
 
 const CATEGORY_ICONS = {
@@ -550,8 +547,8 @@ let userProfileListenerUnsub = null;
 function commentAuthorRankKey() {
   if (!currentUser) return 'default';
   if (currentUser.email === 'wupard@gmail.com') return 'kurucu';
-  if (appData.firestoreAdmin) return 'admin';
-  if (appData.userRank === 'admin') return 'admin';
+  if (appData.firestoreAdmin) return 'mod';
+  if (appData.userRank === 'admin') return 'mod';
   if (appData.userRank === 'mod') return 'mod';
   return appData.userRank || 'default';
 }
@@ -816,7 +813,8 @@ function updateUserUI(user){
     rankInfo.style.marginRight = '6px';
     
     // Get rank from data
-    const userRank = appData.userRank || (isAdmin ? 'mod' : 'default');
+    let userRank = appData.userRank || (isAdmin ? 'mod' : 'default');
+    if (userRank === 'admin') userRank = 'mod';
     const rank = RANKS[userRank] || RANKS.default;
     rankInfo.textContent = rank.label;
     rankInfo.style.color = rank.color;
@@ -844,7 +842,9 @@ function updateUserUI(user){
           const userData = snap.data().data || {};
           if (userData.userRank) {
             appData.userRank = userData.userRank;
-            const updatedRank = RANKS[userData.userRank] || RANKS.default;
+            let rk = userData.userRank;
+            if (rk === 'admin') rk = 'mod';
+            const updatedRank = RANKS[rk] || RANKS.default;
             const rankEl = document.getElementById('userRankInfo');
             if (rankEl) {
               rankEl.textContent = updatedRank.label;
@@ -4904,7 +4904,8 @@ async function adminLoadUsers() {
       const profile = data.profile || top.profile || {};
       const displayName = profile.displayName || data.userName || top.userName || top.displayName || '';
       const email = profile.email || data.email || top.email || '';
-      const rankKey = email === 'wupard@gmail.com' ? 'kurucu' : (data.userRank || top.userRank || 'default');
+      let rankKey = email === 'wupard@gmail.com' ? 'kurucu' : (data.userRank || top.userRank || 'default');
+      if (rankKey === 'admin') rankKey = 'mod';
       const rankLabel = (typeof RANKS !== 'undefined' && RANKS[rankKey] ? RANKS[rankKey].label : (rankKey || 'Üye'));
       html += `
         <div style="padding:12px; border-bottom:1px solid var(--border-subtle); display:flex; justify-content:space-between; align-items:center;">
@@ -4980,7 +4981,8 @@ window.adminViewUserDetails = async function(uid) {
     const profile = data.profile || top.profile || {};
     const displayName = profile.displayName || data.userName || top.userName || top.displayName || '';
     const email = profile.email || data.email || top.email || '';
-    const rankKey = email === 'wupard@gmail.com' ? 'kurucu' : (data.userRank || top.userRank || 'default');
+    let rankKey = email === 'wupard@gmail.com' ? 'kurucu' : (data.userRank || top.userRank || 'default');
+    if (rankKey === 'admin') rankKey = 'mod';
     const rank = (typeof RANKS !== 'undefined' && RANKS[rankKey]) ? RANKS[rankKey] : null;
 
     if (titleEl) titleEl.textContent = displayName ? `${displayName} — Detay` : 'Kullanıcı Detayı';
@@ -5692,6 +5694,7 @@ function updateUserUI(user){
 
   // Rank Display
   let userRankKey = appData.userRank || 'default';
+  if (userRankKey === 'admin') userRankKey = 'mod';
   if (user && user.email === 'wupard@gmail.com') userRankKey = 'kurucu';
   if (appData.firestoreAdmin && userRankKey === 'default') userRankKey = 'mod';
   const rank = RANKS[userRankKey] || RANKS.default;
@@ -5751,7 +5754,8 @@ function updateUserUI(user){
       if (userData.userRank) {
         appData.userRank = userData.userRank;
       }
-      const rk = appData.userRank || 'default';
+      let rk = appData.userRank || 'default';
+      if (rk === 'admin') rk = 'mod';
       const updRank = RANKS[rk] || RANKS.default;
       const rankEl = document.getElementById('userRankInfo');
       if (rankEl) {
@@ -5762,6 +5766,7 @@ function updateUserUI(user){
       const rb = document.getElementById('userRank');
       if (rb && currentUser) {
         let key = appData.userRank || 'default';
+        if (key === 'admin') key = 'mod';
         if (currentUser.email === 'wupard@gmail.com') key = 'kurucu';
         if (appData.firestoreAdmin && key === 'default') key = 'mod';
         const r2 = RANKS[key] || RANKS.default;
@@ -6695,7 +6700,8 @@ window.loadProfileData = function() {
         
         // Load rank (nested data.userRank veya kök alan rank — Android uyumu)
         const rootSnap = doc.data();
-        const rankKey = rootSnap.rank || userData.userRank || 'default';
+        let rankKey = rootSnap.rank || userData.userRank || 'default';
+        if (rankKey === 'admin') rankKey = 'mod';
         const rank = RANKS[rankKey] || RANKS.default;
         const labelEl = document.getElementById('profileRank');
         const pctEl = document.getElementById('profileRankPct');
@@ -6733,9 +6739,10 @@ function renderSidebarProfile(user){
   
   if (rankEl) {
     const isAdmin = user && (user.email === 'wupard@gmail.com' || appData.userRank === 'admin' || appData.userRank === 'mod');
-    const uRank = appData.userRank || (isAdmin ? 'mod' : 'default');
+    let uRank = appData.userRank || (isAdmin ? 'mod' : 'default');
+    if (uRank === 'admin') uRank = 'mod';
     const rankObj = RANKS[uRank] || RANKS.default;
-    rankEl.textContent = rankObj.name;
+    rankEl.textContent = rankObj.label || rankObj.name || '';
     rankEl.style.background = rankObj.bg;
     rankEl.style.color = rankObj.color;
   }
@@ -7126,14 +7133,6 @@ window.handleAuthStateChange = function(user) {
     if (document.getElementById('pageProfile')) {
       loadProfileData();
     }
-    
-    // Check and setup FCM Push Notifications
-    setTimeout(() => {
-      if (typeof window.checkAndPromptPushNotifications === 'function') {
-        window.checkAndPromptPushNotifications();
-      }
-    }, 2000);
-    
     // Setup foreground message listener if not already done
     if (typeof messaging !== 'undefined' && messaging && !window._fcmForegroundListenerAdded) {
       window._fcmForegroundListenerAdded = true;
@@ -7148,44 +7147,7 @@ window.handleAuthStateChange = function(user) {
 };
 
 window.checkAndPromptPushNotifications = function() {
-  if (!('Notification' in window)) return;
-  
-  if (Notification.permission === 'default') {
-    const dismissed = localStorage.getItem('zyro_push_prompt_dismissed');
-    if (dismissed && Date.now() - parseInt(dismissed) < 7 * 24 * 60 * 60 * 1000) return;
-    
-    if (document.getElementById('pushPromptOverlay')) return;
-    
-    const overlay = document.createElement('div');
-    overlay.id = 'pushPromptOverlay';
-    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:999999;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(5px);';
-    overlay.innerHTML = `
-      <div style="background:var(--bg-card);padding:24px;border-radius:20px;max-width:320px;text-align:center;border:1px solid rgba(255,255,255,0.1);box-shadow:0 10px 40px rgba(0,0,0,0.5);">
-        <div style="font-size:3rem;margin-bottom:16px;">🔔</div>
-        <h3 style="margin-bottom:12px;color:var(--text-primary);font-size:1.2rem;">Bildirimleri Açın</h3>
-        <p style="color:var(--text-secondary);font-size:0.9rem;margin-bottom:20px;line-height:1.4;">Duyuruları ve yorum yanıtlarını anında görebilmek için bildirimlere izin verin.</p>
-        <button id="btnAllowPushPrompt" class="btn-primary" style="width:100%;margin-bottom:10px;">İzin Ver</button>
-        <button id="btnDenyPushPrompt" style="width:100%;background:transparent;color:var(--text-muted);border:none;padding:12px;cursor:pointer;font-weight:600;font-size:0.9rem;">Daha Sonra</button>
-      </div>
-    `;
-    document.body.appendChild(overlay);
-
-    document.getElementById('btnAllowPushPrompt').onclick = async () => {
-      overlay.remove();
-      if (typeof window.requestNotificationPermission === 'function') {
-        window.requestNotificationPermission(false);
-      }
-    };
-    document.getElementById('btnDenyPushPrompt').onclick = () => {
-      overlay.remove();
-      localStorage.setItem('zyro_push_prompt_dismissed', Date.now().toString());
-    };
-  } else if (Notification.permission === 'granted') {
-    // Silently fetch token and update firestore if already granted
-    if (typeof window.requestNotificationPermission === 'function') {
-      window.requestNotificationPermission(true);
-    }
-  }
+  // Mobile push disabled by user request. Only site UI notifications will be used.
 };
 
 
@@ -7200,6 +7162,23 @@ if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('sw.js')
       .then(reg => console.log('PWA Service Worker registered:', reg.scope))
       .catch(err => console.warn('PWA Service Worker registration failed:', err));
+      
+    // Global push notification prompt after a short delay
+    setTimeout(() => {
+      if (typeof window.checkAndPromptPushNotifications === 'function') {
+        window.checkAndPromptPushNotifications();
+      }
+      // Global foreground listener for visitors who are not logged in but granted notifications
+      if (typeof messaging !== 'undefined' && messaging && !window._fcmForegroundListenerAdded) {
+        window._fcmForegroundListenerAdded = true;
+        messaging.onMessage((payload) => {
+          console.log('Message received in foreground: ', payload);
+          const title = payload.notification ? payload.notification.title : 'Yeni Bildirim';
+          const body = payload.notification ? payload.notification.body : '';
+          showToast(`${title}: ${body}`, 'info');
+        });
+      }
+    }, 1500);
   });
 }
 
@@ -7337,6 +7316,18 @@ function updateLevelUI() {
     if (level > window.zyroSessionLevel) {
       showToast(`🎉 Seviye ${level} oldunuz! Tebrikler!`, 'success');
       if (typeof runConfetti === 'function') runConfetti();
+      
+      // Sitedeki bildirimler kısmına seviye atlama bildirimi ekle
+      if (typeof currentUser !== 'undefined' && currentUser && typeof db !== 'undefined') {
+        db.collection(`users/${currentUser.uid}/notifications`).add({
+          title: 'Seviye Atladınız!',
+          body: `Harika gidiyorsunuz! Seviye ${level} oldunuz.`,
+          timestamp: Date.now(),
+          read: false,
+          type: 'personal',
+          icon: '🎉'
+        }).catch(err => console.error('Level up notification error:', err));
+      }
     }
   }
   

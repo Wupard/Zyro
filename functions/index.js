@@ -110,12 +110,14 @@ exports.onPublicCommentCreatedEmail = functions.firestore
 /**
  * Admin Duyuruları (Broadcast) FCM Bildirimi
  */
-exports.onAdminNotificationCreated = functions.firestore
-  .document("admin_notifications/{notifId}")
+exports.onBroadcastNotificationCreated = functions.firestore
+  .document("notifications/{notifId}")
   .onCreate(async (snap) => {
     const data = snap.data() || {};
+    if (data.type !== 'broadcast') return null;
+    
     const title = data.title || "Yeni Duyuru";
-    const message = data.message || "Admin'den yeni bir mesajınız var.";
+    const message = data.body || data.message || "Admin'den yeni bir mesajınız var.";
     
     try {
       const usersSnap = await admin.firestore().collection("users").get();
@@ -145,6 +147,43 @@ exports.onAdminNotificationCreated = functions.firestore
       }
     } catch (err) {
       console.error("FCM Broadcast Error:", err);
+    }
+    
+    return null;
+  });
+
+/**
+ * Kişisel Bildirimler (FCM)
+ */
+exports.onPersonalNotificationCreated = functions.firestore
+  .document("users/{userId}/notifications/{notifId}")
+  .onCreate(async (snap, context) => {
+    const data = snap.data() || {};
+    const userId = context.params.userId;
+    const title = data.title || "Yeni Bildirim";
+    const message = data.body || data.message || "Size özel yeni bir bildiriminiz var.";
+    
+    try {
+      const userSnap = await admin.firestore().collection("users").doc(userId).get();
+      if (userSnap.exists) {
+        const u = userSnap.data();
+        const fcmToken = u?.data?.profile?.fcmToken;
+        if (fcmToken) {
+          const payload = {
+            notification: {
+              title: title,
+              body: message,
+            },
+            data: {
+              link: '/dashboard'
+            }
+          };
+          await admin.messaging().sendToDevice(fcmToken, payload);
+          console.log(`Push notification sent to user ${userId}.`);
+        }
+      }
+    } catch (err) {
+      console.error("FCM Personal Notification Error:", err);
     }
     
     return null;
