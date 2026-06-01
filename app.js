@@ -5122,7 +5122,7 @@ window.adminViewUserDetails = async function(uid) {
               <label style="font-size:0.75rem; font-weight:700; color:var(--accent-primary); text-transform:uppercase; letter-spacing:0.5px;">⚡ Manuel Seviye Ata</label>
               <div style="font-size:0.72rem; color:var(--text-muted); margin-bottom:2px;">Kullanıcının profilinde görünen seviyeyi manuel olarak ayarla. (1–100)</div>
               <div style="display:flex; gap:8px; align-items:center;">
-                <input type="number" id="adminLevelInput_${uid}" min="1" max="100" placeholder="1–100"
+                <input type="number" id="adminLevelInputBox" data-uid="${uid}" min="1" max="100" placeholder="1–100"
                   class="log-input" style="width:100px; padding:10px; font-size:0.95rem; font-weight:800; text-align:center; background:rgba(255,255,255,0.03); border:1px solid rgba(139,124,247,0.25); border-radius:10px; color:var(--text-primary);">
                 <button onclick="adminSetUserLevel('${uid}')"
                   style="flex:1; padding:10px 16px; background:linear-gradient(135deg,var(--accent-deep),var(--accent-primary)); color:#fff; border:none; border-radius:10px; font-size:0.85rem; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; transition:opacity 0.2s;"
@@ -5133,7 +5133,7 @@ window.adminViewUserDetails = async function(uid) {
               </div>
               <div style="display:flex; gap:6px; flex-wrap:wrap;">
                 <span style="font-size:0.68rem; color:var(--text-muted);">Hızlı:</span>
-                ${[1,5,10,25,50,75,100].map(l => `<button onclick="document.getElementById('adminLevelInput_${uid}').value=${l}" style="padding:3px 10px; border-radius:20px; border:1px solid rgba(139,124,247,0.25); background:rgba(139,124,247,0.08); color:var(--accent-primary); font-size:0.68rem; font-weight:700; cursor:pointer;">${l}</button>`).join('')}
+                ${[1,5,10,25,50,75,100].map(l => '<button onclick="document.getElementById(\"adminLevelInputBox\").value=' + l + '" style="padding:3px 10px; border-radius:20px; border:1px solid rgba(139,124,247,0.25); background:rgba(139,124,247,0.08); color:var(--accent-primary); font-size:0.68rem; font-weight:700; cursor:pointer;">' + l + '</button>').join('')}
               </div>
             </div>
           </div>
@@ -5301,8 +5301,9 @@ window.adminSetUserRank = async function(uid, rankKey) {
 window.adminSetUserLevel = async function(uid) {
   if (!currentUser || currentUser.email !== 'wupard@gmail.com') return;
 
-  const inputEl = document.getElementById(`adminLevelInput_${uid}`);
-  if (!inputEl) return;
+  // Use the static input box ID - data-uid attribute verifies it belongs to this user
+  const inputEl = document.getElementById('adminLevelInputBox');
+  if (!inputEl) { showToast('Giriş kutusu bulunamadı', 'error'); return; }
 
   const targetLevel = parseInt(inputEl.value, 10);
   if (isNaN(targetLevel) || targetLevel < 1 || targetLevel > 100) {
@@ -5310,9 +5311,12 @@ window.adminSetUserLevel = async function(uid) {
     return;
   }
 
+  // Disable button during save
+  const btn = inputEl.parentElement ? inputEl.parentElement.querySelector('button') : null;
+  if (btn) { btn.disabled = true; btn.style.opacity = '0.6'; }
+
   try {
-    // XP required to be exactly at targetLevel
-    // getXPForLevel: (level-1)^2 * 50  => exactly the start of that level
+    // XP required to be exactly at targetLevel: (level-1)^2 * 50
     const forcedXP = Math.pow(targetLevel - 1, 2) * 50;
 
     // Save forced XP override to user doc
@@ -5325,19 +5329,18 @@ window.adminSetUserLevel = async function(uid) {
     await db.collection('public_stats').doc(uid).update({
       level: targetLevel,
       xp: forcedXP
-    }).catch(() => {
-      // If public_stats doc doesn't exist yet, set it
-      return db.collection('public_stats').doc(uid).set({
-        level: targetLevel,
-        xp: forcedXP
-      }, { merge: true });
-    });
+    }).catch(() => db.collection('public_stats').doc(uid).set({
+      level: targetLevel,
+      xp: forcedXP
+    }, { merge: true }));
 
-    showToast(`✅ Kullanıcıya Seviye ${targetLevel} atandı!`, 'success');
+    showToast(`✅ Seviye ${targetLevel} atandı!`, 'success');
     inputEl.value = '';
   } catch (e) {
     console.error('Level Set Error:', e);
     showToast('Seviye atanamadı: ' + e.message, 'error');
+  } finally {
+    if (btn) { btn.disabled = false; btn.style.opacity = '1'; }
   }
 };
 

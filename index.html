@@ -2100,9 +2100,10 @@
     <div class="modal" id="adminUserDetailModal"
       style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:2000; align-items:center; justify-content:center; padding:20px;">
       <div class="modal-content card"
-        style="width:100%; max-width:760px; max-height:90vh; overflow-y:auto; border: 1px solid var(--border-card); box-shadow: 0 0 30px rgba(139,124,247,0.18);">
+        style="width:100%; max-width:760px; max-height:90vh; display:flex; flex-direction:column; border: 1px solid var(--border-card); box-shadow: 0 0 30px rgba(139,124,247,0.18); overflow:hidden;">
+        <!-- Header: fixed, never scrolls -->
         <div class="card-header"
-          style="position:sticky; top:0; background:var(--bg-card); z-index:10; border-bottom: 1px solid var(--border-subtle);">
+          style="flex-shrink:0; background:var(--bg-card); z-index:10; border-bottom: 1px solid var(--border-subtle);">
           <h3 class="card-title" id="adminUserDetailTitle">Kullanıcı Detayı</h3>
           <button class="btn-small" onclick="closeAdminUserDetail()"
             style="background:transparent; color:var(--text-muted); padding:4px;">
@@ -2112,7 +2113,8 @@
             </svg>
           </button>
         </div>
-        <div id="adminUserDetailContent" style="padding:20px;"></div>
+        <!-- Content: scrollable independently -->
+        <div id="adminUserDetailContent" style="padding:20px; overflow-y:auto; flex:1;"></div>
       </div>
     </div>
 
