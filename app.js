@@ -7404,173 +7404,19 @@ function updateLevelUI() {
     }
   }
 
-  // Dynamic SVG Badge Selection
+  // Dynamic Badge Image Selection
   if (el('profileLevelBadgeContainer')) {
-    const BADGES = {
-      bronze: {
-        name: 'Bronz',
-        color1: '#cd7f32', color2: '#8B4513', glow: 'rgba(205,127,50,0.35)',
-        svg: `<svg viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
-          <defs>
-            <linearGradient id="bg_b" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0%" stop-color="#1a0f00"/>
-              <stop offset="100%" stop-color="#120900"/>
-            </linearGradient>
-            <linearGradient id="fr_b" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stop-color="#e8a96a"/>
-              <stop offset="50%" stop-color="#cd7f32"/>
-              <stop offset="100%" stop-color="#7a4010"/>
-            </linearGradient>
-            <filter id="glow_b"><feGaussianBlur stdDeviation="1.5" result="coloredBlur"/><feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-          </defs>
-          <polygon points="28,3 50,14 50,38 28,53 6,38 6,14" fill="url(#bg_b)" stroke="url(#fr_b)" stroke-width="2.5"/>
-          <polygon points="28,8 45,17.5 45,36 28,47 11,36 11,17.5" fill="none" stroke="#cd7f32" stroke-width="0.8" opacity="0.5"/>
-          <rect x="17" y="26" width="22" height="4" rx="2" fill="url(#fr_b)" filter="url(#glow_b)"/>
-          <circle cx="17" cy="28" r="4.5" fill="url(#fr_b)" stroke="#7a4010" stroke-width="0.8"/>
-          <circle cx="39" cy="28" r="4.5" fill="url(#fr_b)" stroke="#7a4010" stroke-width="0.8"/>
-          <circle cx="17" cy="28" r="2" fill="#120900"/>
-          <circle cx="39" cy="28" r="2" fill="#120900"/>
-          <polygon points="28,43 31,47 28,49 25,47" fill="#cd7f32" opacity="0.7"/>
-        </svg>`
-      },
-      silver: {
-        name: 'Gümüş',
-        color1: '#c0c0c0', color2: '#808080', glow: 'rgba(192,192,192,0.35)',
-        svg: `<svg viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
-          <defs>
-            <linearGradient id="bg_s" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0%" stop-color="#0d1117"/>
-              <stop offset="100%" stop-color="#070a0d"/>
-            </linearGradient>
-            <linearGradient id="fr_s" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stop-color="#e8e8e8"/>
-              <stop offset="50%" stop-color="#a0a0a0"/>
-              <stop offset="100%" stop-color="#505050"/>
-            </linearGradient>
-            <filter id="glow_s"><feGaussianBlur stdDeviation="1.5" result="coloredBlur"/><feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-          </defs>
-          <polygon points="28,3 50,14 50,38 28,53 6,38 6,14" fill="url(#bg_s)" stroke="url(#fr_s)" stroke-width="2.5"/>
-          <polygon points="28,8 45,17.5 45,36 28,47 11,36 11,17.5" fill="none" stroke="#c0c0c0" stroke-width="0.8" opacity="0.4"/>
-          <rect x="17" y="26" width="22" height="4" rx="2" fill="url(#fr_s)" filter="url(#glow_s)"/>
-          <circle cx="17" cy="28" r="4.5" fill="url(#fr_s)" stroke="#505050" stroke-width="0.8"/>
-          <circle cx="39" cy="28" r="4.5" fill="url(#fr_s)" stroke="#505050" stroke-width="0.8"/>
-          <circle cx="17" cy="28" r="2" fill="#070a0d"/>
-          <circle cx="39" cy="28" r="2" fill="#070a0d"/>
-          <polygon points="28,43 30,46 28,48.5 26,46" fill="#c0c0c0"/>
-          <polygon points="28,43 30,46 28,48.5 26,46" fill="#c0c0c0"/>
-          <polygon points="25,44.5 28,43 31,44.5 28,46" fill="#a0a0a0" opacity="0.5"/>
-        </svg>`
-      },
-      gold: {
-        name: 'Altın',
-        color1: '#FFD700', color2: '#B8860B', glow: 'rgba(255,215,0,0.4)',
-        svg: `<svg viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
-          <defs>
-            <linearGradient id="bg_g" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0%" stop-color="#1a1200"/>
-              <stop offset="100%" stop-color="#100c00"/>
-            </linearGradient>
-            <linearGradient id="fr_g" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stop-color="#ffe566"/>
-              <stop offset="50%" stop-color="#FFD700"/>
-              <stop offset="100%" stop-color="#8B6914"/>
-            </linearGradient>
-            <filter id="glow_g"><feGaussianBlur stdDeviation="2" result="coloredBlur"/><feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-          </defs>
-          <polygon points="28,3 50,14 50,38 28,53 6,38 6,14" fill="url(#bg_g)" stroke="url(#fr_g)" stroke-width="2.8"/>
-          <polygon points="28,8 45,17.5 45,36 28,47 11,36 11,17.5" fill="none" stroke="#FFD700" stroke-width="1" opacity="0.5"/>
-          <rect x="17" y="26" width="22" height="4" rx="2" fill="url(#fr_g)" filter="url(#glow_g)"/>
-          <circle cx="17" cy="28" r="4.8" fill="url(#fr_g)" stroke="#8B6914" stroke-width="0.8"/>
-          <circle cx="39" cy="28" r="4.8" fill="url(#fr_g)" stroke="#8B6914" stroke-width="0.8"/>
-          <circle cx="17" cy="28" r="2" fill="#1a1200"/>
-          <circle cx="39" cy="28" r="2" fill="#1a1200"/>
-          <polygon points="28,41 29.5,44.5 33,44.5 30.2,46.8 31.5,50.5 28,48 24.5,50.5 25.8,46.8 23,44.5 26.5,44.5" fill="#FFD700" filter="url(#glow_g)"/>
-        </svg>`
-      },
-      diamond: {
-        name: 'Elmas',
-        color1: '#4fc3f7', color2: '#0288d1', glow: 'rgba(79,195,247,0.45)',
-        svg: `<svg viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
-          <defs>
-            <linearGradient id="bg_d" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0%" stop-color="#001a2c"/>
-              <stop offset="100%" stop-color="#00101a"/>
-            </linearGradient>
-            <linearGradient id="fr_d" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stop-color="#a8e6ff"/>
-              <stop offset="50%" stop-color="#4fc3f7"/>
-              <stop offset="100%" stop-color="#0277bd"/>
-            </linearGradient>
-            <linearGradient id="gem_d" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0%" stop-color="#80d8ff"/>
-              <stop offset="100%" stop-color="#0288d1"/>
-            </linearGradient>
-            <filter id="glow_d"><feGaussianBlur stdDeviation="2" result="coloredBlur"/><feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-          </defs>
-          <!-- Wings -->
-          <path d="M6,22 L2,18 L4,26 L6,30" fill="#4fc3f7" opacity="0.4"/>
-          <path d="M50,22 L54,18 L52,26 L50,30" fill="#4fc3f7" opacity="0.4"/>
-          <polygon points="28,3 50,14 50,38 28,53 6,38 6,14" fill="url(#bg_d)" stroke="url(#fr_d)" stroke-width="2.5"/>
-          <polygon points="28,8 45,17.5 45,36 28,47 11,36 11,17.5" fill="none" stroke="#4fc3f7" stroke-width="1" opacity="0.4"/>
-          <rect x="17" y="26" width="22" height="4" rx="2" fill="url(#fr_d)" filter="url(#glow_d)"/>
-          <circle cx="17" cy="28" r="4.8" fill="url(#fr_d)" stroke="#0277bd" stroke-width="0.8"/>
-          <circle cx="39" cy="28" r="4.8" fill="url(#fr_d)" stroke="#0277bd" stroke-width="0.8"/>
-          <circle cx="17" cy="28" r="2" fill="#001a2c"/>
-          <circle cx="39" cy="28" r="2" fill="#001a2c"/>
-          <!-- Diamond gem -->
-          <polygon points="28,42 31.5,45 28,50 24.5,45" fill="url(#gem_d)" filter="url(#glow_d)"/>
-          <polygon points="28,42 31.5,45 28,46" fill="#80d8ff" opacity="0.6"/>
-        </svg>`
-      },
-      champion: {
-        name: 'Şampiyon',
-        color1: '#FFD700', color2: '#FF3D00', glow: 'rgba(255,100,0,0.5)',
-        svg: `<svg viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
-          <defs>
-            <linearGradient id="bg_c" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0%" stop-color="#1a0a00"/>
-              <stop offset="100%" stop-color="#100500"/>
-            </linearGradient>
-            <linearGradient id="fr_c" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stop-color="#ffe566"/>
-              <stop offset="50%" stop-color="#FFD700"/>
-              <stop offset="100%" stop-color="#8B6914"/>
-            </linearGradient>
-            <linearGradient id="ruby" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0%" stop-color="#ff8a65"/>
-              <stop offset="100%" stop-color="#b71c1c"/>
-            </linearGradient>
-            <filter id="glow_c"><feGaussianBlur stdDeviation="2.5" result="coloredBlur"/><feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-          </defs>
-          <!-- Wings large -->
-          <path d="M6,20 L1,14 L3,24 L6,32 L8,28" fill="#FFD700" opacity="0.5"/>
-          <path d="M50,20 L55,14 L53,24 L50,32 L48,28" fill="#FFD700" opacity="0.5"/>
-          <polygon points="28,3 50,14 50,38 28,53 6,38 6,14" fill="url(#bg_c)" stroke="url(#fr_c)" stroke-width="3"/>
-          <polygon points="28,9 44,18 44,36 28,46 12,36 12,18" fill="none" stroke="#FFD700" stroke-width="1" opacity="0.4"/>
-          <!-- Crown -->
-          <path d="M20,13 L20,8 L24,11 L28,6 L32,11 L36,8 L36,13 Z" fill="#FFD700" filter="url(#glow_c)"/>
-          <rect x="17" y="26" width="22" height="4" rx="2" fill="url(#fr_c)" filter="url(#glow_c)"/>
-          <circle cx="17" cy="28" r="5" fill="url(#fr_c)" stroke="#8B6914" stroke-width="0.8"/>
-          <circle cx="39" cy="28" r="5" fill="url(#fr_c)" stroke="#8B6914" stroke-width="0.8"/>
-          <circle cx="17" cy="28" r="2.2" fill="#1a0a00"/>
-          <circle cx="39" cy="28" r="2.2" fill="#1a0a00"/>
-          <!-- Ruby gem -->
-          <polygon points="28,41 32,45.5 28,51 24,45.5" fill="url(#ruby)" filter="url(#glow_c)"/>
-          <polygon points="28,41 32,45.5 28,46" fill="#ff8a65" opacity="0.7"/>
-        </svg>`
-      }
-    };
+    let badgeSrc, badgeGlow;
+    if (level <= 5)       { badgeSrc = 'assets/badge_0_5.png';   badgeGlow = 'rgba(205,127,50,0.4)'; }
+    else if (level <= 10) { badgeSrc = 'assets/badge_5_10.png';  badgeGlow = 'rgba(192,192,192,0.4)'; }
+    else if (level <= 25) { badgeSrc = 'assets/badge_10_25.png'; badgeGlow = 'rgba(255,215,0,0.45)'; }
+    else if (level <= 50) { badgeSrc = 'assets/badge_25_50.png'; badgeGlow = 'rgba(79,195,247,0.45)'; }
+    else                  { badgeSrc = 'assets/badge_50_100.png'; badgeGlow = 'rgba(180,100,255,0.5)'; }
 
-    let badge;
-    if (level <= 5)       badge = BADGES.bronze;
-    else if (level <= 10) badge = BADGES.silver;
-    else if (level <= 25) badge = BADGES.gold;
-    else if (level <= 50) badge = BADGES.diamond;
-    else                  badge = BADGES.champion;
-
-    el('profileLevelBadgeContainer').style.background = `radial-gradient(circle at 50% 30%, rgba(${badge.glow ? badge.glow.replace('rgba(','').replace(')','') : '139,124,247,0.3'}) 0%, transparent 70%)`;
-    el('profileLevelBadgeContainer').style.boxShadow = `inset 0 1px 0 rgba(255,255,255,0.1), 0 4px 16px ${badge.glow || 'rgba(139,124,247,0.2)'}`;
-    el('profileLevelBadgeContainer').innerHTML = badge.svg;
+    const container = el('profileLevelBadgeContainer');
+    container.style.background = `radial-gradient(circle at 50% 40%, ${badgeGlow} 0%, transparent 70%)`;
+    container.style.boxShadow = `inset 0 1px 0 rgba(255,255,255,0.08), 0 4px 20px ${badgeGlow}`;
+    container.innerHTML = `<img src="${badgeSrc}" alt="Badge" style="width:100%; height:100%; object-fit:contain; display:block;">`;
   }
 
   // Only show toast when actually leveling up (not on page load/reload)
