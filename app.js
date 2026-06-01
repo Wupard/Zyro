@@ -7404,19 +7404,19 @@ function updateLevelUI() {
     }
   }
 
-  // Dynamic Badge Image Selection
+  // Dynamic Badge Emoji Selection
   if (el('profileLevelBadgeContainer')) {
-    let badgeSrc, badgeGlow;
-    if (level <= 5)       { badgeSrc = 'assets/badge_0_5.png';   badgeGlow = 'rgba(205,127,50,0.4)'; }
-    else if (level <= 10) { badgeSrc = 'assets/badge_5_10.png';  badgeGlow = 'rgba(192,192,192,0.4)'; }
-    else if (level <= 25) { badgeSrc = 'assets/badge_10_25.png'; badgeGlow = 'rgba(255,215,0,0.45)'; }
-    else if (level <= 50) { badgeSrc = 'assets/badge_25_50.png'; badgeGlow = 'rgba(79,195,247,0.45)'; }
-    else                  { badgeSrc = 'assets/badge_50_100.png'; badgeGlow = 'rgba(180,100,255,0.5)'; }
+    let badgeEmoji, badgeGlow;
+    if (level <= 5)       { badgeEmoji = '🥉'; badgeGlow = 'rgba(205,127,50,0.4)'; }
+    else if (level <= 10) { badgeEmoji = '🥈'; badgeGlow = 'rgba(192,192,192,0.4)'; }
+    else if (level <= 25) { badgeEmoji = '🥇'; badgeGlow = 'rgba(255,215,0,0.45)'; }
+    else if (level <= 50) { badgeEmoji = '💎'; badgeGlow = 'rgba(79,195,247,0.45)'; }
+    else                  { badgeEmoji = '👑'; badgeGlow = 'rgba(180,100,255,0.5)'; }
 
     const container = el('profileLevelBadgeContainer');
     container.style.background = `radial-gradient(circle at 50% 40%, ${badgeGlow} 0%, transparent 70%)`;
     container.style.boxShadow = `inset 0 1px 0 rgba(255,255,255,0.08), 0 4px 20px ${badgeGlow}`;
-    container.innerHTML = `<img src="${badgeSrc}" alt="Badge" style="width:100%; height:100%; object-fit:contain; display:block;">`;
+    container.innerHTML = `<span style="font-size: 2.2rem; line-height: 1; display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; filter: drop-shadow(0 2px 8px ${badgeGlow});">${badgeEmoji}</span>`;
   }
 
   // Only show toast when actually leveling up (not on page load/reload)
