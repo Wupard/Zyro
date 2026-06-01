@@ -7326,7 +7326,7 @@ function updateLevelUI() {
   // Dynamic Badge Image Selection
   if (el('profileLevelBadgeContainer')) {
     if (level >= 0 && level <= 5) {
-      el('profileLevelBadgeContainer').innerHTML = `<img src="assets/badge_0_5.png" alt="Bronze Badge" style="width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 2px 6px rgba(0,0,0,0.25));">`;
+      el('profileLevelBadgeContainer').innerHTML = `<img src="assets/badge_0_5.png" alt="Bronze Badge" style="width: 100%; height: 100%; object-fit: contain; transform: scale(2.4); filter: drop-shadow(0 2px 6px rgba(0,0,0,0.25));">`;
     } else {
       // Fallback for levels > 5
       el('profileLevelBadgeContainer').innerHTML = `<span id="profileLevelBadgeIcon" style="font-size: 1.6rem; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.15));">🛡️</span>`;
