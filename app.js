@@ -852,6 +852,16 @@ function updateUserUI(user){
               rankEl.style.background = updatedRank.bg;
             }
           }
+          // Sync admin-forced level/XP override
+          if (typeof userData.forcedXP === 'number') {
+            appData.forcedXP = userData.forcedXP;
+            appData.forcedLevel = userData.forcedLevel;
+            if (typeof updateLevelUI === 'function') updateLevelUI();
+          } else if (appData.forcedXP !== undefined) {
+            delete appData.forcedXP;
+            delete appData.forcedLevel;
+            if (typeof updateLevelUI === 'function') updateLevelUI();
+          }
         }
       }, err => console.error("Rank sync error:", err));
     }
@@ -5106,6 +5116,26 @@ window.adminViewUserDetails = async function(uid) {
                 <option value="perm" ${currentMuteValue==='perm'?'selected':''}>Kalıcı Olarak Sustur</option>
               </select>
             </div>
+
+            <!-- Seviye Atama -->
+            <div style="display:flex; flex-direction:column; gap:8px; padding:14px; background:rgba(139,124,247,0.06); border:1px solid rgba(139,124,247,0.18); border-radius:12px;">
+              <label style="font-size:0.75rem; font-weight:700; color:var(--accent-primary); text-transform:uppercase; letter-spacing:0.5px;">⚡ Manuel Seviye Ata</label>
+              <div style="font-size:0.72rem; color:var(--text-muted); margin-bottom:2px;">Kullanıcının profilinde görünen seviyeyi manuel olarak ayarla. (1–100)</div>
+              <div style="display:flex; gap:8px; align-items:center;">
+                <input type="number" id="adminLevelInput_${uid}" min="1" max="100" placeholder="1–100"
+                  class="log-input" style="width:100px; padding:10px; font-size:0.95rem; font-weight:800; text-align:center; background:rgba(255,255,255,0.03); border:1px solid rgba(139,124,247,0.25); border-radius:10px; color:var(--text-primary);">
+                <button onclick="adminSetUserLevel('${uid}')"
+                  style="flex:1; padding:10px 16px; background:linear-gradient(135deg,var(--accent-deep),var(--accent-primary)); color:#fff; border:none; border-radius:10px; font-size:0.85rem; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; transition:opacity 0.2s;"
+                  onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                  Seviye Kaydet
+                </button>
+              </div>
+              <div style="display:flex; gap:6px; flex-wrap:wrap;">
+                <span style="font-size:0.68rem; color:var(--text-muted);">Hızlı:</span>
+                ${[1,5,10,25,50,75,100].map(l => `<button onclick="document.getElementById('adminLevelInput_${uid}').value=${l}" style="padding:3px 10px; border-radius:20px; border:1px solid rgba(139,124,247,0.25); background:rgba(139,124,247,0.08); color:var(--accent-primary); font-size:0.68rem; font-weight:700; cursor:pointer;">${l}</button>`).join('')}
+              </div>
+            </div>
           </div>
         </div>
 
@@ -5265,6 +5295,49 @@ window.adminSetUserRank = async function(uid, rankKey) {
   } catch (e) {
     console.error('Rank Update Error:', e);
     alert('Rank güncellenemedi: ' + e.message);
+  }
+};
+
+window.adminSetUserLevel = async function(uid) {
+  if (!currentUser || currentUser.email !== 'wupard@gmail.com') return;
+
+  const inputEl = document.getElementById(`adminLevelInput_${uid}`);
+  if (!inputEl) return;
+
+  const targetLevel = parseInt(inputEl.value, 10);
+  if (isNaN(targetLevel) || targetLevel < 1 || targetLevel > 100) {
+    showToast('Geçerli bir seviye girin (1–100)', 'error');
+    return;
+  }
+
+  try {
+    // XP required to be exactly at targetLevel
+    // getXPForLevel: (level-1)^2 * 50  => exactly the start of that level
+    const forcedXP = Math.pow(targetLevel - 1, 2) * 50;
+
+    // Save forced XP override to user doc
+    await db.collection('users').doc(uid).update({
+      'data.forcedLevel': targetLevel,
+      'data.forcedXP': forcedXP
+    });
+
+    // Also update public_stats so leaderboard reflects the change
+    await db.collection('public_stats').doc(uid).update({
+      level: targetLevel,
+      xp: forcedXP
+    }).catch(() => {
+      // If public_stats doc doesn't exist yet, set it
+      return db.collection('public_stats').doc(uid).set({
+        level: targetLevel,
+        xp: forcedXP
+      }, { merge: true });
+    });
+
+    showToast(`✅ Kullanıcıya Seviye ${targetLevel} atandı!`, 'success');
+    inputEl.value = '';
+  } catch (e) {
+    console.error('Level Set Error:', e);
+    showToast('Seviye atanamadı: ' + e.message, 'error');
   }
 };
 
@@ -7261,6 +7334,11 @@ function renderWeeklyReport() {
 // LEVEL / XP SYSTEM
 // =============================================
 function calculateXP() {
+  // Admin override: if a forced XP has been set for this user, use it directly
+  if (appData && typeof appData.forcedXP === 'number') {
+    return appData.forcedXP;
+  }
+
   let xp = 0;
   // 1. Achievements (200 XP each)
   xp += Object.keys(appData.achievements || {}).length * 200;
