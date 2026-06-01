@@ -6714,8 +6714,12 @@ window.loadProfileData = function() {
         const pct = Math.max(0, Math.min(100, parseInt(rootSnap.rankProgress, 10) || 0));
         if (pctEl) pctEl.textContent = '';
         if (barEl) barEl.style.width = pct + '%';
+        
+        if (typeof updateLevelUI === 'function') updateLevelUI();
       }
     });
+  } else {
+    if (typeof updateLevelUI === 'function') updateLevelUI();
   }
 };
 
@@ -7309,6 +7313,15 @@ function updateLevelUI() {
   if (el('profileLevelBadge')) el('profileLevelBadge').textContent = `Level ${level}`;
   if (el('profileXPBar')) el('profileXPBar').style.width = xpProgress + '%';
   if (el('profileXPText')) el('profileXPText').textContent = `${xp.toLocaleString('tr-TR')} XP • ${xpProgress}% → Lv.${Math.min(100, level + 1)}`;
+
+  const remainingXP = nextLevelXP - xp;
+  if (el('profileXPRemainingText')) {
+    if (level >= 100) {
+      el('profileXPRemainingText').textContent = 'Maksimum seviyeye ulaştınız!';
+    } else {
+      el('profileXPRemainingText').textContent = `Sonraki seviye için ${remainingXP.toLocaleString('tr-TR')} XP kaldı`;
+    }
+  }
 
   // Only show toast when actually leveling up (not on page load/reload)
   // zyroAppReady flag ensures we only check after initial data is fully loaded
