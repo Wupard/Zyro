@@ -7325,12 +7325,24 @@ function updateLevelUI() {
 
   // Dynamic Badge Image Selection
   if (el('profileLevelBadgeContainer')) {
-    if (level >= 0 && level <= 5) {
-      el('profileLevelBadgeContainer').innerHTML = `<img src="assets/badge_0_5.png" alt="Bronze Badge" style="width: 100%; height: 100%; object-fit: contain; transform: scale(2.4); filter: drop-shadow(0 2px 6px rgba(0,0,0,0.25));">`;
+    let badgeSrc, badgeName;
+    if (level <= 5) {
+      badgeSrc = 'assets/badge_0_5.png';
+      badgeName = 'Bronz';
+    } else if (level <= 10) {
+      badgeSrc = 'assets/badge_5_10.png';
+      badgeName = 'Gümüş';
+    } else if (level <= 25) {
+      badgeSrc = 'assets/badge_10_25.png';
+      badgeName = 'Altın';
+    } else if (level <= 50) {
+      badgeSrc = 'assets/badge_25_50.png';
+      badgeName = 'Elmas';
     } else {
-      // Fallback for levels > 5
-      el('profileLevelBadgeContainer').innerHTML = `<span id="profileLevelBadgeIcon" style="font-size: 1.6rem; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.15));">🛡️</span>`;
+      badgeSrc = 'assets/badge_50_100.png';
+      badgeName = 'Şampiyon';
     }
+    el('profileLevelBadgeContainer').innerHTML = `<img src="${badgeSrc}" alt="${badgeName} Badge" style="width: 100%; height: 100%; object-fit: contain; transform: scale(2.4); filter: drop-shadow(0 2px 8px rgba(0,0,0,0.3));">`;
   }
 
   // Only show toast when actually leveling up (not on page load/reload)
