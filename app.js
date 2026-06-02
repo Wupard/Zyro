@@ -292,12 +292,9 @@ const DAYS_TR = ['Pzt','Sal','Çar','Per','Cum','Cmt','Paz'];
 const EXERCISE_MUSCLES = {
   // Sırt / Back
   'Medium-Grip Lat Pulldown': ['traps'],
-  'Reverse-Grip Lat Pulldown': ['traps'],
   'Barbell Row': ['traps'],
   'Single-Arm Seated Cable Row': ['traps'],
   'Dumbbell Shrug': ['traps'],
-  'Lat Pulldown': ['traps'],
-  'Seated Row Machine': ['traps'],
 
   // Arka Kol / Triceps
   'Straight-Bar Pushdown': ['triceps'],
@@ -309,20 +306,16 @@ const EXERCISE_MUSCLES = {
   'Cable Lateral Raise': ['shoulders'],
   'Cable Rope Face Pull': ['shoulders', 'traps'],
   'Seated Rear Delt Fly': ['shoulders', 'traps'],
-  'Cable Shoulder': ['shoulders'],
 
   // Bilek / Forearm
   'Dumbbell Reverse Wrist Curl': ['forearms'],
   'Dumbbell Radial/Ulnar Deviation': ['forearms'],
   'Reverse Curl': ['biceps', 'forearms'],
-  '4 Temel Bilek DB': ['forearms'],
+  'Dumbbell Forearm': ['forearms'],
 
   // Göğüs / Chest
   'Flat Barbell Bench Press': ['chest', 'triceps'],
   'Incline Dumbbell Press': ['chest', 'triceps'],
-  'Decline Barbell Bench Press': ['chest'],
-  'Barbell Bench Press': ['chest', 'triceps'],
-  'İncline Bench Press': ['chest', 'triceps'],
 
   // Ön Kol / Biceps
   'Seated Incline Dumbbell Curl': ['biceps'],
@@ -335,7 +328,6 @@ const EXERCISE_MUSCLES = {
   'Reverse Leg Extension': ['glutes'],
   'Adductor Machine': ['glutes'],
   'Smith Machine Calf Raise': ['calves'],
-  'Squat': ['quads', 'glutes'],
 };
 const ALL_EXERCISES = Object.keys(EXERCISE_MUSCLES).sort();
 
@@ -343,10 +335,10 @@ const ALL_EXERCISES = Object.keys(EXERCISE_MUSCLES).sort();
 // GLOBAL EXERCISE CATEGORIES
 // =============================================
 const EXERCISE_CATEGORIES = {
-  'chest': ['Flat Barbell Bench Press', 'Incline Dumbbell Press', 'Decline Barbell Bench Press', 'Barbell Bench Press', 'İncline Bench Press'],
-  'shoulders': ['Seated Barbell Overhead Press', 'Cable Lateral Raise', 'Cable Rope Face Pull', 'Seated Rear Delt Fly', 'Dumbbell Shrug', 'Cable Shoulder'],
-  'back': ['Medium-Grip Lat Pulldown', 'Reverse-Grip Lat Pulldown', 'Barbell Row', 'Single-Arm Seated Cable Row', 'Lat Pulldown', 'Seated Row Machine'],
-  'legs': ['Romanian Deadlift', 'Leg Extension', 'Reverse Leg Extension', 'Adductor Machine', 'Smith Machine Calf Raise', 'Squat'],
+  'chest': ['Flat Barbell Bench Press', 'Incline Dumbbell Press'],
+  'shoulders': ['Seated Barbell Overhead Press', 'Cable Lateral Raise', 'Cable Rope Face Pull', 'Seated Rear Delt Fly', 'Dumbbell Shrug'],
+  'back': ['Medium-Grip Lat Pulldown', 'Barbell Row', 'Single-Arm Seated Cable Row'],
+  'legs': ['Romanian Deadlift', 'Leg Extension', 'Reverse Leg Extension', 'Adductor Machine', 'Smith Machine Calf Raise'],
   'biceps': [
     'Hammer Curl', 'Seated Incline Dumbbell Curl', 'Single-Arm Cable Curl'
   ],
@@ -395,7 +387,6 @@ const DEFAULT_PROGRAMS = {
   day2: [ // PERŞEMBE
     {name:'Flat Barbell Bench Press',sets:'3x6-8',weight:'-'},
     {name:'Incline Dumbbell Press',sets:'3x6-8',weight:'-'},
-    {name:'Decline Barbell Bench Press',sets:'3x6-8',weight:'-'},
     {name:'Cable Rope Face Pull',sets:'3x6-8',weight:'-'},
     {name:'Seated Rear Delt Fly',sets:'3x6-8',weight:'-'},
     {name:'Seated Incline Dumbbell Curl',sets:'3x6-8',weight:'-'},
@@ -452,7 +443,6 @@ const WORKOUT_VIDEO_URLS = {
   // PERŞEMBE
   'Flat Barbell Bench Press': 'https://www.youtube.com/shorts/hWbUlkb5Ms4',
   'Incline Dumbbell Press': 'https://www.youtube.com/shorts/8fXfwG4ftaQ',
-  'Decline Barbell Bench Press': 'https://www.youtube.com/shorts/BZbgA8GCrl0',
   'Cable Rope Face Pull': 'https://www.youtube.com/shorts/IeOqdw9WI90',
   'Seated Rear Delt Fly': 'https://www.youtube.com/shorts/PkGcUy-XDMY',
   'Seated Incline Dumbbell Curl': 'https://www.youtube.com/shorts/uCUaRFlA9vE',
@@ -628,7 +618,7 @@ function syncPublicStats() {
   }
 }
 
-const CURRENT_PROGRAM_VERSION = 12; // Force full cache reset and clear notes
+const CURRENT_PROGRAM_VERSION = 13; // Force full cache reset and clear notes
 
 function enforceVersion() {
   if(appData.programVersion !== CURRENT_PROGRAM_VERSION) {
