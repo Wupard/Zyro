@@ -1,4 +1,4 @@
-const CACHE_NAME = 'zyro-v1';
+const CACHE_NAME = 'zyro-v2';
 const ASSETS = [
   '/',
   '/index.html',

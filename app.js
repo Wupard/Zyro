@@ -618,7 +618,7 @@ function syncPublicStats() {
   }
 }
 
-const CURRENT_PROGRAM_VERSION = 13; // Smart migration — logs/notes korunur
+const CURRENT_PROGRAM_VERSION = 14; // Smart migration — logs/notes korunur
 
 function enforceVersion() {
   if(appData.programVersion !== CURRENT_PROGRAM_VERSION) {
