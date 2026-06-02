@@ -618,17 +618,42 @@ function syncPublicStats() {
   }
 }
 
-const CURRENT_PROGRAM_VERSION = 13; // Force full cache reset and clear notes
+const CURRENT_PROGRAM_VERSION = 13; // Smart migration — logs/notes korunur
 
 function enforceVersion() {
   if(appData.programVersion !== CURRENT_PROGRAM_VERSION) {
-    appData.programs = null;
-    appData.posturePrograms = null;
-    appData.notes = {};
+    // Akıllı program migrasyonu:
+    // - workoutLogs (tüm kayıtlı ağırlıklar) DOKUNULMAZ
+    // - notes (notlar) DOKUNULMAZ
+    // - attendance, achievements, weightLog vs. DOKUNULMAZ
+    // Sadece program yapısı güncellenir (programda kalan hareketler korunur, yeniler eklenir, kaldırılanlar çıkarılır)
+
+    const smartMergePrograms = (existing, defaults) => {
+      if (!existing) return JSON.parse(JSON.stringify(defaults));
+      const merged = {};
+      Object.keys(defaults).forEach(tab => {
+        const existingTab = existing[tab] || [];
+        merged[tab] = defaults[tab].map(defaultEx => {
+          const found = existingTab.find(e => e.name === defaultEx.name);
+          // Mevcut hareket varsa done durumunu koru, yoksa sıfırla
+          return { ...defaultEx, done: found ? (found.done || false) : false };
+        });
+      });
+      return merged;
+    };
+
+    appData.programs = smartMergePrograms(appData.programs, DEFAULT_PROGRAMS);
+
+    if (!appData.posturePrograms) {
+      appData.posturePrograms = JSON.parse(JSON.stringify(DEFAULT_POSTURE_PROGRAMS));
+    }
+
+    // NOT: appData.notes ve appData.workoutLogs SILINMEZ
     appData.programVersion = CURRENT_PROGRAM_VERSION;
     saveData();
   }
 }
+
 
 let isDataSyncing = false;
 function loadData(cb){
