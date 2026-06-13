@@ -4716,8 +4716,9 @@ function displayComments(comments) {
     return;
   }
   
-  // Separate top-level comments and replies
-  const topLevel = comments.filter(c => !c.parentId);
+  try {
+    // Separate top-level comments and replies
+    const topLevel = comments.filter(c => !c.parentId);
   const replies = comments.filter(c => c.parentId);
 
   list.innerHTML = topLevel.map((c, i) => {
@@ -4842,6 +4843,10 @@ function displayComments(comments) {
       </div>
     `;
   }).join('');
+  } catch (e) {
+    console.error('Error rendering comments:', e);
+    list.innerHTML = `<div class="logged-empty" style="color:#ef4444;">Yorumları oluştururken bir hata oluştu: ${e.message}</div>`;
+  }
 }
 
 // Highlight @mentions in text
@@ -8007,7 +8012,7 @@ function renderWeeklyReport() {
           });
           exCount += uniqueEx.size;
         }
-        showToast(`Bu hafta ${topMuscle[0]} için ${exCount} farklı hareket ile toplam ${sets} set atıldı.`, 'info');
+        showWeeklyMusclePopup(topMuscle[0], exCount, sets);
       };
     } else {
       el('wrTopMuscle').onclick = null;
@@ -8023,7 +8028,7 @@ function renderWeeklyReport() {
       el('wrBestPR').style.textDecoration = 'underline';
       el('wrBestPR').style.textDecorationStyle = 'dotted';
       el('wrBestPR').onclick = () => {
-        showToast(`${bestPREx}: ${bestPRWeight} kg x ${bestPRReps} tekrar, ${bestPRSets||1} set`, 'success');
+        showWeeklyPRPopup(bestPREx, bestPRWeight, bestPRSets||1, bestPRReps);
       };
     } else {
       el('wrBestPR').textContent = '— kg';
