@@ -199,7 +199,46 @@ window.onerror = function(message, source, lineno, colno, error) {
     '2 set x 20 tekrar': '2 sets x 20 reps',
     '20 tekrar (10 sağ, 10 sol)': '20 reps (10 right, 10 left)',
     '1 dakika (Pozisyonda kal ve derin nefes al)': '1 min (hold and breathe deeply)',
-    '1 set x 30 saniye': '1 set x 30 sec'
+    '1 set x 30 saniye': '1 set x 30 sec',
+    apiKeyStatusActive: 'API key active',
+    pleaseEnterValidKey: 'Please enter a valid key',
+    apiKeySaved: 'API Key saved successfully!',
+    apiKeyDeleted: 'API Key deleted',
+    confirmClearChat: 'Are you sure you want to clear chat history?',
+    chatHistoryCleared: 'Chat history cleared',
+    currentPassword: 'Current Password',
+    currentPasswordPlaceholder: 'Your current password',
+    newPassword: 'New Password',
+    newPasswordPlaceholder: 'New password (min 6 characters)',
+    confirmPassword: 'Confirm New Password',
+    confirmPasswordPlaceholder: 'Enter password again',
+    changePasswordBtn: 'Change Password',
+    info: 'Info',
+    googleNoPasswordInfo: 'Since you signed in with Google, you currently do not have a password. You can set a password below.',
+    setNewPasswordPlaceholder: 'Set password (min 6 characters)',
+    setPasswordBtn: 'Set Password',
+    fillAllFields: 'Please fill in all fields.',
+    passwordsDoNotMatch: 'New passwords do not match.',
+    passwordMinLength: 'Password must be at least 6 characters.',
+    passwordChangedSuccess: 'Password changed successfully!',
+    passwordSetSuccess: 'Password set successfully!',
+    highest: 'Highest',
+    average: 'Average',
+    weeklyProjection: 'Weekly Projection',
+    monthlyProjection: 'Monthly Projection',
+    recentLogs: 'Recent Workouts',
+    same: 'Same',
+    noDataFoundLogFirst: 'No data found. Please log workouts first.',
+    noExercisesToday: 'No exercises today.',
+    noExercisesThisWeek: 'No exercises this week.',
+    noExercisesInCategory: 'No exercises in this category',
+    selectExerciseTitle: 'Select Exercise',
+    weeklyGrowth: 'Weekly Growth',
+    asYouLogExercises: 'As you log exercises, you will see them here',
+    workoutProgramSubtitle: 'Track and log today\'s exercises',
+    postureProgramSubtitle: 'Improve your posture, work for a healthy body',
+    notificationsEnabledSuccess: 'Notifications successfully enabled!',
+    notificationPermissionDenied: 'Notification permission denied.'
   },
   tr: {
     authSubtitle: 'Kişisel Gelişim Paneli',
@@ -410,10 +449,46 @@ window.onerror = function(message, source, lineno, colno, error) {
     'Chin Tuck': 'Chin Tuck',
     'Deadbug': 'Deadbug',
     'Thoracic Extension (Rulo veya sandalye ile)': 'Thoracic Extension (Rulo veya sandalye ile)',
-    'Child’s Pose (Çocuk Pozu)': 'Child’s Pose (Çocuk Pozu)'
-  }
-};ion (Rulo veya sandalye ile)': 'Thoracic Extension (Rulo veya sandalye ile)',
-    'Child’s Pose (Çocuk Pozu)': 'Child’s Pose (Çocuk Pozu)'
+    'Child’s Pose (Çocuk Pozu)': 'Child’s Pose (Çocuk Pozu)',
+    apiKeyStatusActive: 'API key aktif',
+    pleaseEnterValidKey: 'Lütfen geçerli bir key girin',
+    apiKeySaved: 'API Key başarıyla kaydedildi!',
+    apiKeyDeleted: 'API Key silindi',
+    confirmClearChat: 'Sohbet geçmişini tamamen silmek istediğine emin misin?',
+    chatHistoryCleared: 'Sohbet geçmişi temizlendi',
+    currentPassword: 'Mevcut şifre',
+    currentPasswordPlaceholder: 'Mevcut şifreniz',
+    newPassword: 'Yeni Şifre',
+    newPasswordPlaceholder: 'Yeni şifre (min 6 karakter)',
+    confirmPassword: 'Yeni Şifre (Tekrar)',
+    confirmPasswordPlaceholder: 'Şifreyi tekrar girin',
+    changePasswordBtn: 'Şifreyi Değiştir',
+    info: 'Bilgi',
+    googleNoPasswordInfo: 'Google ile giriş yaptığınız için şu anda şifreniz yok. Aşağıdan bir şifre belirleyebilirsiniz.',
+    setNewPasswordPlaceholder: 'Şifre belirleyin (min 6 karakter)',
+    setPasswordBtn: 'Şifre Belirle',
+    fillAllFields: 'Lütfen tüm alanları doldurun.',
+    passwordsDoNotMatch: 'Yeni şifreler eşleşmiyor.',
+    passwordMinLength: 'Şifre en az 6 karakter olmalıdır.',
+    passwordChangedSuccess: 'Şifre başarıyla değiştirildi!',
+    passwordSetSuccess: 'Şifre başarıyla belirlendi!',
+    highest: 'En Yüksek',
+    average: 'Ortalama',
+    weeklyProjection: 'Haftalık Tahmin',
+    monthlyProjection: 'Aylık Tahmin',
+    recentLogs: 'Son Hareketler',
+    same: 'Aynı',
+    noDataFoundLogFirst: 'Veri bulunamadı. Lütfen antrenman logu girin.',
+    noExercisesToday: 'Bugün egzersiz yok.',
+    noExercisesThisWeek: 'Bu hafta egzersiz yok.',
+    noExercisesInCategory: 'Bu kategoride egzersiz yok',
+    selectExerciseTitle: 'Egzersiz Seç',
+    weeklyGrowth: 'Haftalık Gelişim',
+    asYouLogExercises: 'Egzersiz kaydettikçe burada görebilirsin',
+    workoutProgramSubtitle: 'Bugünün egzersizlerini takip et ve kaydet',
+    postureProgramSubtitle: 'Postürünü düzelt, sağlıklı bir beden için çalış',
+    notificationsEnabledSuccess: 'Bildirimler başarıyla aktifleştirildi!',
+    notificationPermissionDenied: 'Bildirim izni reddedildi.'
   }
 };
 
@@ -427,7 +502,18 @@ function applyTranslations() {
   document.querySelectorAll('[data-i18n]').forEach(el => {
     const key = el.dataset.i18n;
     const val = t(key);
-    if (val) el.textContent = val;
+    if (val) {
+      if (key === 'geminiInfo' || key === 'step1' || key === 'step2' || key === 'step3') {
+        el.innerHTML = val;
+      } else {
+        el.textContent = val;
+      }
+    }
+  });
+  document.querySelectorAll('[data-i18n-title]').forEach(el => {
+    const key = el.dataset.i18nTitle;
+    const val = t(key);
+    if (val) el.title = val;
   });
   // Placeholders
   const noteInput = document.getElementById('noteInput');
@@ -459,9 +545,11 @@ function initLangSwitcher() {
       applyTranslations();
       // Re-render dynamic content
       renderAttendance();
+      if (typeof updateStats === 'function') updateStats();
+      if (typeof renderWeeklyReport === 'function') renderWeeklyReport();
       if (currentPage === 'posture') { renderPosture(currentPostureTab); }
       if (currentPage === 'workouts') { renderWorkout(currentWorkoutTab); }
-      if (currentPage === 'progress') { renderProgressTracker(); renderWeeklyReport(); }
+      if (currentPage === 'progress') { renderProgressTracker(); }
       if (currentPage === 'profile') {
         renderPasswordSection();
         if (typeof checkPushNotificationStatus === 'function') checkPushNotificationStatus();
@@ -2102,7 +2190,7 @@ function renderPosture(tab){
   if(allDone) {
     btnHtml = `
     <button class="btn-primary complete-btn" style="width:100%; margin-top:16px; justify-content:center; padding:12px; font-weight: bold; font-size: 1.1rem;" onclick="completeDay('posture','${tab}')">
-      ${currentLang==='tr'?'g�?� Postür Programını Tamamla (Bugün) g�?�':'g�?� Complete Posture (Today) g�?�'}
+      ${currentLang==='tr'?'🏋️ Postür Programını Tamamla (Bugün) 🏋️':'🏋️ Complete Posture (Today) 🏋️'}
     </button>`;
   }
   
@@ -2115,7 +2203,7 @@ function renderPosture(tab){
         </a>`
       : '';
     return `<div class="exercise-row posture-exercise-row">
-      <span class="exercise-name">${ex.name}</span>
+      <span class="exercise-name">${t(ex.name)}</span>
       <span class="exercise-detail">${t(ex.sets)}</span>
       ${videoBtn}
       <button class="exercise-check ${ex.done?'done':''}" data-index="${i}">${ex.done?'✓':''}</button>
@@ -3033,12 +3121,16 @@ function updateStats(){
     if (bestProgEx) {
       const prDate = new Date(bestProgEx.lastUpdated + 'T00:00:00');
       const daysDiff = Math.round((new Date() - prDate) / 86400000);
-      const ago = daysDiff === 0 ? 'bugün' : daysDiff === 1 ? 'dün' : `${daysDiff} gün önce`;
+      const ago = daysDiff === 0 
+        ? t('today') 
+        : daysDiff === 1 
+          ? t('yesterday') 
+          : (currentLang === 'tr' ? `${daysDiff} gün önce` : `${daysDiff} days ago`);
       const exShort = bestProgEx.name.length > 18 ? bestProgEx.name.substring(0, 17) + '…' : bestProgEx.name;
       volDetail.innerHTML = `<span style='cursor:pointer;' onmouseenter="this.style.color='var(--accent-primary)'" onmouseleave="this.style.color='var(--orange-vivid)'">${exShort} · ${ago}</span>`;
       volDetail.style.color = 'var(--orange-vivid)';
     } else {
-      volDetail.textContent = 'Henüz ilerleme yok';
+      volDetail.textContent = t('noProgressYet');
       volDetail.style.color = 'var(--text-tertiary)';
     }
   }
@@ -6262,8 +6354,8 @@ function renderProgressTracker() {
         <div style="width: 64px; height: 64px; border-radius: 16px; background: rgba(52, 211, 153, 0.1); display: flex; align-items: center; justify-content: center; margin-bottom: 16px;">
           <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
         </div>
-        <p style="font-size: 1.125rem; font-weight: 600; margin: 0 0 4px 0;">Henüz veri yok</p>
-        <p style="font-size: 0.875rem; color: var(--text-muted); margin: 0;">Egzersiz kaydettikçe burada görebilirsin</p>
+        <p style="font-size: 1.125rem; font-weight: 600; margin: 0 0 4px 0;">${t('noData')}</p>
+        <p style="font-size: 0.875rem; color: var(--text-muted); margin: 0;">${t('asYouLogExercises')}</p>
       </div>
     `;
     return;
@@ -6279,11 +6371,17 @@ function renderProgressTracker() {
 
   // ── Kategori butonları: wrap grid (kaydırmasız)
   const CAT_LABELS = {
-    'chest': 'Göğüs', 'shoulders': 'Omuz', 'back': 'Sırt',
-    'legs': 'Bacak', 'biceps': 'Biceps', 'triceps': 'Triceps',
-    'wrists': 'Bilek', 'core': 'Core', 'other': 'Diğer'
+    'chest': currentLang === 'tr' ? 'Göğüs' : 'Chest',
+    'shoulders': currentLang === 'tr' ? 'Omuz' : 'Shoulders',
+    'back': currentLang === 'tr' ? 'Sırt' : 'Back',
+    'legs': currentLang === 'tr' ? 'Bacak' : 'Legs',
+    'biceps': 'Biceps',
+    'triceps': 'Triceps',
+    'wrists': currentLang === 'tr' ? 'Bilek' : 'Wrists',
+    'core': 'Core',
+    'other': currentLang === 'tr' ? 'Diğer' : 'Other'
   };
-  let catBtnsHtml = `<button onclick="setTrackerCategory('')" class="tracker-cat-btn ${!currentTrackerCategory?'active':''}"><span style="display:inline-flex;align-items:center;gap:4px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg> Tümü</span></button>`;
+  let catBtnsHtml = `<button onclick="setTrackerCategory('')" class="tracker-cat-btn ${!currentTrackerCategory?'active':''}"><span style="display:inline-flex;align-items:center;gap:4px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg> ${currentLang === 'tr' ? 'Tümü' : 'All'}</span></button>`;
   Object.keys(EXERCISE_CATEGORIES).forEach(cat => {
     const label = CAT_LABELS[cat] || (cat.charAt(0).toUpperCase() + cat.slice(1));
     catBtnsHtml += `<button onclick="setTrackerCategory('${cat}')" class="tracker-cat-btn ${currentTrackerCategory===cat?'active':''}"><span style="display:inline-flex;align-items:center;gap:4px;">${CATEGORY_ICONS[cat] || ''} ${label}</span></button>`;
@@ -6305,7 +6403,7 @@ function renderProgressTracker() {
           </div>
           <div style="text-align: left; min-width:0;">
             <p style="margin: 0; font-weight: 500; font-size: 0.875rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:140px;">${ex.name}</p>
-            <p style="margin: 0; font-size: 0.75rem; color: var(--text-muted);">${ex.currentWeight}kg × ${ex.currentReps} rep × ${ex.currentSets||1} set</p>
+            <p style="margin: 0; font-size: 0.75rem; color: var(--text-muted);">${ex.currentWeight}kg × ${ex.currentReps} ${currentLang === 'en' ? 'rep' : 'tekrar'} × ${ex.currentSets||1} set</p>
           </div>
         </div>
         <div style="display: flex; align-items: center; gap: 8px; flex-shrink:0;">
@@ -6326,11 +6424,11 @@ function renderProgressTracker() {
       <div style="background:linear-gradient(135deg, rgba(255, 215, 0, 0.1), rgba(255, 215, 0, 0.02)); border: 1px solid rgba(255, 215, 0, 0.3); border-radius: 16px; padding: 18px 20px; margin-bottom: 12px; box-shadow: 0 8px 32px rgba(255, 215, 0, 0.05); backdrop-filter: blur(8px);">
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
           <div style="background: rgba(255, 215, 0, 0.2); border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: 14px; box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);">🏆</div>
-          <span style="font-size:0.7rem;font-weight:800;text-transform:uppercase;letter-spacing:0.1em;color:#FFD700;text-shadow: 0 0 8px rgba(255,215,0,0.4);">En Yüksek Kaldırış (All-Time PR)</span>
+          <span style="font-size:0.7rem;font-weight:800;text-transform:uppercase;letter-spacing:0.1em;color:#FFD700;text-shadow: 0 0 8px rgba(255,215,0,0.4);">${currentLang === 'tr' ? 'En Yüksek Kaldırış (All-Time PR)' : 'Highest Lift (All-Time PR)'}</span>
         </div>
         <div style="display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;">
           <span style="font-size:1.8rem;font-weight:900;color:#FFD700;letter-spacing:-0.02em;">${selectedEx.prWeight} kg</span>
-          <span style="font-size:0.9rem;color:rgba(255,255,255,0.7);font-weight:500;">${selectedEx.prReps} tekrar × ${selectedEx.prSets||1} set</span>
+          <span style="font-size:0.9rem;color:rgba(255,255,255,0.7);font-weight:500;">${selectedEx.prReps} ${currentLang === 'en' ? 'reps' : 'tekrar'} × ${selectedEx.prSets||1} set</span>
         </div>
         <div style="margin-top:8px;font-size:0.75rem;color:rgba(255,255,255,0.5);display:flex;align-items:center;gap:6px;font-weight:500;">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
@@ -6349,22 +6447,25 @@ function renderProgressTracker() {
       <div style="background:linear-gradient(135deg, rgba(52, 211, 153, 0.08), rgba(52, 211, 153, 0.02)); border: 1px solid rgba(52, 211, 153, 0.25); border-radius: 16px; padding: 18px 20px; margin-bottom: 12px; box-shadow: 0 8px 32px rgba(52, 211, 153, 0.05); backdrop-filter: blur(8px);">
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
           <div style="background: rgba(52, 211, 153, 0.2); border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: 14px; box-shadow: 0 0 10px rgba(52, 211, 153, 0.3);">⚡</div>
-          <span style="font-size:0.7rem;font-weight:800;text-transform:uppercase;letter-spacing:0.1em;color:#34d399;text-shadow: 0 0 8px rgba(52,211,153,0.3);">Son Antrenman</span>
+          <span style="font-size:0.7rem;font-weight:800;text-transform:uppercase;letter-spacing:0.1em;color:#34d399;text-shadow: 0 0 8px rgba(52,211,153,0.3);">${currentLang === 'tr' ? 'Son Antrenman' : 'Last Workout'}</span>
         </div>
         ${hasWorkout ? `
           <div style="display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;">
             <span style="font-size:1.6rem;font-weight:900;color:#34d399;letter-spacing:-0.02em;">${selectedEx.currentWeight} kg</span>
-            <span style="font-size:0.9rem;color:rgba(255,255,255,0.7);font-weight:500;">${selectedEx.currentReps} tekrar × ${selectedEx.currentSets||1} set</span>
+            <span style="font-size:0.9rem;color:rgba(255,255,255,0.7);font-weight:500;">${selectedEx.currentReps} ${currentLang === 'en' ? 'reps' : 'tekrar'} × ${selectedEx.currentSets||1} set</span>
           </div>
           <div style="margin-top:8px;font-size:0.8rem;color:rgba(255,255,255,0.6);font-weight:500;line-height:1.4;">
-            Geçen antrenman <strong style="color:#34d399;">${dayName}</strong> günü yapıldı. <br>
-            ${dayName} günü <strong>${selectedEx.currentWeight} kg</strong> ile <strong>${selectedEx.currentReps}</strong> tekrar <strong>${selectedEx.currentSets||1}</strong> set atıldı.
+            ${currentLang === 'tr' 
+              ? `Geçen antrenman <strong style="color:#34d399;">${dayName}</strong> günü yapıldı. <br>
+                 ${dayName} günü <strong>${selectedEx.currentWeight} kg</strong> ile <strong>${selectedEx.currentReps}</strong> tekrar <strong>${selectedEx.currentSets||1}</strong> set atıldı.`
+              : `Last workout was done on <strong style="color:#34d399;">${dayName}</strong>. <br>
+                 Performed <strong>${selectedEx.currentWeight} kg</strong> with <strong>${selectedEx.currentReps}</strong> reps for <strong>${selectedEx.currentSets||1}</strong> sets.`}
           </div>
           <div style="margin-top:8px;font-size:0.75rem;color:rgba(255,255,255,0.4);display:flex;align-items:center;gap:6px;">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
             ${formatDate(selectedEx.lastUpdated)}
           </div>
-        ` : `<div style="font-size:0.85rem;color:var(--text-muted);">Henüz kayıt yok</div>`}
+        ` : `<div style="font-size:0.85rem;color:var(--text-muted);">${currentLang === 'tr' ? 'Henüz kayıt yok' : 'No records yet'}</div>`}
       </div>`;
 
     // Haftalık progress section
@@ -6379,7 +6480,7 @@ function renderProgressTracker() {
         <div style="background:linear-gradient(135deg, rgba(139, 124, 247, 0.08), rgba(139, 124, 247, 0.02)); border: 1px solid rgba(139, 124, 247, 0.25); border-radius: 16px; padding: 18px 20px; box-shadow: 0 8px 32px rgba(139, 124, 247, 0.05); backdrop-filter: blur(8px);">
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
             <div style="background: rgba(139, 124, 247, 0.2); border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: 14px; box-shadow: 0 0 10px rgba(139, 124, 247, 0.3);">📈</div>
-            <span style="font-size:0.7rem;font-weight:800;text-transform:uppercase;letter-spacing:0.1em;color:var(--accent-primary);text-shadow: 0 0 8px rgba(139,124,247,0.3);">Haftalık Gelişim</span>
+            <span style="font-size:0.7rem;font-weight:800;text-transform:uppercase;letter-spacing:0.1em;color:var(--accent-primary);text-shadow: 0 0 8px rgba(139,124,247,0.3);">${t('weeklyGrowth')}</span>
           </div>
           <div style="display:flex;align-items:center;gap:12px;">
             <span style="font-size:1.6rem;font-weight:900;color:${isUp?'#34d399':isDown?'#f87171':'var(--text-muted)'};letter-spacing:-0.02em;">${isUp?'+':''}${selectedEx.weekDelta} kg</span>
@@ -6388,16 +6489,16 @@ function renderProgressTracker() {
           <div style="margin-top:14px;background:rgba(255,255,255,0.05);border-radius:99px;height:8px;overflow:hidden;box-shadow:inset 0 1px 3px rgba(0,0,0,0.2);">
             <div style="height:100%;width:${barW}%;background:linear-gradient(90deg, ${isUp?'#10b981, #34d399':isDown?'#ef4444, #f87171':'var(--accent-primary)'});border-radius:99px;transition:width 0.8s cubic-bezier(0.4, 0, 0.2, 1);box-shadow: 0 0 10px ${isUp?'rgba(52,211,153,0.5)':isDown?'rgba(248,113,113,0.5)':'rgba(139,124,247,0.5)'};"></div>
           </div>
-          <div style="margin-top:10px;font-size:0.75rem;color:rgba(255,255,255,0.5);font-weight:500;">Bu hafta vs geçen hafta (${selectedEx.prevWeekWeight || '—'} kg)</div>
+          <div style="margin-top:10px;font-size:0.75rem;color:rgba(255,255,255,0.5);font-weight:500;">${currentLang === 'tr' ? 'Bu hafta vs geçen hafta' : 'This week vs last week'} (${selectedEx.prevWeekWeight || '—'} kg)</div>
         </div>`;
     } else if (hasWeek) {
       progressHtml = `
         <div style="background:linear-gradient(135deg, rgba(139, 124, 247, 0.05), rgba(139, 124, 247, 0.01)); border: 1px solid rgba(139, 124, 247, 0.15); border-radius: 16px; padding: 16px 20px;">
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
             <span style="font-size:1.1rem;opacity:0.8;">📈</span>
-            <span style="font-size:0.7rem;font-weight:800;text-transform:uppercase;letter-spacing:0.1em;color:var(--accent-primary);">Haftalık Gelişim</span>
+            <span style="font-size:0.7rem;font-weight:800;text-transform:uppercase;letter-spacing:0.1em;color:var(--accent-primary);">${t('weeklyGrowth')}</span>
           </div>
-          <div style="font-size:0.85rem;color:rgba(255,255,255,0.5);font-weight:500;">Karşılaştırmak için geçen haftadan da veri gerekli.</div>
+          <div style="font-size:0.85rem;color:rgba(255,255,255,0.5);font-weight:500;">${currentLang === 'tr' ? 'Karşılaştırmak için geçen haftadan da veri gerekli.' : 'Data from last week is also required to compare.'}</div>
         </div>`;
     }
 
@@ -7067,7 +7168,7 @@ window.showStrengthDetailsEnhanced = function(targetExercise = null) {
   }
 
   if (!selectedEx || !exerciseData[selectedEx]) {
-    content.innerHTML = `<div class="logged-empty">Veri bulunamadı. Lütfen antrenman logu girin.</div>`;
+    content.innerHTML = `<div class="logged-empty">${t('noDataFoundLogFirst')}</div>`;
     modal.style.display = 'flex';
     return;
   }
@@ -7146,37 +7247,37 @@ window.showStrengthDetailsEnhanced = function(targetExercise = null) {
   const statsHtml = `
     <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:20px;">
       <div style="padding:12px; background:rgba(139,124,247,0.1); border:1px solid rgba(139,124,247,0.2); border-radius:10px;">
-        <div style="font-size:0.7rem; color:var(--text-muted); margin-bottom:4px;">En Yüksek</div>
+        <div style="font-size:0.7rem; color:var(--text-muted); margin-bottom:4px;">${t('highest')}</div>
         <div style="font-size:1.5rem; font-weight:700; color:var(--orange-vivid);">${maxWeight} kg</div>
       </div>
       <div style="padding:12px; background:rgba(76,203,141,0.1); border:1px solid rgba(76,203,141,0.2); border-radius:10px;">
-        <div style="font-size:0.7rem; color:var(--text-muted); margin-bottom:4px;">Ortalama</div>
+        <div style="font-size:0.7rem; color:var(--text-muted); margin-bottom:4px;">${t('average')}</div>
         <div style="font-size:1.5rem; font-weight:700; color:var(--green-vivid);">${avgWeight} kg</div>
       </div>
       <div style="padding:12px; background:rgba(92,138,222,0.1); border:1px solid rgba(92,138,222,0.2); border-radius:10px;">
-        <div style="font-size:0.7rem; color:var(--text-muted); margin-bottom:4px;">Haftalık Tahmin</div>
+        <div style="font-size:0.7rem; color:var(--text-muted); margin-bottom:4px;">${t('weeklyProjection')}</div>
         <div style="font-size:1.5rem; font-weight:700; color:var(--blue-vivid);">+${weeklyProjection} kg</div>
       </div>
       <div style="padding:12px; background:rgba(217,110,163,0.1); border:1px solid rgba(217,110,163,0.2); border-radius:10px;">
-        <div style="font-size:0.7rem; color:var(--text-muted); margin-bottom:4px;">Aylık Tahmin</div>
+        <div style="font-size:0.7rem; color:var(--text-muted); margin-bottom:4px;">${t('monthlyProjection')}</div>
         <div style="font-size:1.5rem; font-weight:700; color:var(--pink-vivid);">+${monthlyProjection} kg</div>
       </div>
     </div>
   `;
 
   // 7. Render timeline
-  let timelineHtml = '<div style="margin-top:20px;"><h4 style="font-size:0.85rem; font-weight:700; margin-bottom:12px;">Son Hareketler</h4>';
+  let timelineHtml = `<div style="margin-top:20px;"><h4 style="font-size:0.85rem; font-weight:700; margin-bottom:12px;">${t('recentLogs')}</h4>`;
   timelineHtml += recentLogs.map((log, idx) => {
-    const date = new Date(log.date).toLocaleDateString('tr-TR');
+    const date = new Date(log.date).toLocaleDateString(currentLang === 'tr' ? 'tr-TR' : 'en-US');
     const progressRaw = idx > 0 ? log.weight - recentLogs[idx - 1].weight : 0;
     const progress = Math.round(progressRaw * 10) / 10;
-    const progressText = progress > 0 ? `+${progress} kg ↑` : progress < 0 ? `${progress} kg ↓` : 'Aynı';
+    const progressText = progress > 0 ? `+${progress} kg ↑` : progress < 0 ? `${progress} kg ↓` : t('same');
     const progressColor = progress > 0 ? 'var(--green-vivid)' : progress < 0 ? 'var(--red-vivid)' : 'var(--text-muted)';
     
     return `
       <div style="padding:10px; background:rgba(255,255,255,0.02); border-left:3px solid var(--accent-primary); border-radius:6px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
         <div>
-          <div style="font-size:0.8rem; font-weight:600;">${log.weight} kg × ${log.reps} rep × ${log.sets} set</div>
+          <div style="font-size:0.8rem; font-weight:600;">${log.weight} kg × ${log.reps} ${currentLang === 'en' ? 'rep' : 'tekrar'} × ${log.sets} set</div>
           <div style="font-size:0.7rem; color:var(--text-tertiary);">${date}</div>
         </div>
         <div style="font-size:0.75rem; font-weight:700; color:${progressColor};">${progressText}</div>
@@ -7939,8 +8040,6 @@ window.saveProfileAchievements = async function() {
     }
   }
 };
-
-window.renderPasswordSection = function() {
   const section = document.getElementById('passwordSection');
   if (!section || !currentUser) return;
   
@@ -7949,34 +8048,34 @@ window.renderPasswordSection = function() {
   if (hasPassword) {
     section.innerHTML = `
       <div>
-        <label style="font-size:0.75rem; font-weight:700; color:var(--text-muted); display:block; margin-bottom:6px;">Mevcut şifre</label>
-        <input type="password" id="currentPassword" class="log-input" placeholder="Mevcut şifreniz">
+        <label style="font-size:0.75rem; font-weight:700; color:var(--text-muted); display:block; margin-bottom:6px;">${t('currentPassword')}</label>
+        <input type="password" id="currentPassword" class="log-input" placeholder="${t('currentPasswordPlaceholder')}">
       </div>
       <div>
-        <label style="font-size:0.75rem; font-weight:700; color:var(--text-muted); display:block; margin-bottom:6px;">Yeni Şifre</label>
-        <input type="password" id="newPassword" class="log-input" placeholder="Yeni şifre (min 6 karakter)">
+        <label style="font-size:0.75rem; font-weight:700; color:var(--text-muted); display:block; margin-bottom:6px;">${t('newPassword')}</label>
+        <input type="password" id="newPassword" class="log-input" placeholder="${t('newPasswordPlaceholder')}">
       </div>
       <div>
-        <label style="font-size:0.75rem; font-weight:700; color:var(--text-muted); display:block; margin-bottom:6px;">Yeni Şifre (Tekrar)</label>
-        <input type="password" id="confirmPassword" class="log-input" placeholder="Şifreyi tekrar girin">
+        <label style="font-size:0.75rem; font-weight:700; color:var(--text-muted); display:block; margin-bottom:6px;">${t('confirmPassword')}</label>
+        <input type="password" id="confirmPassword" class="log-input" placeholder="${t('confirmPasswordPlaceholder')}">
       </div>
-      <button class="btn-primary" onclick="changePassword()" style="width:100%; margin-top:12px;">Şifreyi Değiştir</button>
+      <button class="btn-primary" onclick="changePassword()" style="width:100%; margin-top:12px;">${t('changePasswordBtn')}</button>
     `;
   } else {
     section.innerHTML = `
       <div style="padding:16px; background:rgba(76,203,141,0.1); border:1px solid rgba(76,203,141,0.2); border-radius:10px; margin-bottom:16px;">
-        <div style="font-size:0.85rem; color:var(--green-vivid); font-weight:600; margin-bottom:8px;">ℹ️ Bilgi</div>
-        <div style="font-size:0.8rem; color:var(--text-secondary);">Google ile giriş yaptığınız için şu anda şifreniz yok. Aşağıdan bir şifre belirleyebilirsiniz.</div>
+        <div style="font-size:0.85rem; color:var(--green-vivid); font-weight:600; margin-bottom:8px;">ℹ️ ${t('info')}</div>
+        <div style="font-size:0.8rem; color:var(--text-secondary);">${t('googleNoPasswordInfo')}</div>
       </div>
       <div>
-        <label style="font-size:0.75rem; font-weight:700; color:var(--text-muted); display:block; margin-bottom:6px;">Yeni Şifre</label>
-        <input type="password" id="newPassword" class="log-input" placeholder="Şifre belirleyin (min 6 karakter)">
+        <label style="font-size:0.75rem; font-weight:700; color:var(--text-muted); display:block; margin-bottom:6px;">${t('newPassword')}</label>
+        <input type="password" id="newPassword" class="log-input" placeholder="${t('setNewPasswordPlaceholder')}">
       </div>
       <div>
-        <label style="font-size:0.75rem; font-weight:700; color:var(--text-muted); display:block; margin-bottom:6px;">Yeni Şifre (Tekrar)</label>
-        <input type="password" id="confirmPassword" class="log-input" placeholder="Şifreyi tekrar girin">
+        <label style="font-size:0.75rem; font-weight:700; color:var(--text-muted); display:block; margin-bottom:6px;">${t('confirmPassword')}</label>
+        <input type="password" id="confirmPassword" class="log-input" placeholder="${t('confirmPasswordPlaceholder')}">
       </div>
-      <button class="btn-primary" onclick="setNewPassword()" style="width:100%; margin-top:12px;\">�?ifre Belirle</button>
+      <button class="btn-primary" onclick="setNewPassword()" style="width:100%; margin-top:12px;">${t('setPasswordBtn')}</button>
     `;
   }
 };
@@ -7987,10 +8086,70 @@ window.changePassword = async function() {
   const confirmPass = document.getElementById('confirmPassword').value;
   
   if (!currentPass || !newPass || !confirmPass) {
-    showToast('Lütfen tüm alanları doldurun.', 'error');
+    showToast(t('fillAllFields'), 'error');
     return;
   }
   
+  if (newPass !== confirmPass) {
+    showToast(t('passwordsDoNotMatch'), 'error');
+    return;
+  }
+  
+  if (newPass.length < 6) {
+    showToast(t('passwordMinLength'), 'error');
+    return;
+  }
+  
+  try {
+    // Re-authenticate first
+    const credential = firebase.auth.EmailAuthProvider.credential(currentUser.email, currentPass);
+    await currentUser.reauthenticateWithCredential(credential);
+    
+    // Update password
+    await currentUser.updatePassword(newPass);
+    
+    document.getElementById('currentPassword').value = '';
+    document.getElementById('newPassword').value = '';
+    document.getElementById('confirmPassword').value = '';
+    
+    showToast(t('passwordChangedSuccess'), 'success');
+  } catch (err) {
+    console.error('Password change error:', err);
+    showToast((currentLang === 'tr' ? 'Şifre değiştirilemedi: ' : 'Failed to change password: ') + err.message, 'error');
+  }
+};
+
+window.setNewPassword = async function() {
+  const newPass = document.getElementById('newPassword').value;
+  const confirmPass = document.getElementById('confirmPassword').value;
+  
+  if (!newPass || !confirmPass) {
+    showToast(t('fillAllFields'), 'error');
+    return;
+  }
+  
+  if (newPass !== confirmPass) {
+    showToast(t('passwordsDoNotMatch'), 'error');
+    return;
+  }
+  
+  if (newPass.length < 6) {
+    showToast(t('passwordMinLength'), 'error');
+    return;
+  }
+  
+  try {
+    await currentUser.updatePassword(newPass);
+    
+    document.getElementById('newPassword').value = '';
+    document.getElementById('confirmPassword').value = '';
+    
+    showToast(t('passwordSetSuccess'), 'success');
+  } catch (err) {
+    console.error('Password set error:', err);
+    showToast((currentLang === 'tr' ? 'Şifre belirlenemedi: ' : 'Failed to set password: ') + err.message, 'error');
+  }
+};  
   if (newPass !== confirmPass) {
     showToast('Yeni şifreler eşleşmiyor.', 'error');
     return;
@@ -8094,14 +8253,14 @@ window.requestNotificationPermission = async function(silent = false) {
           'data.profile.fcmToken': token
         });
         if (appData && appData.profile) appData.profile.fcmToken = token;
-        if (!silent) showToast('Bildirimler başarıyla aktifleştirildi!', 'success');
+        if (!silent) showToast(t('notificationsEnabledSuccess'), 'success');
       }
     } else if (permission === 'denied') {
-      if (!silent) showToast('Bildirim izni reddedildi.', 'error');
+      if (!silent) showToast(t('notificationPermissionDenied'), 'error');
     }
   } catch (err) {
     console.error('FCM Token error:', err);
-    if (!silent) showToast('Bildirimler ayarlanamadı: ' + err.message, 'error');
+    if (!silent) showToast((currentLang === 'tr' ? 'Bildirimler ayarlanamadı: ' : 'Failed to set up notifications: ') + err.message, 'error');
   }
   checkPushNotificationStatus();
 };
@@ -9100,12 +9259,12 @@ function checkAIKeyStatus() {
   if (key) {
     input.value = key;
     statusEl.className = 'ai-key-status valid';
-    statusEl.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> API key aktif';
+    statusEl.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> ${t('apiKeyStatusActive')}`;
     document.getElementById('aiAnalyzePhotosBtn')?.removeAttribute('disabled');
   } else {
     input.value = '';
     statusEl.className = 'ai-key-status empty';
-    statusEl.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> API key girilmemiş';
+    statusEl.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> ${t('apiKeyStatusEmpty')}`;
     document.getElementById('aiAnalyzePhotosBtn')?.setAttribute('disabled', 'true');
   }
 }
@@ -9115,20 +9274,20 @@ function saveAIKey() {
   if (!input) return;
   const val = input.value.trim();
   if (!val) {
-    showToast('Lütfen geçerli bir key girin', 'error');
+    showToast(t('pleaseEnterValidKey'), 'error');
     return;
   }
   if (window.setGeminiKey) {
     window.setGeminiKey(val);
     checkAIKeyStatus();
-    showToast('API Key başarıyla kaydedildi!', 'success');
+    showToast(t('apiKeySaved'), 'success');
   }
 }
 
 function deleteAIKey() {
   localStorage.removeItem('zyro_gemini_key');
   checkAIKeyStatus();
-  showToast('API Key silindi', 'info');
+  showToast(t('apiKeyDeleted'), 'info');
 }
 
 // --- CHAT HISTORY RENDER ---
@@ -9139,11 +9298,11 @@ function saveAIChatHistory() {
 }
 
 function clearAIChatHistory() {
-  if(confirm('Sohbet geçmişini tamamen silmek istediğine emin misin?')) {
+  if(confirm(t('confirmClearChat'))) {
     aiChatHistory = [];
     saveAIChatHistory();
     renderAIChatHistory();
-    showToast('Sohbet geçmişi temizlendi', 'info');
+    showToast(t('chatHistoryCleared'), 'info');
   }
 }
 
