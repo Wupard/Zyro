@@ -4794,7 +4794,7 @@ function displayComments(comments) {
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
             <span>Cevapla</span>
           </button>
-          ${!isOwn ? `
+          ${!isOwnComment ? `
           <button onclick="openReportModal('${c.id}','${(c.userId||'').replace(/'/g,"\\'")}','${(c.userName||'').replace(/'/g,"\\'")}','${(c.text||'').substring(0,120).replace(/'/g,"\\'").replace(/\n/g,' ')}')"
             style="background:transparent; border:none; color:var(--text-muted); font-size:0.8rem; cursor:pointer; display:flex; align-items:center; gap:4px;" title="Raporla">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
@@ -7990,8 +7990,7 @@ function renderWeeklyReport() {
     el('wrTopMuscle').textContent = topMuscle ? topMuscle[0] : '—';
     if(topMuscle) {
       el('wrTopMuscle').style.cursor = 'pointer';
-      el('wrTopMuscle').style.textDecoration = 'underline';
-      el('wrTopMuscle').style.textDecorationStyle = 'dotted';
+      el('wrTopMuscle').style.textDecoration = 'none';
       el('wrTopMuscle').onclick = () => {
         let sets = topMuscle[1];
         let exCount = 0;
@@ -8025,8 +8024,7 @@ function renderWeeklyReport() {
     if (bestPRWeight > 0) {
       el('wrBestPR').textContent = `${bestPRWeight} kg`;
       el('wrBestPR').style.cursor = 'pointer';
-      el('wrBestPR').style.textDecoration = 'underline';
-      el('wrBestPR').style.textDecorationStyle = 'dotted';
+      el('wrBestPR').style.textDecoration = 'none';
       el('wrBestPR').onclick = () => {
         showWeeklyPRPopup(bestPREx, bestPRWeight, bestPRSets||1, bestPRReps);
       };
@@ -8498,6 +8496,304 @@ window.showPRDetailPopup = function(userData) {
         <div style="font-size:0.75rem; color:var(--text-muted); font-weight:600;">Toplam Hacim</div>
         <div style="font-family:'Space Grotesk',sans-serif; font-size:0.95rem; font-weight:800; color:var(--text-primary);">${(weight * sets * reps).toLocaleString('tr-TR')} <span style="font-size:0.7rem;opacity:0.6;">kg</span></div>
       </div>` : ''}
+    </div>
+  `;
+
+  document.body.appendChild(overlay);
+};
+
+// =============================================
+// WEEKLY PR DETAIL POPUP
+// =============================================
+window.showWeeklyPRPopup = function(exercise, weight, sets, reps) {
+  const existing = document.getElementById('weeklyDetailPopup');
+  if (existing) existing.remove();
+
+  const exName = exercise || 'Bilinmeyen Hareket';
+  const wt = weight || 0;
+  const s = sets || 1;
+  const r = reps || 0;
+
+  const overlay = document.createElement('div');
+  overlay.id = 'weeklyDetailPopup';
+  overlay.style.cssText = `
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding: 0 0 24px;
+    animation: prOverlayIn 0.25s ease both;
+  `;
+  overlay.innerHTML = `
+    <style>
+      @keyframes prOverlayIn { from { opacity:0; } to { opacity:1; } }
+      @keyframes prCardIn { from { opacity:0; transform: translateY(40px) scale(0.95); } to { opacity:1; transform: translateY(0) scale(1); } }
+      @keyframes prStatPop { from { opacity:0; transform: scale(0.7); } to { opacity:1; transform: scale(1); } }
+      .pr-popup-backdrop { position:fixed; inset:0; background:rgba(0,0,0,0.65); backdrop-filter:blur(8px); }
+      .pr-popup-card {
+        position: relative;
+        z-index: 1;
+        width: min(420px, calc(100vw - 32px));
+        background: linear-gradient(145deg, rgba(26,22,46,0.98), rgba(13,13,18,0.99));
+        border: 1px solid rgba(139,124,247,0.3);
+        border-radius: 28px;
+        padding: 28px 24px 24px;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.6), 0 0 0 1px rgba(139,124,247,0.1), inset 0 1px 0 rgba(255,255,255,0.05);
+        animation: prCardIn 0.35s cubic-bezier(0.175,0.885,0.32,1.275) both;
+        animation-delay: 0.05s;
+      }
+      .pr-popup-close {
+        position: absolute;
+        top: 16px; right: 16px;
+        width: 32px; height: 32px;
+        background: rgba(255,255,255,0.06);
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 10px;
+        display: flex; align-items: center; justify-content: center;
+        cursor: pointer;
+        font-size: 1rem;
+        color: var(--text-muted);
+        transition: all 0.2s ease;
+      }
+      .pr-popup-close:hover { background: rgba(239,68,68,0.15); border-color: rgba(239,68,68,0.3); color: #ef4444; }
+      .pr-stat-box {
+        background: rgba(139,124,247,0.07);
+        border: 1px solid rgba(139,124,247,0.18);
+        border-radius: 16px;
+        padding: 16px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+        animation: prStatPop 0.4s cubic-bezier(0.34,1.56,0.64,1) both;
+      }
+      .pr-stat-box:nth-child(1) { animation-delay: 0.18s; }
+      .pr-stat-box:nth-child(2) { animation-delay: 0.26s; }
+      .pr-stat-box:nth-child(3) { animation-delay: 0.34s; }
+      .pr-stat-val {
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: 1.6rem;
+        font-weight: 900;
+        background: linear-gradient(135deg, #fff 0%, var(--accent-primary) 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        line-height: 1;
+      }
+      .pr-stat-label {
+        font-size: 0.65rem;
+        font-weight: 700;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+      }
+      .pr-exercise-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: rgba(139,124,247,0.12);
+        border: 1px solid rgba(139,124,247,0.25);
+        border-radius: 12px;
+        padding: 8px 14px;
+        font-size: 0.88rem;
+        font-weight: 700;
+        color: var(--accent-primary);
+        max-width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+    </style>
+    <div class="pr-popup-backdrop" onclick="document.getElementById('weeklyDetailPopup').remove()"></div>
+    <div class="pr-popup-card">
+      <div class="pr-popup-close" onclick="document.getElementById('weeklyDetailPopup').remove()">✕</div>
+      
+      <!-- Header -->
+      <div style="display:flex; align-items:center; gap:14px; margin-bottom:20px;">
+        <div style="width:64px;height:64px;border-radius:16px;background:linear-gradient(135deg,var(--accent-deep),var(--accent-primary));display:flex;align-items:center;justify-content:center;font-size:1.8rem;border:2px solid rgba(139,124,247,0.4);">👑</div>
+        <div style="flex:1; min-width:0;">
+          <div style="font-size:0.65rem; font-weight:700; color:var(--accent-primary); text-transform:uppercase; letter-spacing:0.08em; margin-bottom:4px;">🏆 Haftalık En Yüksek PR</div>
+          <div style="font-family:'Space Grotesk',sans-serif; font-size:1.15rem; font-weight:900; color:var(--text-primary); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Kişisel Rekorun</div>
+          <div style="font-size:0.75rem; color:var(--text-muted); margin-top:2px;">Bu hafta kırdığın en yüksek rekor</div>
+        </div>
+      </div>
+
+      <!-- Exercise chip -->
+      <div style="margin-bottom:18px;">
+        <div style="font-size:0.65rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:8px;">Hareket</div>
+        <div class="pr-exercise-chip">💪 ${exName}</div>
+      </div>
+
+      <!-- Stats grid -->
+      <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px;">
+        <div class="pr-stat-box">
+          <div class="pr-stat-val">${wt}<small style="font-size:0.6em;opacity:0.7;">kg</small></div>
+          <div class="pr-stat-label">Ağırlık</div>
+        </div>
+        <div class="pr-stat-box">
+          <div class="pr-stat-val">${s}</div>
+          <div class="pr-stat-label">Set</div>
+        </div>
+        <div class="pr-stat-box">
+          <div class="pr-stat-val">${r}</div>
+          <div class="pr-stat-label">Tekrar</div>
+        </div>
+      </div>
+
+      <!-- Volume indicator -->
+      ${s > 0 && r > 0 ? `
+      <div style="margin-top:16px; padding:12px 16px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:14px; display:flex; align-items:center; justify-content:space-between;">
+        <div style="font-size:0.75rem; color:var(--text-muted); font-weight:600;">Toplam Hacim</div>
+        <div style="font-family:'Space Grotesk',sans-serif; font-size:0.95rem; font-weight:800; color:var(--text-primary);">${(wt * s * r).toLocaleString('tr-TR')} <span style="font-size:0.7rem;opacity:0.6;">kg</span></div>
+      </div>` : ''}
+    </div>
+  `;
+
+  document.body.appendChild(overlay);
+};
+
+// =============================================
+// WEEKLY MUSCLE DETAIL POPUP
+// =============================================
+window.showWeeklyMusclePopup = function(muscleGroup, exCount, sets) {
+  const existing = document.getElementById('weeklyDetailPopup');
+  if (existing) existing.remove();
+
+  const mGroup = muscleGroup || 'Bilinmeyen Kas Grubu';
+  const ec = exCount || 0;
+  const s = sets || 0;
+
+  const overlay = document.createElement('div');
+  overlay.id = 'weeklyDetailPopup';
+  overlay.style.cssText = `
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding: 0 0 24px;
+    animation: prOverlayIn 0.25s ease both;
+  `;
+  overlay.innerHTML = `
+    <style>
+      @keyframes prOverlayIn { from { opacity:0; } to { opacity:1; } }
+      @keyframes prCardIn { from { opacity:0; transform: translateY(40px) scale(0.95); } to { opacity:1; transform: translateY(0) scale(1); } }
+      @keyframes prStatPop { from { opacity:0; transform: scale(0.7); } to { opacity:1; transform: scale(1); } }
+      .pr-popup-backdrop { position:fixed; inset:0; background:rgba(0,0,0,0.65); backdrop-filter:blur(8px); }
+      .pr-popup-card {
+        position: relative;
+        z-index: 1;
+        width: min(420px, calc(100vw - 32px));
+        background: linear-gradient(145deg, rgba(26,22,46,0.98), rgba(13,13,18,0.99));
+        border: 1px solid rgba(139,124,247,0.3);
+        border-radius: 28px;
+        padding: 28px 24px 24px;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.6), 0 0 0 1px rgba(139,124,247,0.1), inset 0 1px 0 rgba(255,255,255,0.05);
+        animation: prCardIn 0.35s cubic-bezier(0.175,0.885,0.32,1.275) both;
+        animation-delay: 0.05s;
+      }
+      .pr-popup-close {
+        position: absolute;
+        top: 16px; right: 16px;
+        width: 32px; height: 32px;
+        background: rgba(255,255,255,0.06);
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 10px;
+        display: flex; align-items: center; justify-content: center;
+        cursor: pointer;
+        font-size: 1rem;
+        color: var(--text-muted);
+        transition: all 0.2s ease;
+      }
+      .pr-popup-close:hover { background: rgba(239,68,68,0.15); border-color: rgba(239,68,68,0.3); color: #ef4444; }
+      .pr-stat-box {
+        background: rgba(139,124,247,0.07);
+        border: 1px solid rgba(139,124,247,0.18);
+        border-radius: 16px;
+        padding: 16px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+        animation: prStatPop 0.4s cubic-bezier(0.34,1.56,0.64,1) both;
+      }
+      .pr-stat-box:nth-child(1) { animation-delay: 0.18s; }
+      .pr-stat-box:nth-child(2) { animation-delay: 0.26s; }
+      .pr-stat-val {
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: 1.6rem;
+        font-weight: 900;
+        background: linear-gradient(135deg, #fff 0%, var(--accent-primary) 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        line-height: 1;
+      }
+      .pr-stat-label {
+        font-size: 0.65rem;
+        font-weight: 700;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+      }
+      .pr-exercise-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: rgba(139,124,247,0.12);
+        border: 1px solid rgba(139,124,247,0.25);
+        border-radius: 12px;
+        padding: 8px 14px;
+        font-size: 0.88rem;
+        font-weight: 700;
+        color: var(--accent-primary);
+        max-width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+    </style>
+    <div class="pr-popup-backdrop" onclick="document.getElementById('weeklyDetailPopup').remove()"></div>
+    <div class="pr-popup-card">
+      <div class="pr-popup-close" onclick="document.getElementById('weeklyDetailPopup').remove()">✕</div>
+      
+      <!-- Header -->
+      <div style="display:flex; align-items:center; gap:14px; margin-bottom:20px;">
+        <div style="width:64px;height:64px;border-radius:16px;background:linear-gradient(135deg,var(--accent-deep),var(--accent-primary));display:flex;align-items:center;justify-content:center;font-size:1.8rem;border:2px solid rgba(139,124,247,0.4);">🔥</div>
+        <div style="flex:1; min-width:0;">
+          <div style="font-size:0.65rem; font-weight:700; color:var(--accent-primary); text-transform:uppercase; letter-spacing:0.08em; margin-bottom:4px;">💪 Haftalık En Çok Çalışılan</div>
+          <div style="font-family:'Space Grotesk',sans-serif; font-size:1.15rem; font-weight:900; color:var(--text-primary); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Kas Grubu Analizi</div>
+          <div style="font-size:0.75rem; color:var(--text-muted); margin-top:2px;">Bu hafta en çok odaklandığın bölge</div>
+        </div>
+      </div>
+
+      <!-- Muscle Group chip -->
+      <div style="margin-bottom:18px;">
+        <div style="font-size:0.65rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:8px;">Hedef Bölge</div>
+        <div class="pr-exercise-chip">🎯 ${mGroup}</div>
+      </div>
+
+      <!-- Stats grid -->
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+        <div class="pr-stat-box">
+          <div class="pr-stat-val">${s}</div>
+          <div class="pr-stat-label">Toplam Set</div>
+        </div>
+        <div class="pr-stat-box">
+          <div class="pr-stat-val">${ec}</div>
+          <div class="pr-stat-label">Farklı Egzersiz</div>
+        </div>
+      </div>
+
+      <!-- Info note -->
+      <div style="margin-top:16px; padding:12px 16px; background:rgba(139,124,247,0.05); border:1px solid rgba(139,124,247,0.15); border-radius:14px; text-align:center;">
+        <div style="font-size:0.8rem; color:var(--text-secondary); font-weight:500;">
+          Bu hafta <span style="color:var(--accent-primary); font-weight:700;">${mGroup}</span> bölgesi için mükemmel bir hacim yakaladın!
+        </div>
+      </div>
     </div>
   `;
 
