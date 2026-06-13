@@ -5807,7 +5807,7 @@ window.adminViewUserDetails = async function(uid) {
               </div>
               <div style="display:flex; gap:6px; flex-wrap:wrap;">
                 <span style="font-size:0.68rem; color:var(--text-muted);">Hızlı:</span>
-                ${[1,5,10,25,50,75,100].map(l => '<button onclick="document.getElementById(\'adminLevelInput_${uid}\').value=' + l + '" style="padding:3px 10px; border-radius:20px; border:1px solid rgba(139,124,247,0.25); background:rgba(139,124,247,0.08); color:var(--accent-primary); font-size:0.68rem; font-weight:700; cursor:pointer;">' + l + '</button>').join('')}
+                ${[1,5,10,25,50,75,100].map(l => '<button onclick="document.getElementById(\'adminLevelInput_' + uid + '\').value=' + l + '" style="padding:3px 10px; border-radius:20px; border:1px solid rgba(139,124,247,0.25); background:rgba(139,124,247,0.08); color:var(--accent-primary); font-size:0.68rem; font-weight:700; cursor:pointer;">' + l + '</button>').join('')}
               </div>
             </div>
           </div>

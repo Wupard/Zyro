@@ -1734,19 +1734,18 @@
           
           <button class="btn-primary" onclick="saveProfile()" style="width: 100%; padding: 14px; font-size: 1rem;">Kaydet</button>
         </div>
-      </div>
 
       <!-- Tabs -->
       <div
-        style="display:flex; gap:8px; margin-bottom:24px; border-bottom:1px solid var(--border-subtle); overflow-x:auto;">
+        style="display:flex; margin-bottom:24px; border-bottom:1px solid var(--border-subtle); overflow-x:auto;">
         <button class="profile-tab-btn active" onclick="switchProfileTab('bio', event)"
-          style="padding:12px 20px; border:none; background:none; color:var(--text-primary); font-weight:600; cursor:pointer; border-bottom:3px solid var(--accent-primary); transition:all 0.2s;">Biyografi</button>
+          style="flex:1; display:inline-flex; justify-content:center; align-items:center; padding:12px 20px; border:none; background:none; color:var(--text-primary); font-weight:600; cursor:pointer; border-bottom:3px solid var(--accent-primary); transition:all 0.2s;">Biyografi</button>
         <button class="profile-tab-btn" onclick="switchProfileTab('achievements', event)"
-          style="padding:12px 20px; border:none; background:none; color:var(--text-muted); font-weight:600; cursor:pointer; border-bottom:3px solid transparent; transition:all 0.2s;">Başarımlar</button>
+          style="flex:1; display:inline-flex; justify-content:center; align-items:center; padding:12px 20px; border:none; background:none; color:var(--text-muted); font-weight:600; cursor:pointer; border-bottom:3px solid transparent; transition:all 0.2s;">Başarımlar</button>
         <button class="profile-tab-btn" onclick="switchProfileTab('security', event)"
-          style="padding:12px 20px; border:none; background:none; color:var(--text-muted); font-weight:600; cursor:pointer; border-bottom:3px solid transparent; transition:all 0.2s;">Güvenlik</button>
+          style="flex:1; display:inline-flex; justify-content:center; align-items:center; padding:12px 20px; border:none; background:none; color:var(--text-muted); font-weight:600; cursor:pointer; border-bottom:3px solid transparent; transition:all 0.2s;">Güvenlik</button>
         <button class="profile-tab-btn" onclick="switchProfileTab('ai', event)"
-          style="padding:12px 20px; border:none; background:none; color:var(--text-muted); font-weight:600; cursor:pointer; border-bottom:3px solid transparent; transition:all 0.2s; display:flex; align-items:center; gap:6px;">
+          style="flex:1; display:inline-flex; justify-content:center; align-items:center; gap:6px; padding:12px 20px; border:none; background:none; color:var(--text-muted); font-weight:600; cursor:pointer; border-bottom:3px solid transparent; transition:all 0.2s;">
           <span style="color:var(--accent-primary);">✨</span> AI Ayarları
         </button>
       </div>
@@ -1896,6 +1895,7 @@
             <button id="btnEnablePush" class="btn-primary" onclick="requestNotificationPermission()" style="width:100%; display:none;">Bildirimlere İzin Ver</button>
           </div>
         </section>
+      </div>
       </div>
     </div>
 
