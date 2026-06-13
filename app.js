@@ -743,13 +743,8 @@ function initAuth(){
     googleBtn.addEventListener('click',()=>{
       console.log('Google Sign-In clicked');
       
-      if (window.location.protocol === 'file:') {
-        alert('Google Sign-in does not work when opening the HTML file directly (file://). Please use a local server (e.g., Live Server in VS Code or "npm start").');
-        return;
-      }
-
       if (typeof firebase === 'undefined' || !firebase.auth) {
-        alert('Firebase Auth SDK not loaded. Please check your internet connection.');
+        alert('Firebase bağlantısı kurulamadı. Lütfen internetinizi kontrol edin.');
         return;
       }
 
@@ -759,12 +754,17 @@ function initAuth(){
       // Try Popup first
       window.auth.signInWithPopup(provider).catch(e=>{
         console.warn('Popup blocked or failed, trying redirect...', e);
-        // Fallback to Redirect if Popup fails (common in some browsers)
         if (e.code === 'auth/popup-blocked' || e.code === 'auth/cancelled-popup-request') {
-          window.auth.signInWithRedirect(provider);
+          window.auth.signInWithRedirect(provider).catch(err => {
+            alert('Yönlendirme ile giriş yapılamadı: ' + err.message);
+          });
         } else {
           console.error('Auth Error:', e);
-          alert('Sign-in failed: ' + e.message);
+          let msg = e.message;
+          if (window.location.protocol === 'file:') {
+            msg = 'Google ile giriş yapmak için dosyayı doğrudan açmak (file://) yerine yerel bir sunucu (Live Server) kullanmalısınız.\n\nDetay: ' + e.message;
+          }
+          alert('Giriş başarısız: ' + msg);
         }
       });
     });
