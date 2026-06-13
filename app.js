@@ -292,12 +292,12 @@ const DAYS_TR = ['Pzt','Sal','Çar','Per','Cum','Cmt','Paz'];
 const EXERCISE_MUSCLES = {
   // Sırt / Back
   'Medium-Grip Lat Pulldown': ['traps'],
-  'Barbell Row': ['traps'],
-  'Single-Arm Seated Cable Row': ['traps'],
+  'Dumbbell Row': ['traps'],
+  'Reverse Grip Lat Pulldown': ['traps'],
   'Dumbbell Shrug': ['traps'],
 
   // Arka Kol / Triceps
-  'Straight-Bar Pushdown': ['triceps'],
+  'Cable Lying Triceps Extension': ['triceps'],
   'Seated Dumbbell Overhead Tricep': ['triceps'],
   'Single-Arm Cable Tricep Kickback': ['triceps'],
 
@@ -307,11 +307,8 @@ const EXERCISE_MUSCLES = {
   'Cable Rope Face Pull': ['shoulders', 'traps'],
   'Seated Rear Delt Fly': ['shoulders', 'traps'],
 
-  // Bilek / Forearm
-  'Dumbbell Reverse Wrist Curl': ['forearms'],
-  'Dumbbell Radial/Ulnar Deviation': ['forearms'],
-  'Reverse Curl': ['biceps', 'forearms'],
-  'Dumbbell Forearm': ['forearms'],
+  // Ön Kol / Biceps - Forearm
+  'Reverse Cable Curl': ['biceps', 'forearms'],
 
   // Göğüs / Chest
   'Flat Barbell Bench Press': ['chest', 'triceps'],
@@ -335,19 +332,17 @@ const ALL_EXERCISES = Object.keys(EXERCISE_MUSCLES).sort();
 // GLOBAL EXERCISE CATEGORIES
 // =============================================
 const EXERCISE_CATEGORIES = {
-  'chest': ['Flat Barbell Bench Press', 'Incline Dumbbell Press'],
+  'chest': ['Flat Barbell Bench Press', 'Incline Dumbbell Press', 'Dumbbell Fly'],
   'shoulders': ['Seated Barbell Overhead Press', 'Cable Lateral Raise', 'Cable Rope Face Pull', 'Seated Rear Delt Fly', 'Dumbbell Shrug'],
-  'back': ['Medium-Grip Lat Pulldown', 'Barbell Row', 'Single-Arm Seated Cable Row'],
+  'back': ['Medium-Grip Lat Pulldown', 'Dumbbell Row', 'Reverse Grip Lat Pulldown'],
   'legs': ['Romanian Deadlift', 'Leg Extension', 'Reverse Leg Extension', 'Adductor Machine', 'Smith Machine Calf Raise'],
   'biceps': [
-    'Hammer Curl', 'Seated Incline Dumbbell Curl', 'Single-Arm Cable Curl'
+    'Hammer Curl', 'Seated Incline Dumbbell Curl', 'Single-Arm Cable Curl', 'Reverse Cable Curl'
   ],
   'triceps': [
-    'Straight-Bar Pushdown', 'Seated Dumbbell Overhead Tricep', 'Single-Arm Cable Tricep Kickback'
+    'Cable Lying Triceps Extension', 'Seated Dumbbell Overhead Tricep', 'Single-Arm Cable Tricep Kickback'
   ],
-  'wrists': [
-    'Dumbbell Reverse Wrist Curl', 'Dumbbell Radial/Ulnar Deviation', 'Reverse Curl', 'Dumbbell Forearm'
-  ],
+  'wrists': [],
   'core': []
 };
 
@@ -374,19 +369,19 @@ const CATEGORY_ICONS = {
 const DEFAULT_PROGRAMS = {
   day1: [ // SALI
     {name:'Medium-Grip Lat Pulldown',sets:'3x6-8',weight:'-'},
-    {name:'Barbell Row',sets:'3x6-8',weight:'-'},
-    {name:'Single-Arm Seated Cable Row',sets:'3x6-8',weight:'-'},
-    {name:'Straight-Bar Pushdown',sets:'3x6-8',weight:'-'},
+    {name:'Dumbbell Row',sets:'3x6-8',weight:'-'},
+    {name:'Reverse Grip Lat Pulldown',sets:'3x6-8',weight:'-'},
+    {name:'Cable Lying Triceps Extension',sets:'3x6-8',weight:'-'},
     {name:'Seated Dumbbell Overhead Tricep',sets:'3x6-8',weight:'-'},
     {name:'Single-Arm Cable Tricep Kickback',sets:'3x6-8',weight:'-'},
     {name:'Seated Barbell Overhead Press',sets:'3x6-8',weight:'-'},
     {name:'Cable Lateral Raise',sets:'3x6-8',weight:'-'},
-    {name:'Dumbbell Reverse Wrist Curl',sets:'3x6-8',weight:'-'},
-    {name:'Dumbbell Radial/Ulnar Deviation',sets:'3x6-8',weight:'-'},
+    {name:'Reverse Cable Curl',sets:'3x6-8',weight:'-'},
   ],
   day2: [ // PERŞEMBE
     {name:'Flat Barbell Bench Press',sets:'3x6-8',weight:'-'},
     {name:'Incline Dumbbell Press',sets:'3x6-8',weight:'-'},
+    {name:'Dumbbell Fly',sets:'3x6-8',weight:'-'},
     {name:'Cable Rope Face Pull',sets:'3x6-8',weight:'-'},
     {name:'Seated Rear Delt Fly',sets:'3x6-8',weight:'-'},
     {name:'Seated Incline Dumbbell Curl',sets:'3x6-8',weight:'-'},
@@ -402,8 +397,6 @@ const DEFAULT_PROGRAMS = {
     {name:'Cable Rope Face Pull',sets:'3x6-8',weight:'-'},
     {name:'Cable Lateral Raise',sets:'3x6-8',weight:'-'},
     {name:'Dumbbell Shrug',sets:'3x6-8',weight:'-'},
-    {name:'Reverse Curl',sets:'3x6-8',weight:'-'},
-    {name:'Dumbbell Forearm',sets:'3x6-8',weight:'-'},
   ],
 };
 
@@ -430,19 +423,19 @@ const WORKOUT_VIDEO_URLS = {
   // SALI
   'Medium-Grip Lat Pulldown': 'https://www.youtube.com/shorts/bNmvKpJSWKM',
   'Reverse-Grip Lat Pulldown': 'https://www.youtube.com/shorts/rguA3pm73rs',
-  'Barbell Row': 'https://www.youtube.com/shorts/Nqh7q3zDCoQ',
-  'Single-Arm Seated Cable Row': 'https://www.youtube.com/shorts/9TWiV80cUYs',
-  'Straight-Bar Pushdown': 'https://www.youtube.com/shorts/1FjkhpZsaxc',
+  'Dumbbell Row': 'https://www.youtube.com/shorts/WkFX6_GxAs8',
+  'Reverse Grip Lat Pulldown': 'https://www.youtube.com/watch?v=_o8r-w2GYKY',
+  'Cable Lying Triceps Extension': 'https://www.youtube.com/watch?v=SzQ9_1fwVZ0',
   'Seated Dumbbell Overhead Tricep': 'https://www.youtube.com/shorts/b_r_LW4HEcM',
   'Single-Arm Cable Tricep Kickback': 'https://www.youtube.com/shorts/7_C9_SWHZbo',
   'Seated Barbell Overhead Press': 'https://www.youtube.com/shorts/tKPtgQI-VFM',
   'Cable Lateral Raise': 'https://www.youtube.com/shorts/xrBcuPNTxLg',
-  'Dumbbell Reverse Wrist Curl': 'https://www.youtube.com/watch?v=osYPwlBiCRM&pp=ygUmSG93IHRvIGRvIGEgRHVtYmJlbGwgUmV2ZXJzZSBXcmlzdCBDdXI%3D',
-  'Dumbbell Radial/Ulnar Deviation': 'https://www.youtube.com/watch?v=OchvFH9qWz8&pp=ygUfRHVtYmJlbGwgUmFkaWFsL1VsbmFyIERldmlhdGlvbg%3D%3D',
+  'Reverse Cable Curl': 'https://www.youtube.com/watch?v=HwB-DevuJjU',
 
   // PERŞEMBE
   'Flat Barbell Bench Press': 'https://www.youtube.com/shorts/hWbUlkb5Ms4',
   'Incline Dumbbell Press': 'https://www.youtube.com/shorts/8fXfwG4ftaQ',
+  'Dumbbell Fly': 'https://www.youtube.com/shorts/8nG8y4LNQRM',
   'Cable Rope Face Pull': 'https://www.youtube.com/shorts/IeOqdw9WI90',
   'Seated Rear Delt Fly': 'https://www.youtube.com/shorts/PkGcUy-XDMY',
   'Seated Incline Dumbbell Curl': 'https://www.youtube.com/shorts/uCUaRFlA9vE',
@@ -456,8 +449,6 @@ const WORKOUT_VIDEO_URLS = {
   'Adductor Machine': 'https://www.youtube.com/shorts/BXs0PIkdXGs',
   'Smith Machine Calf Raise': 'https://www.youtube.com/shorts/wlqTemUXPXY',
   'Dumbbell Shrug': 'https://www.youtube.com/shorts/rFsSeClGnNA',
-  'Reverse Curl': 'https://www.youtube.com/watch?v=osYPwlBiCRM&pp=ygUmSG93IHRvIGRvIGEgRHVtYmJlbGwgUmV2ZXJzZSBXcmlzdCBDdXI%3D',
-  'Dumbbell Forearm': 'https://www.youtube.com/shorts/sKXqNO2KQp8',
 };
 
 const DEFAULT_POSTURE_PROGRAMS = {
@@ -671,7 +662,17 @@ function loadData(cb){
       if(snap.exists && snap.data().data) {
          // Veriler her zaman sunucudan cihazınıza en güncel haliyle senkronize olur
          // Böylece telefon ile PC birbirini EZMEZ.
-         appData = snap.data().data;
+         const serverData = snap.data().data;
+         // NOTES PROTECTION: Eğer lokal notlar sunucudakinden fazlaysa, lokali koru
+         const localNotes = appData.notes || {};
+         const serverNotes = serverData.notes || {};
+         const localNoteCount = Object.keys(localNotes).length;
+         const serverNoteCount = Object.keys(serverNotes).length;
+         appData = serverData;
+         if (localNoteCount > serverNoteCount) {
+           // Sunucuda eksik olan notları koru (merge)
+           appData.notes = { ...serverNotes, ...localNotes };
+         }
          enforceVersion();
          localStorage.setItem('zyro_data', JSON.stringify(appData));
          if(cb) cb();
@@ -830,6 +831,8 @@ function updateUserUI(user){
     // Get rank from data
     let userRank = appData.userRank || (isAdmin ? 'mod' : 'default');
     if (userRank === 'admin') userRank = 'mod';
+    // kurucu kontrolü — e-posta öncelikli
+    if (user && user.email === 'wupard@gmail.com') userRank = 'kurucu';
     const rank = RANKS[userRank] || RANKS.default;
     rankInfo.textContent = rank.label;
     rankInfo.style.color = rank.color;
@@ -890,6 +893,49 @@ window.toggleNotifDrawer = function() {
   
   const isOpen = drawer.classList.toggle('open');
   backdrop.classList.toggle('show', isOpen);
+  
+  // Bildirim izni: drawer açılınca ve izin henüz verilmemişse sor
+  if (isOpen && 'Notification' in window && Notification.permission === 'default') {
+    _showNotifPermissionCard();
+  } else if (isOpen && Notification.permission === 'granted') {
+    _removeNotifPermissionCard();
+  }
+};
+
+function _showNotifPermissionCard() {
+  if (document.getElementById('notifPermCard')) return;
+  const list = document.getElementById('notifList');
+  if (!list) return;
+  const card = document.createElement('div');
+  card.id = 'notifPermCard';
+  card.style.cssText = 'background:linear-gradient(135deg,rgba(139,124,247,0.12),rgba(139,124,247,0.04));border:1px solid rgba(139,124,247,0.25);border-radius:12px;padding:14px 16px;margin-bottom:12px;display:flex;gap:12px;align-items:flex-start;';
+  card.innerHTML = `
+    <div style="font-size:1.4rem;flex-shrink:0;">🔔</div>
+    <div style="flex:1;">
+      <div style="font-weight:700;font-size:0.9rem;color:var(--text-primary);margin-bottom:4px;">Bildirimleri Aç</div>
+      <div style="font-size:0.78rem;color:var(--text-muted);margin-bottom:10px;">Yeni özellikler ve güncellemelerden haberdar ol.</div>
+      <div style="display:flex;gap:8px;">
+        <button onclick="_grantNotifPermission()" style="background:var(--accent-primary);color:#fff;border:none;border-radius:8px;padding:6px 14px;font-size:0.8rem;font-weight:700;cursor:pointer;">İzin Ver</button>
+        <button onclick="_removeNotifPermissionCard()" style="background:rgba(255,255,255,0.06);color:var(--text-muted);border:1px solid var(--border-subtle);border-radius:8px;padding:6px 10px;font-size:0.8rem;cursor:pointer;">Şimdi Değil</button>
+      </div>
+    </div>
+  `;
+  list.insertAdjacentElement('beforebegin', card);
+}
+
+window._grantNotifPermission = async function() {
+  _removeNotifPermissionCard();
+  await requestNotificationPermission(false);
+  if (Notification.permission === 'granted') {
+    try {
+      new Notification('Zyro 🎉', { body: 'Bildirimler başarıyla aktifleştirildi!', icon: '/favicon.svg' });
+    } catch(e) {}
+  }
+};
+
+window._removeNotifPermissionCard = function() {
+  const card = document.getElementById('notifPermCard');
+  if (card) card.remove();
 };
 
 async function checkUserBan(user) {
@@ -1039,7 +1085,7 @@ function navigateTo(page, opts){
   if(page==='dashboard')refreshDashboard();
   else if(page==='workouts'){renderWorkout(currentWorkoutTab);renderLoggedExercises()}
   else if(page==='posture'){renderPosture(currentPostureTab)}
-  else if(page==='progress')setTimeout(()=>{drawWeightChart();renderProgressTracker();renderPRTable();renderMonthlyTracker();},50);
+  else if(page==='progress')setTimeout(()=>{drawWeightChart();renderProgressTracker();renderPRTable();renderMonthlyTracker();if(typeof renderWeightLogList==='function')renderWeightLogList();},50);
   else if(page==='updates')renderUpdatesPage();
   else if(page==='notes')renderNotes();
   else if(page==='comments')renderComments();
@@ -2011,7 +2057,10 @@ function renderLoggedExercises(){
   const td=todayStr();const logs=appData.workoutLogs[td]||[];
   if(logs.length===0){container.innerHTML=`<div class="logged-empty">${t('noExercisesLogged')}</div>`;return}
   let html=`<div class="logged-row logged-row-header"><span>${t('exercise')}</span><span>${t('weightLabel')}</span><span>Reps</span><span>Sets</span><span></span></div>`;
-  logs.forEach((l,i)=>{
+  // Display newest first (reverse order), but keep original index for deletion
+  const reversedIndexes = logs.map((l,i)=>i).reverse();
+  reversedIndexes.forEach(i=>{
+    const l=logs[i];
     const displayWeight = l.inputWeight && l.unit ? `${l.inputWeight}${l.unit.toUpperCase()}` : `${l.weight}kg`;
     html+=`<div class="logged-row" style="border-bottom: 1px solid var(--border-subtle);"><span class="logged-exercise">${l.exercise}</span><span>${displayWeight}</span><span>${l.reps}</span><span>${l.sets}</span><button class="delete-log" data-index="${i}">×</button></div>`;
   });
@@ -2425,9 +2474,52 @@ function initWeightLog(){
   document.getElementById('weightSaveBtn').addEventListener('click',()=>{
     const v=parseFloat(document.getElementById('weightInput').value);if(isNaN(v)||v<=0)return;
     appData.weightLog[todayStr()]=v;saveData();
-    document.getElementById('weightInput').value='';drawWeightChart();updateStats();
+    document.getElementById('weightInput').value='';drawWeightChart();updateStats();renderWeightLogList();
   });
+  renderWeightLogList();
 }
+
+function renderWeightLogList(){
+  let container = document.getElementById('weightLogList');
+  if(!container){
+    // Create list container below the chart section
+    const card = document.getElementById('weightChart')?.closest('.card');
+    if(!card) return;
+    container = document.createElement('div');
+    container.id = 'weightLogList';
+    container.style.cssText = 'margin-top: 12px;';
+    card.appendChild(container);
+  }
+  const entries = Object.entries(appData.weightLog||{}).sort((a,b)=>b[0].localeCompare(a[0]));
+  if(entries.length===0){
+    container.innerHTML = `<div class="logged-empty" style="padding: 12px 0;">Henüz kayıt yok.</div>`;
+    return;
+  }
+  let html = '';
+  entries.forEach(([date,val])=>{
+    const d = new Date(date+'T00:00:00');
+    const label = date===todayStr()?(currentLang==='tr'?'Bugün':'Today'):d.toLocaleDateString(currentLang==='tr'?'tr-TR':'en-US',{weekday:'short',month:'short',day:'numeric'});
+    html += `<div style="display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid var(--border-subtle);">
+      <span style="font-size:0.85rem; color:var(--text-muted);">${label}</span>
+      <div style="display:flex; align-items:center; gap:12px;">
+        <span style="font-weight:700; color:var(--accent-primary);">${val} kg</span>
+        <button onclick="deleteWeightEntry('${date}')" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);color:#ef4444;cursor:pointer;padding:4px 8px;border-radius:7px;font-size:0.75rem;font-weight:600;" title="Sil">×</button>
+      </div>
+    </div>`;
+  });
+  container.innerHTML = html;
+}
+
+window.deleteWeightEntry = function(date){
+  if(!appData.weightLog||!appData.weightLog[date]) return;
+  delete appData.weightLog[date];
+  saveData();
+  drawWeightChart();
+  updateStats();
+  renderWeightLogList();
+  showToast(currentLang==='tr'?'Kayıt silindi':'Entry deleted','success');
+};
+
 
 let editingNoteId = null;
 
@@ -3014,7 +3106,85 @@ window.closeStrengthDetails = function() {
 // =============================================
 // REFRESH
 // =============================================
-function refreshDashboard(){updateStats();updateMuscleMap();if(typeof renderWeeklyReport==='function')renderWeeklyReport();setTimeout(drawDashboardChart,50)}
+function refreshDashboard(){
+  updateStats();
+  updateMuscleMap();
+  if(typeof renderWeeklyReport==='function') renderWeeklyReport();
+  setTimeout(drawDashboardChart, 50);
+  renderDashboardWarnings();
+}
+
+function renderDashboardWarnings() {
+  // Find or create warnings container
+  let warnContainer = document.getElementById('dashboardWarnings');
+  if (!warnContainer) {
+    // Find dashboard header or stats area to inject before
+    const dashStatsEl = document.getElementById('dashboardStats') || document.querySelector('.dashboard-stats') || document.querySelector('#page-dashboard .card');
+    if (!dashStatsEl) return;
+    warnContainer = document.createElement('div');
+    warnContainer.id = 'dashboardWarnings';
+    warnContainer.style.cssText = 'display:flex;flex-direction:column;gap:10px;margin-bottom:16px;';
+    dashStatsEl.parentNode.insertBefore(warnContainer, dashStatsEl);
+  }
+  warnContainer.innerHTML = '';
+
+  const warnings = [];
+
+  // 1) Antrenman günü uyarısı (Sal=2, Per=4, Cmt=6)
+  const today = new Date();
+  const dayOfWeek = today.getDay(); // 0=Paz, 1=Pzt, 2=Sal, 3=Çar, 4=Per, 5=Cum, 6=Cmt
+  const isWorkoutDay = dayOfWeek === 2 || dayOfWeek === 4 || dayOfWeek === 6;
+  if (isWorkoutDay) {
+    const todayKey = todayStr();
+    const attendance = appData.attendance || {};
+    const alreadyLogged = attendance[todayKey] === true;
+    if (!alreadyLogged) {
+      const dayLabels = {2:'Salı',4:'Perşembe',6:'Cumartesi'};
+      warnings.push({
+        icon: '💪',
+        title: `Bugün ${dayLabels[dayOfWeek]} — Antrenman Günü!`,
+        text: 'Bugünkü antrenmanını kaydettikten sonra bu uyarı kaybolacak.',
+        color: '#F59E0B',
+        bg: 'rgba(245,158,11,0.08)',
+        border: 'rgba(245,158,11,0.25)',
+        action: `onclick="switchPage('workouts')"`,
+        actionLabel: 'Antrenmana Git →'
+      });
+    }
+  }
+
+  // 2) Ağırlık kayıt uyarısı (son 7 günde kayıt yoksa)
+  const weightLog = appData.weightLog || {};
+  const sevenDaysAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
+  const hasRecentWeight = Object.keys(weightLog).some(dateKey => {
+    return new Date(dateKey + 'T00:00:00') >= sevenDaysAgo;
+  });
+  if (!hasRecentWeight) {
+    warnings.push({
+      icon: '📊',
+      title: '7 Gündür Ağırlık Ölçümü Yok',
+      text: 'Düzenli takip için ağırlığını kaydetmeyi unutma.',
+      color: '#60A5FA',
+      bg: 'rgba(96,165,250,0.07)',
+      border: 'rgba(96,165,250,0.22)',
+      action: `onclick="switchPage('progress')"`,
+      actionLabel: 'İlerleme Sayfası →'
+    });
+  }
+
+  if (warnings.length === 0) return;
+
+  warnContainer.innerHTML = warnings.map(w => `
+    <div style="background:${w.bg};border:1px solid ${w.border};border-radius:14px;padding:14px 16px;display:flex;align-items:flex-start;gap:12px;cursor:pointer;" ${w.action}>
+      <div style="font-size:1.4rem;flex-shrink:0;line-height:1;">${w.icon}</div>
+      <div style="flex:1;min-width:0;">
+        <div style="font-weight:800;font-size:0.9rem;color:${w.color};margin-bottom:3px;">${w.title}</div>
+        <div style="font-size:0.78rem;color:var(--text-muted);">${w.text}</div>
+      </div>
+      <div style="font-size:0.75rem;font-weight:700;color:${w.color};flex-shrink:0;padding:4px 10px;border-radius:8px;border:1px solid ${w.border};white-space:nowrap;" ${w.action}>${w.actionLabel}</div>
+    </div>
+  `).join('');
+}
 function refreshAllViews(){
   renderAttendance();updateStats();updateMuscleMap();
   if(currentPage==='dashboard'){if(typeof renderWeeklyReport==='function')renderWeeklyReport();setTimeout(drawDashboardChart,50);}
@@ -3022,6 +3192,7 @@ function refreshAllViews(){
   else if(currentPage==='progress')setTimeout(()=>{
     drawWeightChart();drawStrengthChart();
     renderMonthlyTracker();renderProgressTracker();
+    if(typeof renderWeightLogList==='function')renderWeightLogList();
   },50);
   else if(currentPage==='updates')renderUpdatesPage();
   else if(currentPage==='notes')renderNotes();
@@ -4250,24 +4421,64 @@ function computeExerciseStats() {
   const stats = {};
   const dates = Object.keys(appData.workoutLogs || {}).sort();
   
+  // This week boundaries (Monday → Sunday)
+  const now = new Date();
+  const monday = getMonday(now);
+  const mondayStr = dateStr(monday);
+  const prevMonday = new Date(monday); prevMonday.setDate(monday.getDate() - 7);
+  const prevMondayStr = dateStr(prevMonday);
+  const prevSundayStr = dateStr(new Date(monday.getTime() - 1));
+
   dates.forEach(date => {
     const logs = appData.workoutLogs[date];
     logs.forEach(log => {
       const ex = log.exercise;
+      const w = parseFloat(log.weight) || 0;
+      const r = parseInt(log.reps) || 0;
+      const s = parseInt(log.sets) || 1;
+
       if (!stats[ex]) {
         stats[ex] = {
           name: ex,
-          baselineWeight: log.weight,
-          baselineReps: log.reps,
-          baselineDate: date,
-          currentWeight: log.weight,
-          currentReps: log.reps,
-          lastUpdated: date
+          // Baseline (ilk kayıt)
+          baselineWeight: w, baselineReps: r, baselineSets: s, baselineDate: date,
+          // All-time PR
+          prWeight: w, prReps: r, prSets: s, prDate: date,
+          // Current (en son)
+          currentWeight: w, currentReps: r, currentSets: s, lastUpdated: date,
+          // Bu hafta
+          weekWeight: null, weekReps: null, weekSets: null, weekDate: null,
+          // Geçen hafta
+          prevWeekWeight: null,
         };
       } else {
-        stats[ex].currentWeight = log.weight;
-        stats[ex].currentReps = log.reps;
+        // Update current
+        stats[ex].currentWeight = w;
+        stats[ex].currentReps = r;
+        stats[ex].currentSets = s;
         stats[ex].lastUpdated = date;
+        // PR check
+        if (w > stats[ex].prWeight) {
+          stats[ex].prWeight = w;
+          stats[ex].prReps = r;
+          stats[ex].prSets = s;
+          stats[ex].prDate = date;
+        }
+      }
+      // Bu hafta (Pazartesi'den bugüne)
+      if (date >= mondayStr) {
+        if (!stats[ex].weekWeight || w >= stats[ex].weekWeight) {
+          stats[ex].weekWeight = w;
+          stats[ex].weekReps = r;
+          stats[ex].weekSets = s;
+          stats[ex].weekDate = date;
+        }
+      }
+      // Geçen hafta
+      if (date >= prevMondayStr && date <= prevSundayStr) {
+        if (!stats[ex].prevWeekWeight || w >= stats[ex].prevWeekWeight) {
+          stats[ex].prevWeekWeight = w;
+        }
       }
     });
   });
@@ -4275,10 +4486,15 @@ function computeExerciseStats() {
   Object.values(stats).forEach(s => {
     s.category = 'other';
     for (const [cat, exercises] of Object.entries(EXERCISE_CATEGORIES)) {
-      if (exercises.includes(s.name)) {
-        s.category = cat;
-        break;
-      }
+      if (exercises.includes(s.name)) { s.category = cat; break; }
+    }
+    // Weekly delta
+    if (s.weekWeight !== null && s.prevWeekWeight !== null) {
+      s.weekDelta = parseFloat((s.weekWeight - s.prevWeekWeight).toFixed(1));
+    } else if (s.weekWeight !== null && s.prevWeekWeight === null) {
+      s.weekDelta = null; // ilk hafta, referans yok
+    } else {
+      s.weekDelta = null;
     }
   });
   
@@ -4330,7 +4546,7 @@ function initComments() {
       userId: currentUser ? currentUser.uid : 'local',
       userName: isAnonymous ? 'Anonim' : (currentUser ? currentUser.displayName : 'Local User'),
       userEmail: isAnonymous ? null : (currentUser ? currentUser.email : null),
-      userPhoto: isAnonymous ? null : (currentUser ? currentUser.photoURL : null),
+      userPhoto: isAnonymous ? null : (appData.profile && appData.profile.photoURL ? appData.profile.photoURL : (currentUser ? currentUser.photoURL : null)),
       timestamp: Date.now(),
       date: todayStr(),
       upvotes: 0,
@@ -4365,7 +4581,68 @@ function initComments() {
       renderComments();
     }
   });
+
+  // @mention support for main comment input
+  const commentInput = document.getElementById('commentInput');
+  if (commentInput) {
+    // Create a mention dropdown for the main input
+    let mainMentionDropdown = document.getElementById('mainMentionDropdown');
+    if (!mainMentionDropdown) {
+      mainMentionDropdown = document.createElement('div');
+      mainMentionDropdown.id = 'mainMentionDropdown';
+      mainMentionDropdown.style.cssText = 'display:none;position:absolute;left:0;right:0;background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:10px;z-index:100;max-height:140px;overflow-y:auto;box-shadow:0 8px 24px rgba(0,0,0,0.3);';
+      commentInput.parentElement.style.position = 'relative';
+      commentInput.insertAdjacentElement('afterend', mainMentionDropdown);
+    }
+    commentInput.addEventListener('input', function() {
+      const val = commentInput.value;
+      const cursor = commentInput.selectionStart;
+      const before = val.substring(0, cursor);
+      const match = before.match(/@([\w\u00C0-\u017E]*)$/);
+      if (match) {
+        const query = match[1].toLowerCase();
+        const allNames = [];
+        document.querySelectorAll('#commentsList .comment-item [data-commenter]').forEach(el => allNames.push(el.dataset.commenter));
+        const unique = [...new Set(allNames)];
+        const filtered = query ? unique.filter(n => n.toLowerCase().startsWith(query)) : unique;
+        if (filtered.length > 0) {
+          mainMentionDropdown.style.display = 'block';
+          mainMentionDropdown.innerHTML = filtered.map(name => `
+            <div onclick="_insertMainMention('${name.replace(/'/g, "\\'")}')"
+              style="padding:8px 14px;cursor:pointer;font-size:0.85rem;display:flex;align-items:center;gap:8px;"
+              onmouseenter="this.style.background='rgba(139,124,247,0.12)'"
+              onmouseleave="this.style.background='transparent'">
+              <span style="color:var(--accent-primary);font-weight:600;">@${name}</span>
+            </div>
+          `).join('');
+        } else {
+          mainMentionDropdown.style.display = 'none';
+        }
+      } else {
+        mainMentionDropdown.style.display = 'none';
+      }
+    });
+    document.addEventListener('click', function(e) {
+      if (!commentInput.contains(e.target) && !mainMentionDropdown.contains(e.target)) {
+        mainMentionDropdown.style.display = 'none';
+      }
+    });
+  }
 }
+
+window._insertMainMention = function(name) {
+  const ta = document.getElementById('commentInput');
+  const dd = document.getElementById('mainMentionDropdown');
+  if (!ta) return;
+  const cursor = ta.selectionStart;
+  const before = ta.value.substring(0, cursor);
+  const after = ta.value.substring(cursor);
+  const newBefore = before.replace(/@[\w\u00C0-\u017E]*$/, `@${name} `);
+  ta.value = newBefore + after;
+  ta.focus();
+  ta.selectionStart = ta.selectionEnd = newBefore.length;
+  if (dd) dd.style.display = 'none';
+};
 
 function renderComments() {
   const list = document.getElementById('commentsList');
@@ -4445,7 +4722,7 @@ function displayComments(comments) {
               `<div style="width: 24px; height: 24px; border-radius: 50%; background: var(--bg-primary); display: flex; align-items: center; justify-content: center; font-size: 0.7rem; color: var(--text-tertiary); border: 1px solid var(--border-subtle);">?</div>`
             }
             <div style="display: flex; align-items: center; gap: 6px;">
-              <span style="font-weight: 600; font-size: 0.9rem; color: var(--accent-primary);">${c.userName}</span>
+              <span style="font-weight: 600; font-size: 0.9rem; color: var(--accent-primary);" data-commenter="${c.userName}">${c.userName}</span>
               ${commentRankBadge}
             </div>
           </div>
@@ -4454,7 +4731,7 @@ function displayComments(comments) {
             ${canDelete ? `<button onclick="deletePublicComment('${c.id}')" style="background:none; border:none; color:#ef4444; cursor:pointer; padding:4px;" title="Sil"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button>` : ''}
           </div>
         </div>
-        <p style="margin: 0; font-size: 0.9rem; line-height: 1.5; color: var(--text-primary); padding-left: 34px;">${c.text}</p>
+        <p style="margin: 0; font-size: 0.9rem; line-height: 1.5; color: var(--text-primary); padding-left: 34px;">${_highlightMentions(c.text)}</p>
         
         <div style="margin-top: 12px; display: flex; gap: 16px; padding-left: 34px;">
           <div style="display: flex; gap: 8px;">
@@ -4467,14 +4744,23 @@ function displayComments(comments) {
               <span>${downvotes}</span>
             </button>
           </div>
-          <button onclick="showReplyForm('${c.id}')" style="background:transparent; border:none; color:var(--text-muted); font-size:0.8rem; cursor:pointer; display:flex; align-items:center; gap:4px;">
+          <button onclick="showReplyForm('${c.id}', '${(c.userName||'').replace(/'/g,"\\'")}')"
+            style="background:transparent; border:none; color:var(--text-muted); font-size:0.8rem; cursor:pointer; display:flex; align-items:center; gap:4px;">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
             <span>Cevapla</span>
           </button>
+          ${!isOwn ? `
+          <button onclick="openReportModal('${c.id}','${(c.userId||'').replace(/'/g,"\\'")}','${(c.userName||'').replace(/'/g,"\\'")}','${(c.text||'').substring(0,120).replace(/'/g,"\\'").replace(/\n/g,' ')}')"
+            style="background:transparent; border:none; color:var(--text-muted); font-size:0.8rem; cursor:pointer; display:flex; align-items:center; gap:4px;" title="Raporla">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
+            <span>Raporla</span>
+          </button>
+          ` : ''}
         </div>
 
-        <div id="replyForm_${c.id}" style="display:none; margin-top:12px; padding-left:34px;">
-          <textarea id="replyInput_${c.id}" class="note-input" rows="2" placeholder="Cevabını yaz..." style="margin-bottom:8px; font-size:0.85rem;"></textarea>
+        <div id="replyForm_${c.id}" style="display:none; margin-top:12px; padding-left:34px; position:relative;">
+          <textarea id="replyInput_${c.id}" class="note-input" rows="2" placeholder="@KullanıcıAdı ile başlayabilirsin..." style="margin-bottom:8px; font-size:0.85rem;" oninput="_handleMentionInput(event,'${c.id}')"></textarea>
+          <div id="mentionDropdown_${c.id}" style="display:none; position:absolute; top:auto; left:0; right:0; background:var(--bg-card); border:1px solid var(--border-subtle); border-radius:10px; z-index:100; max-height:140px; overflow-y:auto; box-shadow:0 8px 24px rgba(0,0,0,0.3); margin-top:-8px;"></div>
           <div style="display:flex; gap:8px;">
             <button class="btn-primary" style="padding:6px 16px; font-size:0.8rem;" onclick="submitReply('${c.id}')">Gönder</button>
             <button class="btn-small" onclick="showReplyForm('${c.id}')">İptal</button>
@@ -4504,7 +4790,7 @@ function displayComments(comments) {
                     ${canDeleteReply ? `<button onclick="deletePublicComment('${r.id}')" style="background:none; border:none; color:#ef4444; cursor:pointer; padding:2px;" title="Sil"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button>` : ''}
                   </div>
                 </div>
-                <p style="margin:0; font-size:0.85rem; color:var(--text-primary);">${r.text}</p>
+                <p style="margin:0; font-size:0.85rem; color:var(--text-primary);">${_highlightMentions(r.text)}</p>
               </div>
             `}).join('')}
           </div>
@@ -4514,9 +4800,95 @@ function displayComments(comments) {
   }).join('');
 }
 
-window.showReplyForm = function(commentId) {
+// Highlight @mentions in text
+function _highlightMentions(text) {
+  if (!text) return '';
+  // Escape HTML first
+  const safe = text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  return safe.replace(/@([\w\u00C0-\u017E]+)/g, '<span style="color:var(--accent-primary);font-weight:700;">@$1</span>');
+}
+
+// Collect recent commenters for mention suggestions
+function _getRecentCommenters() {
+  const list = document.getElementById('commentsList');
+  if (!list) return [];
+  const names = new Set();
+  list.querySelectorAll('[data-commenter]').forEach(el => names.add(el.dataset.commenter));
+  return Array.from(names).slice(0, 8);
+}
+
+// Handle @ input in reply textarea
+window._handleMentionInput = function(evt, commentId) {
+  const ta = evt.target;
+  const val = ta.value;
+  const dropdown = document.getElementById(`mentionDropdown_${commentId}`);
+  if (!dropdown) return;
+  
+  // Find @ trigger
+  const cursor = ta.selectionStart;
+  const before = val.substring(0, cursor);
+  const match = before.match(/@([\w\u00C0-\u017E]*)$/);
+  
+  if (match) {
+    const query = match[1].toLowerCase();
+    // Get all commenter names from DOM
+    const allNames = [];
+    document.querySelectorAll('#commentsList .comment-item').forEach(item => {
+      const nameEl = item.querySelector('[data-commenter]');
+      if (nameEl) allNames.push(nameEl.dataset.commenter);
+    });
+    const unique = [...new Set(allNames)];
+    const filtered = query ? unique.filter(n => n.toLowerCase().startsWith(query)) : unique;
+    
+    if (filtered.length > 0) {
+      dropdown.style.display = 'block';
+      dropdown.innerHTML = filtered.map(name => `
+        <div onclick="_insertMention('${commentId}','${name.replace(/'/g, "\\'")}')"
+          style="padding:8px 14px;cursor:pointer;font-size:0.85rem;display:flex;align-items:center;gap:8px;"
+          onmouseenter="this.style.background='rgba(139,124,247,0.12)'"
+          onmouseleave="this.style.background='transparent'">
+          <span style="color:var(--accent-primary);font-weight:600;">@${name}</span>
+        </div>
+      `).join('');
+    } else {
+      dropdown.style.display = 'none';
+    }
+  } else {
+    dropdown.style.display = 'none';
+  }
+};
+
+window._insertMention = function(commentId, name) {
+  const ta = document.getElementById(`replyInput_${commentId}`);
+  const dropdown = document.getElementById(`mentionDropdown_${commentId}`);
+  if (!ta) return;
+  const cursor = ta.selectionStart;
+  const val = ta.value;
+  const before = val.substring(0, cursor);
+  const after = val.substring(cursor);
+  // Replace the @partial with @fullname
+  const newBefore = before.replace(/@[\w\u00C0-\u017E]*$/, `@${name} `);
+  ta.value = newBefore + after;
+  ta.focus();
+  ta.selectionStart = ta.selectionEnd = newBefore.length;
+  if (dropdown) dropdown.style.display = 'none';
+};
+
+window.showReplyForm = function(commentId, authorName) {
   const form = document.getElementById(`replyForm_${commentId}`);
-  if (form) form.style.display = form.style.display === 'none' ? 'block' : 'none';
+  if (!form) return;
+  const isHidden = form.style.display === 'none' || form.style.display === '';
+  form.style.display = isHidden ? 'block' : 'none';
+  if (isHidden && authorName) {
+    const ta = document.getElementById(`replyInput_${commentId}`);
+    if (ta && !ta.value) {
+      ta.value = `@${authorName} `;
+      ta.focus();
+      ta.selectionStart = ta.selectionEnd = ta.value.length;
+    } else if (ta) {
+      ta.focus();
+    }
+  }
 };
 
 window.submitReply = async function(parentId) {
@@ -4541,7 +4913,7 @@ window.submitReply = async function(parentId) {
     userId: currentUser.uid,
     userName: currentUser.displayName || 'User',
     userEmail: currentUser.email,
-    userPhoto: currentUser.photoURL,
+    userPhoto: (appData.profile && appData.profile.photoURL) ? appData.profile.photoURL : (currentUser.photoURL || null),
     timestamp: Date.now(),
     date: todayStr(),
     upvotes: 0,
@@ -4623,6 +4995,183 @@ window.adminDeleteComment = async function(commentId) {
     showToast('Yorum silinemedi!', 'error');
   }
 };
+
+// =============================================
+// REPORT SYSTEM
+// =============================================
+let _currentReportReason = 'spam';
+
+window.openReportModal = function(commentId, targetUserId, targetUserName, commentText) {
+  if (!currentUser) { showToast('Giriş yapman gerekiyor.', 'error'); return; }
+  document.getElementById('reportTargetCommentId').value = commentId;
+  document.getElementById('reportTargetUserId').value = targetUserId;
+  document.getElementById('reportTargetUserName').value = targetUserName;
+  document.getElementById('reportCommentPreview').textContent = `"${commentText}"`;
+  document.getElementById('reportDescription').value = '';
+  _currentReportReason = 'spam';
+  // Reset reason buttons
+  document.querySelectorAll('.report-reason-btn').forEach(b => {
+    const isSpam = b.dataset.reason === 'spam';
+    b.style.border = isSpam ? '1px solid rgba(239,68,68,0.3)' : '1px solid var(--border-subtle)';
+    b.style.background = isSpam ? 'rgba(239,68,68,0.08)' : 'transparent';
+  });
+  const modal = document.getElementById('reportModal');
+  modal.style.display = 'flex';
+};
+
+window.closeReportModal = function() {
+  document.getElementById('reportModal').style.display = 'none';
+};
+
+window.selectReportReason = function(btn) {
+  _currentReportReason = btn.dataset.reason;
+  document.querySelectorAll('.report-reason-btn').forEach(b => {
+    const isActive = b === btn;
+    b.style.border = isActive ? '1px solid rgba(239,68,68,0.35)' : '1px solid var(--border-subtle)';
+    b.style.background = isActive ? 'rgba(239,68,68,0.1)' : 'transparent';
+  });
+};
+
+window.submitReport = async function() {
+  if (!currentUser || !db) return;
+  const commentId = document.getElementById('reportTargetCommentId').value;
+  const targetUserId = document.getElementById('reportTargetUserId').value;
+  const targetUserName = document.getElementById('reportTargetUserName').value;
+  const commentText = document.getElementById('reportCommentPreview').textContent;
+  const description = document.getElementById('reportDescription').value.trim();
+
+  if (!commentId) { showToast('Yorum bulunamadı!', 'error'); return; }
+
+  try {
+    const reportData = {
+      commentId,
+      commentText,
+      targetUserId,
+      targetUserName,
+      reporterId: currentUser.uid,
+      reporterName: currentUser.displayName || 'Kullanıcı',
+      reason: _currentReportReason,
+      description: description || '',
+      status: 'pending',
+      timestamp: Date.now(),
+      date: todayStr()
+    };
+
+    await db.collection('reports').add(reportData);
+
+    // Admin bildirimi gönder (notifications koleksiyonu)
+    await db.collection('notifications').add({
+      title: '🚩 Yeni Rapor',
+      text: `${reportData.reporterName}, "${targetUserName}" kullanıcısının yorumunu raporladı. Sebep: ${_currentReportReason}`,
+      type: 'admin_report',
+      timestamp: Date.now(),
+      date: todayStr()
+    });
+
+    showToast('Raporun alındı, incelenecek. Teşekkürler!', 'success');
+    closeReportModal();
+  } catch (e) {
+    console.error('Report Error:', e);
+    showToast('Rapor gönderilemedi: ' + e.message, 'error');
+  }
+};
+
+// Admin: raporları yükle
+window.adminLoadReports = async function() {
+  const container = document.getElementById('adminReportsList');
+  if (!container || !db) return;
+  container.innerHTML = '<div class="logged-empty">Yükleniyor...</div>';
+  try {
+    const snap = await db.collection('reports').orderBy('timestamp', 'desc').limit(50).get();
+    if (snap.empty) { container.innerHTML = '<div class="logged-empty">Henüz rapor yok.</div>'; return; }
+    let html = '';
+    snap.forEach(doc => {
+      const r = { id: doc.id, ...doc.data() };
+      const statusColor = r.status === 'pending' ? '#F59E0B' : r.status === 'resolved' ? '#34d399' : '#94A3B8';
+      const statusLabel = r.status === 'pending' ? 'Bekliyor' : r.status === 'resolved' ? 'Çözüldü' : r.status;
+      const reasonLabels = {spam:'Spam',hakaret:'Hakaret',uygunsuz:'Uygunsuz İçerik',diger:'Diğer'};
+      html += `
+        <div style="padding:14px;background:var(--bg-card-alt);border:1px solid var(--border-subtle);border-radius:12px;margin-bottom:10px;">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;gap:12px;">
+            <div style="flex:1;min-width:0;">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+                <span style="font-size:0.8rem;font-weight:700;">🚩 ${r.reporterName}</span>
+                <span style="font-size:0.7rem;padding:2px 8px;border-radius:999px;background:rgba(239,68,68,0.1);color:#ef4444;font-weight:700;">${reasonLabels[r.reason]||r.reason}</span>
+                <span style="font-size:0.7rem;padding:2px 8px;border-radius:999px;background:rgba(0,0,0,0.15);color:${statusColor};font-weight:700;">${statusLabel}</span>
+              </div>
+              <div style="font-size:0.75rem;color:var(--text-tertiary);">Raporlanan: <b>${r.targetUserName}</b> · ${r.date}</div>
+              <div style="font-size:0.82rem;color:var(--text-secondary);margin-top:6px;padding:8px;background:rgba(0,0,0,0.12);border-radius:8px;">"${(r.commentText||'').substring(0,120)}"</div>
+              ${r.description ? `<div style="font-size:0.78rem;color:var(--text-muted);margin-top:6px;">Açıklama: ${r.description}</div>` : ''}
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <button onclick="openReportReplyModal('${doc.id}','${(r.reporterId||'').replace(/'/g,"\\'")}')" 
+              style="padding:6px 14px;border-radius:8px;border:1px solid rgba(139,124,247,0.3);background:rgba(139,124,247,0.08);color:var(--accent-primary);font-size:0.78rem;font-weight:700;cursor:pointer;">
+              📨 Cevap Ver
+            </button>
+            <button onclick="adminMarkReportResolved('${doc.id}')" 
+              style="padding:6px 14px;border-radius:8px;border:1px solid rgba(52,211,153,0.3);background:rgba(52,211,153,0.08);color:#34d399;font-size:0.78rem;font-weight:700;cursor:pointer;">
+              ✅ Çözüldü İşaretle
+            </button>
+            <button onclick="adminDeleteComment('${r.commentId}')" 
+              style="padding:6px 14px;border-radius:8px;border:1px solid rgba(239,68,68,0.25);background:rgba(239,68,68,0.06);color:#ef4444;font-size:0.78rem;font-weight:700;cursor:pointer;">
+              🗑️ Yorumu Sil
+            </button>
+          </div>
+        </div>
+      `;
+    });
+    container.innerHTML = html;
+  } catch (e) { container.innerHTML = 'Hata: ' + e.message; }
+};
+
+window.adminMarkReportResolved = async function(reportId) {
+  if (!db) return;
+  try {
+    await db.collection('reports').doc(reportId).update({ status: 'resolved' });
+    showToast('Rapor çözüldü olarak işaretlendi.', 'success');
+    adminLoadReports();
+  } catch (e) { showToast('Hata: ' + e.message, 'error'); }
+};
+
+window.openReportReplyModal = function(reportId, reporterId) {
+  document.getElementById('reportReplyTargetId').value = reportId;
+  document.getElementById('reportReplyReporterId').value = reporterId;
+  document.getElementById('reportReplyText').value = '';
+  document.getElementById('reportReplyPreview').innerHTML = `Rapor ID: <b>${reportId}</b><br>Raporlayan kullanıcıya kişisel bildirim gönderilecek.`;
+  const modal = document.getElementById('reportReplyModal');
+  modal.style.display = 'flex';
+};
+
+window.closeReportReplyModal = function() {
+  document.getElementById('reportReplyModal').style.display = 'none';
+};
+
+window.sendReportReply = async function() {
+  const reportId = document.getElementById('reportReplyTargetId').value;
+  const reporterId = document.getElementById('reportReplyReporterId').value;
+  const replyText = document.getElementById('reportReplyText').value.trim();
+  if (!replyText) { showToast('Cevap metni boş olamaz!', 'error'); return; }
+  if (!db || !currentUser) return;
+  try {
+    // Kişisel bildirim olarak gönder
+    await db.collection('users').doc(reporterId).collection('notifications').add({
+      title: '📨 Rapor Cevabı',
+      text: replyText,
+      type: 'report_reply',
+      fromAdmin: true,
+      timestamp: Date.now(),
+      date: todayStr(),
+      read: false
+    });
+    // Raporu resolved yap
+    await db.collection('reports').doc(reportId).update({ status: 'resolved', adminReply: replyText });
+    showToast('Cevap gönderildi ve rapor çözüldü olarak işaretlendi.', 'success');
+    closeReportReplyModal();
+    adminLoadReports();
+  } catch (e) { showToast('Gönderilemedi: ' + e.message, 'error'); }
+};
+
 
 window.deletePublicComment = async function(commentId) {
   if (!currentUser) return;
@@ -5137,7 +5686,7 @@ window.adminViewUserDetails = async function(uid) {
               <label style="font-size:0.75rem; font-weight:700; color:var(--accent-primary); text-transform:uppercase; letter-spacing:0.5px;">⚡ Manuel Seviye Ata</label>
               <div style="font-size:0.72rem; color:var(--text-muted); margin-bottom:2px;">Kullanıcının profilinde görünen seviyeyi manuel olarak ayarla. (1–100)</div>
               <div style="display:flex; gap:8px; align-items:center;">
-                <input type="number" id="adminLevelInputBox" data-uid="${uid}" min="1" max="100" placeholder="1–100"
+                <input type="number" id="adminLevelInput_${uid}" data-uid="${uid}" min="1" max="100" placeholder="1–100"
                   class="log-input" style="width:100px; padding:10px; font-size:0.95rem; font-weight:800; text-align:center; background:rgba(255,255,255,0.03); border:1px solid rgba(139,124,247,0.25); border-radius:10px; color:var(--text-primary);">
                 <button onclick="adminSetUserLevel('${uid}')"
                   style="flex:1; padding:10px 16px; background:linear-gradient(135deg,var(--accent-deep),var(--accent-primary)); color:#fff; border:none; border-radius:10px; font-size:0.85rem; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; transition:opacity 0.2s;"
@@ -5148,7 +5697,7 @@ window.adminViewUserDetails = async function(uid) {
               </div>
               <div style="display:flex; gap:6px; flex-wrap:wrap;">
                 <span style="font-size:0.68rem; color:var(--text-muted);">Hızlı:</span>
-                ${[1,5,10,25,50,75,100].map(l => '<button onclick="document.getElementById(\"adminLevelInputBox\").value=' + l + '" style="padding:3px 10px; border-radius:20px; border:1px solid rgba(139,124,247,0.25); background:rgba(139,124,247,0.08); color:var(--accent-primary); font-size:0.68rem; font-weight:700; cursor:pointer;">' + l + '</button>').join('')}
+                ${[1,5,10,25,50,75,100].map(l => '<button onclick="document.getElementById(\'adminLevelInput_${uid}\').value=' + l + '" style="padding:3px 10px; border-radius:20px; border:1px solid rgba(139,124,247,0.25); background:rgba(139,124,247,0.08); color:var(--accent-primary); font-size:0.68rem; font-weight:700; cursor:pointer;">' + l + '</button>').join('')}
               </div>
             </div>
           </div>
@@ -5255,7 +5804,7 @@ window.adminUpdateMute = async function(uid, type) {
 
 // Unified adminShowSection: toggle pre-existing admin sections
 window.adminShowSection = function(section) {
-  const sections = ['dashboard', 'notifications', 'users', 'comments'];
+  const sections = ['dashboard', 'notifications', 'users', 'comments', 'reports'];
   sections.forEach(s => {
     const el = document.getElementById(`admin${s.charAt(0).toUpperCase() + s.slice(1)}Section`);
     if (el) el.style.display = s === section ? 'block' : 'none';
@@ -5267,6 +5816,7 @@ window.adminShowSection = function(section) {
   if (section === 'users') adminLoadUsers();
   if (section === 'comments') adminLoadAllComments();
   if (section === 'dashboard') adminLoadDashboardStats();
+  if (section === 'reports') adminLoadReports();
 };
 
 window.adminViewUserNotes = async function(uid) {
@@ -5316,8 +5866,8 @@ window.adminSetUserRank = async function(uid, rankKey) {
 window.adminSetUserLevel = async function(uid) {
   if (!currentUser || currentUser.email !== 'wupard@gmail.com') return;
 
-  // Use the static input box ID - data-uid attribute verifies it belongs to this user
-  const inputEl = document.getElementById('adminLevelInputBox');
+  // uid-specific input kutu
+  const inputEl = document.getElementById(`adminLevelInput_${uid}`);
   if (!inputEl) { showToast('Giriş kutusu bulunamadı', 'error'); return; }
 
   const targetLevel = parseInt(inputEl.value, 10);
@@ -5326,28 +5876,22 @@ window.adminSetUserLevel = async function(uid) {
     return;
   }
 
-  // Disable button during save
   const btn = inputEl.parentElement ? inputEl.parentElement.querySelector('button') : null;
   if (btn) { btn.disabled = true; btn.style.opacity = '0.6'; }
 
   try {
-    // XP required to be exactly at targetLevel: (level-1)^2 * 50
     const forcedXP = Math.pow(targetLevel - 1, 2) * 50;
 
-    // Save forced XP override to user doc
     await db.collection('users').doc(uid).update({
       'data.forcedLevel': targetLevel,
       'data.forcedXP': forcedXP
     });
 
-    // Also update public_stats so leaderboard reflects the change
-    await db.collection('public_stats').doc(uid).update({
+    // public_stats'ı set(merge) ile güncelle — döküman yoksa da çalışır
+    await db.collection('public_stats').doc(uid).set({
       level: targetLevel,
       xp: forcedXP
-    }).catch(() => db.collection('public_stats').doc(uid).set({
-      level: targetLevel,
-      xp: forcedXP
-    }, { merge: true }));
+    }, { merge: true });
 
     showToast(`✅ Seviye ${targetLevel} atandı!`, 'success');
     inputEl.value = '';
@@ -5417,7 +5961,7 @@ function renderProgressTracker() {
     container.innerHTML = `
       <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 48px 0; text-align: center;">
         <div style="width: 64px; height: 64px; border-radius: 16px; background: rgba(52, 211, 153, 0.1); display: flex; align-items: center; justify-content: center; margin-bottom: 16px;">
-          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-emerald-400"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
         </div>
         <p style="font-size: 1.125rem; font-weight: 600; margin: 0 0 4px 0;">Henüz veri yok</p>
         <p style="font-size: 0.875rem; color: var(--text-muted); margin: 0;">Egzersiz kaydettikçe burada görebilirsin</p>
@@ -5434,113 +5978,151 @@ function renderProgressTracker() {
     ? allStats.find(e => e.name === currentTrackerExercise)
     : filtered[0];
 
-  let catBtnsHtml = `<button onclick="setTrackerCategory('')" class="tracker-cat-btn ${!currentTrackerCategory?'active':''}">${currentLang==='tr'?'Tümü':'All'}</button>`;
-  
+  // ── Kategori butonları: wrap grid (kaydırmasız)
+  const CAT_LABELS = {
+    'chest': 'Göğüs', 'shoulders': 'Omuz', 'back': 'Sırt',
+    'legs': 'Bacak', 'biceps': 'Biceps', 'triceps': 'Triceps',
+    'wrists': 'Bilek', 'core': 'Core', 'other': 'Diğer'
+  };
+  let catBtnsHtml = `<button onclick="setTrackerCategory('')" class="tracker-cat-btn ${!currentTrackerCategory?'active':''}">🏠 Tümü</button>`;
   Object.keys(EXERCISE_CATEGORIES).forEach(cat => {
-    catBtnsHtml += `<button onclick="setTrackerCategory('${cat}')" class="tracker-cat-btn ${currentTrackerCategory===cat?'active':''}">${CATEGORY_ICONS[cat] || ''} ${cat.charAt(0).toUpperCase() + cat.slice(1)}</button>`;
+    const label = CAT_LABELS[cat] || (cat.charAt(0).toUpperCase() + cat.slice(1));
+    catBtnsHtml += `<button onclick="setTrackerCategory('${cat}')" class="tracker-cat-btn ${currentTrackerCategory===cat?'active':''}"><span style="display:inline-flex;align-items:center;gap:4px;">${CATEGORY_ICONS[cat] || ''} ${label}</span></button>`;
   });
   
   let listHtml = '';
   filtered.forEach(ex => {
     const isSelected = selectedEx && selectedEx.name === ex.name;
-    const diff = ex.currentWeight - ex.baselineWeight;
+    const diff = parseFloat((ex.currentWeight - ex.baselineWeight).toFixed(1));
     const diffNode = diff !== 0 
       ? `<span style="font-size: 0.75rem; font-weight: bold; color: ${diff > 0 ? '#34d399' : '#f87171'}">${diff > 0 ? '+' : ''}${diff}kg</span>`
       : '';
-      
     listHtml += `
-      <button onclick="setTrackerExercise('${ex.name}')" class="tracker-list-item ${isSelected ? 'selected' : ''}">
+      <button onclick="setTrackerExercise('${ex.name.replace(/'/g, "\\'")}')"
+        class="tracker-list-item ${isSelected ? 'selected' : ''}">
         <div style="display: flex; align-items: center; gap: 12px;">
-          <div class="tracker-list-icon" style="background: rgba(139,124,247,0.1); color: #8B7CF7;">
+          <div class="tracker-list-icon" style="background: rgba(139,124,247,0.1); color: #8B7CF7; flex-shrink:0;">
             ${CATEGORY_ICONS[ex.category] || '🏋️'}
           </div>
-          <div style="text-align: left;">
-            <p style="margin: 0; font-weight: 500; font-size: 0.875rem;">${ex.name}</p>
-            <p style="margin: 0; font-size: 0.75rem; color: var(--text-muted);">${ex.currentWeight}kg × ${ex.currentReps}</p>
+          <div style="text-align: left; min-width:0;">
+            <p style="margin: 0; font-weight: 500; font-size: 0.875rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:140px;">${ex.name}</p>
+            <p style="margin: 0; font-size: 0.75rem; color: var(--text-muted);">${ex.currentWeight}kg × ${ex.currentReps} rep × ${ex.currentSets||1} set</p>
           </div>
         </div>
-        <div style="display: flex; align-items: center; gap: 8px;">
+        <div style="display: flex; align-items: center; gap: 8px; flex-shrink:0;">
           ${diffNode}
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="${isSelected ? 'text-emerald-400' : 'text-muted'}"><polyline points="9 18 15 12 9 6"/></svg>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
         </div>
       </button>
     `;
   });
   
+  // ── Detay kartı: All-time PR + Bu Hafta + Progress
   let detailHtml = '';
   if (selectedEx) {
-    const diff = selectedEx.currentWeight - selectedEx.baselineWeight;
-    const percentChange = selectedEx.baselineWeight > 0 ? Math.round((diff / selectedEx.baselineWeight) * 100) : 0;
-    const isPositive = diff > 0;
-    const isNegative = diff < 0;
+    const formatDate = (ds) => ds ? new Date(ds+'T00:00:00').toLocaleDateString(currentLang==='tr'?'tr-TR':'en-US', {day:'numeric',month:'short',year:'numeric'}) : '—';
     
-    // Convert to Date localized 
-    const formatDate = (ds) => new Date(ds+'T00:00:00').toLocaleDateString(currentLang==='tr'?'tr-TR':'en-US', {day:'numeric',month:'short',year:'numeric'});
-    
+    // PR section
+    const prHtml = `
+      <div style="background:linear-gradient(135deg,rgba(255,215,0,0.08),rgba(255,215,0,0.02));border:1px solid rgba(255,215,0,0.2);border-radius:12px;padding:14px 16px;margin-bottom:10px;">
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:10px;">
+          <span style="font-size:1rem;">🏆</span>
+          <span style="font-size:0.65rem;font-weight:800;text-transform:uppercase;letter-spacing:0.08em;color:#FFD700;">En Yüksek Kaldırış (All-Time PR)</span>
+        </div>
+        <div style="display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;">
+          <span style="font-size:1.6rem;font-weight:900;color:#FFD700;">${selectedEx.prWeight} kg</span>
+          <span style="font-size:0.85rem;color:var(--text-secondary);">${selectedEx.prReps} tekrar × ${selectedEx.prSets||1} set</span>
+        </div>
+        <div style="margin-top:6px;font-size:0.75rem;color:var(--text-muted);display:flex;align-items:center;gap:4px;">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          ${formatDate(selectedEx.prDate)}
+        </div>
+      </div>`;
+
+    // Bu hafta section
+    const hasWeek = selectedEx.weekWeight !== null;
+    const weekHtml = `
+      <div style="background:rgba(52,211,153,0.06);border:1px solid rgba(52,211,153,0.18);border-radius:12px;padding:14px 16px;margin-bottom:10px;">
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:10px;">
+          <span style="font-size:1rem;">📅</span>
+          <span style="font-size:0.65rem;font-weight:800;text-transform:uppercase;letter-spacing:0.08em;color:#34d399;">Bu Hafta</span>
+        </div>
+        ${hasWeek ? `
+          <div style="display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;">
+            <span style="font-size:1.4rem;font-weight:900;color:#34d399;">${selectedEx.weekWeight} kg</span>
+            <span style="font-size:0.85rem;color:var(--text-secondary);">${selectedEx.weekReps} tekrar × ${selectedEx.weekSets||1} set</span>
+          </div>
+          <div style="margin-top:6px;font-size:0.75rem;color:var(--text-muted);display:flex;align-items:center;gap:4px;">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            ${formatDate(selectedEx.weekDate)}
+          </div>
+        ` : `<div style="font-size:0.85rem;color:var(--text-muted);">Bu hafta kayıt yok</div>`}
+      </div>`;
+
+    // Haftalık progress section
+    let progressHtml = '';
+    if (selectedEx.weekDelta !== null && hasWeek) {
+      const isUp = selectedEx.weekDelta > 0;
+      const isDown = selectedEx.weekDelta < 0;
+      const pct = selectedEx.prevWeekWeight ? Math.abs(Math.round((selectedEx.weekDelta / selectedEx.prevWeekWeight) * 100)) : 0;
+      const barW = Math.min(100, pct * 2);
+      progressHtml = `
+        <div style="background:rgba(139,124,247,0.06);border:1px solid rgba(139,124,247,0.15);border-radius:12px;padding:14px 16px;">
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:10px;">
+            <span style="font-size:1rem;">📈</span>
+            <span style="font-size:0.65rem;font-weight:800;text-transform:uppercase;letter-spacing:0.08em;color:var(--accent-primary);">Haftalık Gelişim</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <span style="font-size:1.4rem;font-weight:900;color:${isUp?'#34d399':isDown?'#f87171':'var(--text-muted)'}">${isUp?'+':''}${selectedEx.weekDelta} kg</span>
+            ${pct > 0 ? `<span style="font-size:0.8rem;color:${isUp?'#34d399':isDown?'#f87171':'var(--text-muted)'};font-weight:700;">(${isUp?'+':''}${isDown?'-':''}${pct}%)</span>` : ''}
+          </div>
+          <div style="margin-top:10px;background:rgba(255,255,255,0.07);border-radius:99px;height:6px;overflow:hidden;">
+            <div style="height:100%;width:${barW}%;background:${isUp?'#34d399':isDown?'#f87171':'var(--accent-primary)'};border-radius:99px;transition:width 0.4s;"></div>
+          </div>
+          <div style="margin-top:6px;font-size:0.72rem;color:var(--text-muted);">Bu hafta vs geçen hafta (${selectedEx.prevWeekWeight || '—'} kg)</div>
+        </div>`;
+    } else if (hasWeek) {
+      progressHtml = `
+        <div style="background:rgba(139,124,247,0.04);border:1px solid rgba(139,124,247,0.1);border-radius:12px;padding:12px 16px;">
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">
+            <span style="font-size:1rem;">📈</span>
+            <span style="font-size:0.65rem;font-weight:800;text-transform:uppercase;letter-spacing:0.08em;color:var(--accent-primary);">Haftalık Gelişim</span>
+          </div>
+          <div style="font-size:0.85rem;color:var(--text-muted);">Karşılaştırmak için geçen haftadan da veri gerekli</div>
+        </div>`;
+    }
+
     detailHtml = `
-      <div class="tracker-detail-card" style="margin-top: 16px; padding: 20px; border-radius: 12px; background: rgba(139,124,247,0.05); border: 1px solid rgba(139,124,247,0.1);">
-        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
-          <div style="display: flex; align-items: center; gap: 8px;">
-            <span style="font-size: 1.25rem;">${CATEGORY_ICONS[selectedEx.category] || 'g���️'}</span>
-            <h4 style="margin: 0; font-weight: bold; color: #fff;">${selectedEx.name}</h4>
-          </div>
+      <div style="margin-top:16px;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
+          <span style="font-size:1.1rem;">${CATEGORY_ICONS[selectedEx.category] || '🏋️'}</span>
+          <h4 style="margin:0;font-weight:800;color:var(--text-primary);font-size:1rem;">${selectedEx.name}</h4>
         </div>
-        
-        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;">
-          <div class="tracker-stat-box">
-            <p class="tracker-stat-label">${currentLang==='tr'?'Current':'Current'}</p>
-            <p class="tracker-stat-val">${selectedEx.currentWeight}<span style="font-size:0.875rem;font-weight:normal;color:var(--text-muted)">kg</span></p>
-          </div>
-          <div class="tracker-stat-box">
-            <p class="tracker-stat-label">${currentLang==='tr'?'Baseline':'Baseline'}</p>
-            <p class="tracker-stat-val">${selectedEx.baselineWeight}<span style="font-size:0.875rem;font-weight:normal;color:var(--text-muted)">kg</span></p>
-          </div>
-          <div class="tracker-stat-box">
-            <p class="tracker-stat-label">${currentLang==='tr'?'Progress':'Progress'}</p>
-            <div style="display: flex; align-items: center; gap: 4px;">
-              <span style="font-size: 1.25rem; font-weight: 900; color: ${isPositive?'#34d399':isNegative?'#f87171':'inherit'}">${isPositive?'+':''}${diff}</span>
-            </div>
-          </div>
-        </div>
-        
-        ${percentChange !== 0 ? `
-        <div style="margin-top: 12px; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 8px; border-radius: 8px; background: rgba(255,255,255,0.05);">
-          <span style="font-size: 1.125rem; font-weight: 900; color: ${isPositive?'#34d399':'#f87171'}">${isPositive?'+':''}${percentChange}%</span>
-          <span style="font-size: 0.75rem; color: var(--text-muted);">${currentLang==='tr'?'gelişim':'improvement'}</span>
-        </div>
-        ` : ''}
-        
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 16px;">
-           <div style="padding: 16px; border-radius: 12px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05);">
-             <p style="font-size: 0.6rem; font-weight: bold; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin: 0 0 8px 0;">${currentLang==='tr'?'Son Güncelleme':'Last Updated'}</p>
-             <p style="font-weight: bold; font-size: 0.9rem; margin: 0;">${formatDate(selectedEx.lastUpdated)}</p>
-           </div>
-           <div style="padding: 16px; border-radius: 12px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05);">
-             <p style="font-size: 0.6rem; font-weight: bold; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin: 0 0 8px 0;">${currentLang==='tr'?'Başlangıç':'Baseline Set'}</p>
-             <p style="font-weight: bold; font-size: 0.9rem; margin: 0;">${formatDate(selectedEx.baselineDate)}</p>
-           </div>
-        </div>
+        ${prHtml}
+        ${weekHtml}
+        ${progressHtml}
       </div>
     `;
   }
   
   container.innerHTML = `
-    <div style="display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px;" class="no-scrollbar">
+    <div style="display:flex;flex-wrap:wrap;gap:6px;padding-bottom:12px;border-bottom:1px solid var(--border-subtle);margin-bottom:4px;">
       ${catBtnsHtml}
     </div>
     
-    <div style="margin-top: 16px;">
-      <label style="font-size: 0.625rem; font-weight: bold; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); display: block; margin-bottom: 8px;">
-        ${currentLang==='tr'?'Egzersiz Seç':'Select Exercise'} (${filtered.length})
+    <div style="margin-top:14px;">
+      <label style="font-size:0.625rem;font-weight:800;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-muted);display:block;margin-bottom:8px;">
+        Egzersiz Seç (${filtered.length})
       </label>
-      <div style="display: grid; gap: 8px; max-height: 180px; overflow-y: auto;" class="no-scrollbar">
-        ${listHtml}
+      <div style="display:grid;gap:6px;max-height:200px;overflow-y:auto;" class="no-scrollbar">
+        ${listHtml || '<div style="color:var(--text-muted);font-size:0.85rem;padding:12px;">Bu kategoride egzersiz yok</div>'}
       </div>
     </div>
     
     ${detailHtml}
   `;
 }
+
 
 // =============================================
 // CALCULATORS
@@ -6836,6 +7418,8 @@ function renderSidebarProfile(user){
     const isAdmin = user && (user.email === 'wupard@gmail.com' || appData.userRank === 'admin' || appData.userRank === 'mod');
     let uRank = appData.userRank || (isAdmin ? 'mod' : 'default');
     if (uRank === 'admin') uRank = 'mod';
+    // kurucu kontrolü — email öncelikli
+    if (user && user.email === 'wupard@gmail.com') uRank = 'kurucu';
     const rankObj = RANKS[uRank] || RANKS.default;
     rankEl.textContent = rankObj.label || rankObj.name || '';
     rankEl.style.background = rankObj.bg;
@@ -7383,6 +7967,8 @@ function calculateXP() {
       }
     });
   });
+  // 4. Body weight log entries (25 XP each)
+  xp += Object.keys(appData.weightLog || {}).length * 25;
   return xp;
 }
 
@@ -7916,7 +8502,7 @@ function renderAIChatHistory() {
     html = `
       <div style="text-align:center; padding:30px 10px; color:var(--text-muted); font-size:0.85rem; display:flex; flex-direction:column; align-items:center; gap:12px;">
         <div style="width:50px; height:50px; border-radius:14px; background:rgba(139,124,247,0.1); border:1px solid rgba(139,124,247,0.2); display:flex; align-items:center; justify-content:center; font-size:1.4rem; color:var(--accent-primary);">👋</div>
-        <div>Merhaba! Ben senin kişisel AI koçunum.<br>Sana nasıl yardımcı olabilirim?</div>
+        <div>Merhaba! Ben senin kişisel AI asistanın.<br>Sana nasıl yardımcı olabilirim?</div>
       </div>
     `;
   } else {
