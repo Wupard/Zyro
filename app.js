@@ -523,6 +523,7 @@ let appData = {
 
 /** Unsubscribe previous Firestore listener before attaching a new one (nav repeats). */
 let commentsListenerUnsub = null;
+let commentsListenerUid = null;
 let userProfileListenerUnsub = null;
 
 function commentAuthorRankKey() {
@@ -824,40 +825,24 @@ function updateUserUI(user){
     document.body.classList.remove('is-admin');
   }
   
-  // Rank & Profile Display
+  // Rank Display
   if (user) {
-    const rankInfo = document.getElementById('userRankInfo') || document.createElement('div');
-    rankInfo.id = 'userRankInfo';
-    rankInfo.style.fontSize = '0.65rem';
-    rankInfo.style.marginTop = '2px';
-    rankInfo.style.fontWeight = '800';
-    rankInfo.style.letterSpacing = '0.05em';
-    rankInfo.style.display = 'inline-flex';
-    rankInfo.style.padding = '2px 6px';
-    rankInfo.style.borderRadius = '4px';
-    rankInfo.style.marginRight = '6px';
-    
-    // Get rank from data
     let userRank = appData.userRank || (isAdmin ? 'mod' : 'default');
     if (userRank === 'admin') userRank = 'mod';
-    // kurucu kontrolü — e-posta öncelikli
     if (user && user.email === 'wupard@gmail.com') userRank = 'kurucu';
     const rank = RANKS[userRank] || RANKS.default;
-    rankInfo.textContent = rank.label;
-    rankInfo.style.color = rank.color;
-    rankInfo.style.background = rank.bg;
     
-    const nameEl = document.getElementById('userName');
-    if (nameEl && !document.getElementById('userRankInfo')) {
-      nameEl.parentNode.style.display = 'flex';
-      nameEl.parentNode.style.alignItems = 'center';
-      nameEl.parentNode.insertBefore(rankInfo, nameEl);
-    } else if (document.getElementById('userRankInfo')) {
-      const ri = document.getElementById('userRankInfo');
-      ri.textContent = rank.label;
-      ri.style.color = rank.color;
-      ri.style.background = rank.bg;
+    const rankBadge = document.getElementById('userRank');
+    if (rankBadge) {
+      rankBadge.style.display = 'inline-block';
+      rankBadge.textContent = rank.label;
+      rankBadge.style.color = rank.color;
+      rankBadge.style.background = rank.bg;
     }
+  } else {
+    const rankBadge = document.getElementById('userRank');
+    if (rankBadge) rankBadge.style.display = 'none';
+  }
 
     // Ban Check
     checkUserBan(user);
@@ -871,8 +856,10 @@ function updateUserUI(user){
             appData.userRank = userData.userRank;
             let rk = userData.userRank;
             if (rk === 'admin') rk = 'mod';
+            if (user && user.email === 'wupard@gmail.com') rk = 'kurucu';
+            if (appData.firestoreAdmin && rk === 'default') rk = 'mod';
             const updatedRank = RANKS[rk] || RANKS.default;
-            const rankEl = document.getElementById('userRankInfo');
+            const rankEl = document.getElementById('userRank');
             if (rankEl) {
               rankEl.textContent = updatedRank.label;
               rankEl.style.color = updatedRank.color;
@@ -4626,7 +4613,7 @@ function initComments() {
     if (!mainMentionDropdown) {
       mainMentionDropdown = document.createElement('div');
       mainMentionDropdown.id = 'mainMentionDropdown';
-      mainMentionDropdown.style.cssText = 'display:none;position:absolute;left:0;right:0;background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:10px;z-index:100;max-height:140px;overflow-y:auto;box-shadow:0 8px 24px rgba(0,0,0,0.3);';
+      mainMentionDropdown.style.cssText = 'display:none;position:absolute;top:100%;left:0;right:0;background:#121026;border:1.5px solid rgba(139,124,247,0.45);border-radius:10px;z-index:1000;max-height:140px;overflow-y:auto;box-shadow:0 10px 30px rgba(0,0,0,0.6);margin-top:2px;';
       commentInput.parentElement.style.position = 'relative';
       commentInput.insertAdjacentElement('afterend', mainMentionDropdown);
     }
@@ -4684,11 +4671,18 @@ function renderComments() {
   const list = document.getElementById('commentsList');
   if (!list) return;
   
+  const currentUid = currentUser ? currentUser.uid : null;
+  
   if (isFirebaseConfigured && db) {
+    if (commentsListenerUnsub && commentsListenerUid === currentUid) {
+      // Listener is already active for the current user
+      return;
+    }
     if (commentsListenerUnsub) {
       commentsListenerUnsub();
       commentsListenerUnsub = null;
     }
+    commentsListenerUid = currentUid;
     const q = db.collection('public_comments').orderBy('timestamp', 'desc').limit(40);
     commentsListenerUnsub = q.onSnapshot(snap => {
       const comments = [];
@@ -4803,9 +4797,11 @@ function displayComments(comments) {
           ` : ''}
         </div>
 
-        <div id="replyForm_${c.id}" style="display:none; margin-top:12px; padding-left:34px; position:relative;">
-          <textarea id="replyInput_${c.id}" class="note-input" rows="2" placeholder="@KullanıcıAdı ile başlayabilirsin..." style="margin-bottom:8px; font-size:0.85rem;" oninput="_handleMentionInput(event,'${c.id}')"></textarea>
-          <div id="mentionDropdown_${c.id}" style="display:none; position:absolute; top:auto; left:0; right:0; background:var(--bg-card); border:1px solid var(--border-subtle); border-radius:10px; z-index:100; max-height:140px; overflow-y:auto; box-shadow:0 8px 24px rgba(0,0,0,0.3); margin-top:-8px;"></div>
+        <div id="replyForm_${c.id}" style="display:none; margin-top:12px; padding-left:34px;">
+          <div style="position:relative; margin-bottom:8px; width: 100%;">
+            <textarea id="replyInput_${c.id}" class="note-input" rows="2" placeholder="@KullanıcıAdı ile başlayabilirsin..." style="margin-bottom:0; font-size:0.85rem; width: 100%;" oninput="_handleMentionInput(event,'${c.id}')"></textarea>
+            <div id="mentionDropdown_${c.id}" style="display:none; position:absolute; top:100%; left:0; right:0; background:#121026; border:1.5px solid rgba(139,124,247,0.45); border-radius:10px; z-index:1000; max-height:140px; overflow-y:auto; box-shadow:0 10px 30px rgba(0,0,0,0.6); margin-top:2px;"></div>
+          </div>
           <div style="display:flex; gap:8px;">
             <button class="btn-primary" style="padding:6px 16px; font-size:0.8rem;" onclick="submitReply('${c.id}')">Gönder</button>
             <button class="btn-small" onclick="showReplyForm('${c.id}')">İptal</button>
@@ -4813,7 +4809,7 @@ function displayComments(comments) {
         </div>
 
         ${commentReplies.length > 0 ? `
-          <div class="comment-replies" style="margin-top:12px; padding-left:34px; border-left: 2px solid var(--border-subtle);">
+          <div class="comment-replies" style="margin-top:12px; padding-left:34px; border-left: 2px solid rgba(139, 124, 247, 0.35);">
             ${commentReplies.map(r => {
               const isOwnReply = currentUser && r.userId === currentUser.uid;
               const canDeleteReply = isOwnReply || isAdminUser;
@@ -4853,8 +4849,45 @@ function displayComments(comments) {
 function _highlightMentions(text) {
   if (!text) return '';
   // Escape HTML first
-  const safe = text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-  return safe.replace(/@([\w\u00C0-\u017E]+)/g, '<span style="color:var(--accent-primary);font-weight:700;">@$1</span>');
+  let safe = text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  
+  const placeholders = [];
+  const knownNames = _getRecentCommenters();
+  
+  if (currentUser && currentUser.displayName && !knownNames.includes(currentUser.displayName)) {
+    knownNames.push(currentUser.displayName);
+  }
+  
+  // Sort by length descending to match longer names first
+  knownNames.sort((a, b) => b.length - a.length);
+  
+  // 1. Mask known full names (including spaces)
+  knownNames.forEach(name => {
+    if (!name) return;
+    const escapedName = name.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+    const regex = new RegExp('@' + escapedName + '(\\b|\\s|$)', 'gi');
+    safe = safe.replace(regex, (match) => {
+      const ph = `___MENTION_${placeholders.length}___`;
+      const trimmedMatch = match.trim();
+      const endingSpace = match.endsWith(' ') ? ' ' : '';
+      placeholders.push(`<span style="color:var(--accent-primary);font-weight:700;">${trimmedMatch}</span>${endingSpace}`);
+      return ph;
+    });
+  });
+  
+  // 2. Mask fallback single-word mentions (for names not in recent commenters list)
+  safe = safe.replace(/@([\w\u00C0-\u017E]+)/g, (match) => {
+    const ph = `___MENTION_${placeholders.length}___`;
+    placeholders.push(`<span style="color:var(--accent-primary);font-weight:700;">${match}</span>`);
+    return ph;
+  });
+  
+  // 3. Restore placeholders
+  for (let i = 0; i < placeholders.length; i++) {
+    safe = safe.replace(`___MENTION_${i}___`, placeholders[i]);
+  }
+  
+  return safe;
 }
 
 // Collect recent commenters for mention suggestions
@@ -6488,15 +6521,6 @@ function updateUserUI(user){
       const userData = root.data || {};
       if (userData.userRank) {
         appData.userRank = userData.userRank;
-      }
-      let rk = appData.userRank || 'default';
-      if (rk === 'admin') rk = 'mod';
-      const updRank = RANKS[rk] || RANKS.default;
-      const rankEl = document.getElementById('userRankInfo');
-      if (rankEl) {
-        rankEl.textContent = updRank.label;
-        rankEl.style.color = updRank.color;
-        rankEl.style.background = updRank.bg;
       }
       const rb = document.getElementById('userRank');
       if (rb && currentUser) {

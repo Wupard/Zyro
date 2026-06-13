@@ -238,17 +238,13 @@
       onclick="switchPage('profile'); document.getElementById('sidebar').classList.remove('open');">
       
       <!-- Top Row: Avatar, Name, Rank, SignOut -->
-      <div style="display:flex; align-items:center; gap: 10px; width: 100%;">
-        <div class="user-avatar" id="userAvatar" style="width:36px; height:36px; flex-shrink:0; border-radius:10px; font-size:1.2rem;">Z</div>
+      <div style="display:flex; align-items:center; gap: 12px; width: 100%;">
+        <div class="user-avatar" id="userAvatar" style="width:40px; height:40px; flex-shrink:0; border-radius:12px; font-size:1.25rem; font-weight:700; display:flex; align-items:center; justify-content:center; border:2px solid rgba(139,124,247,0.3); box-shadow:0 0 12px rgba(139,124,247,0.15);">Z</div>
         
-        <div class="user-info" style="display:flex; flex-direction:column; align-items:center; text-align:center; justify-content:center; flex:1; min-width: 0;">
-          <div style="display:flex; align-items:center; justify-content:center; gap: 6px; width: 100%;">
-            <span class="user-name" id="userName" style="font-size:0.9rem; font-weight:800; color:var(--text-primary); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Kullanıcı</span>
-          </div>
-          <div style="display:flex; align-items:center; justify-content:center; gap: 6px; margin-top:3px; flex-wrap: wrap; width: 100%;">
-            <span class="user-rank" id="userRank" style="font-size:0.55rem; background:linear-gradient(135deg, var(--accent-deep), var(--accent-primary)); color:white; padding:2px 5px; border-radius:4px; font-weight:800; text-transform:uppercase;">Üye</span>
-            <span class="user-status" id="userStatus" style="display:none;"></span>
-          </div>
+        <div class="user-info" style="display:flex; flex-direction:column; align-items:flex-start; justify-content:center; flex:1; min-width: 0; gap: 2px;">
+          <span class="user-name" id="userName" style="font-size:0.95rem; font-weight:800; color:var(--text-primary); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; line-height:1.2; letter-spacing:-0.2px;">Kullanıcı</span>
+          <span class="user-rank" id="userRank" style="font-size:0.55rem; background:rgba(148, 163, 184, 0.1); color:#94A3B8; padding:2px 6px; border-radius:4px; font-weight:800; text-transform:uppercase; letter-spacing:0.04em; display:inline-block; border:1px solid rgba(255,255,255,0.05);">Üye</span>
+          <span class="user-status" id="userStatus" style="display:none;"></span>
         </div>
 
         <button class="signout-btn" id="signOutBtn" title="Çıkış Yap" style="display:none; flex-shrink:0; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); color:var(--text-muted); cursor:pointer; padding:6px; border-radius:8px;">
@@ -943,8 +939,10 @@
               </label>
             </div>
           </div>
-          <textarea class="note-input" id="commentInput" rows="4"
-            placeholder="Fikirlerini bizimle paylaş..."></textarea>
+          <div style="position:relative; width: 100%;">
+            <textarea class="note-input" id="commentInput" rows="4"
+              placeholder="Fikirlerini bizimle paylaş..." style="margin-bottom:0; width:100%;"></textarea>
+          </div>
           <button class="btn-primary" id="sendCommentBtn" style="margin-top: 16px;">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <line x1="22" y1="2" x2="11" y2="13" />
