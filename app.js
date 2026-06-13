@@ -801,8 +801,11 @@ function updateUserUI(user){
     avatar.textContent=(user&&user.displayName)?user.displayName[0].toUpperCase():'Z';
   }
   name.textContent=(user&&user.displayName)?user.displayName.split(' ')[0]:'User';
-  status.textContent=user?t('synced'):t('localMode');
-  status.style.color=user?'var(--green-vivid)':'var(--text-tertiary)';
+  if(status) {
+    status.textContent=user?t('synced'):t('localMode');
+    status.style.color=user?'var(--green-vivid)':'var(--text-tertiary)';
+    status.style.display='none';
+  }
   signOutBtn.style.display=user?'block':'none';
 
   // Admin Check
@@ -6360,8 +6363,11 @@ function updateUserUI(user){
   name.textContent = displayN;
   
   // Status: "Senkronize" when logged in
-  status.textContent = user ? 'Senkronize' : 'Yerel Mod';
-  status.style.color = user ? 'var(--green-vivid)' : 'var(--text-tertiary)';
+  if (status) {
+    status.textContent = user ? 'Senkronize' : 'Yerel Mod';
+    status.style.color = user ? 'var(--green-vivid)' : 'var(--text-tertiary)';
+    status.style.display = 'none';
+  }
   
   if (signOutBtn) signOutBtn.style.display = user ? 'block' : 'none';
 
