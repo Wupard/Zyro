@@ -12,8 +12,7 @@ window.onerror = function(message, source, lineno, colno, error) {
 
 // =============================================
 // TRANSLATIONS
-// =============================================
-const I18N = {
+// =============================================const I18N = {
   en: {
     authSubtitle: 'Personal Development Dashboard',
     signInGoogle: 'Sign in with Google',
@@ -27,6 +26,94 @@ const I18N = {
     navPosture: 'Posture',
     navCalculators: 'Calculators',
     navWupard: 'WFIT',
+    navUpdates: 'Updates',
+    navLeaderboard: 'Leaderboard',
+    navAI: 'AI Assistant',
+    navProfile: 'Profile',
+    updatesTitle: 'Updates',
+    updatesSubtitle: 'Get info about new features and improvements',
+    shareUpdate: 'Share Update',
+    syntax: 'Syntax:',
+    loadingUpdates: 'Loading updates...',
+    profileSubtitle: 'Manage and personalize your account info',
+    changePhoto: 'Change Photo',
+    fullName: 'Full Name',
+    save: 'Save',
+    profileBio: 'Biography',
+    security: 'Security',
+    aiSettings: 'AI Settings',
+    geminiSettings: 'Gemini AI Settings',
+    geminiInfo: 'A free <strong>Google Gemini API key</strong> is required to use Zyro AI features. Your key is completely private and only used on your device.',
+    getFreeKey: 'Get Free Key from Google AI Studio',
+    apiKey: 'API Key',
+    showHide: 'Show/Hide',
+    apiKeyStatusEmpty: 'API key not set',
+    saveKey: 'Save Key',
+    deleteKey: 'Delete Key',
+    howToGet: 'How to get?',
+    step1: 'Go to <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:var(--accent-primary);">aistudio.google.com</a> and sign in with your Google account',
+    step2: 'Click on "Create API key" button',
+    step3: 'Copy the key and paste it above. That\'s it! (Free, 1500 req/month)',
+    about: 'About',
+    heightCm: 'Height (cm)',
+    age: 'Age',
+    gender: 'Gender',
+    genderMale: 'Male',
+    genderFemale: 'Female',
+    selectedAchievementsTitle: 'Selected Achievements (3 Max)',
+    selectedAchievementsDesc: 'Select 3 achievements to display on your profile',
+    saveAchievements: 'Save Achievements',
+    passwordManagement: 'Password Management',
+    notificationSettings: 'Notification Settings (Push)',
+    notificationDesc: 'Do not miss reply notifications and important announcements with push notifications.',
+    enableNotifications: 'Allow Notifications',
+    viewStrengthProgress: 'View Strength Progress',
+    weeklyReport: 'Weekly Report',
+    weeklyGoal: 'Weekly Goal',
+    mostTrained: 'Most Trained',
+    bestPR: 'Best PR',
+    tuesday: 'Tuesday',
+    thursday: 'Thursday',
+    saturday: 'Saturday',
+    video: 'Video',
+    monShort: 'Mon',
+    tueShort: 'Tue',
+    wedShort: 'Wed',
+    thuShort: 'Thu',
+    friShort: 'Fri',
+    satShort: 'Sat',
+    sunShort: 'Sun',
+    progressSubtitle: 'Track your progress and reach your goals',
+    monthlyTrackerTitle: 'Monthly Consistency Tracker',
+    achievementsTitle: 'Achievements & Badges',
+    achievementsSubtitle: 'Rewards and goals you unlocked',
+    beforeAfterTitle: 'Progress Photos',
+    beforeAfterSubtitle: 'Observe and document changes in your body',
+    lbSubtitle: 'Compete with the best in the community',
+    lbFilterLevel: 'Level (XP)',
+    lbFilterPR: 'Highest PR',
+    loading: 'Loading...',
+    aiAsk: 'Ask AI Assistant',
+    aiAskSubtitle: 'Nutrition, workouts, recovery — everything',
+    aiFullChat: 'Full chat ›',
+    chipWeeklyProgramText: '📅 Weekly Program',
+    chipMacrosText: '🥩 Macro Needs',
+    chipBenchPRText: '💪 Bench Press PR',
+    chipWeeklyProgram: 'Can you create a weekly workout program?',
+    chipMacros: 'What is my macro requirement today?',
+    chipBenchPR: 'How can I increase my bench press PR?',
+    chipNutritionText: '🥗 Suggest Nutrition',
+    chipPostWorkoutText: '🥩 Post-workout Meal',
+    chipWorkoutAnalysisText: '💪 Workout Analysis',
+    chipRecoveryText: '😴 Recovery',
+    chipNutrition: 'What should I eat today?',
+    chipPostWorkout: 'What should I eat after my workout?',
+    chipWorkoutAnalysis: 'Can you evaluate my workout today?',
+    chipRecovery: 'How long should I rest?',
+    aiWidgetPlaceholder: 'Ask anything... (e.g. I had eggs for breakfast, how many calories?)',
+    profileNamePlaceholder: 'Enter your name',
+    aiPagePlaceholder: 'Consult your AI coach...',
+    adminUpdatePlaceholder: '*Workout Program\n-Weights updated\n-New exercises added',
     thisWeek: 'This Week',
     dailyPosture: 'Daily Posture',
     postureProgram: 'Posture Program',
@@ -100,7 +187,6 @@ const I18N = {
     sets: 'Sets',
     achievements: 'Achievements',
     beforeAfter: 'Before/After',
-    // New Posture Program
     'Chin Tuck': 'Chin Tuck',
     'Deadbug': 'Deadbug',
     'Thoracic Extension (Rulo veya sandalye ile)': 'Thoracic Extension (with roller or chair)',
@@ -128,6 +214,94 @@ const I18N = {
     navPosture: 'Postür',
     navCalculators: 'Hesaplayıcılar',
     navWupard: 'WFIT',
+    navUpdates: 'Güncellemeler',
+    navLeaderboard: 'Liderlik Tablosu',
+    navAI: 'AI Asistan',
+    navProfile: 'Profil',
+    updatesTitle: 'Güncellemeler',
+    updatesSubtitle: 'Yeni özellikler ve iyileştirmeler hakkında bilgi al',
+    shareUpdate: 'Güncelleme Paylaş',
+    syntax: 'Söz dizimi:',
+    loadingUpdates: 'Güncellemeler yükleniyor...',
+    profileSubtitle: 'Hesap bilgilerini yönet ve kişiselleştir',
+    changePhoto: 'Fotoğrafı Değiştir',
+    fullName: 'Ad Soyad',
+    save: 'Kaydet',
+    profileBio: 'Biyografi',
+    security: 'Güvenlik',
+    aiSettings: 'AI Ayarları',
+    geminiSettings: 'Gemini AI Ayarları',
+    geminiInfo: 'Zyro AI özelliklerini kullanmak için ücretsiz bir <strong style="color:var(--accent-primary);">Google Gemini API key</strong> gereklidir. Key\'in tamamen sana özeldir, başkası kullanamaz.',
+    getFreeKey: 'Google AI Studio\'dan Ücretsiz Key Al',
+    apiKey: 'API Key',
+    showHide: 'Göster/Gizle',
+    apiKeyStatusEmpty: 'API key girilmemiş',
+    saveKey: 'Kayıt Et',
+    deleteKey: 'Key\'i Sil',
+    howToGet: 'Nasıl Alınır?',
+    step1: '<a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:var(--accent-primary);">aistudio.google.com</a>\'a git ve Google hesabınla giriş yap',
+    step2: '"Create API key" butonuna tıkla',
+    step3: 'Key\'i kopyalayıp yukarıya yapıştır. Hepsi bu! (Ücretsiz, ayda 1500 istek)',
+    about: 'Hakkında',
+    heightCm: 'Boy (cm)',
+    age: 'Yaş',
+    gender: 'Cinsiyet',
+    genderMale: 'Erkek',
+    genderFemale: 'Kadın',
+    selectedAchievementsTitle: 'Seçili Başarımlar (3 Tane)',
+    selectedAchievementsDesc: 'Profilde gösterilecek 3 başarımı seçin',
+    saveAchievements: 'Başarımları Kaydet',
+    passwordManagement: 'Şifre Yönetimi',
+    notificationSettings: 'Bildirim Ayarları (Push)',
+    notificationDesc: 'Anlık uygulama bildirimleri ile yorum yanıtlarını ve önemli duyuruları kaçırmayın.',
+    enableNotifications: 'Bildirimlere İzin Ver',
+    viewStrengthProgress: 'Güç İlerlemesini Gör',
+    weeklyReport: 'Haftalık Rapor',
+    weeklyGoal: 'Haftalık Hedef',
+    mostTrained: 'En Çok Çalışılan',
+    bestPR: 'En Yüksek PR',
+    tuesday: 'Salı',
+    thursday: 'Perşembe',
+    saturday: 'Cumartesi',
+    video: 'Video',
+    monShort: 'Pzt',
+    tueShort: 'Sal',
+    wedShort: 'Çar',
+    thuShort: 'Per',
+    friShort: 'Cum',
+    satShort: 'Cmt',
+    sunShort: 'Paz',
+    progressSubtitle: 'Gelişimini gör, hedeflerine ulaş',
+    monthlyTrackerTitle: 'Aylık İlerleme Tablosu',
+    achievementsTitle: 'Başarımlar & Rozetler',
+    achievementsSubtitle: 'Kilidini açtığınız ödüller ve hedefler',
+    beforeAfterTitle: 'Gelişim Fotoğrafları',
+    beforeAfterSubtitle: 'Bedenindeki değişimi gözlemle ve belgele',
+    lbSubtitle: 'Topluluğun en iyileriyle yarışın',
+    lbFilterLevel: 'Seviye (XP)',
+    lbFilterPR: 'En Yüksek PR',
+    loading: 'Yükleniyor...',
+    aiAsk: 'AI Asistanına Sor',
+    aiAskSubtitle: 'Beslenme, antrenman, toparlanma — her şey',
+    aiFullChat: 'Tam chat ›',
+    chipWeeklyProgramText: '📅 Haftalık Program',
+    chipMacrosText: '🥩 Makro İhtiyacı',
+    chipBenchPRText: '💪 Bench Press PR',
+    chipWeeklyProgram: 'Haftalık antrenman programı oluşturur musun?',
+    chipMacros: 'Bugünkü makro ihtiyacım nedir?',
+    chipBenchPR: 'Bench press PR\'ımı nasıl artırabilirim?',
+    chipNutritionText: '🥗 Beslenme öner',
+    chipPostWorkoutText: '🥩 Sonrası beslenme',
+    chipWorkoutAnalysisText: '💪 Antrenman analizi',
+    chipRecoveryText: '😴 Toparlanma',
+    chipNutrition: 'Bugün ne yemem gerekiyor?',
+    chipPostWorkout: 'Antrenman sonrası ne yemeliyim?',
+    chipWorkoutAnalysis: 'Bugünkü antrenmanımı değerlendirir misin?',
+    chipRecovery: 'Ne kadar dinlenmeliyim?',
+    aiWidgetPlaceholder: 'Bir şey sor... (ör: bugün kahvaltıda yumurta yedim, kaç kalori?)',
+    profileNamePlaceholder: 'Adınızı girin',
+    aiPagePlaceholder: 'Yapay zeka koçuna danış...',
+    adminUpdatePlaceholder: '*Spor Programı\n-Ağırlıklar güncellendi\n-Yeni hareketler eklendi',
     thisWeek: 'Bu Hafta',
     dailyPosture: 'Günlük Postür',
     postureProgram: 'Postür Programı',
@@ -176,7 +350,7 @@ const I18N = {
     noWorkoutsWeek: 'Bu hafta henüz antrenman kaydedilmedi.',
     selectExercise: 'Egzersiz seçin...',
     goodMorning: 'Günaydın',
-    goodAfternoon: 'İyi öğleden sonralar',
+    goodAfternoon: 'İyi öğleden sonlar',
     goodEvening: 'İyi akşamlar',
     goodNight: 'İyi geceler',
     synced: '● Senkronize',
@@ -201,7 +375,6 @@ const I18N = {
     sets: 'Set',
     achievements: 'Başarımlar',
     beforeAfter: 'Gelişim',
-    // Posture Exercises
     'Warm-up: Light shoulder circles': 'Isınma: Hafif omuz daireleri ve kafa hareketleri',
     'Y-T-W Raises': 'Y-T-W Raises',
     'Wall Angels': 'Wall Angels',
@@ -217,7 +390,6 @@ const I18N = {
     'Active Plank': 'Active Plank',
     'Clamshell & Side-Lying Hip Abduction': 'Clamshell & Side-Lying Hip Abduction',
     'Towel Curls & Short Foot': 'Towel Curls & Short Foot',
-    // Posture Sets
     '5 min': '5 dk',
     '10 reps per letter (2s hold)': 'Her harf 10 tekrar (2 sn beklemeli)',
     '15 reps': '15 tekrar',
@@ -235,10 +407,12 @@ const I18N = {
     '30 sec': '30 sn',
     '60 sec': '60 sn',
     '10 reps': '10 tekrar',
-    // Posture program updated.
     'Chin Tuck': 'Chin Tuck',
     'Deadbug': 'Deadbug',
     'Thoracic Extension (Rulo veya sandalye ile)': 'Thoracic Extension (Rulo veya sandalye ile)',
+    'Child’s Pose (Çocuk Pozu)': 'Child’s Pose (Çocuk Pozu)'
+  }
+};ion (Rulo veya sandalye ile)': 'Thoracic Extension (Rulo veya sandalye ile)',
     'Child’s Pose (Çocuk Pozu)': 'Child’s Pose (Çocuk Pozu)'
   }
 };
@@ -260,6 +434,14 @@ function applyTranslations() {
   if (noteInput) noteInput.placeholder = t('notePlaceholder');
   const logEx = document.getElementById('logExercise');
   if (logEx && logEx.options[0]) logEx.options[0].text = t('selectExercise');
+  const profileName = document.getElementById('profileDisplayName');
+  if (profileName) profileName.placeholder = t('profileNamePlaceholder');
+  const widgetInput = document.getElementById('aiWidgetInput');
+  if (widgetInput) widgetInput.placeholder = t('aiWidgetPlaceholder');
+  const aiPageInput = document.getElementById('aiPageInput');
+  if (aiPageInput) aiPageInput.placeholder = t('aiPagePlaceholder');
+  const adminUpdateContent = document.getElementById('adminUpdateContent');
+  if (adminUpdateContent) adminUpdateContent.placeholder = t('adminUpdatePlaceholder');
   // Greeting
   setGreeting();
 }
@@ -278,6 +460,13 @@ function initLangSwitcher() {
       // Re-render dynamic content
       renderAttendance();
       if (currentPage === 'posture') { renderPosture(currentPostureTab); }
+      if (currentPage === 'workouts') { renderWorkout(currentWorkoutTab); }
+      if (currentPage === 'progress') { renderProgressTracker(); renderWeeklyReport(); }
+      if (currentPage === 'profile') {
+        renderPasswordSection();
+        if (typeof checkPushNotificationStatus === 'function') checkPushNotificationStatus();
+        renderProfileAchievementsSelector();
+      }
       updateMuscleMap();
     });
   });
@@ -616,7 +805,7 @@ function syncPublicStats() {
   }
 }
 
-const CURRENT_PROGRAM_VERSION = 14; // Smart migration — logs/notes korunur
+const CURRENT_PROGRAM_VERSION = 15; // Smart migration — logs/notes korunur
 
 function enforceVersion() {
   if(appData.programVersion !== CURRENT_PROGRAM_VERSION) {
@@ -7711,7 +7900,7 @@ window.renderProfileAchievementsSelector = function() {
       <div style="padding:12px; background:${isSelected ? 'rgba(139,124,247,0.2)' : 'rgba(255,255,255,0.03)'}; border:2px solid ${isSelected ? 'var(--accent-primary)' : 'rgba(139,124,247,0.1)'}; border-radius:12px; cursor:pointer; transition:all 0.2s; display:flex; flex-direction:column; align-items:center; gap:8px;" onclick="toggleProfileAchievement('${badge.id}')">
         <div style="font-size:2rem;">⭐</div>
         <div style="font-size:0.7rem; font-weight:600; text-align:center; color:${isSelected ? 'var(--accent-primary)' : 'var(--text-primary)'};">${badge.name}</div>
-        ${isSelected ? '<div style="font-size:0.65rem; color:var(--accent-primary); font-weight:700;">✓ SEÇİLİ</div>' : ''}
+        ${isSelected ? `<div style="font-size:0.65rem; color:var(--accent-primary); font-weight:700;">${currentLang === 'tr' ? '✓ SEÇİLİ' : '✓ SELECTED'}</div>` : ''}
       </div>
     `;
   }).join('');
@@ -7725,7 +7914,7 @@ window.toggleProfileAchievement = function(achievementId) {
     if (selectedProfileAchievements.length < 3) {
       selectedProfileAchievements.push(achievementId);
     } else {
-      showToast('Maksimum 3 başarım seçebilirsiniz.', 'info');
+      showToast(currentLang === 'tr' ? 'Maksimum 3 başarım seçebilirsiniz.' : 'You can select a maximum of 3 achievements.', 'info');
       return;
     }
   }
@@ -7743,10 +7932,10 @@ window.saveProfileAchievements = async function() {
       });
       // Feature 10 & 12: Sync public stats when achievements are saved
       if (typeof syncPublicStats === 'function') syncPublicStats();
-      showToast('Başarımlar kaydedildi!', 'success');
+      showToast(currentLang === 'tr' ? 'Başarımlar kaydedildi!' : 'Achievements saved!', 'success');
     } catch (err) {
       console.error('Achievement save error:', err);
-      showToast('Başarımlar kaydedilemedi: ' + err.message, 'error');
+      showToast((currentLang === 'tr' ? 'Başarımlar kaydedilemedi: ' : 'Failed to save achievements: ') + err.message, 'error');
     }
   }
 };
@@ -7870,21 +8059,21 @@ window.checkPushNotificationStatus = async function() {
   if (!statusEl || !btnEl) return;
   
   if (!('Notification' in window)) {
-    statusEl.textContent = 'Durum: Tarayıcınız bildirimleri desteklemiyor.';
+    statusEl.textContent = currentLang === 'tr' ? 'Durum: Tarayıcınız bildirimleri desteklemiyor.' : 'Status: Your browser does not support notifications.';
     statusEl.style.color = 'var(--text-muted)';
     return;
   }
   
   if (Notification.permission === 'granted') {
-    statusEl.textContent = 'Durum: Aktif (Bildirimlere izin verdiniz)';
+    statusEl.textContent = currentLang === 'tr' ? 'Durum: Aktif (Bildirimlere izin verdiniz)' : 'Status: Active (Notifications allowed)';
     statusEl.style.color = 'var(--green-vivid)';
     btnEl.style.display = 'none';
   } else if (Notification.permission === 'denied') {
-    statusEl.textContent = 'Durum: Reddedildi (Tarayıcı ayarlarından izni açmanız gerekir)';
+    statusEl.textContent = currentLang === 'tr' ? 'Durum: Reddedildi (Tarayıcı ayarlarından izni açmanız gerekir)' : 'Status: Denied (Please enable in browser settings)';
     statusEl.style.color = 'var(--red-vivid)';
     btnEl.style.display = 'none';
   } else {
-    statusEl.textContent = 'Durum: İzin Bekleniyor';
+    statusEl.textContent = currentLang === 'tr' ? 'Durum: İzin Bekleniyor' : 'Status: Waiting for permission';
     statusEl.style.color = 'var(--text-secondary)';
     btnEl.style.display = 'block';
   }
@@ -8004,11 +8193,11 @@ function renderWeeklyReport() {
       thisVolume += (l.weight||0)*(l.reps||0)*(l.sets||1);
       if ((l.weight||0) > bestPR) bestPR = l.weight;
       const ex = (l.exercise||'').toLowerCase();
-      let m = 'Diğer';
-      if (ex.includes('bench')||ex.includes('chest')||ex.includes('fly')||ex.includes('pec')) m='Göğüs';
-      else if (ex.includes('pull')||ex.includes('row')||ex.includes('lat')||ex.includes('back')) m='Sırt';
-      else if (ex.includes('press')||ex.includes('lateral')||ex.includes('shoulder')||ex.includes('overhead')) m='Omuz';
-      else if (ex.includes('squat')||ex.includes('leg')||ex.includes('lunge')||ex.includes('deadlift')) m='Bacak';
+      let m = currentLang === 'tr' ? 'Diğer' : 'Other';
+      if (ex.includes('bench')||ex.includes('chest')||ex.includes('fly')||ex.includes('pec')) m=currentLang==='tr'?'Göğüs':'Chest';
+      else if (ex.includes('pull')||ex.includes('row')||ex.includes('lat')||ex.includes('back')) m=currentLang==='tr'?'Sırt':'Back';
+      else if (ex.includes('press')||ex.includes('lateral')||ex.includes('shoulder')||ex.includes('overhead')) m=currentLang==='tr'?'Omuz':'Shoulders';
+      else if (ex.includes('squat')||ex.includes('leg')||ex.includes('lunge')||ex.includes('deadlift')) m=currentLang==='tr'?'Bacak':'Legs';
       else if (ex.includes('curl')||ex.includes('bicep')) m='Biceps';
       else if (ex.includes('tricep')||ex.includes('pushdown')||ex.includes('kickback')) m='Triceps';
       muscleSets[m] = (muscleSets[m]||0) + (l.sets||1);
@@ -8045,7 +8234,7 @@ function renderWeeklyReport() {
   }
 
   if (el('wrWorkouts')) el('wrWorkouts').innerHTML = `${thisWorkouts} <span style="font-size:0.8rem;color:var(--text-tertiary);font-weight:600;">/ 3</span>`;
-  if (el('wrVolume')) el('wrVolume').textContent = Math.round(thisVolume).toLocaleString('tr-TR');
+  if (el('wrVolume')) el('wrVolume').textContent = Math.round(thisVolume).toLocaleString(currentLang === 'tr' ? 'tr-TR' : 'en-US');
   
   if (el('wrTopMuscle')) {
     el('wrTopMuscle').textContent = topMuscle ? topMuscle[0] : '—';
@@ -8062,11 +8251,11 @@ function renderWeeklyReport() {
             const uniqueEx = new Set();
             logs.forEach(l => {
               const ex = (l.exercise||'').toLowerCase();
-              let m = 'Diğer';
-              if (ex.includes('bench')||ex.includes('chest')||ex.includes('fly')||ex.includes('pec')) m='Göğüs';
-              else if (ex.includes('pull')||ex.includes('row')||ex.includes('lat')||ex.includes('back')) m='Sırt';
-              else if (ex.includes('press')||ex.includes('lateral')||ex.includes('shoulder')||ex.includes('overhead')) m='Omuz';
-              else if (ex.includes('squat')||ex.includes('leg')||ex.includes('lunge')||ex.includes('deadlift')) m='Bacak';
+              let m = currentLang === 'tr' ? 'Diğer' : 'Other';
+              if (ex.includes('bench')||ex.includes('chest')||ex.includes('fly')||ex.includes('pec')) m=currentLang==='tr'?'Göğüs':'Chest';
+              else if (ex.includes('pull')||ex.includes('row')||ex.includes('lat')||ex.includes('back')) m=currentLang==='tr'?'Sırt':'Back';
+              else if (ex.includes('press')||ex.includes('lateral')||ex.includes('shoulder')||ex.includes('overhead')) m=currentLang==='tr'?'Omuz':'Shoulders';
+              else if (ex.includes('squat')||ex.includes('leg')||ex.includes('lunge')||ex.includes('deadlift')) m=currentLang==='tr'?'Bacak':'Legs';
               else if (ex.includes('curl')||ex.includes('bicep')) m='Biceps';
               else if (ex.includes('tricep')||ex.includes('pushdown')||ex.includes('kickback')) m='Triceps';
               if(m === topMuscle[0]) uniqueEx.add(l.exercise);
@@ -8104,13 +8293,17 @@ function renderWeeklyReport() {
   const vdiff = Math.round(thisVolume - prevVolume);
   if (el('wrWorkoutsChange')) {
     if (thisWorkouts === 0) {
-      el('wrWorkoutsChange').textContent = 'Henüz antrenman yok';
+      el('wrWorkoutsChange').textContent = currentLang === 'tr' ? 'Henüz antrenman yok' : 'No workouts yet';
       el('wrWorkoutsChange').className = 'wr-stat-change wr-change-same';
     } else if (thisWorkouts >= 3) {
-      el('wrWorkoutsChange').textContent = '✨ Hedef Tamamlandı';
+      el('wrWorkoutsChange').textContent = currentLang === 'tr' ? '✨ Hedef Tamamlandı' : '✨ Goal Achieved';
       el('wrWorkoutsChange').className = 'wr-stat-change wr-change-up';
     } else {
-      el('wrWorkoutsChange').textContent = wdiff===0 ? '= Geçen hafta gibi' : (wdiff>0?`↑ ${wdiff} gün fazla`:`↓ ${Math.abs(wdiff)} gün az`);
+      el('wrWorkoutsChange').textContent = wdiff===0 
+        ? (currentLang === 'tr' ? '= Geçen hafta gibi' : '= Same as last week') 
+        : (wdiff>0
+            ? (currentLang === 'tr' ? `↑ ${wdiff} gün fazla` : `↑ ${wdiff} days more`)
+            : (currentLang === 'tr' ? `↓ ${Math.abs(wdiff)} gün az` : `↓ ${Math.abs(wdiff)} days less`));
       el('wrWorkoutsChange').className = 'wr-stat-change '+(wdiff>0?'wr-change-up':wdiff<0?'wr-change-down':'wr-change-same');
     }
   }
@@ -8119,7 +8312,11 @@ function renderWeeklyReport() {
       el('wrVolumeChange').textContent = '';
       el('wrVolumeChange').className = 'wr-stat-change';
     } else {
-      el('wrVolumeChange').textContent = vdiff===0?'= Geçen hafta gibi':(vdiff>0?`↑ ${vdiff.toLocaleString('tr-TR')} kg fazla`:`↓ ${Math.abs(vdiff).toLocaleString('tr-TR')} kg az`);
+      el('wrVolumeChange').textContent = vdiff===0
+        ? (currentLang === 'tr' ? '= Geçen hafta gibi' : '= Same as last week')
+        : (vdiff>0
+            ? (currentLang === 'tr' ? `↑ ${vdiff.toLocaleString('tr-TR')} kg fazla` : `↑ ${vdiff.toLocaleString('en-US')} kg more`)
+            : (currentLang === 'tr' ? `↓ ${Math.abs(vdiff).toLocaleString('tr-TR')} kg az` : `↓ ${Math.abs(vdiff).toLocaleString('en-US')} kg less`));
       el('wrVolumeChange').className = 'wr-stat-change '+(vdiff>0?'wr-change-up':vdiff<0?'wr-change-down':'wr-change-same');
     }
   }
@@ -8574,7 +8771,7 @@ window.showWeeklyPRPopup = function(exercise, weight, sets, reps) {
   const existing = document.getElementById('weeklyDetailPopup');
   if (existing) existing.remove();
 
-  const exName = exercise || 'Bilinmeyen Hareket';
+  const exName = exercise || (currentLang === 'tr' ? 'Bilinmeyen Hareket' : 'Unknown Exercise');
   const wt = weight || 0;
   const s = sets || 1;
   const r = reps || 0;
@@ -8679,15 +8876,15 @@ window.showWeeklyPRPopup = function(exercise, weight, sets, reps) {
       <div style="display:flex; align-items:center; gap:14px; margin-bottom:20px;">
         <div style="width:64px;height:64px;border-radius:16px;background:linear-gradient(135deg,var(--accent-deep),var(--accent-primary));display:flex;align-items:center;justify-content:center;font-size:1.8rem;border:2px solid rgba(139,124,247,0.4);">👑</div>
         <div style="flex:1; min-width:0;">
-          <div style="font-size:0.65rem; font-weight:700; color:var(--accent-primary); text-transform:uppercase; letter-spacing:0.08em; margin-bottom:4px;">🏆 Haftalık En Yüksek PR</div>
-          <div style="font-family:'Space Grotesk',sans-serif; font-size:1.15rem; font-weight:900; color:var(--text-primary); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Kişisel Rekorun</div>
-          <div style="font-size:0.75rem; color:var(--text-muted); margin-top:2px;">Bu hafta kırdığın en yüksek rekor</div>
+          <div style="font-size:0.65rem; font-weight:700; color:var(--accent-primary); text-transform:uppercase; letter-spacing:0.08em; margin-bottom:4px;">${currentLang === 'tr' ? '🏆 Haftalık En Yüksek PR' : '🏆 Weekly Best PR'}</div>
+          <div style="font-family:'Space Grotesk',sans-serif; font-size:1.15rem; font-weight:900; color:var(--text-primary); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${currentLang === 'tr' ? 'Kişisel Rekorun' : 'Your Personal Record'}</div>
+          <div style="font-size:0.75rem; color:var(--text-muted); margin-top:2px;">${currentLang === 'tr' ? 'Bu hafta kırdığın en yüksek rekor' : 'The highest record you broke this week'}</div>
         </div>
       </div>
 
       <!-- Exercise chip -->
       <div style="margin-bottom:18px;">
-        <div style="font-size:0.65rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:8px;">Hareket</div>
+        <div style="font-size:0.65rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:8px;">${currentLang === 'tr' ? 'Hareket' : 'Exercise'}</div>
         <div class="pr-exercise-chip">💪 ${exName}</div>
       </div>
 
@@ -8695,23 +8892,23 @@ window.showWeeklyPRPopup = function(exercise, weight, sets, reps) {
       <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px;">
         <div class="pr-stat-box">
           <div class="pr-stat-val">${wt}<small style="font-size:0.6em;opacity:0.7;">kg</small></div>
-          <div class="pr-stat-label">Ağırlık</div>
+          <div class="pr-stat-label">${currentLang === 'tr' ? 'Ağırlık' : 'Weight'}</div>
         </div>
         <div class="pr-stat-box">
           <div class="pr-stat-val">${s}</div>
-          <div class="pr-stat-label">Set</div>
+          <div class="pr-stat-label">${currentLang === 'tr' ? 'Set' : 'Sets'}</div>
         </div>
         <div class="pr-stat-box">
           <div class="pr-stat-val">${r}</div>
-          <div class="pr-stat-label">Tekrar</div>
+          <div class="pr-stat-label">${currentLang === 'tr' ? 'Tekrar' : 'Reps'}</div>
         </div>
       </div>
 
       <!-- Volume indicator -->
       ${s > 0 && r > 0 ? `
       <div style="margin-top:16px; padding:12px 16px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:14px; display:flex; align-items:center; justify-content:space-between;">
-        <div style="font-size:0.75rem; color:var(--text-muted); font-weight:600;">Toplam Hacim</div>
-        <div style="font-family:'Space Grotesk',sans-serif; font-size:0.95rem; font-weight:800; color:var(--text-primary);">${(wt * s * r).toLocaleString('tr-TR')} <span style="font-size:0.7rem;opacity:0.6;">kg</span></div>
+        <div style="font-size:0.75rem; color:var(--text-muted); font-weight:600;">${currentLang === 'tr' ? 'Toplam Hacim' : 'Total Volume'}</div>
+        <div style="font-family:'Space Grotesk',sans-serif; font-size:0.95rem; font-weight:800; color:var(--text-primary);">${(wt * s * r).toLocaleString(currentLang === 'tr' ? 'tr-TR' : 'en-US')} <span style="font-size:0.7rem;opacity:0.6;">kg</span></div>
       </div>` : ''}
     </div>
   `;
@@ -8726,7 +8923,7 @@ window.showWeeklyMusclePopup = function(muscleGroup, exCount, sets) {
   const existing = document.getElementById('weeklyDetailPopup');
   if (existing) existing.remove();
 
-  const mGroup = muscleGroup || 'Bilinmeyen Kas Grubu';
+  const mGroup = muscleGroup || (currentLang === 'tr' ? 'Bilinmeyen Kas Grubu' : 'Unknown Muscle Group');
   const ec = exCount || 0;
   const s = sets || 0;
 
@@ -8829,15 +9026,15 @@ window.showWeeklyMusclePopup = function(muscleGroup, exCount, sets) {
       <div style="display:flex; align-items:center; gap:14px; margin-bottom:20px;">
         <div style="width:64px;height:64px;border-radius:16px;background:linear-gradient(135deg,var(--accent-deep),var(--accent-primary));display:flex;align-items:center;justify-content:center;font-size:1.8rem;border:2px solid rgba(139,124,247,0.4);">🔥</div>
         <div style="flex:1; min-width:0;">
-          <div style="font-size:0.65rem; font-weight:700; color:var(--accent-primary); text-transform:uppercase; letter-spacing:0.08em; margin-bottom:4px;">💪 Haftalık En Çok Çalışılan</div>
-          <div style="font-family:'Space Grotesk',sans-serif; font-size:1.15rem; font-weight:900; color:var(--text-primary); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Kas Grubu Analizi</div>
-          <div style="font-size:0.75rem; color:var(--text-muted); margin-top:2px;">Bu hafta en çok odaklandığın bölge</div>
+          <div style="font-size:0.65rem; font-weight:700; color:var(--accent-primary); text-transform:uppercase; letter-spacing:0.08em; margin-bottom:4px;">${currentLang === 'tr' ? '💪 Haftalık En Çok Çalışılan' : '💪 Weekly Most Trained'}</div>
+          <div style="font-family:'Space Grotesk',sans-serif; font-size:1.15rem; font-weight:900; color:var(--text-primary); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${currentLang === 'tr' ? 'Kas Grubu Analizi' : 'Muscle Group Analysis'}</div>
+          <div style="font-size:0.75rem; color:var(--text-muted); margin-top:2px;">${currentLang === 'tr' ? 'Bu hafta en çok odaklandığın bölge' : 'Your most focused area this week'}</div>
         </div>
       </div>
 
       <!-- Muscle Group chip -->
       <div style="margin-bottom:18px;">
-        <div style="font-size:0.65rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:8px;">Hedef Bölge</div>
+        <div style="font-size:0.65rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:8px;">${currentLang === 'tr' ? 'Hedef Bölge' : 'Target Muscle'}</div>
         <div class="pr-exercise-chip">🎯 ${mGroup}</div>
       </div>
 
@@ -8845,11 +9042,11 @@ window.showWeeklyMusclePopup = function(muscleGroup, exCount, sets) {
       <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
         <div class="pr-stat-box">
           <div class="pr-stat-val">${s}</div>
-          <div class="pr-stat-label">Toplam Set</div>
+          <div class="pr-stat-label">${currentLang === 'tr' ? 'Toplam Set' : 'Total Sets'}</div>
         </div>
         <div class="pr-stat-box">
           <div class="pr-stat-val">${ec}</div>
-          <div class="pr-stat-label">Farklı Egzersiz</div>
+          <div class="pr-stat-label">${currentLang === 'tr' ? 'Farklı Egzersiz' : 'Different Exercises'}</div>
         </div>
       </div>
 
