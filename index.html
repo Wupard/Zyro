@@ -238,20 +238,20 @@
       onclick="switchPage('profile'); document.getElementById('sidebar').classList.remove('open');">
       
       <!-- Top Row: Avatar, Name, Rank, SignOut -->
-      <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap: 8px; width: 100%; position:relative;">
-        <div class="user-avatar" id="userAvatar" style="width:40px; height:40px; flex-shrink:0; border-radius:10px; font-size:1.3rem;">Z</div>
+      <div style="display:flex; align-items:center; gap: 10px; width: 100%;">
+        <div class="user-avatar" id="userAvatar" style="width:36px; height:36px; flex-shrink:0; border-radius:10px; font-size:1.2rem;">Z</div>
         
-        <div class="user-info" style="display:flex; flex-direction:column; align-items:center; text-align:center; justify-content:center; width: 100%;">
-          <div style="display:flex; align-items:center; justify-content:center; gap: 6px; width: 100%;">
-            <span class="user-name" id="userName" style="font-size:0.95rem; font-weight:800; color:var(--text-primary); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Kullanıcı</span>
+        <div class="user-info" style="display:flex; flex-direction:column; align-items:flex-start; text-align:left; justify-content:center; flex:1; min-width: 0;">
+          <div style="display:flex; align-items:center; justify-content:flex-start; gap: 6px; width: 100%;">
+            <span class="user-name" id="userName" style="font-size:0.9rem; font-weight:800; color:var(--text-primary); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Kullanıcı</span>
           </div>
-          <div style="display:flex; align-items:center; justify-content:center; gap: 6px; margin-top:3px; flex-wrap: wrap; width: 100%;">
+          <div style="display:flex; align-items:center; justify-content:flex-start; gap: 6px; margin-top:3px; flex-wrap: wrap; width: 100%;">
             <span class="user-rank" id="userRank" style="font-size:0.55rem; background:linear-gradient(135deg, var(--accent-deep), var(--accent-primary)); color:white; padding:2px 5px; border-radius:4px; font-weight:800; text-transform:uppercase;">Üye</span>
             <span class="user-status" id="userStatus" style="display:none;"></span>
           </div>
         </div>
 
-        <button class="signout-btn" id="signOutBtn" title="Çıkış Yap" style="display:none; position:absolute; right:4px; top:50%; transform:translateY(-50%); background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); color:var(--text-muted); cursor:pointer; padding:6px; border-radius:8px;">
+        <button class="signout-btn" id="signOutBtn" title="Çıkış Yap" style="display:none; flex-shrink:0; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); color:var(--text-muted); cursor:pointer; padding:6px; border-radius:8px;">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" /></svg>
         </button>
       </div>
