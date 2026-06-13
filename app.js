@@ -523,7 +523,7 @@ let appData = {
 
 /** Unsubscribe previous Firestore listener before attaching a new one (nav repeats). */
 let commentsListenerUnsub = null;
-let commentsListenerUid = null;
+let cachedComments = null;
 let userProfileListenerUnsub = null;
 
 function commentAuthorRankKey() {
@@ -825,24 +825,40 @@ function updateUserUI(user){
     document.body.classList.remove('is-admin');
   }
   
-  // Rank Display
+  // Rank & Profile Display
   if (user) {
+    const rankInfo = document.getElementById('userRankInfo') || document.createElement('div');
+    rankInfo.id = 'userRankInfo';
+    rankInfo.style.fontSize = '0.65rem';
+    rankInfo.style.marginTop = '2px';
+    rankInfo.style.fontWeight = '800';
+    rankInfo.style.letterSpacing = '0.05em';
+    rankInfo.style.display = 'inline-flex';
+    rankInfo.style.padding = '2px 6px';
+    rankInfo.style.borderRadius = '4px';
+    rankInfo.style.marginRight = '6px';
+    
+    // Get rank from data
     let userRank = appData.userRank || (isAdmin ? 'mod' : 'default');
     if (userRank === 'admin') userRank = 'mod';
+    // kurucu kontrolü — e-posta öncelikli
     if (user && user.email === 'wupard@gmail.com') userRank = 'kurucu';
     const rank = RANKS[userRank] || RANKS.default;
+    rankInfo.textContent = rank.label;
+    rankInfo.style.color = rank.color;
+    rankInfo.style.background = rank.bg;
     
-    const rankBadge = document.getElementById('userRank');
-    if (rankBadge) {
-      rankBadge.style.display = 'inline-block';
-      rankBadge.textContent = rank.label;
-      rankBadge.style.color = rank.color;
-      rankBadge.style.background = rank.bg;
+    const nameEl = document.getElementById('userName');
+    if (nameEl && !document.getElementById('userRankInfo')) {
+      nameEl.parentNode.style.display = 'flex';
+      nameEl.parentNode.style.alignItems = 'center';
+      nameEl.parentNode.insertBefore(rankInfo, nameEl);
+    } else if (document.getElementById('userRankInfo')) {
+      const ri = document.getElementById('userRankInfo');
+      ri.textContent = rank.label;
+      ri.style.color = rank.color;
+      ri.style.background = rank.bg;
     }
-  } else {
-    const rankBadge = document.getElementById('userRank');
-    if (rankBadge) rankBadge.style.display = 'none';
-  }
 
     // Ban Check
     checkUserBan(user);
@@ -856,10 +872,8 @@ function updateUserUI(user){
             appData.userRank = userData.userRank;
             let rk = userData.userRank;
             if (rk === 'admin') rk = 'mod';
-            if (user && user.email === 'wupard@gmail.com') rk = 'kurucu';
-            if (appData.firestoreAdmin && rk === 'default') rk = 'mod';
             const updatedRank = RANKS[rk] || RANKS.default;
-            const rankEl = document.getElementById('userRank');
+            const rankEl = document.getElementById('userRankInfo');
             if (rankEl) {
               rankEl.textContent = updatedRank.label;
               rankEl.style.color = updatedRank.color;
@@ -4613,7 +4627,7 @@ function initComments() {
     if (!mainMentionDropdown) {
       mainMentionDropdown = document.createElement('div');
       mainMentionDropdown.id = 'mainMentionDropdown';
-      mainMentionDropdown.style.cssText = 'display:none;position:absolute;top:100%;left:0;right:0;background:#121026;border:1.5px solid rgba(139,124,247,0.45);border-radius:10px;z-index:1000;max-height:140px;overflow-y:auto;box-shadow:0 10px 30px rgba(0,0,0,0.6);margin-top:2px;';
+      mainMentionDropdown.style.cssText = 'display:none;position:absolute;left:0;right:0;background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:10px;z-index:100;max-height:140px;overflow-y:auto;box-shadow:0 8px 24px rgba(0,0,0,0.3);';
       commentInput.parentElement.style.position = 'relative';
       commentInput.insertAdjacentElement('afterend', mainMentionDropdown);
     }
@@ -4671,22 +4685,18 @@ function renderComments() {
   const list = document.getElementById('commentsList');
   if (!list) return;
   
-  const currentUid = currentUser ? currentUser.uid : null;
-  
   if (isFirebaseConfigured && db) {
-    if (commentsListenerUnsub && commentsListenerUid === currentUid) {
-      // Listener is already active for the current user
+    if (commentsListenerUnsub) {
+      if (cachedComments) {
+        displayComments(cachedComments);
+      }
       return;
     }
-    if (commentsListenerUnsub) {
-      commentsListenerUnsub();
-      commentsListenerUnsub = null;
-    }
-    commentsListenerUid = currentUid;
     const q = db.collection('public_comments').orderBy('timestamp', 'desc').limit(40);
     commentsListenerUnsub = q.onSnapshot(snap => {
       const comments = [];
       snap.forEach(doc => comments.push({ id: doc.id, ...doc.data() }));
+      cachedComments = comments;
       displayComments(comments);
     }, error => {
       console.error('Comments Listener Error:', error);
@@ -4709,185 +4719,195 @@ function displayComments(comments) {
     list.innerHTML = `<div class="logged-empty">${currentLang === 'tr' ? 'Henüz yorum yok.' : 'No comments yet.'}</div>`;
     return;
   }
+
+  // Preserve open reply forms, input text, and focus/selection
+  const openForms = {};
+  list.querySelectorAll('[id^="replyForm_"]').forEach(form => {
+    if (form.style.display === 'block') {
+      const id = form.id.replace('replyForm_', '');
+      const input = document.getElementById(`replyInput_${id}`);
+      openForms[id] = input ? input.value : '';
+    }
+  });
+
+  const activeId = document.activeElement && document.activeElement.id && document.activeElement.id.startsWith('replyInput_')
+    ? document.activeElement.id
+    : null;
+  const cursorStart = activeId ? document.getElementById(activeId).selectionStart : null;
+  const cursorEnd = activeId ? document.getElementById(activeId).selectionEnd : null;
   
   try {
     // Separate top-level comments and replies
     const topLevel = comments.filter(c => !c.parentId);
-  const replies = comments.filter(c => c.parentId);
+    const replies = comments.filter(c => c.parentId);
 
-  list.innerHTML = topLevel.map((c, i) => {
-    const showPhoto = !c.isAnonymous && c.userPhoto;
-    
-    // Upvote/Downvote logic
-    const upvotes = c.upvotes || 0;
-    const upvotedBy = c.upvotedBy || [];
-    const hasUpvoted = currentUser && upvotedBy.includes(currentUser.uid);
+    // Extract unique commenter names
+    const knownNames = comments.map(c => c.userName).filter(Boolean);
+    if (currentUser && currentUser.displayName) knownNames.push(currentUser.displayName);
+    const uniqueKnownNames = [...new Set(knownNames)];
 
-    const downvotes = c.downvotes || 0;
-    const downvotedBy = c.downvotedBy || [];
-    const hasDownvoted = currentUser && downvotedBy.includes(currentUser.uid);
+    list.innerHTML = topLevel.map((c, i) => {
+      const showPhoto = !c.isAnonymous && c.userPhoto;
+      
+      // Upvote/Downvote logic
+      const upvotes = c.upvotes || 0;
+      const upvotedBy = c.upvotedBy || [];
+      const hasUpvoted = currentUser && upvotedBy.includes(currentUser.uid);
 
-    // Get replies for this comment
-    const commentReplies = replies.filter(r => r.parentId === c.id).sort((a,b) => a.timestamp - b.timestamp);
-    
-    const isOwnComment = currentUser && c.userId === currentUser.uid;
-    const isAdminUser = currentUser && (
-      currentUser.email === 'wupard@gmail.com' ||
-      appData.firestoreAdmin === true ||
-      appData.userRank === 'admin' ||
-      appData.userRank === 'mod'
-    );
-    const canDelete = isOwnComment || isAdminUser;
-    
-    // Rank badge for comment author
-    const commentRankKey = c.rank && RANKS[c.rank] ? c.rank : ((c.userEmail === 'wupard@gmail.com') ? 'kurucu' : null);
-    const commentRankInfo = commentRankKey ? RANKS[commentRankKey] : null;
-    const commentRankBadge = commentRankInfo
-      ? `<span style="background:${commentRankInfo.bg}; color:${commentRankInfo.color}; font-size:0.6rem; padding:2px 6px; border-radius:4px; font-weight:800; letter-spacing:0.05em; text-transform:uppercase; border: 1px solid ${commentRankInfo.color}40;">${commentRankInfo.label}</span>`
-      : '';
-    
-    const upvoteAttr = isOwnComment ? '' : `onclick="upvoteComment('${c.id}')"`;
-    const upvoteClass = 'vote-btn upvote-btn' + (hasUpvoted ? ' active' : '') + (isOwnComment ? ' disabled' : '');
-    
-    const downvoteAttr = isOwnComment ? '' : `onclick="downvoteComment('${c.id}')"`;
-    const downvoteClass = 'vote-btn downvote-btn' + (hasDownvoted ? ' active' : '') + (isOwnComment ? ' disabled' : '');
+      const downvotes = c.downvotes || 0;
+      const downvotedBy = c.downvotedBy || [];
+      const hasDownvoted = currentUser && downvotedBy.includes(currentUser.uid);
 
-    return `
-      <div class="comment-item" id="comment_${c.id}" style="padding: 16px; border-bottom: 1px solid var(--border-subtle); background: var(--bg-card-alt); border-radius: 12px; margin-bottom: 12px; position: relative;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-          <div style="display: flex; align-items: center; gap: 10px;">
-            ${showPhoto ? 
-              `<img src="${c.userPhoto}" style="width: 24px; height: 24px; border-radius: 50%; border: 1px solid var(--accent-primary);" referrerpolicy="no-referrer">` : 
-              `<div style="width: 24px; height: 24px; border-radius: 50%; background: var(--bg-primary); display: flex; align-items: center; justify-content: center; font-size: 0.7rem; color: var(--text-tertiary); border: 1px solid var(--border-subtle);">?</div>`
-            }
-            <div style="display: flex; align-items: center; gap: 6px;">
-              <span style="font-weight: 600; font-size: 0.9rem; color: var(--accent-primary);" data-commenter="${c.userName}">${c.userName}</span>
-              ${commentRankBadge}
+      // Get replies for this comment
+      const commentReplies = replies.filter(r => r.parentId === c.id).sort((a,b) => a.timestamp - b.timestamp);
+      
+      const isOwnComment = currentUser && c.userId === currentUser.uid;
+      const isAdminUser = currentUser && (
+        currentUser.email === 'wupard@gmail.com' ||
+        appData.firestoreAdmin === true ||
+        appData.userRank === 'admin' ||
+        appData.userRank === 'mod'
+      );
+      const canDelete = isOwnComment || isAdminUser;
+      
+      // Rank badge for comment author
+      const commentRankKey = c.rank && RANKS[c.rank] ? c.rank : ((c.userEmail === 'wupard@gmail.com') ? 'kurucu' : null);
+      const commentRankInfo = commentRankKey ? RANKS[commentRankKey] : null;
+      const commentRankBadge = commentRankInfo
+        ? `<span style="background:${commentRankInfo.bg}; color:${commentRankInfo.color}; font-size:0.6rem; padding:2px 6px; border-radius:4px; font-weight:800; letter-spacing:0.05em; text-transform:uppercase; border: 1px solid ${commentRankInfo.color}40;">${commentRankInfo.label}</span>`
+        : '';
+      
+      const upvoteAttr = isOwnComment ? '' : `onclick="upvoteComment('${c.id}')"`;
+      const upvoteClass = 'vote-btn upvote-btn' + (hasUpvoted ? ' active' : '') + (isOwnComment ? ' disabled' : '');
+      
+      const downvoteAttr = isOwnComment ? '' : `onclick="downvoteComment('${c.id}')"`;
+      const downvoteClass = 'vote-btn downvote-btn' + (hasDownvoted ? ' active' : '') + (isOwnComment ? ' disabled' : '');
+
+      return `
+        <div class="comment-item" id="comment_${c.id}" style="padding: 16px; border-bottom: 1px solid var(--border-subtle); background: var(--bg-card-alt); border-radius: 12px; margin-bottom: 12px; position: relative;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              ${showPhoto ? 
+                `<img src="${c.userPhoto}" style="width: 24px; height: 24px; border-radius: 50%; border: 1px solid var(--accent-primary);" referrerpolicy="no-referrer">` : 
+                `<div style="width: 24px; height: 24px; border-radius: 50%; background: var(--bg-primary); display: flex; align-items: center; justify-content: center; font-size: 0.7rem; color: var(--text-tertiary); border: 1px solid var(--border-subtle);">?</div>`
+              }
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <span style="font-weight: 600; font-size: 0.9rem; color: var(--accent-primary);" data-commenter="${c.userName}">${c.userName}</span>
+                ${commentRankBadge}
+              </div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="font-size: 0.75rem; color: var(--text-muted);">${new Date(c.timestamp).toLocaleDateString()}</span>
+              ${canDelete ? `<button onclick="deletePublicComment('${c.id}')" style="background:none; border:none; color:#ef4444; cursor:pointer; padding:4px;" title="Sil"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button>` : ''}
             </div>
           </div>
-          <div style="display: flex; align-items: center; gap: 8px;">
-            <span style="font-size: 0.75rem; color: var(--text-muted);">${new Date(c.timestamp).toLocaleDateString()}</span>
-            ${canDelete ? `<button onclick="deletePublicComment('${c.id}')" style="background:none; border:none; color:#ef4444; cursor:pointer; padding:4px;" title="Sil"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button>` : ''}
-          </div>
-        </div>
-        <p style="margin: 0; font-size: 0.9rem; line-height: 1.5; color: var(--text-primary); padding-left: 34px;">${_highlightMentions(c.text)}</p>
-        
-        <div style="margin-top: 12px; display: flex; gap: 16px; padding-left: 34px;">
-          <div style="display: flex; gap: 8px;">
-            <button class="${upvoteClass}" ${upvoteAttr} title="Beğen">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
-              <span>${upvotes}</span>
+          <p style="margin: 0; font-size: 0.9rem; line-height: 1.5; color: var(--text-primary); padding-left: 34px;">${_highlightMentions(c.text, uniqueKnownNames)}</p>
+          
+          <div style="margin-top: 12px; display: flex; gap: 16px; padding-left: 34px;">
+            <div style="display: flex; gap: 8px;">
+              <button class="${upvoteClass}" ${upvoteAttr} title="Beğen">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+                <span>${upvotes}</span>
+              </button>
+              <button class="${downvoteClass}" ${downvoteAttr} title="Beğenme">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                <span>${downvotes}</span>
+              </button>
+            </div>
+            <button onclick="showReplyForm('${c.id}', '${(c.userName||'').replace(/'/g,"\\'")}')"
+              style="background:transparent; border:none; color:var(--text-muted); font-size:0.8rem; cursor:pointer; display:flex; align-items:center; gap:4px;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+              <span>Cevapla</span>
             </button>
-            <button class="${downvoteClass}" ${downvoteAttr} title="Beğenme">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
-              <span>${downvotes}</span>
+            ${!isOwnComment ? `
+            <button onclick="openReportModal('${c.id}','${(c.userId||'').replace(/'/g,"\\'")}','${(c.userName||'').replace(/'/g,"\\'")}','${(c.text||'').substring(0,120).replace(/'/g,"\\'").replace(/\n/g,' ')}')"
+              style="background:transparent; border:none; color:var(--text-muted); font-size:0.8rem; cursor:pointer; display:flex; align-items:center; gap:4px;" title="Raporla">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
+              <span>Raporla</span>
             </button>
+            ` : ''}
           </div>
-          <button onclick="showReplyForm('${c.id}', '${(c.userName||'').replace(/'/g,"\\'")}')"
-            style="background:transparent; border:none; color:var(--text-muted); font-size:0.8rem; cursor:pointer; display:flex; align-items:center; gap:4px;">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-            <span>Cevapla</span>
-          </button>
-          ${!isOwnComment ? `
-          <button onclick="openReportModal('${c.id}','${(c.userId||'').replace(/'/g,"\\'")}','${(c.userName||'').replace(/'/g,"\\'")}','${(c.text||'').substring(0,120).replace(/'/g,"\\'").replace(/\n/g,' ')}')"
-            style="background:transparent; border:none; color:var(--text-muted); font-size:0.8rem; cursor:pointer; display:flex; align-items:center; gap:4px;" title="Raporla">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
-            <span>Raporla</span>
-          </button>
+
+          <div id="replyForm_${c.id}" style="display:none; margin-top:12px; padding-left:34px; position:relative;">
+            <textarea id="replyInput_${c.id}" class="note-input" rows="2" placeholder="@KullanıcıAdı ile başlayabilirsin..." style="margin-bottom:8px; font-size:0.85rem;" oninput="_handleMentionInput(event,'${c.id}')"></textarea>
+            <div id="mentionDropdown_${c.id}" style="display:none; position:absolute; top:auto; left:0; right:0; background:#151421; border:1px solid rgba(139,124,247,0.4); border-radius:10px; z-index:1000; max-height:140px; overflow-y:auto; box-shadow:0 10px 30px rgba(0,0,0,0.7); margin-top:-8px;"></div>
+            <div style="display:flex; gap:8px;">
+              <button class="btn-primary" style="padding:6px 16px; font-size:0.8rem;" onclick="submitReply('${c.id}')">Gönder</button>
+              <button class="btn-small" onclick="showReplyForm('${c.id}')">İptal</button>
+            </div>
+          </div>
+
+          ${commentReplies.length > 0 ? `
+            <div class="comment-replies" style="margin-top:12px; margin-left:11px; padding-left:23px; border-left: 2.5px solid rgba(139,124,247,0.4);">
+              ${commentReplies.map(r => {
+                const isOwnReply = currentUser && r.userId === currentUser.uid;
+                const canDeleteReply = isOwnReply || isAdminUser;
+                const replyRankKey = r.rank && RANKS[r.rank] ? r.rank : ((r.userEmail === 'wupard@gmail.com') ? 'kurucu' : null);
+                const replyRankInfo = replyRankKey ? RANKS[replyRankKey] : null;
+                const replyRankBadge = replyRankInfo
+                  ? `<span style="background:${replyRankInfo.bg}; color:${replyRankInfo.color}; font-size:0.55rem; padding:2px 5px; border-radius:4px; font-weight:800; letter-spacing:0.05em; text-transform:uppercase; border: 1px solid ${replyRankInfo.color}40;">${replyRankInfo.label}</span>`
+                  : '';
+                return `
+                <div style="margin-top:12px; padding:10px; background:rgba(255,255,255,0.02); border-radius:8px; position:relative;">
+                  <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
+                    <div style="display:flex; align-items:center; gap:8px;">
+                      ${r.userPhoto ? `<img src="${r.userPhoto}" style="width:18px; height:18px; border-radius:50%;" referrerpolicy="no-referrer">` : `<div style="width:18px; height:18px; border-radius:50%; background:var(--bg-primary); display:flex; align-items:center; justify-content:center; font-size:0.6rem;">?</div>`}
+                      <span style="font-weight:600; font-size:0.8rem; color:var(--accent-primary);">${r.userName}</span>
+                      ${replyRankBadge}
+                    </div>
+                    <div style="display:flex; align-items:center; gap:6px;">
+                      <span style="font-size:0.65rem; color:var(--text-muted);">${new Date(r.timestamp).toLocaleDateString()}</span>
+                      ${canDeleteReply ? `<button onclick="deletePublicComment('${r.id}')" style="background:none; border:none; color:#ef4444; cursor:pointer; padding:2px;" title="Sil"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button>` : ''}
+                    </div>
+                  </div>
+                  <p style="margin:0; font-size:0.85rem; color:var(--text-primary);">${_highlightMentions(r.text, uniqueKnownNames)}</p>
+                </div>
+              `}).join('')}
+            </div>
           ` : ''}
         </div>
+      `;
+    }).join('');
 
-        <div id="replyForm_${c.id}" style="display:none; margin-top:12px; padding-left:34px;">
-          <div style="position:relative; margin-bottom:8px; width: 100%;">
-            <textarea id="replyInput_${c.id}" class="note-input" rows="2" placeholder="@KullanıcıAdı ile başlayabilirsin..." style="margin-bottom:0; font-size:0.85rem; width: 100%;" oninput="_handleMentionInput(event,'${c.id}')"></textarea>
-            <div id="mentionDropdown_${c.id}" style="display:none; position:absolute; top:100%; left:0; right:0; background:#121026; border:1.5px solid rgba(139,124,247,0.45); border-radius:10px; z-index:1000; max-height:140px; overflow-y:auto; box-shadow:0 10px 30px rgba(0,0,0,0.6); margin-top:2px;"></div>
-          </div>
-          <div style="display:flex; gap:8px;">
-            <button class="btn-primary" style="padding:6px 16px; font-size:0.8rem;" onclick="submitReply('${c.id}')">Gönder</button>
-            <button class="btn-small" onclick="showReplyForm('${c.id}')">İptal</button>
-          </div>
-        </div>
+    // Restore open reply forms, input text, and focus/selection
+    Object.keys(openForms).forEach(id => {
+      const form = document.getElementById(`replyForm_${id}`);
+      const input = document.getElementById(`replyInput_${id}`);
+      if (form) form.style.display = 'block';
+      if (input) input.value = openForms[id];
+    });
 
-        ${commentReplies.length > 0 ? `
-          <div class="comment-replies" style="margin-top:12px; padding-left:34px; border-left: 2px solid rgba(139, 124, 247, 0.35);">
-            ${commentReplies.map(r => {
-              const isOwnReply = currentUser && r.userId === currentUser.uid;
-              const canDeleteReply = isOwnReply || isAdminUser;
-              const replyRankKey = r.rank && RANKS[r.rank] ? r.rank : ((r.userEmail === 'wupard@gmail.com') ? 'kurucu' : null);
-              const replyRankInfo = replyRankKey ? RANKS[replyRankKey] : null;
-              const replyRankBadge = replyRankInfo
-                ? `<span style="background:${replyRankInfo.bg}; color:${replyRankInfo.color}; font-size:0.55rem; padding:2px 5px; border-radius:4px; font-weight:800; letter-spacing:0.05em; text-transform:uppercase; border: 1px solid ${replyRankInfo.color}40;">${replyRankInfo.label}</span>`
-                : '';
-              return `
-              <div style="margin-top:12px; padding:10px; background:rgba(255,255,255,0.02); border-radius:8px; position:relative;">
-                <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
-                  <div style="display:flex; align-items:center; gap:8px;">
-                    ${r.userPhoto ? `<img src="${r.userPhoto}" style="width:18px; height:18px; border-radius:50%;" referrerpolicy="no-referrer">` : `<div style="width:18px; height:18px; border-radius:50%; background:var(--bg-primary); display:flex; align-items:center; justify-content:center; font-size:0.6rem;">?</div>`}
-                    <span style="font-weight:600; font-size:0.8rem; color:var(--accent-primary);">${r.userName}</span>
-                    ${replyRankBadge}
-                  </div>
-                  <div style="display:flex; align-items:center; gap:6px;">
-                    <span style="font-size:0.65rem; color:var(--text-muted);">${new Date(r.timestamp).toLocaleDateString()}</span>
-                    ${canDeleteReply ? `<button onclick="deletePublicComment('${r.id}')" style="background:none; border:none; color:#ef4444; cursor:pointer; padding:2px;" title="Sil"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button>` : ''}
-                  </div>
-                </div>
-                <p style="margin:0; font-size:0.85rem; color:var(--text-primary);">${_highlightMentions(r.text)}</p>
-              </div>
-            `}).join('')}
-          </div>
-        ` : ''}
-      </div>
-    `;
-  }).join('');
+    if (activeId) {
+      const activeEl = document.getElementById(activeId);
+      if (activeEl) {
+        activeEl.focus();
+        if (cursorStart !== null && cursorEnd !== null) {
+          activeEl.setSelectionRange(cursorStart, cursorEnd);
+        }
+      }
+    }
+
   } catch (e) {
     console.error('Error rendering comments:', e);
     list.innerHTML = `<div class="logged-empty" style="color:#ef4444;">Yorumları oluştururken bir hata oluştu: ${e.message}</div>`;
   }
 }
 
-// Highlight @mentions in text
-function _highlightMentions(text) {
+// Highlight @mentions in text (supports space-containing names and matches fallback name patterns)
+function _highlightMentions(text, knownNames = []) {
   if (!text) return '';
   // Escape HTML first
-  let safe = text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const safe = text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   
-  const placeholders = [];
-  const knownNames = _getRecentCommenters();
+  const sortedNames = [...knownNames].filter(Boolean).sort((a, b) => b.length - a.length);
+  const namePattern = sortedNames.map(name => name.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')).join('|');
   
-  if (currentUser && currentUser.displayName && !knownNames.includes(currentUser.displayName)) {
-    knownNames.push(currentUser.displayName);
-  }
+  const regexPattern = namePattern 
+    ? '@(' + namePattern + '|[\\w\\u00C0-\\u017E]+)'
+    : '@([\\w\\u00C0-\\u017E]+)';
   
-  // Sort by length descending to match longer names first
-  knownNames.sort((a, b) => b.length - a.length);
-  
-  // 1. Mask known full names (including spaces)
-  knownNames.forEach(name => {
-    if (!name) return;
-    const escapedName = name.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
-    const regex = new RegExp('@' + escapedName + '(\\b|\\s|$)', 'gi');
-    safe = safe.replace(regex, (match) => {
-      const ph = `___MENTION_${placeholders.length}___`;
-      const trimmedMatch = match.trim();
-      const endingSpace = match.endsWith(' ') ? ' ' : '';
-      placeholders.push(`<span style="color:var(--accent-primary);font-weight:700;">${trimmedMatch}</span>${endingSpace}`);
-      return ph;
-    });
-  });
-  
-  // 2. Mask fallback single-word mentions (for names not in recent commenters list)
-  safe = safe.replace(/@([\w\u00C0-\u017E]+)/g, (match) => {
-    const ph = `___MENTION_${placeholders.length}___`;
-    placeholders.push(`<span style="color:var(--accent-primary);font-weight:700;">${match}</span>`);
-    return ph;
-  });
-  
-  // 3. Restore placeholders
-  for (let i = 0; i < placeholders.length; i++) {
-    safe = safe.replace(`___MENTION_${i}___`, placeholders[i]);
-  }
-  
-  return safe;
+  const regex = new RegExp(regexPattern, 'gi');
+  return safe.replace(regex, '<span style="color:var(--accent-primary);font-weight:700;">$&</span>');
 }
 
 // Collect recent commenters for mention suggestions
@@ -5072,6 +5092,14 @@ window.adminDeleteComment = async function(commentId) {
     await db.collection('public_comments').doc(commentId).delete();
     showToast('Yorum silindi.', 'success');
     renderComments();
+    
+    // Refresh admin views if visible/active
+    if (typeof adminLoadAllComments === 'function') {
+      adminLoadAllComments().catch(e => console.error(e));
+    }
+    if (typeof adminLoadReports === 'function') {
+      adminLoadReports().catch(e => console.error(e));
+    }
   } catch (e) {
     console.error('Delete Error:', e);
     showToast('Yorum silinemedi!', 'error');
@@ -6521,6 +6549,15 @@ function updateUserUI(user){
       const userData = root.data || {};
       if (userData.userRank) {
         appData.userRank = userData.userRank;
+      }
+      let rk = appData.userRank || 'default';
+      if (rk === 'admin') rk = 'mod';
+      const updRank = RANKS[rk] || RANKS.default;
+      const rankEl = document.getElementById('userRankInfo');
+      if (rankEl) {
+        rankEl.textContent = updRank.label;
+        rankEl.style.color = updRank.color;
+        rankEl.style.background = updRank.bg;
       }
       const rb = document.getElementById('userRank');
       if (rb && currentUser) {
