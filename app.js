@@ -542,7 +542,13 @@ function dateStr(d){
   const offset = d.getTimezoneOffset() * 60000;
   return new Date(d.getTime() - offset).toISOString().split('T')[0];
 }
-function getMonday(d){const date=new Date(d);const day=date.getDay();const diff=date.getDate()-day+(day===0?-6:1);return new Date(date.setDate(diff))}
+function getMonday(d) {
+  const date = new Date(d);
+  const day = date.getDay() || 7; // Sunday=7, Monday=1
+  date.setDate(date.getDate() - (day - 1));
+  date.setHours(0,0,0,0);
+  return date;
+}
 function formatDate(d){return d.toLocaleDateString(currentLang==='tr'?'tr-TR':'en-US',{month:'short',day:'numeric'})}
 function formatDateLong(d){return d.toLocaleDateString(currentLang==='tr'?'tr-TR':'en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'})}
 
@@ -2280,6 +2286,17 @@ function updateMuscleMap() {
   totalSetsEl.innerText = totalSets;
   exCountEl.innerText = allExercises.length;
 
+  // Add SVG Coloring logic
+  document.querySelectorAll('.mm-muscle').forEach(p => p.style.fill = 'rgba(255,255,255,0.02)');
+  Object.entries(vol).forEach(([m, data]) => {
+    const color = getMuscleColor(data.sets);
+    if (color) {
+      document.querySelectorAll(`.mm-muscle[data-muscle="${m}"]`).forEach(p => {
+        p.style.fill = color;
+      });
+    }
+  });
+
   if (totalBarEl) {
     const maxTarget = _muscleRange === 'today' ? 30 : 150;
     const pct = Math.min(100, Math.round((totalSets / maxTarget) * 100));
@@ -4016,6 +4033,21 @@ function renderAchievements() {
   const grid = document.getElementById('achievementsGrid');
   if (!grid) return;
   if (!appData.achievements) appData.achievements = {};
+  
+  // Sync with all-time progress stats
+  let anyNewAchievement = false;
+  const allStats = typeof computeExerciseStats === 'function' ? computeExerciseStats() : [];
+  ACHIEVEMENT_DEFS.forEach(def => {
+    if (def.exercise && !appData.achievements[def.id]) {
+      const exStat = allStats.find(s => s.name === def.exercise);
+      if (exStat && exStat.prWeight >= def.target) {
+        appData.achievements[def.id] = { unlockedAt: Date.now() };
+        anyNewAchievement = true;
+      }
+    }
+  });
+  if (anyNewAchievement) saveData();
+
   if (!window._achExpanded) window._achExpanded = {};
   const expanded = window._achExpanded;
 
@@ -4540,7 +4572,8 @@ function initComments() {
     }
 
     
-    const type = document.querySelector('input[name="commentType"]:checked').value;
+    const typeRadio = document.querySelector('input[name="commentType"]:checked');
+    const type = typeRadio ? typeRadio.value : 'normal';
     const isAnonymous = type === 'anonymous';
     
     const comment = {
@@ -4661,6 +4694,14 @@ function renderComments() {
       const comments = [];
       snap.forEach(doc => comments.push({ id: doc.id, ...doc.data() }));
       displayComments(comments);
+    }, error => {
+      console.error('Comments Listener Error:', error);
+      const local = JSON.parse(localStorage.getItem('zyro_local_comments') || '[]');
+      if (local.length > 0) {
+        displayComments(local);
+      } else {
+        document.getElementById('commentsList').innerHTML = `<div class="logged-empty" style="color:#ef4444;">Yorumlar yüklenirken bir hata oluştu veya bağlantı kurulamıyor.</div>`;
+      }
     });
   } else {
     const local = JSON.parse(localStorage.getItem('zyro_local_comments') || '[]');
@@ -6027,71 +6068,81 @@ function renderProgressTracker() {
     
     // PR section
     const prHtml = `
-      <div style="background:linear-gradient(135deg,rgba(255,215,0,0.08),rgba(255,215,0,0.02));border:1px solid rgba(255,215,0,0.2);border-radius:12px;padding:14px 16px;margin-bottom:10px;">
-        <div style="display:flex;align-items:center;gap:6px;margin-bottom:10px;">
-          <span style="font-size:1rem;">🏆</span>
-          <span style="font-size:0.65rem;font-weight:800;text-transform:uppercase;letter-spacing:0.08em;color:#FFD700;">En Yüksek Kaldırış (All-Time PR)</span>
+      <div style="background:linear-gradient(135deg, rgba(255, 215, 0, 0.1), rgba(255, 215, 0, 0.02)); border: 1px solid rgba(255, 215, 0, 0.3); border-radius: 16px; padding: 18px 20px; margin-bottom: 12px; box-shadow: 0 8px 32px rgba(255, 215, 0, 0.05); backdrop-filter: blur(8px);">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
+          <div style="background: rgba(255, 215, 0, 0.2); border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: 14px; box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);">🏆</div>
+          <span style="font-size:0.7rem;font-weight:800;text-transform:uppercase;letter-spacing:0.1em;color:#FFD700;text-shadow: 0 0 8px rgba(255,215,0,0.4);">En Yüksek Kaldırış (All-Time PR)</span>
         </div>
-        <div style="display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;">
-          <span style="font-size:1.6rem;font-weight:900;color:#FFD700;">${selectedEx.prWeight} kg</span>
-          <span style="font-size:0.85rem;color:var(--text-secondary);">${selectedEx.prReps} tekrar × ${selectedEx.prSets||1} set</span>
+        <div style="display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;">
+          <span style="font-size:1.8rem;font-weight:900;color:#FFD700;letter-spacing:-0.02em;">${selectedEx.prWeight} kg</span>
+          <span style="font-size:0.9rem;color:rgba(255,255,255,0.7);font-weight:500;">${selectedEx.prReps} tekrar × ${selectedEx.prSets||1} set</span>
         </div>
-        <div style="margin-top:6px;font-size:0.75rem;color:var(--text-muted);display:flex;align-items:center;gap:4px;">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        <div style="margin-top:8px;font-size:0.75rem;color:rgba(255,255,255,0.5);display:flex;align-items:center;gap:6px;font-weight:500;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
           ${formatDate(selectedEx.prDate)}
         </div>
       </div>`;
 
-    // Bu hafta section
-    const hasWeek = selectedEx.weekWeight !== null;
-    const weekHtml = `
-      <div style="background:rgba(52,211,153,0.06);border:1px solid rgba(52,211,153,0.18);border-radius:12px;padding:14px 16px;margin-bottom:10px;">
-        <div style="display:flex;align-items:center;gap:6px;margin-bottom:10px;">
-          <span style="font-size:1rem;">📅</span>
-          <span style="font-size:0.65rem;font-weight:800;text-transform:uppercase;letter-spacing:0.08em;color:#34d399;">Bu Hafta</span>
+    // Son Antrenman section
+    const hasWorkout = selectedEx.currentWeight !== undefined && selectedEx.lastUpdated !== null;
+    let dayName = '';
+    if(hasWorkout && selectedEx.lastUpdated) {
+      const d = new Date(selectedEx.lastUpdated+'T00:00:00');
+      dayName = d.toLocaleDateString(currentLang==='tr'?'tr-TR':'en-US', {weekday:'long'});
+    }
+    const lastWorkoutHtml = `
+      <div style="background:linear-gradient(135deg, rgba(52, 211, 153, 0.08), rgba(52, 211, 153, 0.02)); border: 1px solid rgba(52, 211, 153, 0.25); border-radius: 16px; padding: 18px 20px; margin-bottom: 12px; box-shadow: 0 8px 32px rgba(52, 211, 153, 0.05); backdrop-filter: blur(8px);">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
+          <div style="background: rgba(52, 211, 153, 0.2); border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: 14px; box-shadow: 0 0 10px rgba(52, 211, 153, 0.3);">⚡</div>
+          <span style="font-size:0.7rem;font-weight:800;text-transform:uppercase;letter-spacing:0.1em;color:#34d399;text-shadow: 0 0 8px rgba(52,211,153,0.3);">Son Antrenman</span>
         </div>
-        ${hasWeek ? `
-          <div style="display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;">
-            <span style="font-size:1.4rem;font-weight:900;color:#34d399;">${selectedEx.weekWeight} kg</span>
-            <span style="font-size:0.85rem;color:var(--text-secondary);">${selectedEx.weekReps} tekrar × ${selectedEx.weekSets||1} set</span>
+        ${hasWorkout ? `
+          <div style="display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;">
+            <span style="font-size:1.6rem;font-weight:900;color:#34d399;letter-spacing:-0.02em;">${selectedEx.currentWeight} kg</span>
+            <span style="font-size:0.9rem;color:rgba(255,255,255,0.7);font-weight:500;">${selectedEx.currentReps} tekrar × ${selectedEx.currentSets||1} set</span>
           </div>
-          <div style="margin-top:6px;font-size:0.75rem;color:var(--text-muted);display:flex;align-items:center;gap:4px;">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-            ${formatDate(selectedEx.weekDate)}
+          <div style="margin-top:8px;font-size:0.8rem;color:rgba(255,255,255,0.6);font-weight:500;line-height:1.4;">
+            Geçen antrenman <strong style="color:#34d399;">${dayName}</strong> günü yapıldı. <br>
+            ${dayName} günü <strong>${selectedEx.currentWeight} kg</strong> ile <strong>${selectedEx.currentReps}</strong> tekrar <strong>${selectedEx.currentSets||1}</strong> set atıldı.
           </div>
-        ` : `<div style="font-size:0.85rem;color:var(--text-muted);">Bu hafta kayıt yok</div>`}
+          <div style="margin-top:8px;font-size:0.75rem;color:rgba(255,255,255,0.4);display:flex;align-items:center;gap:6px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            ${formatDate(selectedEx.lastUpdated)}
+          </div>
+        ` : `<div style="font-size:0.85rem;color:var(--text-muted);">Henüz kayıt yok</div>`}
       </div>`;
 
     // Haftalık progress section
     let progressHtml = '';
+    const hasWeek = selectedEx.weekWeight !== null;
     if (selectedEx.weekDelta !== null && hasWeek) {
       const isUp = selectedEx.weekDelta > 0;
       const isDown = selectedEx.weekDelta < 0;
       const pct = selectedEx.prevWeekWeight ? Math.abs(Math.round((selectedEx.weekDelta / selectedEx.prevWeekWeight) * 100)) : 0;
       const barW = Math.min(100, pct * 2);
       progressHtml = `
-        <div style="background:rgba(139,124,247,0.06);border:1px solid rgba(139,124,247,0.15);border-radius:12px;padding:14px 16px;">
-          <div style="display:flex;align-items:center;gap:6px;margin-bottom:10px;">
-            <span style="font-size:1rem;">📈</span>
-            <span style="font-size:0.65rem;font-weight:800;text-transform:uppercase;letter-spacing:0.08em;color:var(--accent-primary);">Haftalık Gelişim</span>
+        <div style="background:linear-gradient(135deg, rgba(139, 124, 247, 0.08), rgba(139, 124, 247, 0.02)); border: 1px solid rgba(139, 124, 247, 0.25); border-radius: 16px; padding: 18px 20px; box-shadow: 0 8px 32px rgba(139, 124, 247, 0.05); backdrop-filter: blur(8px);">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
+            <div style="background: rgba(139, 124, 247, 0.2); border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: 14px; box-shadow: 0 0 10px rgba(139, 124, 247, 0.3);">📈</div>
+            <span style="font-size:0.7rem;font-weight:800;text-transform:uppercase;letter-spacing:0.1em;color:var(--accent-primary);text-shadow: 0 0 8px rgba(139,124,247,0.3);">Haftalık Gelişim</span>
           </div>
-          <div style="display:flex;align-items:center;gap:10px;">
-            <span style="font-size:1.4rem;font-weight:900;color:${isUp?'#34d399':isDown?'#f87171':'var(--text-muted)'}">${isUp?'+':''}${selectedEx.weekDelta} kg</span>
-            ${pct > 0 ? `<span style="font-size:0.8rem;color:${isUp?'#34d399':isDown?'#f87171':'var(--text-muted)'};font-weight:700;">(${isUp?'+':''}${isDown?'-':''}${pct}%)</span>` : ''}
+          <div style="display:flex;align-items:center;gap:12px;">
+            <span style="font-size:1.6rem;font-weight:900;color:${isUp?'#34d399':isDown?'#f87171':'var(--text-muted)'};letter-spacing:-0.02em;">${isUp?'+':''}${selectedEx.weekDelta} kg</span>
+            ${pct > 0 ? `<span style="font-size:0.85rem;color:${isUp?'#34d399':isDown?'#f87171':'var(--text-muted)'};font-weight:700;padding:2px 8px;background:${isUp?'rgba(52,211,153,0.15)':isDown?'rgba(248,113,113,0.15)':'rgba(255,255,255,0.1)'};border-radius:12px;">${isUp?'+':''}${isDown?'-':''}${pct}%</span>` : ''}
           </div>
-          <div style="margin-top:10px;background:rgba(255,255,255,0.07);border-radius:99px;height:6px;overflow:hidden;">
-            <div style="height:100%;width:${barW}%;background:${isUp?'#34d399':isDown?'#f87171':'var(--accent-primary)'};border-radius:99px;transition:width 0.4s;"></div>
+          <div style="margin-top:14px;background:rgba(255,255,255,0.05);border-radius:99px;height:8px;overflow:hidden;box-shadow:inset 0 1px 3px rgba(0,0,0,0.2);">
+            <div style="height:100%;width:${barW}%;background:linear-gradient(90deg, ${isUp?'#10b981, #34d399':isDown?'#ef4444, #f87171':'var(--accent-primary)'});border-radius:99px;transition:width 0.8s cubic-bezier(0.4, 0, 0.2, 1);box-shadow: 0 0 10px ${isUp?'rgba(52,211,153,0.5)':isDown?'rgba(248,113,113,0.5)':'rgba(139,124,247,0.5)'};"></div>
           </div>
-          <div style="margin-top:6px;font-size:0.72rem;color:var(--text-muted);">Bu hafta vs geçen hafta (${selectedEx.prevWeekWeight || '—'} kg)</div>
+          <div style="margin-top:10px;font-size:0.75rem;color:rgba(255,255,255,0.5);font-weight:500;">Bu hafta vs geçen hafta (${selectedEx.prevWeekWeight || '—'} kg)</div>
         </div>`;
     } else if (hasWeek) {
       progressHtml = `
-        <div style="background:rgba(139,124,247,0.04);border:1px solid rgba(139,124,247,0.1);border-radius:12px;padding:12px 16px;">
-          <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">
-            <span style="font-size:1rem;">📈</span>
-            <span style="font-size:0.65rem;font-weight:800;text-transform:uppercase;letter-spacing:0.08em;color:var(--accent-primary);">Haftalık Gelişim</span>
+        <div style="background:linear-gradient(135deg, rgba(139, 124, 247, 0.05), rgba(139, 124, 247, 0.01)); border: 1px solid rgba(139, 124, 247, 0.15); border-radius: 16px; padding: 16px 20px;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+            <span style="font-size:1.1rem;opacity:0.8;">📈</span>
+            <span style="font-size:0.7rem;font-weight:800;text-transform:uppercase;letter-spacing:0.1em;color:var(--accent-primary);">Haftalık Gelişim</span>
           </div>
-          <div style="font-size:0.85rem;color:var(--text-muted);">Karşılaştırmak için geçen haftadan da veri gerekli</div>
+          <div style="font-size:0.85rem;color:rgba(255,255,255,0.5);font-weight:500;">Karşılaştırmak için geçen haftadan da veri gerekli.</div>
         </div>`;
     }
 
@@ -7909,10 +7960,78 @@ function renderWeeklyReport() {
   const bestCurrentWeight = allStats.length > 0 ? Math.max(...allStats.map(s => s.currentWeight)) : 0;
   
   const el = id => document.getElementById(id);
+  
+  // Weekly Best PR / Top Muscle Logic
+  let bestPREx = null;
+  let bestPRWeight = 0;
+  let bestPRReps = 0;
+  let bestPRSets = 0;
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(monday); d.setDate(d.getDate() + i);
+    (appData.workoutLogs[dateStr(d)] || []).forEach(l => {
+      if ((l.weight||0) > bestPRWeight) {
+        bestPRWeight = l.weight;
+        bestPREx = l.exercise;
+        bestPRReps = l.reps;
+        bestPRSets = l.sets;
+      }
+    });
+  }
+
   if (el('wrWorkouts')) el('wrWorkouts').innerHTML = `${thisWorkouts} <span style="font-size:0.8rem;color:var(--text-tertiary);font-weight:600;">/ 3</span>`;
   if (el('wrVolume')) el('wrVolume').textContent = Math.round(thisVolume).toLocaleString('tr-TR');
-  if (el('wrTopMuscle')) el('wrTopMuscle').textContent = topMuscle ? topMuscle[0] : '—';
-  if (el('wrBestPR')) el('wrBestPR').textContent = bestCurrentWeight > 0 ? `${bestCurrentWeight} kg` : '— kg';
+  
+  if (el('wrTopMuscle')) {
+    el('wrTopMuscle').textContent = topMuscle ? topMuscle[0] : '—';
+    if(topMuscle) {
+      el('wrTopMuscle').style.cursor = 'pointer';
+      el('wrTopMuscle').style.textDecoration = 'underline';
+      el('wrTopMuscle').style.textDecorationStyle = 'dotted';
+      el('wrTopMuscle').onclick = () => {
+        let sets = topMuscle[1];
+        let exCount = 0;
+        for (let i = 0; i < 7; i++) {
+          const d = new Date(monday); d.setDate(d.getDate() + i);
+          const logs = appData.workoutLogs[dateStr(d)] || [];
+          const uniqueEx = new Set();
+          logs.forEach(l => {
+            const ex = (l.exercise||'').toLowerCase();
+            let m = 'Diğer';
+            if (ex.includes('bench')||ex.includes('chest')||ex.includes('fly')||ex.includes('pec')) m='Göğüs';
+            else if (ex.includes('pull')||ex.includes('row')||ex.includes('lat')||ex.includes('back')) m='Sırt';
+            else if (ex.includes('press')||ex.includes('lateral')||ex.includes('shoulder')||ex.includes('overhead')) m='Omuz';
+            else if (ex.includes('squat')||ex.includes('leg')||ex.includes('lunge')||ex.includes('deadlift')) m='Bacak';
+            else if (ex.includes('curl')||ex.includes('bicep')) m='Biceps';
+            else if (ex.includes('tricep')||ex.includes('pushdown')||ex.includes('kickback')) m='Triceps';
+            if(m === topMuscle[0]) uniqueEx.add(l.exercise);
+          });
+          exCount += uniqueEx.size;
+        }
+        showToast(\`Bu hafta \${topMuscle[0]} için \${exCount} farklı hareket ile toplam \${sets} set atıldı.\`, 'info');
+      };
+    } else {
+      el('wrTopMuscle').onclick = null;
+      el('wrTopMuscle').style.cursor = 'default';
+      el('wrTopMuscle').style.textDecoration = 'none';
+    }
+  }
+
+  if (el('wrBestPR')) {
+    if (bestPRWeight > 0) {
+      el('wrBestPR').textContent = \`\${bestPRWeight} kg\`;
+      el('wrBestPR').style.cursor = 'pointer';
+      el('wrBestPR').style.textDecoration = 'underline';
+      el('wrBestPR').style.textDecorationStyle = 'dotted';
+      el('wrBestPR').onclick = () => {
+        showToast(\`\${bestPREx}: \${bestPRWeight} kg x \${bestPRReps} tekrar, \${bestPRSets||1} set\`, 'success');
+      };
+    } else {
+      el('wrBestPR').textContent = '— kg';
+      el('wrBestPR').onclick = null;
+      el('wrBestPR').style.cursor = 'default';
+      el('wrBestPR').style.textDecoration = 'none';
+    }
+  }
   const wdiff = thisWorkouts - prevWorkouts;
   const vdiff = Math.round(thisVolume - prevVolume);
   if (el('wrWorkoutsChange')) {

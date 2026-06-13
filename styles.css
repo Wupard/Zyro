@@ -3632,39 +3632,60 @@ html {
   bottom: 28px;
   right: 24px;
   z-index: 9000;
-  width: 58px;
-  height: 58px;
-  border-radius: 19px;
-  background: linear-gradient(135deg, #a396ff 0%, #6b5ce0 50%, #4a3cb0 100%);
-  border: 1.5px solid rgba(255, 255, 255, 0.25);
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #6366f1 0%, #4f46e5 50%, #4338ca 100%);
+  border: 2px solid rgba(255, 255, 255, 0.3);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 8px 32px rgba(139, 124, 247, 0.45), 0 0 0 1px rgba(139, 124, 247, 0.15);
-  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  animation: aiBtnPulse 3s ease-in-out infinite;
+  box-shadow: 0 10px 40px rgba(79, 70, 229, 0.6), inset 0 0 12px rgba(255, 255, 255, 0.4);
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  animation: aiBtnFloat 3s ease-in-out infinite;
   color: #ffffff;
 }
+
+.ai-float-btn-ring, .ai-float-btn-ring-2 {
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  border: 2px solid rgba(99, 102, 241, 0.5);
+  animation: aiBtnRipple 2s linear infinite;
+  pointer-events: none;
+}
+.ai-float-btn-ring-2 {
+  animation-delay: 1s;
+  inset: -2px;
+  border: 2px solid rgba(79, 70, 229, 0.3);
+}
+
 .ai-float-btn:hover {
-  transform: scale(1.1) translateY(-4px);
-  background: linear-gradient(135deg, #b2a8ff 0%, #7c6eff 50%, #5345c7 100%);
-  border-color: rgba(255, 255, 255, 0.45);
-  box-shadow: 0 16px 40px rgba(139, 124, 247, 0.7), 0 0 18px 6px rgba(255, 255, 255, 0.25);
+  transform: scale(1.1) translateY(-6px);
+  background: linear-gradient(135deg, #818cf8 0%, #6366f1 50%, #4f46e5 100%);
+  border-color: rgba(255, 255, 255, 0.6);
+  box-shadow: 0 16px 48px rgba(79, 70, 229, 0.8), 0 0 24px 8px rgba(255, 255, 255, 0.3);
 }
 .ai-float-btn:active {
   transform: scale(0.95);
 }
 .ai-float-btn svg {
-  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  filter: drop-shadow(0 0 8px rgba(255,255,255,0.8));
 }
 .ai-float-btn:hover svg {
-  transform: rotate(25deg) scale(1.15);
+  transform: rotate(45deg) scale(1.2);
 }
-.ai-float-icon {
-  font-size: 1.5rem;
-  color: #ffffff;
-  text-shadow: 0 0 10px rgba(255,255,255,0.8);
+
+@keyframes aiBtnFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+@keyframes aiBtnRipple {
+  0% { transform: scale(0.8); opacity: 1; }
+  100% { transform: scale(1.5); opacity: 0; }
 }
 
 /* ---- AI Sparkle Rotations ---- */

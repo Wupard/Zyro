@@ -2247,12 +2247,17 @@
 
   <!-- ===== FLOATING AI CHAT BUTTON ===== -->
   <button class="ai-float-btn" id="aiFloatBtn" onclick="toggleAIDrawer()" title="AI Asistan" aria-label="AI Asistan ile sohbet et" style="display: none;">
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M12 2C12 2 12.5 7.5 14.5 9.5C16.5 11.5 22 12 22 12C22 12 16.5 12.5 14.5 14.5C12.5 16.5 12 22 12 22C12 22 11.5 16.5 9.5 14.5C7.5 12.5 2 12 2 12C2 12 7.5 11.5 9.5 9.5C11.5 7.5 12 2 12 2Z" fill="url(#ai-sparkle-gradient-btn)"/>
+    <div class="ai-float-btn-ring"></div>
+    <div class="ai-float-btn-ring-2"></div>
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M12 2L13.09 9.26L20 12L13.09 14.74L12 22L10.91 14.74L4 12L10.91 9.26L12 2Z" fill="url(#ai-premium-grad)"/>
+      <path d="M20 4L20.54 5.63L22 6L20.54 6.37L20 8L19.46 6.37L18 6L19.46 5.63L20 4Z" fill="url(#ai-premium-grad)"/>
+      <path d="M5 18L5.54 19.63L7 20L5.54 20.37L5 22L4.46 20.37L3 20L4.46 19.63L5 18Z" fill="url(#ai-premium-grad)"/>
       <defs>
-        <linearGradient id="ai-sparkle-gradient-btn" x1="2" y1="2" x2="22" y2="22" gradientUnits="userSpaceOnUse">
-          <stop offset="0%" stop-color="#ffffff" />
-          <stop offset="100%" stop-color="#d9d4ff" />
+        <linearGradient id="ai-premium-grad" x1="2" y1="2" x2="22" y2="22" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stop-color="#ffffff"/>
+          <stop offset="50%" stop-color="#e0e7ff"/>
+          <stop offset="100%" stop-color="#c7d2fe"/>
         </linearGradient>
       </defs>
     </svg>
