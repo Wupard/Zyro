@@ -8007,7 +8007,7 @@ function renderWeeklyReport() {
           });
           exCount += uniqueEx.size;
         }
-        showToast(\`Bu hafta \${topMuscle[0]} için \${exCount} farklı hareket ile toplam \${sets} set atıldı.\`, 'info');
+        showToast(`Bu hafta ${topMuscle[0]} için ${exCount} farklı hareket ile toplam ${sets} set atıldı.`, 'info');
       };
     } else {
       el('wrTopMuscle').onclick = null;
@@ -8018,12 +8018,12 @@ function renderWeeklyReport() {
 
   if (el('wrBestPR')) {
     if (bestPRWeight > 0) {
-      el('wrBestPR').textContent = \`\${bestPRWeight} kg\`;
+      el('wrBestPR').textContent = `${bestPRWeight} kg`;
       el('wrBestPR').style.cursor = 'pointer';
       el('wrBestPR').style.textDecoration = 'underline';
       el('wrBestPR').style.textDecorationStyle = 'dotted';
       el('wrBestPR').onclick = () => {
-        showToast(\`\${bestPREx}: \${bestPRWeight} kg x \${bestPRReps} tekrar, \${bestPRSets||1} set\`, 'success');
+        showToast(`${bestPREx}: ${bestPRWeight} kg x ${bestPRReps} tekrar, ${bestPRSets||1} set`, 'success');
       };
     } else {
       el('wrBestPR').textContent = '— kg';
