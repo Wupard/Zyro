@@ -7988,51 +7988,55 @@ function renderWeeklyReport() {
   
   if (el('wrTopMuscle')) {
     el('wrTopMuscle').textContent = topMuscle ? topMuscle[0] : '—';
-    if(topMuscle) {
-      el('wrTopMuscle').style.cursor = 'pointer';
-      el('wrTopMuscle').style.textDecoration = 'none';
-      el('wrTopMuscle').onclick = () => {
-        let sets = topMuscle[1];
-        let exCount = 0;
-        for (let i = 0; i < 7; i++) {
-          const d = new Date(monday); d.setDate(d.getDate() + i);
-          const logs = appData.workoutLogs[dateStr(d)] || [];
-          const uniqueEx = new Set();
-          logs.forEach(l => {
-            const ex = (l.exercise||'').toLowerCase();
-            let m = 'Diğer';
-            if (ex.includes('bench')||ex.includes('chest')||ex.includes('fly')||ex.includes('pec')) m='Göğüs';
-            else if (ex.includes('pull')||ex.includes('row')||ex.includes('lat')||ex.includes('back')) m='Sırt';
-            else if (ex.includes('press')||ex.includes('lateral')||ex.includes('shoulder')||ex.includes('overhead')) m='Omuz';
-            else if (ex.includes('squat')||ex.includes('leg')||ex.includes('lunge')||ex.includes('deadlift')) m='Bacak';
-            else if (ex.includes('curl')||ex.includes('bicep')) m='Biceps';
-            else if (ex.includes('tricep')||ex.includes('pushdown')||ex.includes('kickback')) m='Triceps';
-            if(m === topMuscle[0]) uniqueEx.add(l.exercise);
-          });
-          exCount += uniqueEx.size;
-        }
-        showWeeklyMusclePopup(topMuscle[0], exCount, sets);
-      };
-    } else {
-      el('wrTopMuscle').onclick = null;
-      el('wrTopMuscle').style.cursor = 'default';
-      el('wrTopMuscle').style.textDecoration = 'none';
+    const topMuscleBox = el('wrTopMuscle').parentElement;
+    if(topMuscleBox) {
+      if(topMuscle) {
+        topMuscleBox.style.cursor = 'pointer';
+        topMuscleBox.onclick = () => {
+          let sets = topMuscle[1];
+          let exCount = 0;
+          for (let i = 0; i < 7; i++) {
+            const d = new Date(monday); d.setDate(d.getDate() + i);
+            const logs = appData.workoutLogs[dateStr(d)] || [];
+            const uniqueEx = new Set();
+            logs.forEach(l => {
+              const ex = (l.exercise||'').toLowerCase();
+              let m = 'Diğer';
+              if (ex.includes('bench')||ex.includes('chest')||ex.includes('fly')||ex.includes('pec')) m='Göğüs';
+              else if (ex.includes('pull')||ex.includes('row')||ex.includes('lat')||ex.includes('back')) m='Sırt';
+              else if (ex.includes('press')||ex.includes('lateral')||ex.includes('shoulder')||ex.includes('overhead')) m='Omuz';
+              else if (ex.includes('squat')||ex.includes('leg')||ex.includes('lunge')||ex.includes('deadlift')) m='Bacak';
+              else if (ex.includes('curl')||ex.includes('bicep')) m='Biceps';
+              else if (ex.includes('tricep')||ex.includes('pushdown')||ex.includes('kickback')) m='Triceps';
+              if(m === topMuscle[0]) uniqueEx.add(l.exercise);
+            });
+            exCount += uniqueEx.size;
+          }
+          showWeeklyMusclePopup(topMuscle[0], exCount, sets);
+        };
+      } else {
+        topMuscleBox.onclick = null;
+        topMuscleBox.style.cursor = 'default';
+      }
     }
   }
 
   if (el('wrBestPR')) {
+    const bestPRBox = el('wrBestPR').parentElement;
     if (bestPRWeight > 0) {
       el('wrBestPR').textContent = `${bestPRWeight} kg`;
-      el('wrBestPR').style.cursor = 'pointer';
-      el('wrBestPR').style.textDecoration = 'none';
-      el('wrBestPR').onclick = () => {
-        showWeeklyPRPopup(bestPREx, bestPRWeight, bestPRSets||1, bestPRReps);
-      };
+      if (bestPRBox) {
+        bestPRBox.style.cursor = 'pointer';
+        bestPRBox.onclick = () => {
+          showWeeklyPRPopup(bestPREx, bestPRWeight, bestPRSets||1, bestPRReps);
+        };
+      }
     } else {
       el('wrBestPR').textContent = '— kg';
-      el('wrBestPR').onclick = null;
-      el('wrBestPR').style.cursor = 'default';
-      el('wrBestPR').style.textDecoration = 'none';
+      if (bestPRBox) {
+        bestPRBox.onclick = null;
+        bestPRBox.style.cursor = 'default';
+      }
     }
   }
   const wdiff = thisWorkouts - prevWorkouts;
