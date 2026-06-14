@@ -1002,7 +1002,14 @@ function initAuth(){
         overlay.classList.add('hidden');
         if (aiBtn) aiBtn.style.display = 'flex';
         updateUserUI(user);
-        loadData(()=>refreshAllViews());
+        loadData(()=>{
+          refreshAllViews();
+          setTimeout(() => {
+            if (typeof window.checkAndPromptPushNotifications === 'function') {
+              window.checkAndPromptPushNotifications();
+            }
+          }, 2500);
+        });
       } else {
         console.log('No user signed in');
         overlay.classList.remove('hidden');
@@ -8508,7 +8515,94 @@ window.handleAuthStateChange = function(user) {
 };
 
 window.checkAndPromptPushNotifications = function() {
-  // Mobile push disabled by user request. Only site UI notifications will be used.
+  if (!currentUser) return; // Only prompt if logged in
+  if (!('Notification' in window)) return;
+  
+  if (Notification.permission !== 'granted') {
+    // Check if dismissed within the last 7 days
+    const lastPromptTime = localStorage.getItem('zyro_notif_prompt_time');
+    const sevenDays = 7 * 24 * 60 * 60 * 1000;
+    if (lastPromptTime && (Date.now() - parseInt(lastPromptTime) < sevenDays)) {
+      return;
+    }
+    
+    // Show the custom modal!
+    const modal = document.getElementById('notificationPromptModal');
+    if (modal) {
+      // Set localized texts
+      const titleEl = document.getElementById('notifPromptTitle');
+      const descEl = document.getElementById('notifPromptDesc');
+      const btnAllowEl = document.getElementById('notifPromptBtnAllow');
+      const btnLaterEl = document.getElementById('notifPromptBtnLater');
+      
+      if (Notification.permission === 'denied') {
+        // If denied, they need to manually enable in browser settings
+        if (currentLang === 'tr') {
+          titleEl.textContent = 'Bildirim İzni Gerekli';
+          descEl.textContent = 'Tarayıcı ayarlarınızda bildirimler engellenmiş. Güncellemeler ve hatırlatıcıları alabilmek için lütfen adres çubuğundaki kilit simgesine tıklayarak bildirimlere manuel olarak izin verin.';
+          btnAllowEl.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></svg> <span>Nasıl Etkinleştirilir?</span>`;
+          window._notifDeniedAction = () => {
+            showToast(currentLang === 'tr' ? 'Lütfen adres çubuğundaki kilit simgesinden izinleri açın.' : 'Please enable notifications via the lock icon in the address bar.', 'info');
+          };
+          btnLaterEl.textContent = 'Kapat';
+        } else {
+          titleEl.textContent = 'Notification Permission Required';
+          descEl.textContent = 'Notifications are blocked in your browser settings. To receive updates and reminders, please click the lock icon in the address bar and manually allow notifications.';
+          btnAllowEl.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></svg> <span>How to Enable?</span>`;
+          window._notifDeniedAction = () => {
+            showToast('Please enable notifications via the lock icon in the address bar.', 'info');
+          };
+          btnLaterEl.textContent = 'Close';
+        }
+      } else {
+        // Default (not yet asked)
+        if (currentLang === 'tr') {
+          titleEl.textContent = 'Bildirimleri Etkinleştirin';
+          descEl.textContent = 'Yeni antrenman programları, güncellemeler ve önemli hatırlatıcıları anında almak için bildirim izinlerini açın.';
+          btnAllowEl.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg> <span>İzin Ver</span>`;
+          window._notifDeniedAction = null;
+          btnLaterEl.textContent = 'Daha Sonra';
+        } else {
+          titleEl.textContent = 'Enable Notifications';
+          descEl.textContent = 'Turn on notification permissions to receive instant updates, personalized training plans, and important reminders.';
+          btnAllowEl.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg> <span>Allow</span>`;
+          window._notifDeniedAction = null;
+          btnLaterEl.textContent = 'Later';
+        }
+      }
+      
+      modal.style.display = 'flex';
+      setTimeout(() => {
+        modal.style.opacity = '1';
+        const card = modal.querySelector('.card');
+        if (card) card.style.transform = 'scale(1)';
+      }, 50);
+    }
+  }
+};
+
+window.closeNotificationPromptModal = function() {
+  localStorage.setItem('zyro_notif_prompt_time', Date.now().toString());
+  const modal = document.getElementById('notificationPromptModal');
+  if (modal) {
+    modal.style.opacity = '0';
+    const card = modal.querySelector('.card');
+    if (card) card.style.transform = 'scale(0.9)';
+    setTimeout(() => {
+      modal.style.display = 'none';
+    }, 300);
+  }
+};
+
+window.approveNotificationPermission = async function() {
+  if (window._notifDeniedAction) {
+    window._notifDeniedAction();
+    return;
+  }
+  window.closeNotificationPromptModal();
+  if (typeof window.requestNotificationPermission === 'function') {
+    await window.requestNotificationPermission(false);
+  }
 };
 
 

@@ -20,34 +20,42 @@ var db = null;
 var messaging = null;
 
 if (isFirebaseConfigured && typeof firebase !== 'undefined') {
-  app = firebase.initializeApp(firebaseConfig);
-  auth = firebase.auth();
-  db = firebase.firestore();
+  app = firebase.apps.length ? firebase.app() : firebase.initializeApp(firebaseConfig);
   
-  if (firebase.messaging.isSupported()) {
-    messaging = firebase.messaging();
+  if (typeof firebase.auth === 'function') {
+    auth = firebase.auth();
   }
-
-  // Enable offline persistence (modern API to avoid deprecation warning)
-  // Note: We wrap this in a try-catch to handle SDK version mismatches gracefully
-  try {
-    db.enablePersistence({ synchronizeTabs: true }).catch((err) => {
-      if (err.code === 'failed-precondition') {
-        console.warn('Firestore persistence: Multiple tabs open, only one can enable persistence.');
-      } else if (err.code === 'unimplemented') {
-        console.warn('Firestore persistence: Browser does not support all features.');
-      } else {
-        console.error('Firestore persistence error:', err);
-      }
-    });
-  } catch (e) {
-    console.warn('Firestore persistence could not be initialized:', e);
+  
+  if (typeof firebase.firestore === 'function') {
+    db = firebase.firestore();
+    
+    // Enable offline persistence (modern API to avoid deprecation warning)
+    // Note: We wrap this in a try-catch to handle SDK version mismatches gracefully
+    try {
+      db.enablePersistence({ synchronizeTabs: true }).catch((err) => {
+        if (err.code === 'failed-precondition') {
+          console.warn('Firestore persistence: Multiple tabs open, only one can enable persistence.');
+        } else if (err.code === 'unimplemented') {
+          console.warn('Firestore persistence: Browser does not support all features.');
+        } else {
+          console.error('Firestore persistence error:', err);
+        }
+      });
+    } catch (e) {
+      console.warn('Firestore persistence could not be initialized:', e);
+    }
+  }
+  
+  if (typeof firebase.messaging === 'function' && firebase.messaging.isSupported()) {
+    messaging = firebase.messaging();
   }
 }
 
-// Also attach to window for extra safety
-window.isFirebaseConfigured = isFirebaseConfigured;
-window.app = app;
-window.auth = auth;
-window.db = db;
-window.messaging = messaging;
+// Also attach to window for extra safety (only if window is defined)
+if (typeof window !== 'undefined') {
+  window.isFirebaseConfigured = isFirebaseConfigured;
+  window.app = app;
+  window.auth = auth;
+  window.db = db;
+  window.messaging = messaging;
+}
