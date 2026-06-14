@@ -5938,7 +5938,12 @@ async function adminLoadDashboardStats() {
     const recentActivity = [];
     const sevenDaysAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
     usersSnap.forEach(doc => {
-      const data = doc.data().data || {};
+      const top = doc.data() || {};
+      const data = top.data || {};
+      const profile = data.profile || top.profile || {};
+      const displayName = profile.displayName || data.userName || top.userName || top.displayName || '';
+      const photoURL = profile.photoURL || top.photoURL || '';
+
       const logs = data.workoutLogs || {};
       const hasRecentLog = Object.keys(logs).some(dateKey => {
         const d = new Date(dateKey);
@@ -5946,7 +5951,8 @@ async function adminLoadDashboardStats() {
       });
       if (hasRecentLog) activeCount++;
       recentActivity.push({
-        name: data.userName || doc.id.slice(0, 8) + '...',
+        name: displayName || doc.id.slice(0, 8) + '...',
+        photoURL: photoURL,
         logs: Object.keys(logs).length,
         uid: doc.id
       });
@@ -5961,15 +5967,21 @@ async function adminLoadDashboardStats() {
       if (topUsers.length === 0) {
         actEl.textContent = 'Henüz aktivite yok.';
       } else {
-        actEl.innerHTML = topUsers.map((u, i) => `
-          <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.05);">
-            <div style="display:flex;align-items:center;gap:10px;">
-              <div style="width:28px;height:28px;border-radius:8px;background:rgba(139,124,247,0.15);display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:800;color:#8b7cf7;">${i+1}</div>
-              <span style="font-size:0.85rem;font-weight:600;color:var(--text-primary);">${u.name}</span>
+        actEl.innerHTML = topUsers.map((u, i) => {
+          const avatarHtml = u.photoURL 
+            ? `<img src="${u.photoURL}" style="width:28px;height:28px;border-radius:50%;object-fit:cover;border:1.5px solid rgba(255,255,255,0.1);flex-shrink:0;" referrerpolicy="no-referrer">` 
+            : `<div style="width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,0.05);border:1.5px solid rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;font-size:0.75rem;flex-shrink:0;">👤</div>`;
+          return `
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.05);">
+              <div style="display:flex;align-items:center;gap:10px;min-width:0;">
+                <div style="width:28px;height:28px;border-radius:8px;background:rgba(139,124,247,0.15);display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:800;color:#8b7cf7;flex-shrink:0;">${i+1}</div>
+                ${avatarHtml}
+                <span style="font-size:0.85rem;font-weight:600;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${u.name}">${u.name}</span>
+              </div>
+              <span style="font-size:0.75rem;color:var(--text-muted);flex-shrink:0;margin-left:10px;">${u.logs} gün kayıt</span>
             </div>
-            <span style="font-size:0.75rem;color:var(--text-muted);">${u.logs} gün kayıt</span>
-          </div>
-        `).join('');
+          `;
+        }).join('');
       }
     }
 
@@ -6024,17 +6036,24 @@ async function adminLoadUsers() {
       const profile = data.profile || top.profile || {};
       const displayName = profile.displayName || data.userName || top.userName || top.displayName || '';
       const email = profile.email || data.email || top.email || '';
+      const photoURL = profile.photoURL || top.photoURL || '';
       let rankKey = email === 'wupard@gmail.com' ? 'kurucu' : (data.userRank || top.userRank || 'default');
       if (rankKey === 'admin') rankKey = 'mod';
       const rankLabel = (typeof RANKS !== 'undefined' && RANKS[rankKey] ? RANKS[rankKey].label : (rankKey || 'Üye'));
+      const avatarHtml = photoURL 
+        ? `<img src="${photoURL}" style="width:36px;height:36px;border-radius:50%;object-fit:cover;border:1.5px solid rgba(255,255,255,0.1);flex-shrink:0;" referrerpolicy="no-referrer">` 
+        : `<div style="width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,0.05);border:1.5px solid rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;font-size:0.95rem;flex-shrink:0;">👤</div>`;
       html += `
         <div style="padding:12px; border-bottom:1px solid var(--border-subtle); display:flex; justify-content:space-between; align-items:center;">
-          <div>
-            <div style="font-weight:800; font-size:0.9rem; color:var(--text-primary);">${displayName || 'İsimsiz Kullanıcı'}</div>
-            <div style="font-size:0.72rem; color:var(--text-tertiary);">${email || doc.id}</div>
-            <div style="font-size:0.7rem; color:var(--text-tertiary);">Rank: ${rankLabel}</div>
+          <div style="display:flex; align-items:center; gap:12px; min-width:0;">
+            ${avatarHtml}
+            <div style="min-width:0;">
+              <div style="font-weight:800; font-size:0.9rem; color:var(--text-primary); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${displayName || 'İsimsiz Kullanıcı'}">${displayName || 'İsimsiz Kullanıcı'}</div>
+              <div style="font-size:0.72rem; color:var(--text-tertiary); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${email || doc.id}</div>
+              <div style="font-size:0.7rem; color:var(--text-tertiary);">Rank: ${rankLabel}</div>
+            </div>
           </div>
-          <button class="btn-small" onclick="adminViewUserDetails('${doc.id}')">Detay</button>
+          <button class="btn-small" onclick="adminViewUserDetails('${doc.id}')" style="flex-shrink:0; margin-left:12px;">Detay</button>
         </div>
       `;
     });
