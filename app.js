@@ -3844,13 +3844,26 @@ function initNotifications() {
       all.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
       
       // Filter out expired notifications, but keep comment replies only if they are unread
-      const filtered = all.filter(n => {
+      let filtered = all.filter(n => {
         if (n.type === 'reply') {
           return !__isNotifRead(n);
         }
         if (n.expiry && Date.now() >= n.expiry) return false;
         return true;
       });
+
+      // De-duplicate: if title and body are identical, only keep the first (most recent) one
+      const seen = new Set();
+      filtered = filtered.filter(n => {
+        const bodyContent = n.body || n.message || '';
+        const uniqueKey = `${n.title || ''}|${bodyContent}`;
+        if (seen.has(uniqueKey)) {
+          return false;
+        }
+        seen.add(uniqueKey);
+        return true;
+      });
+
       activeNotifications = filtered;
       renderNotificationList();
       updateNotifBadge();
@@ -3965,32 +3978,32 @@ function __formatAdminHistoryTarget(item) {
 }
 
 window.markAllNotificationsAsRead = function() {
-  if (!currentUser || activeNotifications.length === 0) return;
-  
-  const unread = activeNotifications.filter(n => !__isNotifRead(n));
-  if (unread.length === 0) {
-    showToast('Tüm bildirimler zaten okundu.', 'info');
-    return;
-  }
+  if (!currentUser) return;
 
-  const broadcastMaxTs = Math.max(0, ...activeNotifications.filter(n => n.scope === 'broadcast').map(n => n.timestamp || 0));
+  // Dismiss broadcasts
+  const broadcasts = activeNotifications.filter(n => n.scope === 'broadcast');
+  const broadcastMaxTs = Math.max(0, ...broadcasts.map(n => n.timestamp || 0));
   if (broadcastMaxTs > 0) __setBroadcastLastRead(broadcastMaxTs);
 
-  const batch = db.batch();
-  unread.filter(n => n.scope !== 'broadcast').forEach(n => {
-    const path = `users/${currentUser.uid}/notifications/${n.id}`;
-    batch.update(db.doc(path), { read: true });
-  });
+  // Fetch and delete all personal notifications
+  db.collection(`users/${currentUser.uid}/notifications`).get().then(snap => {
+    if (snap.empty) {
+      showToast('Tüm bildirimler silindi.', 'success');
+      return;
+    }
 
-  batch.commit().then(() => {
-    showToast('Tüm bildirimler okundu olarak işaretlendi.', 'success');
-    activeNotifications.forEach(n => {
-      if (n.scope === 'personal') n.read = true;
-      if (n.scope === 'broadcast' && (n.timestamp || 0) <= broadcastMaxTs) n.read = true;
+    const batch = db.batch();
+    snap.forEach(doc => {
+      batch.delete(doc.ref);
     });
-    renderNotificationList();
-    updateNotifBadge();
-  }).catch(e => console.error('Batch read mark failed:', e));
+
+    return batch.commit().then(() => {
+      showToast('Tüm bildirimler silindi.', 'success');
+    });
+  }).catch(e => {
+    console.error('Delete all notifications failed:', e);
+    showToast('Bildirimler silinirken hata oluştu.', 'error');
+  });
 };
 
 function renderNotificationList() {
@@ -4038,12 +4051,50 @@ window.deleteNotification = function(id, scope) {
     showToast('Bu işlem için yetkin yok.', 'error');
     return;
   }
-  const path = scope === 'broadcast' ? `notifications/${id}` : `users/${currentUser.uid}/notifications/${id}`;
   
-  if (confirm('Bu bildirimi silmek istediğine emin misin?')) {
-    db.doc(path).delete().then(() => {
+  const target = activeNotifications.find(n => n.id === id && n.scope === scope);
+  if (!target) return;
+
+  if (scope === 'broadcast') {
+    db.doc(`notifications/${id}`).delete().then(() => {
       showToast('Bildirim silindi.', 'success');
     }).catch(e => console.error('Delete notif failed:', e));
+  } else {
+    const targetBody = target.body || target.message || '';
+    
+    // Query and delete all matching duplicates from Firestore
+    db.collection(`users/${currentUser.uid}/notifications`)
+      .where('title', '==', target.title)
+      .get()
+      .then(snap => {
+        const batch = db.batch();
+        let deletedCount = 0;
+        snap.forEach(doc => {
+          const d = doc.data();
+          const bodyContent = d.body || d.message || '';
+          if (bodyContent === targetBody) {
+            batch.delete(doc.ref);
+            deletedCount++;
+          }
+        });
+        if (deletedCount > 0) {
+          return batch.commit().then(() => {
+            showToast('Bildirim silindi.', 'success');
+          });
+        } else {
+          // Fallback if not found
+          return db.doc(`users/${currentUser.uid}/notifications/${id}`).delete().then(() => {
+            showToast('Bildirim silindi.', 'success');
+          });
+        }
+      })
+      .catch(e => {
+        console.error('Delete notification failed:', e);
+        // Fallback delete
+        db.doc(`users/${currentUser.uid}/notifications/${id}`).delete().then(() => {
+          showToast('Bildirim silindi.', 'success');
+        }).catch(err => console.error('Fallback delete failed:', err));
+      });
   }
 };
 
@@ -4142,7 +4193,6 @@ window.openNotifFromList = function(id, scope) {
 
   // Direct navigation for comment replies
   if (n.type === 'reply' || n.link === 'comments') {
-    if (typeof toggleNotifDrawer === 'function') toggleNotifDrawer();
     const targetId = n.targetCommentId || n.relatedCommentId || null;
     if (targetId) {
       window.pendingCommentHighlightId = targetId;
@@ -4180,7 +4230,6 @@ window.goNotifDetailToComments = function() {
   closeNotifDetailModal();
   if (n && n.link) {
     navigateTo(n.link);
-    if (typeof toggleNotifDrawer === 'function') toggleNotifDrawer();
   }
 };
 
@@ -5519,9 +5568,17 @@ function displayComments(comments) {
           el.scrollIntoView({ behavior: 'smooth', block: 'center' });
           el.classList.add('comment-highlight');
           setTimeout(() => el.classList.remove('comment-highlight'), 3000);
+          
+          // Also highlight the parent comment if it exists
+          const parentComment = el.closest('.comment-item');
+          if (parentComment && parentComment !== el) {
+            parentComment.classList.add('parent-comment-highlight');
+            setTimeout(() => parentComment.classList.remove('parent-comment-highlight'), 3000);
+          }
+          
           window.pendingCommentHighlightId = null; // clear after scroll
         }
-      }, 300);
+      }, 600); // 600ms ensures page transition is fully completed
     }
 
   } catch (e) {
