@@ -2124,15 +2124,224 @@ textarea,
 }
 
 /* ===========================
-   USER RANK BADGE IN SIDEBAR
+   SIDEBAR USER CARD
    =========================== */
-#userRankInfo {
-  margin-bottom: 1px;
+#sidebarUserCard {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
+  background: #1A1A2E;
+  border: 1px solid rgba(255,255,255,0.05);
+  border-radius: 16px;
+  position: relative;
+  overflow: hidden;
 }
+
+/* Top row: avatar + info + logout */
+.sidebar-top-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+}
+
+/* Avatar */
+.user-avatar {
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  border-radius: 14px;
+  font-size: 1.15rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(139,124,247,0.15);
+  color: var(--accent-primary);
+  font-weight: 800;
+  border: 1px solid rgba(139,124,247,0.25);
+  box-shadow: 0 0 12px rgba(139,124,247,0.15);
+  overflow: hidden;
+}
+
+/* Name + Rank column */
+.sidebar-user-info {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  flex: 1;
+  min-width: 0;
+  justify-content: center;
+}
+
+.sidebar-user-name {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #ffffff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1;
+}
+
+.sidebar-badge-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.sidebar-rank-badge {
+  font-size: 0.6rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #94A3B8;
+  background: rgba(148,163,184,0.1);
+  padding: 3px 6px;
+  border-radius: 4px;
+  display: inline-block;
+  line-height: 1;
+  border: 1px solid rgba(148,163,184,0.15);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 120px;
+}
+
+.sidebar-user-status {
+  font-size: 0.65rem;
+  font-weight: 600;
+  line-height: 1;
+}
+
+/* Logout button */
+.signout-btn {
+  flex-shrink: 0;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 7px;
+  border-radius: 10px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.signout-btn:hover {
+  background: rgba(239,68,68,0.1);
+  color: #ff6b6b;
+  border-color: rgba(239,68,68,0.2);
+}
+
+/* Level + XP bar */
+#sidebarLevelWrap {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.sidebar-level-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+#sidebarLevelBadge {
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: #c1b6ff;
+  background: rgba(139,124,247,0.15);
+  padding: 2px 8px;
+  border-radius: 6px;
+  letter-spacing: 0.3px;
+  line-height: 1;
+}
+
+.sidebar-xp-label {
+  font-size: 0.55rem;
+  font-weight: 700;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  line-height: 1;
+}
+
+.sidebar-xp-track {
+  height: 6px;
+  background: rgba(0,0,0,0.4);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+#sidebarLevelBar {
+  height: 100%;
+  background: linear-gradient(90deg, #6C3FC5, #9B59B6);
+  border-radius: 3px;
+  width: 0%;
+  transition: width 0.8s ease;
+}
+
+/* Legacy .user-info (keep for compatibility) */
 .user-info {
   display: flex;
   flex-direction: column;
   gap: 2px;
+}
+
+/* ---- Mobile optimisation ---- */
+@media (max-width: 768px) {
+  #sidebarUserCard {
+    padding: 10px;
+    border-radius: 14px;
+    gap: 8px;
+  }
+  .user-avatar {
+    width: 40px;
+    height: 40px;
+    font-size: 1rem;
+    border-radius: 12px;
+  }
+  .sidebar-user-name {
+    font-size: 0.85rem;
+  }
+  .sidebar-rank-badge {
+    font-size: 0.55rem;
+    padding: 2px 5px;
+    max-width: 90px;
+  }
+  .sidebar-user-info {
+    gap: 5px;
+  }
+}
+
+@media (max-width: 480px) {
+  #sidebarUserCard {
+    padding: 9px;
+    border-radius: 12px;
+  }
+  .user-avatar {
+    width: 36px;
+    height: 36px;
+    font-size: 0.9rem;
+    border-radius: 10px;
+  }
+  .sidebar-user-name {
+    font-size: 0.8rem;
+  }
+  .sidebar-rank-badge {
+    font-size: 0.5rem;
+    padding: 2px 4px;
+    max-width: 80px;
+  }
+  #sidebarLevelBadge {
+    font-size: 0.6rem;
+    padding: 2px 6px;
+  }
+  .sidebar-xp-label {
+    font-size: 0.5rem;
+  }
 }
 
 /* ===========================

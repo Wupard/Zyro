@@ -962,6 +962,11 @@ function loadData(cb){
          if(cb) cb();
          refreshAllViews();
          if (typeof syncPublicStats === 'function') syncPublicStats();
+         
+         // Trigger level up toasts initialization now that server sync is complete
+         if (typeof window.enableLevelUpToasts === 'function') {
+           window.enableLevelUpToasts();
+         }
       } else {
          // Eğer sunucuda (hesapta) hiç veri yoksa, ilk giriş demektir: Local veriyi sunucuya gönder
          docRef.set({ 
@@ -973,10 +978,20 @@ function loadData(cb){
          if(cb) cb();
          refreshAllViews();
          if (typeof syncPublicStats === 'function') syncPublicStats();
+         
+         // Trigger level up toasts initialization now that server sync is complete
+         if (typeof window.enableLevelUpToasts === 'function') {
+           window.enableLevelUpToasts();
+         }
       }
     }, err => {
       console.error("Firebase Sync Error:", err);
       if(cb) cb();
+      
+      // Fallback: enable toasts if sync fails
+      if (typeof window.enableLevelUpToasts === 'function') {
+        window.enableLevelUpToasts();
+      }
     });
   } else {
     if(cb) cb();
@@ -1002,6 +1017,10 @@ function initAuth(){
         overlay.classList.add('hidden');
         if (aiBtn) aiBtn.style.display = 'flex';
         updateUserUI(user);
+        
+        // Reset app readiness to prevent guest-to-user level comparison
+        window.zyroAppReady = false;
+        
         loadData(()=>{
           refreshAllViews();
           initNotifications(); // 2.5: Initialize notifications system
@@ -1015,6 +1034,11 @@ function initAuth(){
         console.log('No user signed in');
         overlay.classList.remove('hidden');
         if (aiBtn) aiBtn.style.display = 'none';
+        
+        // No user is signed in: we are in guest/local mode
+        if (typeof window.enableLevelUpToasts === 'function') {
+          window.enableLevelUpToasts();
+        }
       }
     });
 
@@ -3729,22 +3753,13 @@ document.addEventListener('DOMContentLoaded',()=>{
     initNotifications(); // 2.5: Initialize notifications system
     // Update sidebar after data load
     if(currentUser) updateUserUI(currentUser);
-    // Mark app as ready: level-up toasts will fire after this point
-    // First capture the current level as baseline (no toast)
-    if (typeof calculateXP === 'function' && typeof calculateLevel === 'function') {
-      const _xp = calculateXP();
-      const _lvl = calculateLevel(_xp);
-      window.zyroSessionLevel = _lvl;
-    }
-    // Small delay to allow Firebase realtime sync to settle before enabling toasts
-    setTimeout(() => {
-      window.zyroAppReady = true;
-      // Silently scan ALL workout history and unlock any missed achievements
-      // (no popup on startup — only popups when a NEW achievement is just earned)
-      if (typeof checkAllAchievementsFromLogs === 'function') {
-        _silentAchievementScan();
+    
+    // Enable level-up toasts on startup if Firebase is not configured
+    if (!window.isFirebaseConfigured) {
+      if (typeof window.enableLevelUpToasts === 'function') {
+        window.enableLevelUpToasts();
       }
-    }, 3000);
+    }
   });
 });
 
@@ -9179,6 +9194,20 @@ function updateLevelUI() {
   window.zyroSessionLevel = level;
   localStorage.setItem('zyro_level', level);
 }
+
+window.enableLevelUpToasts = function() {
+  if (window.zyroAppReady) return;
+  if (typeof _silentAchievementScan === 'function') {
+    _silentAchievementScan();
+  }
+  if (typeof calculateXP === 'function' && typeof calculateLevel === 'function') {
+    const xp = calculateXP();
+    const lvl = calculateLevel(xp);
+    window.zyroSessionLevel = lvl;
+  }
+  window.zyroAppReady = true;
+  console.log("Level up toasts enabled. Session level baseline:", window.zyroSessionLevel);
+};
 
 // =============================================
 // 1RM CALCULATOR
