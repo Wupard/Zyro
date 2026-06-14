@@ -4073,6 +4073,20 @@ function showPersistentBanner(data) {
   banner.classList.remove('notif-banner-out');
   banner.dataset.notifId = data.id || '';
   banner.dataset.temp = '';
+
+  // Auto-hide persistent banner after 4s as well so it doesn't block the UI forever
+  clearTimeout(window.notifBannerTimer);
+  window.notifBannerTimer = setTimeout(() => {
+    if (banner.dataset.notifId === data.id && !banner.dataset.temp) {
+      banner.classList.remove('notif-banner-in');
+      banner.classList.add('notif-banner-out');
+      setTimeout(() => {
+        if (banner.dataset.notifId === data.id && !banner.dataset.temp) {
+          banner.style.display = 'none';
+        }
+      }, 400);
+    }
+  }, 4000);
 }
 
 function showSystemNotification(data) {
@@ -4089,8 +4103,9 @@ function showSystemNotification(data) {
   banner.classList.remove('notif-banner-out');
   banner.dataset.temp = 'true';
   
-  // Auto-hide after 10s
-  setTimeout(() => {
+  // Auto-hide after 4s
+  clearTimeout(window.notifBannerTimer);
+  window.notifBannerTimer = setTimeout(() => {
     if (banner.dataset.temp === 'true') {
       banner.classList.remove('notif-banner-in');
       banner.classList.add('notif-banner-out');
@@ -4101,7 +4116,7 @@ function showSystemNotification(data) {
         }
       }, 400);
     }
-  }, 10000);
+  }, 4000);
 }
 
 let __pendingNotifDetail = null;
@@ -4177,6 +4192,7 @@ window.markAsRead = function(id, scope) {
 window.closeNotifBanner = function() {
   const banner = document.getElementById('notifBanner');
   if (banner) {
+    clearTimeout(window.notifBannerTimer);
     banner.classList.remove('notif-banner-in');
     banner.classList.add('notif-banner-out');
     setTimeout(() => {
