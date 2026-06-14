@@ -11,8 +11,8 @@ window.onerror = function(message, source, lineno, colno, error) {
 };
 
 // =============================================
-// TRANSLATIONS
-// =============================================const I18N = {
+// =============================================
+const I18N = {
   en: {
     authSubtitle: 'Personal Development Dashboard',
     signInGoogle: 'Sign in with Google',
@@ -8040,6 +8040,8 @@ window.saveProfileAchievements = async function() {
     }
   }
 };
+
+window.renderPasswordSection = function() {
   const section = document.getElementById('passwordSection');
   if (!section || !currentUser) return;
   
@@ -8149,69 +8151,7 @@ window.setNewPassword = async function() {
     console.error('Password set error:', err);
     showToast((currentLang === 'tr' ? 'Şifre belirlenemedi: ' : 'Failed to set password: ') + err.message, 'error');
   }
-};  
-  if (newPass !== confirmPass) {
-    showToast('Yeni şifreler eşleşmiyor.', 'error');
-    return;
-  }
-  
-  if (newPass.length < 6) {
-    showToast('�?ifre en az 6 karakter olmalıdır.', 'error');
-    return;
-  }
-  
-  try {
-    // Re-authenticate first
-    const credential = firebase.auth.EmailAuthProvider.credential(currentUser.email, currentPass);
-    await currentUser.reauthenticateWithCredential(credential);
-    
-    // Update password
-    await currentUser.updatePassword(newPass);
-    
-    document.getElementById('currentPassword').value = '';
-    document.getElementById('newPassword').value = '';
-    document.getElementById('confirmPassword').value = '';
-    
-    showToast('Şifre başarıyla değiştirildi!', 'success');
-  } catch (err) {
-    console.error('Password change error:', err);
-    showToast('Şifre değiştirilemedi: ' + err.message, 'error');
-  }
-};
-
-window.setNewPassword = async function() {
-  const newPass = document.getElementById('newPassword').value;
-  const confirmPass = document.getElementById('confirmPassword').value;
-  
-  if (!newPass || !confirmPass) {
-    showToast('Lütfen tüm alanları doldurun.', 'error');
-    return;
-  }
-  
-  if (newPass !== confirmPass) {
-    showToast('�?ifreler eşleşmiyor.', 'error');
-    return;
-  }
-  
-  if (newPass.length < 6) {
-    showToast('�?ifre en az 6 karakter olmalıdır.', 'error');
-    return;
-  }
-  
-  try {
-    await currentUser.updatePassword(newPass);
-    
-    document.getElementById('newPassword').value = '';
-    document.getElementById('confirmPassword').value = '';
-    
-    showToast('Şifre başarıyla belirlendi!', 'success');
-  } catch (err) {
-    console.error('Password set error:', err);
-    showToast('Şifre belirlenemedi: ' + err.message, 'error');
-  }
-};
-
-window.checkPushNotificationStatus = async function() {
+};window.checkPushNotificationStatus = async function() {
   const statusEl = document.getElementById('pushNotificationStatus');
   const btnEl = document.getElementById('btnEnablePush');
   
