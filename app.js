@@ -8472,9 +8472,13 @@ window.requestNotificationPermission = async function(silent = false) {
       });
       
       if (token && currentUser) {
-        await db.collection('users').doc(currentUser.uid).update({
-          'data.profile.fcmToken': token
-        });
+        await db.collection('users').doc(currentUser.uid).set({
+          data: {
+            profile: {
+              fcmToken: token
+            }
+          }
+        }, { merge: true });
         if (appData && appData.profile) appData.profile.fcmToken = token;
         if (!silent) showToast(t('notificationsEnabledSuccess'), 'success');
       }

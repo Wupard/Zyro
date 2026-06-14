@@ -24,6 +24,7 @@ if (typeof firebase !== 'undefined' && firebaseConfig) {
         body: payload.notification.body,
         icon: '/favicon.svg',
         badge: '/favicon.svg',
+        requireInteraction: true,
         data: payload.data
       };
     
