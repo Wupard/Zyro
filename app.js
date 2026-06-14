@@ -624,7 +624,7 @@ const EXERCISE_CATEGORIES = {
 };
 
 const RANKS = {
-  'kurucu': { label: 'KURUCU', color: '#EF4444', bg: 'rgba(239, 68, 68, 0.15)', canAdmin: true },
+  'kurucu': { label: 'KURUCU', color: '#ffcccc', bg: '#7B1C1C', canAdmin: true },
   'mod': { label: 'MOD', color: '#FFD700', bg: 'rgba(255, 215, 0, 0.15)', canAdmin: true },
   'premium': { label: 'PREMIUM', color: '#3B82F6', bg: 'rgba(59, 130, 246, 0.15)', canAdmin: false },
   'mal': { label: 'MAL', color: '#EF4444', bg: 'rgba(239, 68, 68, 0.15)', canAdmin: false },
