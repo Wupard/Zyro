@@ -1503,9 +1503,11 @@ textarea:not(.note-input) { resize: none !important; min-height: 80px; max-heigh
   background: rgba(255,255,255,0.03); border: 1px solid var(--border-subtle); 
   border-radius: var(--radius-sm); padding: 8px 4px; display: flex; flex-direction: column; 
   align-items: center; justify-content: center; gap: 4px; font-size: 0.75rem; color: var(--text-tertiary);
-  transition: all var(--t-base); min-height: 48px;
+  transition: all var(--t-base); min-height: 48px; position: relative;
 }
 .tracker-day.done { background: rgba(139,124,247,0.15); border-color: var(--accent-primary); color: var(--text-primary); }
+.tracker-day.missed { background: rgba(239, 68, 68, 0.08); border-color: rgba(239, 68, 68, 0.2); color: rgba(239, 68, 68, 0.6); }
+.tracker-day.future { opacity: 0.4; background: transparent; border-style: dashed; }
 .tracker-check { font-weight: bold; color: var(--accent-primary); font-size: 0.9rem; }
 
 .stats-pill-btn {

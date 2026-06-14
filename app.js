@@ -2293,30 +2293,58 @@ window.completeDay = function(type, tab) {
 // =============================================
 // LOGGED EXERCISES & MONTHLY TRACKER
 // =============================================
+let currentTrackerDate = new Date();
+
+window.changeTrackerMonth = function(delta) {
+  currentTrackerDate.setMonth(currentTrackerDate.getMonth() + delta);
+  renderMonthlyTracker();
+};
+
 function renderMonthlyTracker() {
   const container = document.getElementById('monthlyTracker');
   if(!container) return;
-  const now = new Date();
+  const now = currentTrackerDate;
   const y = now.getFullYear(); 
   const m = now.getMonth();
   const daysInMonth = new Date(y, m+1, 0).getDate();
-  const monthName = now.toLocaleString(currentLang==='tr'?'tr-TR':'en-US', { month: 'long' });
+  const monthName = now.toLocaleString(currentLang==='tr'?'tr-TR':'en-US', { month: 'long', year: 'numeric' });
   
-  let wHtml = `<div class="tracker-row"><div class="tracker-title">${currentLang==='tr'?'Spor':'Workout'} - ${monthName}</div><div class="tracker-grid">`;
-  let pHtml = `<div class="tracker-row"><div class="tracker-title">${currentLang==='tr'?'Postür':'Posture'} - ${monthName}</div><div class="tracker-grid">`;
+  const labelEl = document.getElementById('trackerMonthLabel');
+  if(labelEl) labelEl.textContent = monthName;
   
+  let wHtml = `<div class="tracker-row"><div class="tracker-title" style="margin-bottom:4px;">${currentLang==='tr'?'Spor':'Workout'}</div><div class="tracker-grid">`;
+  let pHtml = `<div class="tracker-row" style="margin-top:16px;"><div class="tracker-title" style="margin-bottom:4px;">${currentLang==='tr'?'Postür':'Posture'}</div><div class="tracker-grid">`;
+  
+  const todayDate = new Date();
+  todayDate.setHours(0,0,0,0);
+
   for(let d=1; d<=daysInMonth; d++) {
     const dStr = y + '-' + String(m+1).padStart(2,'0') + '-' + String(d).padStart(2,'0');
+    
+    // Check if future
+    const cellDate = new Date(y, m, d);
+    const isFuture = cellDate > todayDate;
+    
     const comp = (appData.completedDays && appData.completedDays[dStr]) || {};
     
-    // Workout logic: If explicitly completed OR if at least 3 exercises logged
+    // Workout logic: If explicitly completed OR if at least 1 exercise logged
     const workoutLogs = appData.workoutLogs[dStr] || [];
-    const isWorkoutDone = comp.workout || workoutLogs.length >= 3;
+    const isWorkoutDone = comp.workout || workoutLogs.length > 0;
+    
+    let wClass = '';
+    if (isWorkoutDone) wClass = 'done';
+    else if (isFuture) wClass = 'future';
+    else wClass = 'missed';
+
+    let pClass = '';
+    if (comp.posture) pClass = 'done';
+    else if (isFuture) pClass = 'future';
+    else pClass = 'missed';
     
     // Workout cell
-    wHtml += `<div class="tracker-day ${isWorkoutDone?'done':''}"><span>${d}</span>${isWorkoutDone?'<span class="tracker-check">✓</span>':''}</div>`;
+    wHtml += `<div class="tracker-day ${wClass}"><span>${d}</span>${isWorkoutDone?'<span class="tracker-check">✓</span>':''}</div>`;
     // Posture cell
-    pHtml += `<div class="tracker-day ${comp.posture?'done':''}"><span>${d}</span>${comp.posture?'<span class="tracker-check">✓</span>':''}</div>`;
+    pHtml += `<div class="tracker-day ${pClass}"><span>${d}</span>${comp.posture?'<span class="tracker-check">✓</span>':''}</div>`;
   }
   
   wHtml += '</div></div>';
