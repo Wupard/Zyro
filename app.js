@@ -8461,49 +8461,44 @@ window.requestNotificationPermission = async function(silent = false) {
   
   try {
     const permission = await Notification.requestPermission();
-    if (permission === 'granted' && typeof messaging !== 'undefined' && messaging) {
-      let registration = window.swRegistration;
-      if (!registration) {
-        registration = await navigator.serviceWorker.ready;
-      }
-      const token = await messaging.getToken({
-        vapidKey: 'BNtGLNs1qYMrypxB0_QvrrOVjMsI3PsRrZ3mO5WOrVyzrkAhpjiTs_I6wXvUdMzSykLW4NgK-lqltCQOT4m-A-M',
-        serviceWorkerRegistration: registration
-      });
+    if (permission === 'granted') {
+      // Show success toast to the user immediately since permission is granted
+      if (!silent) showToast(t('notificationsEnabledSuccess'), 'success');
       
-      if (token && currentUser) {
-        await db.collection('users').doc(currentUser.uid).set({
-          data: {
-            profile: {
-              fcmToken: token
-            }
+      // Attempt to retrieve FCM Token, but handle any blocks (VPN, AdBlock) silently
+      if (typeof messaging !== 'undefined' && messaging) {
+        try {
+          let registration = window.swRegistration;
+          if (!registration) {
+            registration = await navigator.serviceWorker.ready;
           }
-        }, { merge: true });
-        if (appData && appData.profile) appData.profile.fcmToken = token;
-        if (!silent) showToast(t('notificationsEnabledSuccess'), 'success');
+          const token = await messaging.getToken({
+            vapidKey: 'BNtGLNs1qYMrypxB0_QvrrOVjMsI3PsRrZ3mO5WOrVyzrkAhpjiTs_I6wXvUdMzSykLW4NgK-lqltCQOT4m-A-M',
+            serviceWorkerRegistration: registration
+          });
+          
+          if (token && currentUser) {
+            await db.collection('users').doc(currentUser.uid).set({
+              data: {
+                profile: {
+                  fcmToken: token
+                }
+              }
+            }, { merge: true });
+            if (appData && appData.profile) appData.profile.fcmToken = token;
+          }
+        } catch (fcmErr) {
+          console.warn('FCM Token registration failed (VPN or AdBlocker likely blocking Google services):', fcmErr);
+          // Fall back silently since Firestore-based in-app notifications will still work perfectly.
+        }
       }
     } else if (permission === 'denied') {
       if (!silent) showToast(t('notificationPermissionDenied'), 'error');
     }
   } catch (err) {
-    console.error('FCM Token error:', err);
+    console.error('Notification permission request error:', err);
     if (!silent) {
-      let friendlyMsg = err.message || '';
-      if (err.message && err.message.includes('push service error')) {
-        friendlyMsg = currentLang === 'tr'
-          ? 'Tarayıcı bildirim servisiyle bağlantı kurulamadı. Lütfen VPN veya reklam engelleyicinizi (AdBlock) kapatıp sayfayı yenileyin.'
-          : 'Could not connect to the browser push service. Please disable VPN or AdBlock and reload the page.';
-        
-        // Unregister service workers to clear any corrupted state on next reload
-        if ('serviceWorker' in navigator) {
-          navigator.serviceWorker.getRegistrations().then(registrations => {
-            for (let reg of registrations) {
-              reg.unregister();
-            }
-          }).catch(swErr => console.warn('Could not unregister service workers:', swErr));
-        }
-      }
-      showToast((currentLang === 'tr' ? 'Bildirimler ayarlanamadı: ' : 'Failed to set up notifications: ') + friendlyMsg, 'error');
+      showToast((currentLang === 'tr' ? 'Bildirimler ayarlanamadı: ' : 'Failed to set up notifications: ') + err.message, 'error');
     }
   }
   checkPushNotificationStatus();
