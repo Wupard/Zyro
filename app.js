@@ -2312,11 +2312,14 @@ function renderMonthlyTracker() {
   const labelEl = document.getElementById('trackerMonthLabel');
   if(labelEl) labelEl.textContent = monthName;
   
-  let wHtml = `<div class="tracker-row"><div class="tracker-title" style="margin-bottom:4px;">${currentLang==='tr'?'Spor':'Workout'}</div><div class="tracker-grid">`;
-  let pHtml = `<div class="tracker-row" style="margin-top:16px;"><div class="tracker-title" style="margin-bottom:4px;">${currentLang==='tr'?'Postür':'Posture'}</div><div class="tracker-grid">`;
+  let wHtml = `<div class="tracker-row"><div class="tracker-label">${currentLang==='tr'?'SPOR':'WORKOUT'}</div><div class="tracker-grid">`;
+  let pHtml = `<div class="tracker-divider"></div><div class="tracker-row"><div class="tracker-label">${currentLang==='tr'?'POSTÜR':'POSTURE'}</div><div class="tracker-grid">`;
   
   const todayDate = new Date();
   todayDate.setHours(0,0,0,0);
+
+  const isCurrentMonth = (y === todayDate.getFullYear() && m === todayDate.getMonth());
+  const currentDay = todayDate.getDate();
 
   for(let d=1; d<=daysInMonth; d++) {
     const dStr = y + '-' + String(m+1).padStart(2,'0') + '-' + String(d).padStart(2,'0');
@@ -2324,6 +2327,7 @@ function renderMonthlyTracker() {
     // Check if future
     const cellDate = new Date(y, m, d);
     const isFuture = cellDate > todayDate;
+    const isToday = isCurrentMonth && d === currentDay;
     
     const comp = (appData.completedDays && appData.completedDays[dStr]) || {};
     
@@ -2333,18 +2337,20 @@ function renderMonthlyTracker() {
     
     let wClass = '';
     if (isWorkoutDone) wClass = 'done';
+    else if (isToday) wClass = 'today';
     else if (isFuture) wClass = 'future';
     else wClass = 'missed';
 
     let pClass = '';
     if (comp.posture) pClass = 'done';
+    else if (isToday) pClass = 'today';
     else if (isFuture) pClass = 'future';
     else pClass = 'missed';
     
     // Workout cell
-    wHtml += `<div class="tracker-day ${wClass}"><span>${d}</span>${isWorkoutDone?'<span class="tracker-check">✓</span>':''}</div>`;
+    wHtml += `<div class="tracker-day ${wClass}" onclick="toggleTrackerDay('${dStr}', 'workout')" title="${dStr}"><span>${d}</span>${isWorkoutDone?'<span class="tracker-check">✓</span>':''}</div>`;
     // Posture cell
-    pHtml += `<div class="tracker-day ${pClass}"><span>${d}</span>${comp.posture?'<span class="tracker-check">✓</span>':''}</div>`;
+    pHtml += `<div class="tracker-day ${pClass}" onclick="toggleTrackerDay('${dStr}', 'posture')" title="${dStr}"><span>${d}</span>${comp.posture?'<span class="tracker-check">✓</span>':''}</div>`;
   }
   
   wHtml += '</div></div>';
@@ -2352,6 +2358,24 @@ function renderMonthlyTracker() {
   
   container.innerHTML = wHtml + pHtml;
 }
+
+window.toggleTrackerDay = function(dateStr, type) {
+  if(!appData.completedDays) appData.completedDays = {};
+  if(!appData.completedDays[dateStr]) appData.completedDays[dateStr] = {};
+  
+  const parts = dateStr.split('-');
+  const cellDate = new Date(parts[0], parts[1]-1, parts[2]);
+  const todayDate = new Date();
+  todayDate.setHours(0,0,0,0);
+  if(cellDate > todayDate) {
+    showToast(currentLang === 'tr' ? 'Gelecek günler işaretlenemez!' : 'Cannot toggle future days!', 'error');
+    return;
+  }
+  
+  appData.completedDays[dateStr][type] = !appData.completedDays[dateStr][type];
+  saveData();
+  renderMonthlyTracker();
+};
 
 function renderLoggedExercises(){
   const container=document.getElementById('loggedExercises');

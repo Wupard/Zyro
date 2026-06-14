@@ -840,16 +840,16 @@
         </div>
       </div>
 
-      <section class="card">
-        <div class="card-header" style="display:flex;justify-content:space-between;align-items:center;">
-          <h3 class="card-title">Aylık İlerleme Tablosu</h3>
-          <div style="display:flex;align-items:center;gap:8px;background:rgba(255,255,255,0.05);padding:4px 8px;border-radius:12px;">
+      <section class="card" style="background:#0f0f1a; border:1px solid #1e1e2e; padding:20px; border-radius:12px;">
+        <div class="card-header" style="display:flex;justify-content:space-between;align-items:center; margin-bottom:16px; border-bottom:none; padding-bottom:0;">
+          <h3 class="card-title" style="margin:0;">Aylık İlerleme Tablosu</h3>
+          <div style="display:flex;align-items:center;gap:8px;background:#1e1e2e;padding:4px 8px;border-radius:12px;">
             <button onclick="changeTrackerMonth(-1)" style="background:none;border:none;color:var(--text-secondary);cursor:pointer;padding:4px;">◀</button>
             <span id="trackerMonthLabel" style="font-size:0.85rem;font-weight:700;color:var(--text-primary);min-width:110px;text-align:center;">—</span>
             <button onclick="changeTrackerMonth(1)" style="background:none;border:none;color:var(--text-secondary);cursor:pointer;padding:4px;">▶</button>
           </div>
         </div>
-        <div class="monthly-tracker" id="monthlyTracker" style="padding:16px;"></div>
+        <div class="monthly-tracker" id="monthlyTracker"></div>
       </section>
       <section class="card">
         <div class="card-header">
