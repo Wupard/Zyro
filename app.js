@@ -1104,37 +1104,20 @@ function updateUserUI(user){
   
   // Rank & Profile Display
   if (user) {
-    const rankInfo = document.getElementById('userRankInfo') || document.createElement('div');
-    rankInfo.id = 'userRankInfo';
-    rankInfo.style.fontSize = '0.65rem';
-    rankInfo.style.marginTop = '2px';
-    rankInfo.style.fontWeight = '800';
-    rankInfo.style.letterSpacing = '0.05em';
-    rankInfo.style.display = 'inline-flex';
-    rankInfo.style.padding = '2px 6px';
-    rankInfo.style.borderRadius = '4px';
-    rankInfo.style.marginRight = '6px';
-    
     // Get rank from data
     let userRank = appData.userRank || (isAdmin ? 'mod' : 'default');
     if (userRank === 'admin') userRank = 'mod';
     // kurucu kontrolü — e-posta öncelikli
     if (user && user.email === 'wupard@gmail.com') userRank = 'kurucu';
     const rank = RANKS[userRank] || RANKS.default;
-    rankInfo.textContent = rank.label;
-    rankInfo.style.color = rank.color;
-    rankInfo.style.background = rank.bg;
-    
-    const nameEl = document.getElementById('userName');
-    if (nameEl && !document.getElementById('userRankInfo')) {
-      nameEl.parentNode.style.display = 'flex';
-      nameEl.parentNode.style.alignItems = 'center';
-      nameEl.parentNode.insertBefore(rankInfo, nameEl);
-    } else if (document.getElementById('userRankInfo')) {
-      const ri = document.getElementById('userRankInfo');
-      ri.textContent = rank.label;
-      ri.style.color = rank.color;
-      ri.style.background = rank.bg;
+
+    // Update existing #userRank element in sidebar footer
+    const rankEl = document.getElementById('userRank');
+    if (rankEl) {
+      rankEl.textContent = rank.label;
+      rankEl.style.color = rank.color;
+      rankEl.style.background = rank.bg;
+      rankEl.style.border = `1px solid ${rank.color}40`;
     }
 
     // Ban Check
@@ -1150,11 +1133,12 @@ function updateUserUI(user){
             let rk = userData.userRank;
             if (rk === 'admin') rk = 'mod';
             const updatedRank = RANKS[rk] || RANKS.default;
-            const rankEl = document.getElementById('userRankInfo');
-            if (rankEl) {
-              rankEl.textContent = updatedRank.label;
-              rankEl.style.color = updatedRank.color;
-              rankEl.style.background = updatedRank.bg;
+            const el = document.getElementById('userRank');
+            if (el) {
+              el.textContent = updatedRank.label;
+              el.style.color = updatedRank.color;
+              el.style.background = updatedRank.bg;
+              el.style.border = `1px solid ${updatedRank.color}40`;
             }
           }
           // Sync admin-forced level/XP override
@@ -2163,8 +2147,10 @@ function initLogForm(){
     appData.workoutLogs[td].push({exercise,weight:finalWeight,inputWeight:weight,unit:unit,reps,sets,timestamp:Date.now()});
     appData.attendance[td]=true;
     saveData();renderLoggedExercises();renderAttendance();updateMuscleMap();updateStats();
-    // Check achievements on each log
+    // Check achievements: both instant and full history scan
     checkAchievements(exercise, finalWeight);
+    // Scan ALL logs for missed achievements (e.g. previously logged weights)
+    setTimeout(() => checkAllAchievementsFromLogs(), 500);
     clearFields();
     showToast(currentLang === 'tr' ? 'Egzersiz başarıyla kaydedildi!' : 'Exercise logged successfully!', 'success');
   });
@@ -3119,6 +3105,11 @@ function updateStats(){
   }
   if (volDetail) {
     if (bestProgEx) {
+      // Store bestProgEx name on the card for correct click routing
+      const statCard = document.querySelector('.stat-card--volume');
+      if (statCard) {
+        statCard.onclick = () => showStrengthDetails(bestProgEx.name);
+      }
       const prDate = new Date(bestProgEx.lastUpdated + 'T00:00:00');
       const daysDiff = Math.round((new Date() - prDate) / 86400000);
       const ago = daysDiff === 0 
@@ -3403,7 +3394,17 @@ window.showStrengthDetails = function(targetExercise = null) {
 
 window.closeStrengthDetails = function() {
   document.getElementById('strengthDetailsModal').style.display = 'none';
+  // Also close any open custom dropdowns inside the modal
+  document.querySelectorAll('[data-sdrop]').forEach(el => el.style.display = 'none');
 };
+
+// ESC key closes strength modal
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    const modal = document.getElementById('strengthDetailsModal');
+    if (modal && modal.style.display !== 'none') closeStrengthDetails();
+  }
+});
 
 // =============================================
 // REFRESH
@@ -3565,9 +3566,48 @@ document.addEventListener('DOMContentLoaded',()=>{
       window.zyroSessionLevel = _lvl;
     }
     // Small delay to allow Firebase realtime sync to settle before enabling toasts
-    setTimeout(() => { window.zyroAppReady = true; }, 3000);
+    setTimeout(() => {
+      window.zyroAppReady = true;
+      // Silently scan ALL workout history and unlock any missed achievements
+      // (no popup on startup — only popups when a NEW achievement is just earned)
+      if (typeof checkAllAchievementsFromLogs === 'function') {
+        _silentAchievementScan();
+      }
+    }, 3000);
   });
 });
+
+/**
+ * Sessiz başarım tarama: Tüm log geçmişinden başarımları açar.
+ * Uygulama başlarken çalışır, popup göstermez — zaten kazanılmış ama
+ * veri tabanında kaydedilmemiş başarımları kurtarır.
+ */
+function _silentAchievementScan() {
+  if (!appData.achievements) appData.achievements = {};
+  const maxWeights = {};
+  Object.values(appData.workoutLogs || {}).forEach(dayLogs => {
+    (dayLogs || []).forEach(log => {
+      const ex = log.exercise;
+      const w = parseFloat(log.weight) || 0;
+      if (!maxWeights[ex] || w > maxWeights[ex]) maxWeights[ex] = w;
+    });
+  });
+  let anyNew = false;
+  ACHIEVEMENT_DEFS.forEach(def => {
+    if (!def.exercise) return;
+    if (appData.achievements[def.id]) return;
+    const maxW = maxWeights[def.exercise] || 0;
+    if (maxW >= def.target) {
+      appData.achievements[def.id] = { unlockedAt: Date.now() };
+      anyNew = true;
+    }
+  });
+  if (anyNew) {
+    saveData();
+    if (typeof renderAchievements === 'function') renderAchievements();
+    if (typeof updateLevelUI === 'function') updateLevelUI();
+  }
+}
 
 // =============================================
 // NOTIFICATIONS (2.5) — Banner & Admin
@@ -4256,34 +4296,96 @@ const ACHIEVEMENT_DEFS = ACHIEVEMENT_GROUPS.flatMap(g => g.badges.map(b => ({...
 
 function checkAchievements(exercise, weight) {
   if (!appData.achievements) appData.achievements = {};
-  let anyNew = false;
+  const newlyUnlocked = [];
   ACHIEVEMENT_DEFS.forEach(def => {
     if (!def.exercise) return;
     if (appData.achievements[def.id]) return;
     if (def.exercise === exercise && weight >= def.target) {
       appData.achievements[def.id] = { unlockedAt: Date.now() };
-      anyNew = true;
-      saveData();
-      showAchievementPopup(def);
-      renderAchievements();
-      if(typeof renderProfilePage === 'function') renderProfilePage();
+      newlyUnlocked.push(def);
     }
   });
+  if (newlyUnlocked.length > 0) {
+    saveData();
+    // Show popups sequentially with delay
+    newlyUnlocked.forEach((def, i) => {
+      setTimeout(() => {
+        showAchievementPopup(def);
+        renderAchievements();
+        if (typeof renderProfilePage === 'function') renderProfilePage();
+      }, i * 3500);
+    });
+  }
+}
+
+/**
+ * Tüm workout loglarını tarayarak tüm başarımları kontrol eder.
+ * Her ağırlık kaydedilince ve sayfa yüklenince çağrılır.
+ * Yeni açılan başarımları popup ile gösterir.
+ */
+function checkAllAchievementsFromLogs() {
+  if (!appData.achievements) appData.achievements = {};
+
+  // Build max weight per exercise from all logs
+  const maxWeights = {};
+  Object.values(appData.workoutLogs || {}).forEach(dayLogs => {
+    (dayLogs || []).forEach(log => {
+      const ex = log.exercise;
+      const w = parseFloat(log.weight) || 0;
+      if (!maxWeights[ex] || w > maxWeights[ex]) maxWeights[ex] = w;
+    });
+  });
+
+  const newlyUnlocked = [];
+  ACHIEVEMENT_DEFS.forEach(def => {
+    if (!def.exercise) return; // Streak achievements handled separately
+    if (appData.achievements[def.id]) return; // Already unlocked
+    const maxW = maxWeights[def.exercise] || 0;
+    if (maxW >= def.target) {
+      appData.achievements[def.id] = { unlockedAt: Date.now() };
+      newlyUnlocked.push(def);
+    }
+  });
+
+  if (newlyUnlocked.length > 0) {
+    saveData();
+    // Show each popup sequentially (300ms delay between each)
+    newlyUnlocked.forEach((def, i) => {
+      setTimeout(() => {
+        showAchievementPopup(def);
+      }, i * 3500);
+    });
+    // Re-render achievements page
+    if (typeof renderAchievements === 'function') {
+      setTimeout(() => renderAchievements(), 100);
+    }
+    if (typeof renderProfilePage === 'function') {
+      setTimeout(() => renderProfilePage(), 200);
+    }
+  }
 }
 
 function checkStreakAchievements(streak) {
   if (!appData.achievements) appData.achievements = {};
+  const newlyUnlocked = [];
   ACHIEVEMENT_DEFS.forEach(def => {
     if (def.exercise) return;
     if (appData.achievements[def.id]) return;
     if (streak >= def.target) {
       appData.achievements[def.id] = { unlockedAt: Date.now() };
-      saveData();
-      showAchievementPopup(def);
-      renderAchievements();
-      if(typeof renderProfilePage === 'function') renderProfilePage();
+      newlyUnlocked.push(def);
     }
   });
+  if (newlyUnlocked.length > 0) {
+    saveData();
+    newlyUnlocked.forEach((def, i) => {
+      setTimeout(() => {
+        showAchievementPopup(def);
+        renderAchievements();
+        if (typeof renderProfilePage === 'function') renderProfilePage();
+      }, i * 3500);
+    });
+  }
 }
 
 function showAchievementPopup(def) {
@@ -5818,19 +5920,72 @@ window.adminSendNotificationV2 = async function() {
 };
 
 async function adminLoadDashboardStats() {
+  // Update system date
+  const dateEl = document.getElementById('adminTodayDate');
+  if (dateEl) {
+    const now = new Date();
+    dateEl.textContent = now.toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' });
+  }
+
   if (!db) return;
   try {
     const usersSnap = await db.collection('users').get();
     const uCount = document.getElementById('adminTotalUsers');
     if (uCount) uCount.textContent = usersSnap.size;
-    
+
+    // Count "active" users: those who have any workout log data
+    let activeCount = 0;
+    const recentActivity = [];
+    const sevenDaysAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+    usersSnap.forEach(doc => {
+      const data = doc.data().data || {};
+      const logs = data.workoutLogs || {};
+      const hasRecentLog = Object.keys(logs).some(dateKey => {
+        const d = new Date(dateKey);
+        return d.getTime() >= sevenDaysAgo;
+      });
+      if (hasRecentLog) activeCount++;
+      recentActivity.push({
+        name: data.userName || doc.id.slice(0, 8) + '...',
+        logs: Object.keys(logs).length,
+        uid: doc.id
+      });
+    });
+    const aCount = document.getElementById('adminActiveUsers');
+    if (aCount) aCount.textContent = activeCount;
+
+    // Render recent activity
+    const actEl = document.getElementById('adminRecentActivity');
+    if (actEl) {
+      const topUsers = recentActivity.sort((a, b) => b.logs - a.logs).slice(0, 5);
+      if (topUsers.length === 0) {
+        actEl.textContent = 'Henüz aktivite yok.';
+      } else {
+        actEl.innerHTML = topUsers.map((u, i) => `
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.05);">
+            <div style="display:flex;align-items:center;gap:10px;">
+              <div style="width:28px;height:28px;border-radius:8px;background:rgba(139,124,247,0.15);display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:800;color:#8b7cf7;">${i+1}</div>
+              <span style="font-size:0.85rem;font-weight:600;color:var(--text-primary);">${u.name}</span>
+            </div>
+            <span style="font-size:0.75rem;color:var(--text-muted);">${u.logs} gün kayıt</span>
+          </div>
+        `).join('');
+      }
+    }
+
+    // Today's comments
     const commentsSnap = await db.collection('public_comments')
       .where('date', '==', todayStr())
       .get();
     const cCount = document.getElementById('adminTodayComments');
     if (cCount) cCount.textContent = commentsSnap.size;
+
+    // Update user count badge
+    const ucBadge = document.getElementById('adminUserCount');
+    if (ucBadge) ucBadge.textContent = `${usersSnap.size} kullanıcı`;
   } catch(e) { console.error('Admin stats failed:', e); }
 }
+
 
 window.adminSendNotification = async function() {
   const title = document.getElementById('adminNotifTitle').value.trim();
@@ -6509,7 +6664,7 @@ function renderProgressTracker() {
           <h4 style="margin:0;font-weight:800;color:var(--text-primary);font-size:1rem;">${selectedEx.name}</h4>
         </div>
         ${prHtml}
-        ${weekHtml}
+        ${lastWorkoutHtml}
         ${progressHtml}
       </div>
     `;
@@ -7230,18 +7385,55 @@ window.showStrengthDetailsEnhanced = function(targetExercise = null) {
   const weeklyProjection = (Math.round(weeklyNum * 2) / 2).toFixed(1);
   const monthlyProjection = (Math.round(monthlyNum * 2) / 2).toFixed(1);
 
-  // 5. Render selector
+  // 5. Render selector — custom dropdown (native select causes white screen in dark mode)
   const allExercises = Object.keys(exerciseData).sort();
   let selectorHtml = '';
   if (allExercises.length > 1) {
+    const dropId = 'strengthExDropdown_' + Date.now();
     selectorHtml = `
-      <div style="margin-bottom:16px;">
-        <select onchange="showStrengthDetailsEnhanced(this.value)" style="width:100%; padding:10px; border-radius:10px; background:var(--bg-card-alt); color:var(--text-primary); border:1px solid var(--border-subtle); font-size:0.85rem;">
-          ${allExercises.map(ex => `<option value="${ex}" ${ex === selectedEx ? 'selected' : ''}>${ex}</option>`).join('')}
-        </select>
+      <div style="position:relative; margin-bottom:16px;" id="${dropId}_wrap">
+        <button 
+          id="${dropId}_btn"
+          onclick="(function(btn){
+            var list = document.getElementById('${dropId}_list');
+            var isOpen = list.style.display !== 'none';
+            // close all other dropdowns
+            document.querySelectorAll('[id$=\\'_list\\'][data-sdrop]').forEach(function(el){ el.style.display='none'; });
+            list.style.display = isOpen ? 'none' : 'block';
+            if(!isOpen){
+              setTimeout(function(){
+                function outsideClick(e){
+                  if(!document.getElementById('${dropId}_wrap').contains(e.target)){
+                    list.style.display='none';
+                    document.removeEventListener('click',outsideClick);
+                  }
+                }
+                document.addEventListener('click', outsideClick);
+              },10);
+            }
+          })(this)"
+          style="width:100%; padding:10px 14px; border-radius:10px; background:var(--bg-card-alt); color:var(--text-primary); border:1px solid var(--border-subtle); font-size:0.85rem; cursor:pointer; display:flex; justify-content:space-between; align-items:center; text-align:left;">
+          <span>${selectedEx}</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+        <div 
+          id="${dropId}_list"
+          data-sdrop="1"
+          style="display:none; position:absolute; top:calc(100% + 4px); left:0; right:0; background:var(--bg-card,#1a1a2e); border:1px solid var(--border-subtle); border-radius:10px; z-index:9999; max-height:220px; overflow-y:auto; box-shadow:0 8px 24px rgba(0,0,0,0.6);">
+          ${allExercises.map(ex => `
+            <div 
+              onclick="document.getElementById('${dropId}_list').style.display='none'; document.getElementById('${dropId}_btn').querySelector('span').textContent='${ex.replace(/'/g,"\\'")}'; showStrengthDetailsEnhanced('${ex.replace(/'/g,"\\'")}');"
+              style="padding:10px 14px; font-size:0.85rem; cursor:pointer; color:${ex === selectedEx ? 'var(--accent-primary)' : 'var(--text-primary)'}; background:${ex === selectedEx ? 'rgba(139,124,247,0.1)' : 'transparent'}; transition:background 0.15s;"
+              onmouseenter="this.style.background='rgba(139,124,247,0.12)'"
+              onmouseleave="this.style.background='${ex === selectedEx ? 'rgba(139,124,247,0.1)' : 'transparent'}'">
+              ${ex}
+            </div>
+          `).join('')}
+        </div>
       </div>
     `;
   }
+
 
   // 6. Render stats cards
   const statsHtml = `
