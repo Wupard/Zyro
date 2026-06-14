@@ -1762,6 +1762,104 @@
         <button class="profile-tab-btn" onclick="switchProfileTab('ai', event)">
           <span style="color:var(--accent-primary);">✨</span> <span data-i18n="aiSettings">AI Ayarları</span>
         </button>
+        <button class="profile-tab-btn" onclick="switchProfileTab('theme', event)">
+          <span>🎨</span> Tema
+        </button>
+      </div>
+
+
+      <!-- Tab Content: Theme Settings -->
+      <div id="profileTabTheme" style="display:none;">
+        <section class="card">
+          <div class="card-header">
+            <div style="display:flex;align-items:center;gap:10px;">
+              <div style="width:32px;height:32px;border-radius:10px;background:linear-gradient(135deg,var(--accent-primary),var(--accent-deep));display:flex;align-items:center;justify-content:center;font-size:1rem;">🎨</div>
+              <h3 class="card-title" style="margin:0;">Tema Rengi</h3>
+            </div>
+          </div>
+          <div style="padding:20px;display:flex;flex-direction:column;gap:20px;">
+            <p style="font-size:0.82rem;color:var(--text-secondary);line-height:1.6;">
+              Sitenin genel accent rengini seç. Seçim cihazına kaydedilir.
+            </p>
+
+            <!-- Color Swatches Grid -->
+            <div class="theme-swatches" id="themeSwatches">
+
+              <!-- Mor (Varsayılan) -->
+              <button class="theme-swatch active" id="theme-purple"
+                onclick="applyTheme('purple')"
+                style="--sw:#8b7cf7;">
+                <span class="swatch-dot" style="background:linear-gradient(135deg,#8b7cf7,#5a4cc9);"></span>
+                <span class="swatch-label">Mor</span>
+                <span class="swatch-check">✓</span>
+              </button>
+
+              <!-- Kırmızı -->
+              <button class="theme-swatch" id="theme-red"
+                onclick="applyTheme('red')">
+                <span class="swatch-dot" style="background:linear-gradient(135deg,#f05555,#b91c1c);"></span>
+                <span class="swatch-label">Kırmızı</span>
+                <span class="swatch-check">✓</span>
+              </button>
+
+              <!-- Pembe -->
+              <button class="theme-swatch" id="theme-pink"
+                onclick="applyTheme('pink')">
+                <span class="swatch-dot" style="background:linear-gradient(135deg,#ec4899,#9d174d);"></span>
+                <span class="swatch-label">Pembe</span>
+                <span class="swatch-check">✓</span>
+              </button>
+
+              <!-- Turuncu -->
+              <button class="theme-swatch" id="theme-orange"
+                onclick="applyTheme('orange')">
+                <span class="swatch-dot" style="background:linear-gradient(135deg,#f97316,#c2410c);"></span>
+                <span class="swatch-label">Turuncu</span>
+                <span class="swatch-check">✓</span>
+              </button>
+
+              <!-- Yeşil -->
+              <button class="theme-swatch" id="theme-green"
+                onclick="applyTheme('green')">
+                <span class="swatch-dot" style="background:linear-gradient(135deg,#22c55e,#15803d);"></span>
+                <span class="swatch-label">Yeşil</span>
+                <span class="swatch-check">✓</span>
+              </button>
+
+              <!-- Mavi -->
+              <button class="theme-swatch" id="theme-blue"
+                onclick="applyTheme('blue')">
+                <span class="swatch-dot" style="background:linear-gradient(135deg,#3b82f6,#1d4ed8);"></span>
+                <span class="swatch-label">Mavi</span>
+                <span class="swatch-check">✓</span>
+              </button>
+
+              <!-- Altın -->
+              <button class="theme-swatch" id="theme-gold"
+                onclick="applyTheme('gold')">
+                <span class="swatch-dot" style="background:linear-gradient(135deg,#eab308,#a16207);"></span>
+                <span class="swatch-label">Altın</span>
+                <span class="swatch-check">✓</span>
+              </button>
+
+              <!-- Kahve -->
+              <button class="theme-swatch" id="theme-brown"
+                onclick="applyTheme('brown')">
+                <span class="swatch-dot" style="background:linear-gradient(135deg,#a8714a,#7c4a24);"></span>
+                <span class="swatch-label">Kahve</span>
+                <span class="swatch-check">✓</span>
+              </button>
+
+            </div>
+
+            <!-- Preview bar -->
+            <div style="padding:14px 16px;background:var(--accent-glow);border:1px solid var(--accent-primary);border-radius:12px;display:flex;align-items:center;gap:12px;transition:all 0.4s;" id="themePreviewBar">
+              <div style="width:10px;height:10px;border-radius:50%;background:var(--accent-primary);box-shadow:0 0 8px var(--accent-primary);"></div>
+              <span style="font-size:0.82rem;color:var(--text-secondary);">Seçili tema <strong style="color:var(--accent-primary);" id="themePreviewName">Mor</strong> olarak ayarlandı.</span>
+            </div>
+
+          </div>
+        </section>
       </div>
 
       <!-- Tab Content: AI Settings -->
@@ -2417,6 +2515,147 @@
       </button>
     </div>
   </div>
+
+<script>
+/* ============================================================
+   TEMA RENGİ SİSTEMİ
+   ============================================================ */
+const THEMES = {
+  purple: {
+    name: 'Mor',
+    primary:    '#8b7cf7',
+    secondary:  '#7566e0',
+    deep:       '#5a4cc9',
+    glow:       'rgba(139,124,247,0.14)',
+    glowStrong: 'rgba(139,124,247,0.28)',
+    textAccent: '#b5a8f8',
+    shadow:     '0 0 24px rgba(139,124,247,0.12)',
+  },
+  red: {
+    name: 'Kırmızı',
+    primary:    '#f05555',
+    secondary:  '#d63c3c',
+    deep:       '#b91c1c',
+    glow:       'rgba(240,85,85,0.14)',
+    glowStrong: 'rgba(240,85,85,0.28)',
+    textAccent: '#f99898',
+    shadow:     '0 0 24px rgba(240,85,85,0.12)',
+  },
+  pink: {
+    name: 'Pembe',
+    primary:    '#ec4899',
+    secondary:  '#db2777',
+    deep:       '#9d174d',
+    glow:       'rgba(236,72,153,0.14)',
+    glowStrong: 'rgba(236,72,153,0.28)',
+    textAccent: '#f9a8d4',
+    shadow:     '0 0 24px rgba(236,72,153,0.12)',
+  },
+  orange: {
+    name: 'Turuncu',
+    primary:    '#f97316',
+    secondary:  '#ea6c0a',
+    deep:       '#c2410c',
+    glow:       'rgba(249,115,22,0.14)',
+    glowStrong: 'rgba(249,115,22,0.28)',
+    textAccent: '#fdba74',
+    shadow:     '0 0 24px rgba(249,115,22,0.12)',
+  },
+  green: {
+    name: 'Yeşil',
+    primary:    '#22c55e',
+    secondary:  '#16a34a',
+    deep:       '#15803d',
+    glow:       'rgba(34,197,94,0.14)',
+    glowStrong: 'rgba(34,197,94,0.28)',
+    textAccent: '#86efac',
+    shadow:     '0 0 24px rgba(34,197,94,0.12)',
+  },
+  blue: {
+    name: 'Mavi',
+    primary:    '#3b82f6',
+    secondary:  '#2563eb',
+    deep:       '#1d4ed8',
+    glow:       'rgba(59,130,246,0.14)',
+    glowStrong: 'rgba(59,130,246,0.28)',
+    textAccent: '#93c5fd',
+    shadow:     '0 0 24px rgba(59,130,246,0.12)',
+  },
+  gold: {
+    name: 'Altın',
+    primary:    '#eab308',
+    secondary:  '#ca8a04',
+    deep:       '#a16207',
+    glow:       'rgba(234,179,8,0.14)',
+    glowStrong: 'rgba(234,179,8,0.28)',
+    textAccent: '#fde047',
+    shadow:     '0 0 24px rgba(234,179,8,0.12)',
+  },
+  brown: {
+    name: 'Kahve',
+    primary:    '#a8714a',
+    secondary:  '#8f5c38',
+    deep:       '#7c4a24',
+    glow:       'rgba(168,113,74,0.14)',
+    glowStrong: 'rgba(168,113,74,0.28)',
+    textAccent: '#c9956e',
+    shadow:     '0 0 24px rgba(168,113,74,0.12)',
+  },
+};
+
+function applyTheme(key) {
+  const t = THEMES[key];
+  if (!t) return;
+  const r = document.documentElement;
+  r.style.setProperty('--accent-primary',     t.primary);
+  r.style.setProperty('--accent-secondary',   t.secondary);
+  r.style.setProperty('--accent-deep',        t.deep);
+  r.style.setProperty('--accent-glow',        t.glow);
+  r.style.setProperty('--accent-glow-strong', t.glowStrong);
+  r.style.setProperty('--text-accent',        t.textAccent);
+  r.style.setProperty('--shadow-glow',        t.shadow);
+
+  // swatch active durumu
+  document.querySelectorAll('.theme-swatch').forEach(el => el.classList.remove('active'));
+  const btn = document.getElementById('theme-' + key);
+  if (btn) btn.classList.add('active');
+
+  // preview bar güncelle
+  const pname = document.getElementById('themePreviewName');
+  if (pname) pname.textContent = t.name;
+
+  // localStorage'a kaydet
+  localStorage.setItem('zyro-theme', key);
+}
+
+function loadSavedTheme() {
+  const saved = localStorage.getItem('zyro-theme') || 'purple';
+  applyTheme(saved);
+}
+
+// Sayfa yüklenince temayı uygula
+loadSavedTheme();
+
+// switchProfileTab için theme desteği
+const _origSwitchProfileTab = window.switchProfileTab;
+window.switchProfileTab = function(tab, event) {
+  // Theme tab content göster/gizle
+  const themePanel = document.getElementById('profileTabTheme');
+  if (themePanel) themePanel.style.display = (tab === 'theme') ? 'block' : 'none';
+  if (typeof _origSwitchProfileTab === 'function') {
+    _origSwitchProfileTab(tab, event);
+  } else {
+    // fallback: tab panellerini aç/kapa
+    ['Bio','Achievements','Security','Ai','Theme'].forEach(t => {
+      const el = document.getElementById('profileTab' + t);
+      if (el) el.style.display = (tab === t.toLowerCase()) ? 'block' : 'none';
+    });
+    document.querySelectorAll('.profile-tab-btn').forEach(b => b.classList.remove('active'));
+    if (event && event.currentTarget) event.currentTarget.classList.add('active');
+  }
+};
+</script>
 </body>
+
 
 </html>
