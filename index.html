@@ -234,36 +234,35 @@
       <button class="lang-btn" data-lang="tr">TR</button>
     </div>
 
-    <div class="sidebar-footer" id="sidebar-footer" style="cursor:pointer; display:flex; flex-direction:column; gap:12px; padding:12px; background:rgba(255,255,255,0.02); border-top:1px solid rgba(255,255,255,0.05); border-radius:16px; margin: 0 10px 10px 10px;"
-      onclick="switchPage('profile'); document.getElementById('sidebar').classList.remove('open');">
+    <div class="sidebar-footer" id="sidebar-footer" style="cursor:pointer; display:flex; flex-direction:column; gap:14px; padding:12px 14px; background:rgba(255,255,255,0.02); border-top:1px solid rgba(255,255,255,0.05); border-radius:16px; margin: 0 10px 10px 10px; transition: background 0.2s;"
+      onclick="switchPage('profile'); document.getElementById('sidebar').classList.remove('open');" onmouseenter="this.style.background='rgba(255,255,255,0.04)'" onmouseleave="this.style.background='rgba(255,255,255,0.02)'">
       
-      <!-- Top Row: Avatar, Name, Rank, SignOut -->
-      <div style="display:flex; align-items:center; gap: 10px; width: 100%;">
-        <div class="user-avatar" id="userAvatar" style="width:36px; height:36px; flex-shrink:0; border-radius:10px; font-size:1.2rem;">Z</div>
+      <!-- Top Row: Avatar, Info, SignOut -->
+      <div style="display:flex; align-items:center; width: 100%;">
+        <!-- Avatar -->
+        <div class="user-avatar" id="userAvatar" style="width:38px; height:38px; flex-shrink:0; border-radius:12px; font-size:1.1rem; display:flex; align-items:center; justify-content:center; background:rgba(139,124,247,0.15); color:var(--accent-primary); font-weight:800; border:1px solid rgba(139,124,247,0.2);">Z</div>
         
-        <div class="user-info" style="display:flex; flex-direction:column; align-items:flex-start; text-align:left; justify-content:center; flex:1; min-width: 0;">
-          <div style="display:flex; align-items:center; justify-content:flex-start; gap: 6px; width: 100%;">
-            <span class="user-name" id="userName" style="font-size:0.9rem; font-weight:800; color:var(--text-primary); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Kullanıcı</span>
-          </div>
-          <div style="display:flex; align-items:center; justify-content:flex-start; gap: 6px; margin-top:3px; flex-wrap: wrap; width: 100%;">
-            <span class="user-rank" id="userRank" style="font-size:0.55rem; background:linear-gradient(135deg, var(--accent-deep), var(--accent-primary)); color:white; padding:2px 5px; border-radius:4px; font-weight:800; text-transform:uppercase;">Üye</span>
-            <span class="user-status" id="userStatus" style="display:none;"></span>
-          </div>
+        <!-- Info Column -->
+        <div class="user-info" style="display:flex; align-items:center; justify-content:flex-start; flex:1; min-width: 0; margin-left: 12px; gap: 8px;">
+          <span class="user-name" id="userName" style="font-size:0.95rem; font-weight:700; color:var(--text-primary); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width: 75px; letter-spacing:-0.2px;">Kullanıcı</span>
+          <span class="user-rank" id="userRank" style="font-size:0.55rem; background:linear-gradient(135deg, var(--accent-deep), var(--accent-primary)); color:white; padding:3px 6px; border-radius:6px; font-weight:800; text-transform:uppercase; letter-spacing:0.5px; flex-shrink:0; box-shadow:0 2px 6px rgba(139,124,247,0.25);">Üye</span>
+          <span class="user-status" id="userStatus" style="display:none;"></span>
         </div>
 
-        <button class="signout-btn" id="signOutBtn" title="Çıkış Yap" style="display:none; flex-shrink:0; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); color:var(--text-muted); cursor:pointer; padding:6px; border-radius:8px;">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" /></svg>
+        <!-- Logout Button -->
+        <button class="signout-btn" id="signOutBtn" title="Çıkış Yap" style="display:none; flex-shrink:0; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); color:var(--text-muted); cursor:pointer; padding:7px; border-radius:10px; margin-left:8px; transition:all 0.2s ease;" onmouseenter="this.style.background='rgba(255,255,255,0.08)'; this.style.color='var(--text-primary)';" onmouseleave="this.style.background='rgba(255,255,255,0.04)'; this.style.color='var(--text-muted)';">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="display:block;"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" /></svg>
         </button>
       </div>
 
       <!-- Bottom Row: XP Bar -->
       <div id="sidebarLevelWrap" style="width:100%;">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
-          <span id="sidebarLevelBadge" style="font-size:0.6rem; font-weight:800; color:var(--accent-primary); background:rgba(139,124,247,0.15); padding:2px 6px; border-radius:4px;">Lv.1</span>
-          <span style="font-size:0.5rem; font-weight:700; color:var(--text-tertiary); text-transform:uppercase; letter-spacing:1px;">XP</span>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; padding:0 2px;">
+          <span id="sidebarLevelBadge" style="font-size:0.65rem; font-weight:800; color:var(--accent-primary); background:rgba(139,124,247,0.15); padding:2px 6px; border-radius:5px; letter-spacing:0.3px;">Lv.1</span>
+          <span style="font-size:0.55rem; font-weight:700; color:var(--text-tertiary); text-transform:uppercase; letter-spacing:1px;">XP</span>
         </div>
-        <div style="height:4px; background:rgba(255,255,255,0.06); border-radius:2px; overflow:hidden;">
-          <div id="sidebarLevelBar" style="height:100%; background:linear-gradient(90deg,var(--accent-deep),var(--accent-primary)); border-radius:2px; width:0%; transition:width 0.8s ease;"></div>
+        <div style="height:5px; background:rgba(255,255,255,0.06); border-radius:3px; overflow:hidden;">
+          <div id="sidebarLevelBar" style="height:100%; background:linear-gradient(90deg,var(--accent-deep),var(--accent-primary)); border-radius:3px; width:0%; transition:width 0.8s ease; box-shadow:0 0 8px rgba(139,124,247,0.4);"></div>
         </div>
       </div>
 
