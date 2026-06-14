@@ -1086,9 +1086,13 @@ function updateUserUI(user){
   }
   name.textContent=(user&&user.displayName)?user.displayName.split(' ')[0]:'User';
   if(status) {
-    status.textContent=user?'Senkronize':t('localMode');
-    status.style.color=user?'var(--green-vivid)':'var(--text-tertiary)';
-    status.style.display='inline-block';
+    if (user) {
+      status.style.display = 'none';
+    } else {
+      status.textContent = t('localMode');
+      status.style.color = 'var(--text-tertiary)';
+      status.style.display = 'inline-block';
+    }
   }
   signOutBtn.style.display=user?'flex':'none';
 
@@ -6997,9 +7001,13 @@ function updateUserUI(user){
   
   // Status: "Senkronize" when logged in
   if (status) {
-    status.textContent = user ? 'Senkronize' : 'Yerel Mod';
-    status.style.color = user ? 'var(--green-vivid)' : 'var(--text-tertiary)';
-    status.style.display = 'inline-block';
+    if (user) {
+      status.style.display = 'none';
+    } else {
+      status.textContent = 'Yerel Mod';
+      status.style.color = 'var(--text-tertiary)';
+      status.style.display = 'inline-block';
+    }
   }
   
   if (signOutBtn) signOutBtn.style.display = user ? 'flex' : 'none';
