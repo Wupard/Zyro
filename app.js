@@ -624,7 +624,7 @@ const EXERCISE_CATEGORIES = {
 };
 
 const RANKS = {
-  'kurucu': { label: 'KURUCU', color: '#ffcccc', bg: '#7B1C1C', canAdmin: true },
+  'kurucu': { label: 'KURUCU', color: '#F87171', bg: 'rgba(248, 113, 113, 0.15)', canAdmin: true },
   'mod': { label: 'MOD', color: '#FFD700', bg: 'rgba(255, 215, 0, 0.15)', canAdmin: true },
   'premium': { label: 'PREMIUM', color: '#3B82F6', bg: 'rgba(59, 130, 246, 0.15)', canAdmin: false },
   'mal': { label: 'MAL', color: '#EF4444', bg: 'rgba(239, 68, 68, 0.15)', canAdmin: false },
@@ -1090,7 +1090,7 @@ function updateUserUI(user){
     status.style.color=user?'var(--green-vivid)':'var(--text-tertiary)';
     status.style.display='inline-block';
   }
-  signOutBtn.style.display=user?'block':'none';
+  signOutBtn.style.display=user?'flex':'none';
 
   // Admin Check
   const isAdmin = user && (user.email === 'wupard@gmail.com' || appData.userRank === 'admin' || appData.userRank === 'mod');
@@ -7002,7 +7002,7 @@ function updateUserUI(user){
     status.style.display = 'inline-block';
   }
   
-  if (signOutBtn) signOutBtn.style.display = user ? 'block' : 'none';
+  if (signOutBtn) signOutBtn.style.display = user ? 'flex' : 'none';
 
   // Rank Display
   let userRankKey = appData.userRank || 'default';
