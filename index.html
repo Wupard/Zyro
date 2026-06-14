@@ -270,14 +270,16 @@
               white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
               line-height:1;
             ">Kullanıcı</span>
-            <span id="userRank" style="
-              font-size:0.6rem; font-weight:800; text-transform:uppercase; letter-spacing:0.5px;
-              color:#ffcccc; background:#7B1C1C;
-              padding:3px 6px; border-radius:4px;
-              display:inline-block; line-height:1; align-self:flex-start;
-              border: 1px solid rgba(255,204,204,0.1);
-            ">ÜYE</span>
-            <span class="user-status" id="userStatus" style="display:none;"></span>
+            <div style="display:flex; align-items:center; gap:6px;">
+              <span id="userRank" style="
+                font-size:0.6rem; font-weight:800; text-transform:uppercase; letter-spacing:0.5px;
+                color:#ffcccc; background:#7B1C1C;
+                padding:3px 6px; border-radius:4px;
+                display:inline-block; line-height:1;
+                border: 1px solid rgba(255,204,204,0.1);
+              ">ÜYE</span>
+              <span class="user-status" id="userStatus" style="font-size:0.65rem; font-weight:600; display:none; line-height:1;"></span>
+            </div>
           </div>
 
           <!-- Logout Button -->
@@ -1739,13 +1741,13 @@
         </div>
       </div>
       <!-- Profile Page (Full Width Two-Column Layout) -->
-      <div style="display:grid; grid-template-columns: 320px 1fr; gap:24px; align-items:start; width:100%;">
+      <div class="profile-layout-grid">
         
-        <div style="background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 16px; padding: 24px;">
+        <div class="profile-left-col-card">
           
-          <div style="display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start; margin-bottom: 24px;">
-            <div style="display: flex; flex-direction: column; align-items: center; gap: 12px; width: 120px; flex-shrink: 0; align-self: center;">
-              <div id="profilePageAvatar" style="width: 90px; height: 90px; border-radius: 50%; background: rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: center; overflow: hidden; border: 2px solid var(--accent-primary); box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+          <div class="profile-user-card-header">
+            <div class="profile-avatar-container">
+              <div id="profilePageAvatar" style="width: 90px; height: 90px; border-radius: 20px; background: rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: center; overflow: hidden; border: 2px solid var(--accent-primary); box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
                 <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="1.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
               </div>
               <label for="profilePhotoFile" style="cursor: pointer; font-size: 0.65rem; font-weight: 700; color: var(--text-primary); text-transform: uppercase; letter-spacing: 0.05em; text-align: center; background: rgba(139,124,247,0.15); border: 1px solid rgba(139,124,247,0.3); padding: 5px 10px; border-radius: 12px; transition: all 0.2s; white-space: nowrap;" data-i18n="changePhoto">
@@ -1754,7 +1756,7 @@
               <input type="file" id="profilePhotoFile" accept="image/*" onchange="handleProfilePhotoUpload(event)" style="display: none;">
             </div>
             
-            <div style="flex: 1; display: flex; flex-direction: column; gap: 20px; min-width: 200px;">
+            <div class="profile-fields-container">
               <div>
                 <label style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 8px; text-transform: uppercase;" data-i18n="fullName">Ad Soyad</label>
                 <input type="text" id="profileDisplayName" class="log-input" placeholder="Adınızı girin" style="font-size: 1rem; padding: 12px; background: rgba(255,255,255,0.03);">
@@ -1795,18 +1797,13 @@
           <button class="btn-primary" onclick="saveProfile()" style="width: 100%; padding: 14px; font-size: 1rem;" data-i18n="save">Kaydet</button>
         </div>
 
-      <div class="profile-right-col" style="display:flex; flex-direction:column; min-width:0;">
+      <div class="profile-right-col">
       <!-- Tabs -->
-      <div
-        style="display:flex; margin-bottom:24px; border-bottom:1px solid var(--border-subtle); overflow-x:auto;">
-        <button class="profile-tab-btn active" onclick="switchProfileTab('bio', event)"
-          style="flex:1; display:inline-flex; justify-content:center; align-items:center; padding:12px 20px; border:none; background:none; color:var(--text-primary); font-weight:600; cursor:pointer; border-bottom:3px solid var(--accent-primary); transition:all 0.2s;" data-i18n="profileBio">Biyografi</button>
-        <button class="profile-tab-btn" onclick="switchProfileTab('achievements', event)"
-          style="flex:1; display:inline-flex; justify-content:center; align-items:center; padding:12px 20px; border:none; background:none; color:var(--text-muted); font-weight:600; cursor:pointer; border-bottom:3px solid transparent; transition:all 0.2s;" data-i18n="achievementsTitle">Başarımlar</button>
-        <button class="profile-tab-btn" onclick="switchProfileTab('security', event)"
-          style="flex:1; display:inline-flex; justify-content:center; align-items:center; padding:12px 20px; border:none; background:none; color:var(--text-muted); font-weight:600; cursor:pointer; border-bottom:3px solid transparent; transition:all 0.2s;" data-i18n="security">Güvenlik</button>
-        <button class="profile-tab-btn" onclick="switchProfileTab('ai', event)"
-          style="flex:1; display:inline-flex; justify-content:center; align-items:center; gap:6px; padding:12px 20px; border:none; background:none; color:var(--text-muted); font-weight:600; cursor:pointer; border-bottom:3px solid transparent; transition:all 0.2s;">
+      <div class="profile-tabs-nav">
+        <button class="profile-tab-btn active" onclick="switchProfileTab('bio', event)" data-i18n="profileBio">Biyografi</button>
+        <button class="profile-tab-btn" onclick="switchProfileTab('achievements', event)" data-i18n="achievementsTitle">Başarımlar</button>
+        <button class="profile-tab-btn" onclick="switchProfileTab('security', event)" data-i18n="security">Güvenlik</button>
+        <button class="profile-tab-btn" onclick="switchProfileTab('ai', event)">
           <span style="color:var(--accent-primary);">✨</span> <span data-i18n="aiSettings">AI Ayarları</span>
         </button>
       </div>
@@ -1927,7 +1924,7 @@
           </div>
           <div style="padding:20px;">
             <div id="profileAchievementsGrid"
-              style="display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:12px; margin-bottom:20px;">
+              style="display:grid; grid-template-columns:repeat(auto-fill,minmax(120px,1fr)); gap:12px; margin-bottom:20px;">
             </div>
             <button class="btn-primary" onclick="saveProfileAchievements()" style="width:100%;">Başarımları
               Kaydet</button>

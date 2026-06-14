@@ -1086,9 +1086,9 @@ function updateUserUI(user){
   }
   name.textContent=(user&&user.displayName)?user.displayName.split(' ')[0]:'User';
   if(status) {
-    status.textContent=user?t('synced'):t('localMode');
+    status.textContent=user?'Senkronize':t('localMode');
     status.style.color=user?'var(--green-vivid)':'var(--text-tertiary)';
-    status.style.display='none';
+    status.style.display='inline-block';
   }
   signOutBtn.style.display=user?'block':'none';
 
@@ -6975,7 +6975,7 @@ function updateUserUI(user){
   if (status) {
     status.textContent = user ? 'Senkronize' : 'Yerel Mod';
     status.style.color = user ? 'var(--green-vivid)' : 'var(--text-tertiary)';
-    status.style.display = 'none';
+    status.style.display = 'inline-block';
   }
   
   if (signOutBtn) signOutBtn.style.display = user ? 'block' : 'none';
