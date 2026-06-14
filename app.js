@@ -1004,6 +1004,7 @@ function initAuth(){
         updateUserUI(user);
         loadData(()=>{
           refreshAllViews();
+          initNotifications(); // 2.5: Initialize notifications system
           setTimeout(() => {
             if (typeof window.checkAndPromptPushNotifications === 'function') {
               window.checkAndPromptPushNotifications();
@@ -3828,11 +3829,19 @@ function initNotifications() {
   const syncNotifs = () => {
     Promise.all([broadcastsRef.get(), personalRef.get()]).then(([bSnap, pSnap]) => {
       const all = [];
-      bSnap.forEach(doc => all.push({ id: doc.id, ...doc.data(), scope: 'broadcast' }));
-      pSnap.forEach(doc => all.push({ id: doc.id, ...doc.data(), scope: 'personal' }));
+      bSnap.forEach(doc => {
+        const d = doc.data();
+        const ts = d.timestamp || (d.createdAt ? (typeof d.createdAt.toMillis === 'function' ? d.createdAt.toMillis() : new Date(d.createdAt.seconds * 1000).getTime()) : Date.now());
+        all.push({ id: doc.id, ...d, timestamp: ts, scope: 'broadcast' });
+      });
+      pSnap.forEach(doc => {
+        const d = doc.data();
+        const ts = d.timestamp || (d.createdAt ? (typeof d.createdAt.toMillis === 'function' ? d.createdAt.toMillis() : new Date(d.createdAt.seconds * 1000).getTime()) : Date.now());
+        all.push({ id: doc.id, ...d, timestamp: ts, scope: 'personal' });
+      });
       
       // Sort by timestamp
-      all.sort((a, b) => b.timestamp - a.timestamp);
+      all.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
       activeNotifications = all;
       renderNotificationList();
       updateNotifBadge();
@@ -4189,6 +4198,7 @@ window.sendAdminBroadcast = function() {
     title,
     body: msg,
     timestamp: Date.now(),
+    createdAt: new Date(),
     expiry: Date.now() + expiryMs,
     read: false,
     type: recipient === 'all' ? 'broadcast' : 'personal',
@@ -5728,6 +5738,7 @@ window.submitReport = async function() {
       text: `${reportData.reporterName}, "${targetUserName}" kullanıcısının yorumunu raporladı. Sebep: ${_currentReportReason}`,
       type: 'admin_report',
       timestamp: Date.now(),
+      createdAt: new Date(),
       date: todayStr()
     });
 
@@ -5824,6 +5835,7 @@ window.sendReportReply = async function() {
       type: 'report_reply',
       fromAdmin: true,
       timestamp: Date.now(),
+      createdAt: new Date(),
       date: todayStr(),
       read: false
     });
@@ -6063,6 +6075,7 @@ window.adminSendNotificationV2 = async function() {
     title,
     body: msg,
     timestamp: Date.now(),
+    createdAt: new Date(),
     expiry: Date.now() + expiryMs2,
     read: false,
     type: recipientType === 'all' ? 'broadcast' : 'personal',
@@ -6180,6 +6193,7 @@ window.adminSendNotification = async function() {
         title,
         text,
         timestamp: Date.now(),
+        createdAt: new Date(),
         date: todayStr(),
         type: 'admin'
       });
@@ -7360,6 +7374,7 @@ window.adminSendNotificationV2Enhanced = async function() {
   const category = document.getElementById('adminNotifCategory').value;
   const title = document.getElementById('adminNotifTitle').value.trim();
   const msg = document.getElementById('adminNotifMessage').value.trim();
+  
   // compute expiry in ms from days/hours/minutes inputs for more granularity
   const dEl3 = document.getElementById('adminNotifExpiryDays');
   const hEl3 = document.getElementById('adminNotifExpiryHours');
@@ -7405,6 +7420,7 @@ window.adminSendNotificationV2Enhanced = async function() {
     title,
     body: msg,
     timestamp: Date.now(),
+    createdAt: new Date(),
     expiry: Date.now() + expiryMs3,
     read: false,
     type: recipientType === 'all' ? 'broadcast' : 'personal',
@@ -7866,6 +7882,7 @@ window.adminSendNotificationV2Enhanced = async function() {
     title,
     body: msg,
     timestamp: Date.now(),
+    createdAt: new Date(),
     expiry: Date.now() + expiryMs,
     read: false,
     type: recipientType === 'all' ? 'broadcast' : 'personal',
