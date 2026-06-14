@@ -6204,6 +6204,8 @@ window.adminSendNotificationV2 = async function() {
 
   const btnText = document.getElementById('adminNotifBtnText');
   const loader = document.getElementById('adminNotifLoader');
+  // Gönder butonunu bul (parent button)
+  const sendBtn = btnText ? btnText.closest('button') : null;
 
   if (!title || !msg) {
     showToast('Lütfen başlık ve mesaj girin.', 'error');
@@ -6215,9 +6217,13 @@ window.adminSendNotificationV2 = async function() {
     return;
   }
 
+  // ✅ Çift gönderimi önle — zaten gönderiliyorsa çık
+  if (sendBtn && sendBtn.disabled) return;
+
   // Loading state
-  btnText.style.opacity = '0.5';
-  loader.style.display = 'block';
+  if (sendBtn) sendBtn.disabled = true;
+  if (btnText) btnText.style.opacity = '0.5';
+  if (loader) loader.style.display = 'block';
 
   const notifData = {
     title,
@@ -6236,8 +6242,30 @@ window.adminSendNotificationV2 = async function() {
     } else {
       await db.collection(`users/${targetUid}/notifications`).add(notifData);
     }
+
+    // ✅ Vercel API üzerinden FCM push gönder (arka planda olan cihazlar için)
+    try {
+      const secret = window._adminNotifySecret || '';
+      await fetch('/api/send-notification', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(secret ? { 'Authorization': `Bearer ${secret}` } : {})
+        },
+        body: JSON.stringify({
+          title,
+          body: msg,
+          link: '/dashboard',
+          recipientType,
+          targetUid
+        })
+      });
+    } catch (fcmErr) {
+      // Vercel API erişilemiyorsa sessizce geç — Firestore bildirimi zaten gönderildi
+      console.warn('Vercel FCM push isteği başarısız (önemli değil):', fcmErr.message);
+    }
     
-    showToast('Bildirim başarıyla gönderildi!', 'success');
+    showToast('Bildirim başarıyla gönderildi! 🎉', 'success');
     document.getElementById('adminNotifTitle').value = '';
     document.getElementById('adminNotifMessage').value = '';
     document.getElementById('adminNotifUid').value = '';
@@ -6245,8 +6273,9 @@ window.adminSendNotificationV2 = async function() {
     console.error('Notification error:', err);
     showToast('Bildirim gönderilemedi: ' + err.message, 'error');
   } finally {
-    btnText.style.opacity = '1';
-    loader.style.display = 'none';
+    if (sendBtn) sendBtn.disabled = false;
+    if (btnText) btnText.style.opacity = '1';
+    if (loader) loader.style.display = 'none';
   }
 };
 
@@ -7541,6 +7570,7 @@ window.adminSendNotificationV2Enhanced = async function() {
 
   const btnText = document.getElementById('adminNotifBtnText');
   const loader = document.getElementById('adminNotifLoader');
+  const sendBtn3 = btnText ? btnText.closest('button') : null;
 
   if (!title || !msg) {
     showToast('Lütfen başlık ve mesaj girin.', 'error');
@@ -7552,9 +7582,13 @@ window.adminSendNotificationV2Enhanced = async function() {
     return;
   }
 
+  // ✅ Çift gönderimi önle
+  if (sendBtn3 && sendBtn3.disabled) return;
+
   // Loading state
-  btnText.style.opacity = '0.5';
-  loader.style.display = 'block';
+  if (sendBtn3) sendBtn3.disabled = true;
+  if (btnText) btnText.style.opacity = '0.5';
+  if (loader) loader.style.display = 'block';
 
   const categoryIcons = {
     system: 'g���',
@@ -7595,8 +7629,9 @@ window.adminSendNotificationV2Enhanced = async function() {
     console.error('Notification error:', err);
     showToast('Bildirim gönderilemedi: ' + err.message, 'error');
   } finally {
-    btnText.style.opacity = '1';
-    loader.style.display = 'none';
+    if (sendBtn3) sendBtn3.disabled = false;
+    if (btnText) btnText.style.opacity = '1';
+    if (loader) loader.style.display = 'none';
   }
 };
 
@@ -8740,9 +8775,12 @@ window.requestNotificationPermission = async function(silent = false) {
       // Attempt to retrieve FCM Token, but handle any blocks (VPN, AdBlock) silently
       if (typeof messaging !== 'undefined' && messaging) {
         try {
-          let registration = window.swRegistration;
+          // FCM SW (firebase-messaging-sw.js) registration'ını kullan — PWA sw.js değil
+          let registration = window.fcmSwRegistration || window.swRegistration;
           if (!registration) {
-            registration = await navigator.serviceWorker.ready;
+            // SW henüz kayıt edilmediyse bekle
+            registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
+            window.fcmSwRegistration = registration;
           }
           const token = await messaging.getToken({
             vapidKey: 'BNtGLNs1qYMrypxB0_QvrrOVjMsI3PsRrZ3mO5WOrVyzrkAhpjiTs_I6wXvUdMzSykLW4NgK-lqltCQOT4m-A-M',
@@ -8758,6 +8796,7 @@ window.requestNotificationPermission = async function(silent = false) {
               }
             }, { merge: true });
             if (appData && appData.profile) appData.profile.fcmToken = token;
+            console.log('FCM Token saved:', token.substring(0, 20) + '...');
           }
         } catch (fcmErr) {
           console.warn('FCM Token registration failed (VPN or AdBlocker likely blocking Google services):', fcmErr);
@@ -8904,14 +8943,26 @@ window.renderProfilePage = function() {
 
 // PWA Service Worker Registration
 if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('sw.js')
-      .then(reg => {
-        console.log('PWA Service Worker registered:', reg.scope);
-        window.swRegistration = reg;
-      })
-      .catch(err => console.warn('PWA Service Worker registration failed:', err));
-      
+  window.addEventListener('load', async () => {
+    try {
+      // 1) PWA/Cache Service Worker (sw.js)
+      const swReg = await navigator.serviceWorker.register('/sw.js');
+      console.log('PWA Service Worker registered:', swReg.scope);
+      window.swRegistration = swReg;
+    } catch (err) {
+      console.warn('PWA Service Worker registration failed:', err);
+    }
+
+    try {
+      // 2) FCM Service Worker (firebase-messaging-sw.js) — Firebase bunu otomatik arar
+      // Manuel kayıt ile doğru scope'ta çalışmasını garantileyiyoruz
+      const fcmReg = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
+      console.log('FCM Service Worker registered:', fcmReg.scope);
+      window.fcmSwRegistration = fcmReg;
+    } catch (err) {
+      console.warn('FCM Service Worker registration failed:', err);
+    }
+
     // Global push notification prompt after a short delay
     setTimeout(() => {
       if (typeof window.checkAndPromptPushNotifications === 'function') {
@@ -8924,7 +8975,12 @@ if ('serviceWorker' in navigator) {
           console.log('Message received in foreground: ', payload);
           const title = payload.notification ? payload.notification.title : 'Yeni Bildirim';
           const body = payload.notification ? payload.notification.body : '';
-          showToast(`${title}: ${body}`, 'info');
+          // Ön planda bildirim banner'ı göster (SW notification yerine)
+          if (typeof showSystemNotification === 'function') {
+            showSystemNotification({ title, body });
+          } else {
+            showToast(`${title}: ${body}`, 'info');
+          }
         });
       }
     }, 1500);

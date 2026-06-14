@@ -1,0 +1,33 @@
+# Bağımlılıklar
+node_modules/
+functions/node_modules/
+
+# Firebase
+.firebase/
+firebase-debug.log
+firestore-debug.log
+ui-debug.log
+
+# Vercel
+.vercel/
+
+# Environment & Secrets
+.env
+.env.local
+.env.production
+*.serviceAccount.json
+*-adminsdk-*.json
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/settings.json
+.idea/
+
+# Test & Temp
+scratch_*.json
+scratch_*.txt
+send-test-notification.js
+server.log
