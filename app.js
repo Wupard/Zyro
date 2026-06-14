@@ -1175,6 +1175,7 @@ window.toggleNotifDrawer = function() {
   
   const isOpen = drawer.classList.toggle('open');
   backdrop.classList.toggle('show', isOpen);
+  backdrop.classList.toggle('visible', isOpen);
   
   // Bildirim izni: drawer açılınca ve izin henüz verilmemişse sor
   if (isOpen && 'Notification' in window && Notification.permission === 'default') {
@@ -1188,17 +1189,114 @@ function _showNotifPermissionCard() {
   if (document.getElementById('notifPermCard')) return;
   const list = document.getElementById('notifList');
   if (!list) return;
+  
+  const title = currentLang === 'tr' ? 'Bildirimleri Aç' : 'Enable Notifications';
+  const desc = currentLang === 'tr' 
+    ? 'Yeni özellikler, hatırlatıcılar ve güncellemelerden anında haberdar olmak için bildirimleri açın.' 
+    : 'Turn on notifications to get instant updates on new features, reminders, and updates.';
+  const allowBtnText = currentLang === 'tr' ? 'İzin Ver' : 'Allow';
+  const laterBtnText = currentLang === 'tr' ? 'Daha Sonra' : 'Later';
+
   const card = document.createElement('div');
   card.id = 'notifPermCard';
-  card.style.cssText = 'background:linear-gradient(135deg,rgba(139,124,247,0.12),rgba(139,124,247,0.04));border:1px solid rgba(139,124,247,0.25);border-radius:12px;padding:14px 16px;margin-bottom:12px;display:flex;gap:12px;align-items:flex-start;';
+  card.style.cssText = `
+    position: relative;
+    background: linear-gradient(135deg, rgba(139, 124, 247, 0.16) 0%, rgba(20, 18, 38, 0.5) 100%);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(139, 124, 247, 0.25);
+    border-radius: 14px;
+    padding: 16px;
+    margin-bottom: 16px;
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+    animation: slideDownFadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
+  `;
+  
   card.innerHTML = `
-    <div style="font-size:1.4rem;flex-shrink:0;">🔔</div>
+    <style>
+      @keyframes slideDownFadeIn {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      @keyframes bell-swing {
+        0%, 100% { transform: rotate(0); }
+        10% { transform: rotate(-12deg); }
+        20% { transform: rotate(10deg); }
+        30% { transform: rotate(-8deg); }
+        40% { transform: rotate(6deg); }
+        50% { transform: rotate(-4deg); }
+        60% { transform: rotate(2deg); }
+        70% { transform: rotate(0); }
+      }
+      .bell-glow-container {
+        position: relative;
+        flex-shrink: 0;
+        width: 38px;
+        height: 38px;
+        background: rgba(139, 124, 247, 0.15);
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid rgba(139, 124, 247, 0.25);
+      }
+      .swing-animation {
+        animation: bell-swing 3s ease infinite;
+        transform-origin: top center;
+      }
+      .btn-notif-allow {
+        background: linear-gradient(135deg, #8b7cf7 0%, #6d5df2 100%);
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        padding: 7px 16px;
+        font-size: 0.78rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        box-shadow: 0 4px 12px rgba(139, 124, 247, 0.3);
+      }
+      .btn-notif-allow:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 6px 16px rgba(139, 124, 247, 0.45);
+        filter: brightness(1.08);
+      }
+      .btn-notif-allow:active {
+        transform: translateY(1px);
+      }
+      .btn-notif-later {
+        background: rgba(255, 255, 255, 0.04);
+        color: var(--text-secondary);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 8px;
+        padding: 7px 12px;
+        font-size: 0.78rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+      .btn-notif-later:hover {
+        background: rgba(255, 255, 255, 0.08);
+        color: var(--text-primary);
+        border-color: rgba(255, 255, 255, 0.15);
+      }
+    </style>
+    <div class="bell-glow-container">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8b7cf7" stroke-width="2.5" class="swing-animation">
+        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+        <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+      </svg>
+    </div>
     <div style="flex:1;">
-      <div style="font-weight:700;font-size:0.9rem;color:var(--text-primary);margin-bottom:4px;">Bildirimleri Aç</div>
-      <div style="font-size:0.78rem;color:var(--text-muted);margin-bottom:10px;">Yeni özellikler ve güncellemelerden haberdar ol.</div>
+      <div style="font-weight:700;font-size:0.9rem;color:var(--text-primary);margin-bottom:4px;letter-spacing:-0.01em;">${title}</div>
+      <div style="font-size:0.78rem;color:var(--text-muted);margin-bottom:12px;line-height:1.45;">${desc}</div>
       <div style="display:flex;gap:8px;">
-        <button onclick="_grantNotifPermission()" style="background:var(--accent-primary);color:#fff;border:none;border-radius:8px;padding:6px 14px;font-size:0.8rem;font-weight:700;cursor:pointer;">İzin Ver</button>
-        <button onclick="_removeNotifPermissionCard()" style="background:rgba(255,255,255,0.06);color:var(--text-muted);border:1px solid var(--border-subtle);border-radius:8px;padding:6px 10px;font-size:0.8rem;cursor:pointer;">Şimdi Değil</button>
+        <button onclick="_grantNotifPermission()" class="btn-notif-allow">${allowBtnText}</button>
+        <button onclick="_removeNotifPermissionCard()" class="btn-notif-later">${laterBtnText}</button>
       </div>
     </div>
   `;
@@ -3592,22 +3690,31 @@ document.addEventListener('DOMContentLoaded',()=>{
   initWeeklyGoalSheet();
   initProgressPhotos();
   
-  const notifBellBtn = document.getElementById('notifBellBtn');
   const notifDrawer = document.getElementById('notifDrawer');
   const notifBackdrop = document.getElementById('notifBackdrop');
-  if (notifBellBtn && notifDrawer) {
-    notifBellBtn.addEventListener('click', () => {
-      notifDrawer.classList.add('open');
-      if (notifBackdrop) notifBackdrop.classList.add('visible');
-    });
-  }
-
+  
   if (notifBackdrop && notifDrawer) {
     notifBackdrop.addEventListener('click', () => {
       notifDrawer.classList.remove('open');
+      notifBackdrop.classList.remove('show');
       notifBackdrop.classList.remove('visible');
     });
   }
+
+  // Close notifications drawer when clicking outside of it
+  document.addEventListener('click', (event) => {
+    if (notifDrawer && notifDrawer.classList.contains('open')) {
+      const trigger = document.getElementById('notifTrigger');
+      // If the click is outside the drawer AND not inside the trigger button
+      if (!notifDrawer.contains(event.target) && (!trigger || !trigger.contains(event.target))) {
+        notifDrawer.classList.remove('open');
+        if (notifBackdrop) {
+          notifBackdrop.classList.remove('show');
+          notifBackdrop.classList.remove('visible');
+        }
+      }
+    }
+  });
 
   const markAllReadBtn = document.getElementById('markAllReadBtn');
   if (markAllReadBtn) {
