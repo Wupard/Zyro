@@ -2319,12 +2319,12 @@ textarea,
     border-radius: 12px;
   }
   .sidebar-user-name {
-    font-size: 0.85rem;
+    font-size: 1.05rem;
   }
   .sidebar-rank-badge {
-    font-size: 0.55rem;
-    padding: 2px 5px;
-    max-width: 90px;
+    font-size: 0.7rem;
+    padding: 3px 6px;
+    max-width: 110px;
   }
   .sidebar-user-info {
     gap: 5px;
@@ -2343,12 +2343,12 @@ textarea,
     border-radius: 10px;
   }
   .sidebar-user-name {
-    font-size: 0.8rem;
+    font-size: 1rem;
   }
   .sidebar-rank-badge {
-    font-size: 0.5rem;
-    padding: 2px 4px;
-    max-width: 80px;
+    font-size: 0.65rem;
+    padding: 2.5px 5px;
+    max-width: 100px;
   }
   #sidebarLevelBadge {
     font-size: 0.6rem;
