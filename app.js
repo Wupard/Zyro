@@ -8487,7 +8487,24 @@ window.requestNotificationPermission = async function(silent = false) {
     }
   } catch (err) {
     console.error('FCM Token error:', err);
-    if (!silent) showToast((currentLang === 'tr' ? 'Bildirimler ayarlanamadı: ' : 'Failed to set up notifications: ') + err.message, 'error');
+    if (!silent) {
+      let friendlyMsg = err.message || '';
+      if (err.message && err.message.includes('push service error')) {
+        friendlyMsg = currentLang === 'tr'
+          ? 'Tarayıcı bildirim servisiyle bağlantı kurulamadı. Lütfen VPN veya reklam engelleyicinizi (AdBlock) kapatıp sayfayı yenileyin.'
+          : 'Could not connect to the browser push service. Please disable VPN or AdBlock and reload the page.';
+        
+        // Unregister service workers to clear any corrupted state on next reload
+        if ('serviceWorker' in navigator) {
+          navigator.serviceWorker.getRegistrations().then(registrations => {
+            for (let reg of registrations) {
+              reg.unregister();
+            }
+          }).catch(swErr => console.warn('Could not unregister service workers:', swErr));
+        }
+      }
+      showToast((currentLang === 'tr' ? 'Bildirimler ayarlanamadı: ' : 'Failed to set up notifications: ') + friendlyMsg, 'error');
+    }
   }
   checkPushNotificationStatus();
 };
@@ -8528,10 +8545,8 @@ window.checkAndPromptPushNotifications = function() {
   if (!('Notification' in window)) return;
   
   if (Notification.permission !== 'granted') {
-    // Check if dismissed within the last 7 days
-    const lastPromptTime = localStorage.getItem('zyro_notif_prompt_time');
-    const sevenDays = 7 * 24 * 60 * 60 * 1000;
-    if (lastPromptTime && (Date.now() - parseInt(lastPromptTime) < sevenDays)) {
+    // Check if dismissed in the current session
+    if (sessionStorage.getItem('zyro_notif_prompt_dismissed') === 'true') {
       return;
     }
     
@@ -8591,7 +8606,7 @@ window.checkAndPromptPushNotifications = function() {
 };
 
 window.closeNotificationPromptModal = function() {
-  localStorage.setItem('zyro_notif_prompt_time', Date.now().toString());
+  sessionStorage.setItem('zyro_notif_prompt_dismissed', 'true');
   const modal = document.getElementById('notificationPromptModal');
   if (modal) {
     modal.style.opacity = '0';
