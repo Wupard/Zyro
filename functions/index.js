@@ -89,9 +89,10 @@ exports.onPublicCommentCreatedEmail = functions.firestore
                     },
                     data: {
                       link: '/community' // Adjust link depending on client routing
-                    }
+                    },
+                    token: fcmToken
                   };
-                  await admin.messaging().sendToDevice(fcmToken, payload);
+                  await admin.messaging().send(payload);
                   console.log(`Push notification sent to ${parentUserId} for comment reply.`);
                 }
               }
@@ -132,18 +133,19 @@ exports.onBroadcastNotificationCreated = functions.firestore
       });
       
       if (tokens.length > 0) {
-        const payload = {
+        const uniqueTokens = [...new Set(tokens)];
+        const multicastMessage = {
           notification: {
             title: title,
             body: message,
           },
           data: {
             link: '/dashboard'
-          }
+          },
+          tokens: uniqueTokens
         };
-        // Batch send to all tokens (up to 1000 per batch)
-        await admin.messaging().sendToDevice(tokens, payload);
-        console.log(`Push notification broadcast sent to ${tokens.length} devices.`);
+        const response = await admin.messaging().sendEachForMulticast(multicastMessage);
+        console.log(`Push notification broadcast sent. Success: ${response.successCount}, Failure: ${response.failureCount}`);
       }
     } catch (err) {
       console.error("FCM Broadcast Error:", err);
@@ -169,16 +171,17 @@ exports.onPersonalNotificationCreated = functions.firestore
         const u = userSnap.data();
         const fcmToken = u?.data?.profile?.fcmToken;
         if (fcmToken) {
-          const payload = {
+          const personalMessage = {
             notification: {
               title: title,
               body: message,
             },
             data: {
               link: '/dashboard'
-            }
+            },
+            token: fcmToken
           };
-          await admin.messaging().sendToDevice(fcmToken, payload);
+          await admin.messaging().send(personalMessage);
           console.log(`Push notification sent to user ${userId}.`);
         }
       }

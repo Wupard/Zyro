@@ -8462,8 +8462,13 @@ window.requestNotificationPermission = async function(silent = false) {
   try {
     const permission = await Notification.requestPermission();
     if (permission === 'granted' && typeof messaging !== 'undefined' && messaging) {
+      let registration = window.swRegistration;
+      if (!registration) {
+        registration = await navigator.serviceWorker.ready;
+      }
       const token = await messaging.getToken({
-        vapidKey: 'BNtGLNs1qYMrypxB0_QvrrOVjMsI3PsRrZ3mO5WOrVyzrkAhpjiTs_I6wXvUdMzSykLW4NgK-lqltCQOT4m-A-M'
+        vapidKey: 'BNtGLNs1qYMrypxB0_QvrrOVjMsI3PsRrZ3mO5WOrVyzrkAhpjiTs_I6wXvUdMzSykLW4NgK-lqltCQOT4m-A-M',
+        serviceWorkerRegistration: registration
       });
       
       if (token && currentUser) {
@@ -8615,7 +8620,10 @@ window.renderProfilePage = function() {
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('sw.js')
-      .then(reg => console.log('PWA Service Worker registered:', reg.scope))
+      .then(reg => {
+        console.log('PWA Service Worker registered:', reg.scope);
+        window.swRegistration = reg;
+      })
       .catch(err => console.warn('PWA Service Worker registration failed:', err));
       
     // Global push notification prompt after a short delay
