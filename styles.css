@@ -2312,6 +2312,10 @@ textarea,
     border-radius: 14px;
     gap: 8px;
   }
+  .sidebar-top-row,
+  #sidebarLevelWrap {
+    width: 84%;
+  }
   .user-avatar {
     width: 40px;
     height: 40px;
