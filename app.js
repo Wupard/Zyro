@@ -3842,7 +3842,16 @@ function initNotifications() {
       
       // Sort by timestamp
       all.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
-      activeNotifications = all;
+      
+      // Filter out expired notifications, but keep comment replies only if they are unread
+      const filtered = all.filter(n => {
+        if (n.type === 'reply') {
+          return !__isNotifRead(n);
+        }
+        if (n.expiry && Date.now() >= n.expiry) return false;
+        return true;
+      });
+      activeNotifications = filtered;
       renderNotificationList();
       updateNotifBadge();
       renderAdminNotificationHistory();
@@ -4119,6 +4128,10 @@ window.openNotifFromList = function(id, scope) {
   // Direct navigation for comment replies
   if (n.type === 'reply' || n.link === 'comments') {
     if (typeof toggleNotifDrawer === 'function') toggleNotifDrawer();
+    const targetId = n.targetCommentId || n.relatedCommentId || null;
+    if (targetId) {
+      window.pendingCommentHighlightId = targetId;
+    }
     navigateTo('comments');
     return;
   }
@@ -4590,6 +4603,21 @@ function showAchievementPopup(def) {
   document.getElementById('achievementIcon').innerHTML = ACH_ICONS[def.icon] || ACH_ICONS['star'];
   document.getElementById('achievementTitle').textContent = '🏆 ' + def.name;
   document.getElementById('achievementDesc').textContent = def.desc + ' 🚀';
+  
+  // Sitedeki bildirimler kısmına başarım bildirimi ekle (15 dakika geçerli)
+  if (typeof currentUser !== 'undefined' && currentUser && typeof db !== 'undefined') {
+    db.collection(`users/${currentUser.uid}/notifications`).add({
+      title: 'Başarım Tamamlandı!',
+      body: `Tebrikler! "${def.name}" başarısını kazandınız.`,
+      timestamp: Date.now(),
+      createdAt: new Date(),
+      expiry: Date.now() + 15 * 60 * 1000, // 15 minutes
+      read: false,
+      type: 'achievement',
+      icon: '🏆'
+    }).catch(err => console.error('Achievement notification error:', err));
+  }
+
   // Add "Go to Achievements" button
   let goBtn = document.getElementById('achievementGoBtn');
   if (!goBtn) {
@@ -5427,7 +5455,7 @@ function displayComments(comments) {
                   ? `<span style="background:${replyRankInfo.bg}; color:${replyRankInfo.color}; font-size:0.55rem; padding:2px 5px; border-radius:4px; font-weight:800; letter-spacing:0.05em; text-transform:uppercase; border: 1px solid ${replyRankInfo.color}40;">${replyRankInfo.label}</span>`
                   : '';
                 return `
-                <div style="margin-top:12px; padding:10px; background:rgba(255,255,255,0.02); border-radius:8px; position:relative;">
+                <div id="comment_${r.id}" style="margin-top:12px; padding:10px; background:rgba(255,255,255,0.02); border-radius:8px; position:relative;">
                   <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
                     <div style="display:flex; align-items:center; gap:8px;">
                       ${r.userPhoto ? `<img src="${r.userPhoto}" style="width:18px; height:18px; border-radius:50%;" referrerpolicy="no-referrer">` : `<div style="width:18px; height:18px; border-radius:50%; background:var(--bg-primary); display:flex; align-items:center; justify-content:center; font-size:0.6rem;">?</div>`}
@@ -5464,6 +5492,20 @@ function displayComments(comments) {
           activeEl.setSelectionRange(cursorStart, cursorEnd);
         }
       }
+    }
+
+    // Highlight and scroll to target comment from notification click
+    if (window.pendingCommentHighlightId) {
+      const targetId = window.pendingCommentHighlightId;
+      setTimeout(() => {
+        const el = document.getElementById(`comment_${targetId}`);
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          el.classList.add('comment-highlight');
+          setTimeout(() => el.classList.remove('comment-highlight'), 3000);
+          window.pendingCommentHighlightId = null; // clear after scroll
+        }
+      }, 300);
     }
 
   } catch (e) {
@@ -5604,7 +5646,7 @@ window.submitReply = async function(parentId) {
 
   if (isFirebaseConfigured && db) {
     try {
-      await db.collection('public_comments').add(reply);
+      const replyRef = await db.collection('public_comments').add(reply);
       
       // Fetch parent comment to notify the author
       const parentDoc = await db.collection('public_comments').doc(parentId).get();
@@ -5617,7 +5659,9 @@ window.submitReply = async function(parentId) {
             body: `${currentUser.displayName || 'Birisi'} yorumunu yanıtladı: "${text.length > 120 ? text.substring(0,120) + '...' : text}"`,
             type: 'reply',
             link: 'comments',
+            targetCommentId: replyRef.id,
             timestamp: Date.now(),
+            createdAt: new Date(),
             read: false
           });
         }
@@ -9049,6 +9093,8 @@ function updateLevelUI() {
           title: 'Seviye Atladınız!',
           body: `Harika gidiyorsunuz! Seviye ${level} oldunuz.`,
           timestamp: Date.now(),
+          createdAt: new Date(),
+          expiry: Date.now() + 10 * 60 * 1000, // 10 minutes
           read: false,
           type: 'personal',
           icon: '🎉'

@@ -4562,3 +4562,13 @@ html {
   .ai-chat-drawer { right: 8px; width: calc(100vw - 16px); bottom: 88px; }
   .ai-page-full-chat { height: calc(100vh - 240px); }
 }
+
+/* Comment reply highlight animation */
+@keyframes commentHighlight {
+  0% { border-color: var(--accent-primary); box-shadow: 0 0 20px rgba(139, 124, 247, 0.4); background: rgba(139, 124, 247, 0.15) !important; }
+  100% { }
+}
+.comment-highlight {
+  animation: commentHighlight 3s ease-out;
+  border-color: var(--accent-primary) !important;
+}
