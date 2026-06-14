@@ -3999,7 +3999,7 @@ function renderNotificationList() {
   container.innerHTML = activeNotifications.map(n => {
     const isUnread = !__isNotifRead(n);
     const date = new Date(n.timestamp).toLocaleDateString(currentLang === 'tr' ? 'tr-TR' : 'en-US', { hour: '2-digit', minute: '2-digit' });
-    const icon = n.type === 'broadcast' ? '📢' : '🔔';
+    const icon = n.icon || (n.type === 'broadcast' ? '📢' : '🔔');
     const canDelete = n.scope !== 'broadcast' || (currentUser && currentUser.email === 'wupard@gmail.com');
     
     return `
@@ -4059,6 +4059,9 @@ function showPersistentBanner(data) {
   title.textContent = data.title;
   body.textContent = data.body || data.message || '';
   banner.style.display = 'flex';
+  banner.getBoundingClientRect(); // trigger reflow
+  banner.classList.add('notif-banner-in');
+  banner.classList.remove('notif-banner-out');
   banner.dataset.notifId = data.id || '';
   banner.dataset.temp = '';
 }
@@ -4072,13 +4075,22 @@ function showSystemNotification(data) {
   title.textContent = data.title;
   body.textContent = data.body;
   banner.style.display = 'flex';
+  banner.getBoundingClientRect(); // trigger reflow
+  banner.classList.add('notif-banner-in');
+  banner.classList.remove('notif-banner-out');
   banner.dataset.temp = 'true';
   
   // Auto-hide after 10s
   setTimeout(() => {
     if (banner.dataset.temp === 'true') {
-      banner.style.display = 'none';
-      banner.dataset.temp = '';
+      banner.classList.remove('notif-banner-in');
+      banner.classList.add('notif-banner-out');
+      setTimeout(() => {
+        if (banner.dataset.temp === 'true') {
+          banner.style.display = 'none';
+          banner.dataset.temp = '';
+        }
+      }, 400);
     }
   }, 10000);
 }
@@ -4152,7 +4164,11 @@ window.markAsRead = function(id, scope) {
 window.closeNotifBanner = function() {
   const banner = document.getElementById('notifBanner');
   if (banner) {
-    banner.style.display = 'none';
+    banner.classList.remove('notif-banner-in');
+    banner.classList.add('notif-banner-out');
+    setTimeout(() => {
+      banner.style.display = 'none';
+    }, 400);
     if (banner.dataset.notifId) {
       localStorage.setItem('dismissed_banner_' + banner.dataset.notifId, 'true');
     }
