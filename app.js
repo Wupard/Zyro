@@ -797,7 +797,9 @@ let appData = {
   achievements: {},
   progressImages: [],
   weeklyGoal: 0,
-  firestoreAdmin: false
+  firestoreAdmin: false,
+  dietTargets: { kcal: 2000, protein: 150, carbs: 200, fat: 70 },
+  dietLogs: {}
 };
 
 /** Unsubscribe previous Firestore listener before attaching a new one (nav repeats). */
@@ -954,13 +956,32 @@ function loadData(cb){
          const serverNotes = serverData.notes || {};
          const localNoteCount = Object.keys(localNotes).length;
          const serverNoteCount = Object.keys(serverNotes).length;
+         
+         // DIET PROTECTION: Eğer sunucuda diyet verileri yoksa, lokali koru veya varsayılanları ata
+         const localDietTargets = appData.dietTargets || { kcal: 2000, protein: 150, carbs: 200, fat: 70 };
+         const localDietLogs = appData.dietLogs || {};
+         
          appData = serverData;
+         
          if (localNoteCount > serverNoteCount) {
            // Sunucuda eksik olan notları koru (merge)
            appData.notes = { ...serverNotes, ...localNotes };
          }
-         enforceVersion();
+          let needSave = false;
+          if (!appData.dietTargets) {
+            appData.dietTargets = localDietTargets;
+            needSave = true;
+          }
+          if (!appData.dietLogs) {
+            appData.dietLogs = localDietLogs;
+            needSave = true;
+          }
+          
+          enforceVersion();
          localStorage.setItem('zyro_data', JSON.stringify(appData));
+         if (needSave) {
+           saveData();
+         }
          if(cb) cb();
          refreshAllViews();
          if (typeof syncPublicStats === 'function') syncPublicStats();
