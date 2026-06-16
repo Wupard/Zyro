@@ -2311,10 +2311,11 @@ textarea,
     padding: 10px;
     border-radius: 14px;
     gap: 8px;
+    width: 85%;
   }
   .sidebar-top-row,
   #sidebarLevelWrap {
-    width: 84%;
+    width: 100%;
   }
   .user-avatar {
     width: 40px;
