@@ -2887,8 +2887,14 @@ function renderPRTable(){
   Object.entries(appData.workoutLogs||{}).forEach(([date,logs])=>{
     logs.forEach(l=>{
       if(!prs[l.exercise])prs[l.exercise]={maxWeight:0,bestReps:0,date:''};
-      if(l.weight>prs[l.exercise].maxWeight){prs[l.exercise].maxWeight=l.weight;prs[l.exercise].date=date}
-      if(l.reps>prs[l.exercise].bestReps)prs[l.exercise].bestReps=l.reps;
+      if(l.weight>prs[l.exercise].maxWeight){
+        prs[l.exercise].maxWeight=l.weight;
+        prs[l.exercise].bestReps=l.reps;
+        prs[l.exercise].date=date;
+      } else if(l.weight===prs[l.exercise].maxWeight && l.reps>prs[l.exercise].bestReps){
+        prs[l.exercise].bestReps=l.reps;
+        prs[l.exercise].date=date;
+      }
     });
   });
   
@@ -10833,20 +10839,20 @@ window.renderDiet = function() {
   logs.forEach(m => {
     const timeStr = new Date(m.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     html += `
-      <div class="logged-row" style="padding: 12px; border-bottom: 1px solid var(--border-subtle); display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.01); border-radius: 8px;">
+      <div class="logged-row" style="padding: 12px; border-bottom: 1px solid var(--border-subtle); display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.01); border-radius: 8px; gap: 12px;">
         <div style="flex: 1; min-width: 0;">
-          <div style="font-weight: 700; font-size: 0.9rem; color: var(--text-primary); display: flex; align-items: center; gap: 8px;">
+          <div style="font-weight: 700; font-size: 0.9rem; color: var(--text-primary); display: flex; align-items: center; flex-wrap: wrap; gap: 6px 8px;">
             <span>🍽️ ${m.name}</span>
             <span style="font-size: 0.72rem; color: var(--text-muted); font-weight: 500;">${timeStr}</span>
           </div>
-          <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px; display: flex; gap: 10px;">
+          <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 6px; display: flex; flex-wrap: wrap; gap: 6px 12px;">
             <span>🔥 <b>${m.calories}</b> kcal</span>
             <span>🥩 P: <b>${m.protein}</b>g</span>
             <span>🍞 C: <b>${m.carbs}</b>g</span>
             <span>🥑 F: <b>${m.fat}</b>g</span>
           </div>
         </div>
-        <button class="delete-log" onclick="deleteDietLog('${m.id}')" style="background:none; border:none; color:#ef4444; font-size:1.1rem; cursor:pointer; padding: 4px;" title="Sil">×</button>
+        <button class="delete-log" onclick="deleteDietLog('${m.id}')" title="Sil">×</button>
       </div>
     `;
   });

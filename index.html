@@ -858,6 +858,22 @@
         </div>
       </section>
 
+      <section class="card">
+        <div class="card-header" id="prTableHeader" onclick="togglePRTable()" style="cursor:pointer;user-select:none;">
+          <h3 class="card-title" data-i18n="personalRecords">Personal Records</h3>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span style="font-size:0.72rem;color:var(--text-tertiary);" id="prCountBadge"></span>
+            <svg id="prToggleIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2" style="transition:transform 0.3s;">
+              <polyline points="18 15 12 9 6 15" />
+            </svg>
+          </div>
+        </div>
+        <div id="prTableWrap" class="pr-table" style="display:none; transition: all 0.3s ease;">
+          <div id="prTable" class="pr-table-content"></div>
+        </div>
+      </section>
+
     </div>
 
     <!-- ============ PAGE: NOTES ============ -->
@@ -1415,7 +1431,7 @@
     <!-- ============ PAGE: DIET ============ -->
     <div class="page" data-page="diet" id="pageDiet">
       <!-- Premium Page Banner -->
-      <div class="page-banner page-banner--orange" style="margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; padding: 20px; background: linear-gradient(135deg, rgba(255,112,67,0.1) 0%, rgba(255,112,67,0.02) 100%); border-radius: 16px; border: 1px solid rgba(255,112,67,0.15);">
+      <div class="page-banner page-banner--orange diet-banner" style="margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; padding: 20px; background: linear-gradient(135deg, rgba(255,112,67,0.1) 0%, rgba(255,112,67,0.02) 100%); border-radius: 16px; border: 1px solid rgba(255,112,67,0.15);">
         <div>
           <h1 style="font-size: 1.6rem; font-weight: 800; margin: 0 0 4px 0; color: var(--text-primary); letter-spacing: -0.5px;">Diyet & Beslenme</h1>
           <p style="margin: 0; font-size: 0.85rem; color: var(--text-muted); font-weight: 500;">Yemeklerin fotoğrafını çekip AI ile analiz et ve makrolarını takip et</p>
@@ -1429,7 +1445,7 @@
 
       <!-- Macro Tracker Grid -->
       <section class="card" style="margin-bottom: 24px;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
           <h3 class="card-title" style="margin:0;">Bugünkü Makro Durumu</h3>
           <button onclick="toggleDietTargetForm()" class="btn-small" style="font-size: 0.75rem; padding: 6px 12px; border-radius: 8px;">
             ⚙️ Hedefleri Düzenle
@@ -1439,7 +1455,7 @@
         <!-- Inline Target Editing Form -->
         <div id="dietTargetFormContainer" style="display: none; margin-bottom: 20px; padding: 16px; background: var(--bg-card-alt); border: 1px solid var(--border-subtle); border-radius: 12px;">
           <h4 style="margin: 0 0 12px 0; font-size: 0.9rem; font-weight: 700; color: var(--text-primary);">Günlük Hedeflerini Ayarla</h4>
-          <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 12px;">
+          <div class="diet-target-grid">
             <div style="display: flex; flex-direction: column; gap: 4px;">
               <label style="font-size: 0.7rem; color: var(--text-muted); font-weight: 600;">Kalori (kcal)</label>
               <input type="number" id="targetKcal" class="log-input" placeholder="2000" style="padding: 8px; font-size: 0.85rem;">
@@ -1457,14 +1473,14 @@
               <input type="number" id="targetFat" class="log-input" placeholder="70" style="padding: 8px; font-size: 0.85rem;">
             </div>
           </div>
-          <div style="display: flex; gap: 8px; justify-content: flex-end;">
+          <div class="diet-actions-row" style="display: flex; gap: 8px; justify-content: flex-end;">
             <button class="btn-primary" style="padding: 6px 14px; font-size: 0.8rem;" onclick="saveDietTargets()">Kaydet</button>
             <button class="btn-small" style="padding: 6px 14px; font-size: 0.8rem;" onclick="toggleDietTargetForm()">İptal</button>
           </div>
         </div>
 
         <!-- Progress Metrics display -->
-        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;">
+        <div class="diet-macros-grid">
           <!-- Calories -->
           <div style="padding: 14px; background: rgba(255,112,67,0.06); border: 1px solid rgba(255,112,67,0.15); border-radius: 12px; text-align: center;">
             <span style="font-size: 0.65rem; font-weight: 800; color: #ff7043; text-transform: uppercase;">KALORİ</span>
@@ -1516,7 +1532,7 @@
         </div>
 
         <!-- Tab 1: AI Photo Uploader -->
-        <div id="dietTabAI" style="padding: 24px;">
+        <div id="dietTabAI" class="diet-tab-content">
           <div id="dietDragDropZone" style="border: 2px dashed rgba(255,112,67,0.3); border-radius: 16px; padding: 32px 20px; text-align: center; cursor: pointer; background: rgba(255,112,67,0.02); transition: all 0.2s;" onclick="triggerDietPhotoUpload()">
             <div style="font-size: 2.2rem; margin-bottom: 12px;">📸</div>
             <h4 style="margin: 0 0 6px 0; font-size: 1rem; font-weight: 700; color: var(--text-primary);">Yemeğin Fotoğrafını Çek veya Yükle</h4>
@@ -1543,7 +1559,7 @@
               </div>
             </div>
 
-            <div style="display: grid; grid-template-columns: 2fr repeat(4, 1fr); gap: 12px; margin-bottom: 20px;">
+            <div class="diet-inputs-grid">
               <div style="display: flex; flex-direction: column; gap: 4px;">
                 <label style="font-size: 0.7rem; color: var(--text-muted); font-weight: 600;">Yemek Adı</label>
                 <input type="text" id="aiMealName" class="log-input" style="padding: 10px; font-size: 0.85rem;">
@@ -1566,7 +1582,7 @@
               </div>
             </div>
 
-            <div style="display: flex; gap: 10px; justify-content: flex-end;">
+            <div class="diet-actions-row" style="display: flex; gap: 10px; justify-content: flex-end;">
               <button class="btn-primary" onclick="submitDietLog('ai')">Öğünü Kaydet</button>
               <button class="btn-small" onclick="resetDietAiForm()">Vazgeç</button>
             </div>
@@ -1574,8 +1590,8 @@
         </div>
 
         <!-- Tab 2: Manual Log Form -->
-        <div id="dietTabManual" style="display: none; padding: 24px;">
-          <div style="display: grid; grid-template-columns: 2fr repeat(4, 1fr); gap: 12px; margin-bottom: 20px;">
+        <div id="dietTabManual" class="diet-tab-content" style="display: none;">
+          <div class="diet-inputs-grid">
             <div style="display: flex; flex-direction: column; gap: 4px;">
               <label style="font-size: 0.7rem; color: var(--text-muted); font-weight: 600;">Yemek Adı</label>
               <input type="text" id="manualMealName" class="log-input" placeholder="ör: Yulaf Ezmesi" style="padding: 10px; font-size: 0.85rem;">
@@ -1597,7 +1613,7 @@
               <input type="number" id="manualMealFat" class="log-input" placeholder="6" style="padding: 10px; font-size: 0.85rem;">
             </div>
           </div>
-          <div style="display: flex; justify-content: flex-end;">
+          <div class="diet-actions-row" style="display: flex; justify-content: flex-end;">
             <button class="btn-primary" onclick="submitDietLog('manual')">Öğünü Manuel Kaydet</button>
           </div>
         </div>
@@ -1768,21 +1784,6 @@
         </div>
       </section>
 
-      <section class="card">
-        <div class="card-header" id="prTableHeader" onclick="togglePRTable()" style="cursor:pointer;user-select:none;">
-          <h3 class="card-title" data-i18n="personalRecords">Personal Records</h3>
-          <div style="display:flex;align-items:center;gap:8px;">
-            <span style="font-size:0.72rem;color:var(--text-tertiary);" id="prCountBadge"></span>
-            <svg id="prToggleIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-              stroke-width="2" style="transition:transform 0.3s;">
-              <polyline points="18 15 12 9 6 15" />
-            </svg>
-          </div>
-        </div>
-        <div id="prTableWrap" class="pr-table" style="display:none; transition: all 0.3s ease;">
-          <div id="prTable" class="pr-table-content"></div>
-        </div>
-      </section>
 
       <!-- Body Measurements Tracker -->
       <section class="card">

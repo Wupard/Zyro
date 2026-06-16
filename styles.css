@@ -4949,3 +4949,154 @@ html {
 .parent-comment-highlight {
   animation: parentCommentHighlight 3s cubic-bezier(0.25, 1, 0.5, 1) forwards;
 }
+
+/* ==========================================================================
+   DIET & NUTRITION SECTION RESPONSIVE STYLING
+   ========================================================================== */
+
+/* Banner responsiveness */
+@media (max-width: 576px) {
+  .diet-banner {
+    flex-direction: column;
+    align-items: flex-start !important;
+    gap: 16px;
+  }
+}
+
+/* Tab button tweaks on mobile */
+@media (max-width: 480px) {
+  #pageDiet .tab-btn {
+    font-size: 0.8rem !important;
+    padding: 12px 10px !important;
+  }
+  .diet-tab-content {
+    padding: 16px !important;
+  }
+}
+
+/* Target setting grid layout */
+.diet-target-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.diet-target-grid input {
+  width: 100%;
+  box-sizing: border-box;
+}
+@media (max-width: 768px) {
+  .diet-target-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (max-width: 480px) {
+  .diet-target-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Progress metrics macro grid layout */
+.diet-macros-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+@media (max-width: 900px) {
+  .diet-macros-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (max-width: 480px) {
+  .diet-macros-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+  .diet-macros-grid > div {
+    padding: 10px !important;
+  }
+  .diet-macros-grid [id$="Val"] {
+    font-size: 1.1rem !important;
+  }
+  .diet-macros-grid [id$="Rem"] {
+    font-size: 0.65rem !important;
+  }
+}
+
+/* Input fields grid (Meal Name, Calories, Protein, Carbs, Fat) */
+.diet-inputs-grid {
+  display: grid;
+  grid-template-columns: 2.2fr repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+  align-items: end;
+}
+.diet-inputs-grid input {
+  width: 100%;
+  box-sizing: border-box;
+}
+@media (max-width: 900px) {
+  .diet-inputs-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+  .diet-inputs-grid > div:first-child {
+    grid-column: span 2;
+  }
+}
+@media (max-width: 480px) {
+  .diet-inputs-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+  .diet-inputs-grid > div:first-child {
+    grid-column: span 2;
+  }
+}
+
+/* Action button rows */
+.diet-actions-row {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+@media (max-width: 480px) {
+  .diet-actions-row {
+    flex-direction: column-reverse;
+  }
+  .diet-actions-row button,
+  .diet-actions-row a {
+    width: 100% !important;
+    padding: 12px !important;
+    font-size: 0.9rem !important;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-sizing: border-box;
+  }
+}
+
+/* Log deletion button */
+.delete-log {
+  background: none;
+  border: none;
+  color: #ef4444;
+  font-size: 1.3rem;
+  cursor: pointer;
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 36px;
+  min-height: 36px;
+  border-radius: 6px;
+  transition: background-color 0.2s, color 0.2s;
+  flex-shrink: 0;
+}
+.delete-log:hover {
+  background-color: rgba(239, 68, 68, 0.1);
+  color: #f87171;
+}
+.delete-log:active {
+  background-color: rgba(239, 68, 68, 0.2);
+}
