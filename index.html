@@ -1560,9 +1560,21 @@
             </div>
 
             <div class="diet-inputs-grid">
-              <div style="display: flex; flex-direction: column; gap: 4px;">
+              <div class="col-name" style="display: flex; flex-direction: column; gap: 4px;">
                 <label style="font-size: 0.7rem; color: var(--text-muted); font-weight: 600;">Yemek Adı</label>
                 <input type="text" id="aiMealName" class="log-input" style="padding: 10px; font-size: 0.85rem;">
+              </div>
+              <div class="col-tag" style="display: flex; flex-direction: column; gap: 4px;">
+                <label style="font-size: 0.7rem; color: var(--text-muted); font-weight: 600;">Etiket</label>
+                <select id="aiMealTag" class="log-input" style="padding: 10px; font-size: 0.85rem; appearance: none; background-color: var(--bg-input);">
+                  <option value="Kahvaltı">Kahvaltı</option>
+                  <option value="Öğle Yemeği">Öğle Yemeği</option>
+                  <option value="Akşam Yemeği">Akşam Yemeği</option>
+                  <option value="Ara Öğün">Ara Öğün</option>
+                  <option value="Atıştırmalık">Atıştırmalık</option>
+                  <option value="İçecek">İçecek</option>
+                  <option value="Diğer" selected>Diğer</option>
+                </select>
               </div>
               <div style="display: flex; flex-direction: column; gap: 4px;">
                 <label style="font-size: 0.7rem; color: var(--text-muted); font-weight: 600;">Kalori (kcal)</label>
@@ -1592,9 +1604,21 @@
         <!-- Tab 2: Manual Log Form -->
         <div id="dietTabManual" class="diet-tab-content" style="display: none;">
           <div class="diet-inputs-grid">
-            <div style="display: flex; flex-direction: column; gap: 4px;">
+            <div class="col-name" style="display: flex; flex-direction: column; gap: 4px;">
               <label style="font-size: 0.7rem; color: var(--text-muted); font-weight: 600;">Yemek Adı</label>
               <input type="text" id="manualMealName" class="log-input" placeholder="ör: Yulaf Ezmesi" style="padding: 10px; font-size: 0.85rem;">
+            </div>
+            <div class="col-tag" style="display: flex; flex-direction: column; gap: 4px;">
+              <label style="font-size: 0.7rem; color: var(--text-muted); font-weight: 600;">Etiket</label>
+              <select id="manualMealTag" class="log-input" style="padding: 10px; font-size: 0.85rem; appearance: none; background-color: var(--bg-input);">
+                <option value="Kahvaltı">Kahvaltı</option>
+                <option value="Öğle Yemeği">Öğle Yemeği</option>
+                <option value="Akşam Yemeği">Akşam Yemeği</option>
+                <option value="Ara Öğün">Ara Öğün</option>
+                <option value="Atıştırmalık">Atıştırmalık</option>
+                <option value="İçecek">İçecek</option>
+                <option value="Diğer" selected>Diğer</option>
+              </select>
             </div>
             <div style="display: flex; flex-direction: column; gap: 4px;">
               <label style="font-size: 0.7rem; color: var(--text-muted); font-weight: 600;">Kalori (kcal)</label>

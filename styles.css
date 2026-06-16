@@ -5023,24 +5023,27 @@ html {
   }
 }
 
-/* Input fields grid (Meal Name, Calories, Protein, Carbs, Fat) */
+/* Input fields grid (Meal Name, Tag, Calories, Protein, Carbs, Fat) */
 .diet-inputs-grid {
   display: grid;
-  grid-template-columns: 2.2fr repeat(4, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 12px;
   margin-bottom: 20px;
   align-items: end;
 }
-.diet-inputs-grid input {
+.diet-inputs-grid input, .diet-inputs-grid select {
   width: 100%;
   box-sizing: border-box;
+}
+.diet-inputs-grid .col-name, .diet-inputs-grid .col-tag {
+  grid-column: span 2;
 }
 @media (max-width: 900px) {
   .diet-inputs-grid {
     grid-template-columns: repeat(2, 1fr);
     gap: 12px;
   }
-  .diet-inputs-grid > div:first-child {
+  .diet-inputs-grid .col-name, .diet-inputs-grid .col-tag {
     grid-column: span 2;
   }
 }
@@ -5049,7 +5052,7 @@ html {
     grid-template-columns: repeat(2, 1fr);
     gap: 10px;
   }
-  .diet-inputs-grid > div:first-child {
+  .diet-inputs-grid .col-name, .diet-inputs-grid .col-tag {
     grid-column: span 2;
   }
 }

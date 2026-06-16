@@ -10730,16 +10730,18 @@ window.resetDietAiForm = function() {
 };
 
 window.submitDietLog = function(type) {
-  let name, kcal, protein, carbs, fat;
+  let name, tag, kcal, protein, carbs, fat;
 
   if (type === 'ai') {
     name = document.getElementById('aiMealName').value.trim();
+    tag = document.getElementById('aiMealTag').value;
     kcal = parseInt(document.getElementById('aiMealKcal').value) || 0;
     protein = parseInt(document.getElementById('aiMealProtein').value) || 0;
     carbs = parseInt(document.getElementById('aiMealCarbs').value) || 0;
     fat = parseInt(document.getElementById('aiMealFat').value) || 0;
   } else {
     name = document.getElementById('manualMealName').value.trim();
+    tag = document.getElementById('manualMealTag').value;
     kcal = parseInt(document.getElementById('manualMealKcal').value) || 0;
     protein = parseInt(document.getElementById('manualMealProtein').value) || 0;
     carbs = parseInt(document.getElementById('manualMealCarbs').value) || 0;
@@ -10754,6 +10756,7 @@ window.submitDietLog = function(type) {
   const meal = {
     id: 'meal_' + Date.now(),
     name,
+    tag: tag || 'Diğer',
     calories: kcal,
     protein,
     carbs,
@@ -10774,6 +10777,7 @@ window.submitDietLog = function(type) {
     window.resetDietAiForm();
   } else {
     document.getElementById('manualMealName').value = '';
+    document.getElementById('manualMealTag').value = 'Diğer';
     document.getElementById('manualMealKcal').value = '';
     document.getElementById('manualMealProtein').value = '';
     document.getElementById('manualMealCarbs').value = '';
@@ -10859,11 +10863,13 @@ window.renderDiet = function() {
   let html = '';
   logs.forEach(m => {
     const timeStr = new Date(m.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const tagBadge = m.tag ? `<span style="font-size: 0.65rem; background: rgba(255,112,67,0.15); color: #ff7043; padding: 2px 6px; border-radius: 4px; font-weight: 800; text-transform: uppercase;">${m.tag}</span>` : '';
     html += `
       <div class="logged-row" style="padding: 12px; border-bottom: 1px solid var(--border-subtle); display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.01); border-radius: 8px; gap: 12px;">
         <div style="flex: 1; min-width: 0;">
           <div style="font-weight: 700; font-size: 0.9rem; color: var(--text-primary); display: flex; align-items: center; flex-wrap: wrap; gap: 6px 8px;">
             <span>🍽️ ${m.name}</span>
+            ${tagBadge}
             <span style="font-size: 0.72rem; color: var(--text-muted); font-weight: 500;">${timeStr}</span>
           </div>
           <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 6px; display: flex; flex-wrap: wrap; gap: 6px 12px;">
