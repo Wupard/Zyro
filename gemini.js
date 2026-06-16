@@ -198,7 +198,7 @@ window.geminiAnalyzeImages = async function(imageBase64Array, customPrompt) {
   const key = getGeminiKey();
   if (!key) throw new Error('NO_KEY');
 
-  const url = `${GEMINI_API_BASE}/gemini-3.5-flash:generateContent?key=${key}`;
+  const url = `${GEMINI_API_BASE}/${GEMINI_MODEL}:generateContent?key=${key}`;
 
   const parts = [
     { text: customPrompt || `Bu iki fitness gelişim fotoğrafını karşılaştır. 
@@ -212,7 +212,7 @@ Lütfen değerlendirmeni aşağıdaki JSON formatında, belirtilen anahtarlarla 
   "comparison_and_suggestions": "İki fotoğraf arasındaki genel karşılaştırma (kas/yağ gelişimi) ve bundan sonra odaklanılması gereken gelişim önerileri."
 }
 
-Türkçe, spor koçu gibi gerçekçi ama motive edici bir üslupla yorum yap. Sadece geçerli bir JSON objesi döndür.` }
+Türkçe, spor koçu gibi gerçekçi ama motive edici bir üslupla yorum yap.` }
   ];
 
   imageBase64Array.forEach((b64, i) => {
@@ -233,7 +233,16 @@ Türkçe, spor koçu gibi gerçekçi ama motive edici bir üslupla yorum yap. Sa
       generationConfig: { 
         temperature: 0.7, 
         maxOutputTokens: 2048,
-        responseMimeType: "application/json" 
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: "OBJECT",
+          properties: {
+            photo1_analysis: { type: "STRING" },
+            photo2_analysis: { type: "STRING" },
+            comparison_and_suggestions: { type: "STRING" }
+          },
+          required: ["photo1_analysis", "photo2_analysis", "comparison_and_suggestions"]
+        }
       }
     })
   });

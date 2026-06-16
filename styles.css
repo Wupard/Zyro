@@ -229,8 +229,9 @@ body.sidebar-collapsed .lang-switcher { display:none; }
 .sidebar-footer { padding: 0; border-top: none; margin-top: 4px; }
 body.sidebar-collapsed .sidebar-footer { padding-left: 0; padding-right: 0; }
 body.sidebar-collapsed #sidebarUserCard { border-radius: 12px; padding: 10px 8px; align-items: center; }
-body.sidebar-collapsed #sidebarUserCard .user-info { display: none; }
+body.sidebar-collapsed #sidebarUserCard .sidebar-user-info { display: none; }
 body.sidebar-collapsed #sidebarUserCard #sidebarLevelWrap { display: none; }
+body.sidebar-collapsed #sidebarUserCard .sidebar-top-row { justify-content: center; gap: 0; }
 
 /* Sidebar User Card Layout Overrides */
 #sidebarUserCard .user-info {

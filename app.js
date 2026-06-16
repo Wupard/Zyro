@@ -452,6 +452,15 @@ const I18N = {
     'Deadbug': 'Deadbug',
     'Thoracic Extension (Rulo veya sandalye ile)': 'Thoracic Extension (Rulo veya sandalye ile)',
     'Child’s Pose (Çocuk Pozu)': 'Child’s Pose (Çocuk Pozu)',
+    '2 set x 30 saniye': '2 set x 30 saniye',
+    'Her harf için 15 tekrar (Toplam 45 tekrar)': 'Her harf için 15 tekrar (Toplam 45 tekrar)',
+    '20 tekrar': '20 tekrar',
+    '15 tekrar (Her birinde 3 sn bekleme)': '15 tekrar (Her birinde 3 sn bekleme)',
+    'Her bacak için 30 saniye': 'Her bacak için 30 saniye',
+    '2 set x 20 tekrar': '2 set x 20 tekrar',
+    '20 tekrar (10 sağ, 10 sol)': '20 tekrar (10 sağ, 10 sol)',
+    '1 dakika (Pozisyonda kal ve derin nefes al)': '1 dakika (Pozisyonda kal ve derin nefes al)',
+    '1 set x 30 saniye': '1 set x 30 saniye',
     apiKeyStatusActive: 'API key aktif',
     pleaseEnterValidKey: 'Lütfen geçerli bir key girin',
     apiKeySaved: 'API Key başarıyla kaydedildi!',
@@ -2044,18 +2053,26 @@ function initGestures() {
 
     const sidebar = document.getElementById('sidebar');
     if (window.innerWidth <= 768) {
-      if (dx > minDistance && !sidebar.classList.contains('open')) {
-        // Open if swiped right anywhere on the screen
-        sidebar.classList.add('open');
-      } else if (dx < -minDistance && sidebar.classList.contains('open')) {
-        sidebar.classList.remove('open');
-      } else if (!sidebar.classList.contains('open')) {
+      if (sidebar.classList.contains('open')) {
+        if (dx < -minDistance) {
+          sidebar.classList.remove('open');
+        }
+      } else {
         const SWIPE_PAGES = ['dashboard','workouts','posture','progress','updates','notes','comments','calculators','beforeafter','achievements','profile'];
         const curIdx = SWIPE_PAGES.indexOf(currentPage);
-        if (dx < -minDistance && curIdx >= 0 && curIdx < SWIPE_PAGES.length - 1) {
-          navigateTo(SWIPE_PAGES[curIdx + 1], { swipeDir: 'left' });
-        } else if (dx > minDistance && curIdx > 0) {
-          navigateTo(SWIPE_PAGES[curIdx - 1], { swipeDir: 'right' });
+        
+        if (dx < -minDistance) {
+          if (curIdx >= 0 && curIdx < SWIPE_PAGES.length - 1) {
+            navigateTo(SWIPE_PAGES[curIdx + 1], { swipeDir: 'left' });
+          }
+        } else if (dx > minDistance) {
+          if (touchStartX < 40) {
+            sidebar.classList.add('open');
+          } else {
+            if (curIdx > 0) {
+              navigateTo(SWIPE_PAGES[curIdx - 1], { swipeDir: 'right' });
+            }
+          }
         }
       }
     }
@@ -3322,7 +3339,8 @@ function updateStats(){
   });
 
   if (volEl) {
-    volEl.textContent = bestProgEx ? `+${parseFloat(maxProg.toFixed(4))} kg` : '0 kg';
+    const unitLabel = bestProgEx ? (bestProgEx.currentUnit || 'kg') : 'kg';
+    volEl.textContent = bestProgEx ? `+${parseFloat(maxProg.toFixed(1))} ${unitLabel}` : `0 ${unitLabel}`;
   }
   if (volBar) {
     volBar.style.width = bestProgEx ? '100%' : '0%';
@@ -3375,7 +3393,9 @@ window.showStrengthDetails = function(targetExercise = null) {
       if (!exerciseData[l.exercise]) exerciseData[l.exercise] = [];
       exerciseData[l.exercise].push({ 
         date, 
-        weight: l.weight || 0, 
+        weight: l.unit === 'lbs' ? (l.inputWeight || l.weight) : (l.weight || 0),
+        unit: l.unit || 'kg',
+        weightKg: l.weight || 0,
         reps: l.reps || 0, 
         sets: l.sets || 1,
         timestamp: l.timestamp || new Date(date).getTime() 
@@ -3409,12 +3429,12 @@ window.showStrengthDetails = function(targetExercise = null) {
       const history = exerciseData[ex].sort((a,b) => a.timestamp - b.timestamp);
       const first = history[0];
       const last = history[history.length-1];
-      const weightGainRaw = last.weight - first.weight;
-      const weightGain = Math.round(weightGainRaw * 10) / 10;
-      const scoreGain = calculateStrengthScore(last.weight, last.reps) - calculateStrengthScore(first.weight, first.reps);
+      const weightGainRaw = last.weightKg - first.weightKg;
+      const weightGain = last.unit === 'lbs' ? Math.round(weightGainRaw / 0.453592 * 10) / 10 : Math.round(weightGainRaw * 10) / 10;
+      const scoreGain = calculateStrengthScore(last.weightKg, last.reps) - calculateStrengthScore(first.weightKg, first.reps);
       
       if (weightGain > 0 || scoreGain > 0) {
-        gains.push({ name: ex, weightGain, scoreGain, lastWeight: last.weight, lastDate: last.date });
+        gains.push({ name: ex, weightGain, scoreGain, lastWeight: last.weight, lastDate: last.date, lastUnit: last.unit });
       }
     });
 
@@ -3426,10 +3446,10 @@ window.showStrengthDetails = function(targetExercise = null) {
           <div onclick="showStrengthDetails('${g.name}')" style="cursor:pointer; display:flex; justify-content:space-between; align-items:center; padding:14px; background:var(--bg-card-alt); border:1px solid var(--border-subtle); border-radius:12px; transition:all 0.2s;" onmouseenter="this.style.borderColor='var(--accent-primary)';this.style.transform='translateX(4px)'" onmouseleave="this.style.borderColor='var(--border-subtle)';this.style.transform='translateX(0)'">
             <div>
               <div style="font-size:0.9rem; font-weight:700; color:var(--text-primary);">${g.name}</div>
-              <div style="font-size:0.7rem; color:var(--text-muted);">Son: ${g.lastWeight}kg · ${new Date(g.lastDate).toLocaleDateString('tr-TR', {day:'numeric', month:'short'})}</div>
+              <div style="font-size:0.7rem; color:var(--text-muted);">Son: ${g.lastWeight}${g.lastUnit} · ${new Date(g.lastDate).toLocaleDateString('tr-TR', {day:'numeric', month:'short'})}</div>
             </div>
             <div style="text-align:right;">
-              <div style="font-size:0.85rem; font-weight:800; color:#4ecb8d;">+${parseFloat(g.weightGain.toFixed(4))}kg</div>
+              <div style="font-size:0.85rem; font-weight:800; color:#4ecb8d;">+${parseFloat(g.weightGain.toFixed(1))}${g.lastUnit}</div>
               <div style="font-size:0.6rem; color:var(--text-muted);">Gelişim</div>
             </div>
           </div>
@@ -3471,24 +3491,25 @@ window.showStrengthDetails = function(targetExercise = null) {
   `;
 
   // 4. Predictions Section (Motivational)
-  const current1RM = calculateStrengthScore(latest.weight, latest.reps);
-  const nextWeekWeight = latest.weight + (latest.weight > 50 ? 2.5 : 1);
-  const nextMonthWeight = latest.weight + (latest.weight > 50 ? 7.5 : 5);
+  const isLbs = latest.unit === 'lbs';
+  const unitLabel = latest.unit || 'kg';
+  const nextWeekWeight = latest.weight + (isLbs ? (latest.weight > 110 ? 5 : 2.5) : (latest.weight > 50 ? 2.5 : 1));
+  const nextMonthWeight = latest.weight + (isLbs ? (latest.weight > 110 ? 15 : 10) : (latest.weight > 50 ? 7.5 : 5));
 
   let predictionHtml = `
     <div style="background:linear-gradient(135deg, rgba(139,124,247,0.1), rgba(78,203,141,0.05)); border:1px solid rgba(139,124,247,0.2); border-radius:16px; padding:18px; margin-bottom:24px; position:relative; overflow:hidden;">
-      <div style="position:absolute; top:-10px; right:-10px; font-size:4rem; opacity:0.05; transform:rotate(15deg);">g���</div>
+      <div style="position:absolute; top:-10px; right:-10px; font-size:4rem; opacity:0.05; transform:rotate(15deg);">g</div>
       <h4 style="font-size:0.75rem; color:var(--accent-primary); text-transform:uppercase; letter-spacing:1px; margin-bottom:14px; font-weight:800;">Gelecek Tahminleri</h4>
       
       <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
         <div style="background:rgba(255,255,255,0.03); padding:12px; border-radius:12px; border:1px solid rgba(255,255,255,0.05);">
           <div style="font-size:0.6rem; color:var(--text-muted); text-transform:uppercase; margin-bottom:4px;">Gelecek Hafta</div>
-          <div style="font-size:1.1rem; font-weight:900; color:var(--text-primary);">${nextWeekWeight}<small style="font-size:0.6rem; opacity:0.7;">kg</small></div>
+          <div style="font-size:1.1rem; font-weight:900; color:var(--text-primary);">${nextWeekWeight}<small style="font-size:0.6rem; opacity:0.7;">${unitLabel}</small></div>
           <div style="font-size:0.65rem; color:#4ecb8d; font-weight:600;">${latest.reps} Tekrar</div>
         </div>
         <div style="background:rgba(255,255,255,0.03); padding:12px; border-radius:12px; border:1px solid rgba(255,255,255,0.05);">
           <div style="font-size:0.6rem; color:var(--text-muted); text-transform:uppercase; margin-bottom:4px;">Gelecek Ay</div>
-          <div style="font-size:1.1rem; font-weight:900; color:var(--text-primary);">${nextMonthWeight}<small style="font-size:0.6rem; opacity:0.7;">kg</small></div>
+          <div style="font-size:1.1rem; font-weight:900; color:var(--text-primary);">${nextMonthWeight}<small style="font-size:0.6rem; opacity:0.7;">${unitLabel}</small></div>
           <div style="font-size:0.65rem; color:#4ecb8d; font-weight:600;">${latest.reps} Tekrar</div>
         </div>
       </div>
@@ -3526,8 +3547,8 @@ window.showStrengthDetails = function(targetExercise = null) {
             const originalIdx = history.indexOf(curr);
             const next = history[originalIdx + 1]; 
             const weightDiff = next ? (curr.weight - next.weight) : 0;
-            const score = calculateStrengthScore(curr.weight, curr.reps);
-            const prevScore = next ? calculateStrengthScore(next.weight, next.reps) : 0;
+            const score = calculateStrengthScore(curr.weightKg, curr.reps);
+            const prevScore = next ? calculateStrengthScore(next.weightKg, next.reps) : 0;
             const scoreDiffPct = prevScore > 0 ? Math.round(((score - prevScore) / prevScore) * 100) : 0;
 
             const dateObj = new Date(curr.timestamp);
@@ -3540,9 +3561,9 @@ window.showStrengthDetails = function(targetExercise = null) {
                   <span style="font-size:0.65rem; font-weight:800; padding:2px 6px; border-radius:4px; background:rgba(139,124,247,0.1); color:var(--accent-primary);">${score} Puan</span>
                 </div>
                 <div style="display:flex; align-items:baseline; gap:8px;">
-                  <span style="font-size:1.2rem; font-weight:900;">${curr.weight}kg</span>
+                  <span style="font-size:1.2rem; font-weight:900;">${curr.weight}${curr.unit}</span>
                   <span style="font-size:0.75rem; color:var(--text-muted);">${curr.reps} Tekrar</span>
-                  ${weightDiff > 0 ? `<span style="font-size:0.7rem; font-weight:800; color:#4ecb8d; margin-left:auto;">+${parseFloat(weightDiff.toFixed(4))}kg ↑</span>` : ''}
+                  ${weightDiff > 0 ? `<span style="font-size:0.7rem; font-weight:800; color:#4ecb8d; margin-left:auto;">+${parseFloat(weightDiff.toFixed(1))}${curr.unit} ↑</span>` : ''}
                 </div>
               </div>
             `;
@@ -3568,7 +3589,7 @@ window.showStrengthDetails = function(targetExercise = null) {
         data: {
           labels: labels,
           datasets: [{
-            label: 'Ağırlık (kg)',
+            label: 'Ağırlık (' + unitLabel + ')',
             data: dataPoints,
             borderColor: '#8b7cf7',
             backgroundColor: 'rgba(139, 124, 247, 0.15)',
@@ -3596,7 +3617,7 @@ window.showStrengthDetails = function(targetExercise = null) {
               padding: 10,
               displayColors: false,
               callbacks: {
-                label: function(context) { return context.parsed.y + ' kg'; }
+                label: function(context) { return context.parsed.y + ' ' + unitLabel; }
               }
             }
           },
@@ -5214,30 +5235,49 @@ function computeExerciseStats() {
       const w = parseFloat(log.weight) || 0;
       const r = parseInt(log.reps) || 0;
       const s = parseInt(log.sets) || 1;
+      const unit = log.unit || 'kg';
+      const inputWeight = log.unit === 'lbs' ? (log.inputWeight || log.weight) : w;
 
       if (!stats[ex]) {
         stats[ex] = {
           name: ex,
           // Baseline (ilk kayıt)
-          baselineWeight: w, baselineReps: r, baselineSets: s, baselineDate: date,
+          baselineWeight: inputWeight,
+          baselineUnit: unit,
+          baselineWeightKg: w,
+          baselineReps: r, baselineSets: s, baselineDate: date,
           // All-time PR
-          prWeight: w, prReps: r, prSets: s, prDate: date,
+          prWeight: inputWeight,
+          prUnit: unit,
+          prWeightKg: w,
+          prReps: r, prSets: s, prDate: date,
           // Current (en son)
-          currentWeight: w, currentReps: r, currentSets: s, lastUpdated: date,
+          currentWeight: inputWeight,
+          currentUnit: unit,
+          currentWeightKg: w,
+          currentReps: r, currentSets: s, lastUpdated: date,
           // Bu hafta
-          weekWeight: null, weekReps: null, weekSets: null, weekDate: null,
+          weekWeight: null,
+          weekUnit: 'kg',
+          weekWeightKg: null,
+          weekReps: null, weekSets: null, weekDate: null,
           // Geçen hafta
           prevWeekWeight: null,
+          prevWeekWeightKg: null,
         };
       } else {
         // Update current
-        stats[ex].currentWeight = w;
+        stats[ex].currentWeight = inputWeight;
+        stats[ex].currentUnit = unit;
+        stats[ex].currentWeightKg = w;
         stats[ex].currentReps = r;
         stats[ex].currentSets = s;
         stats[ex].lastUpdated = date;
-        // PR check
-        if (w > stats[ex].prWeight) {
-          stats[ex].prWeight = w;
+        // PR check - compare in KG
+        if (w > stats[ex].prWeightKg) {
+          stats[ex].prWeight = inputWeight;
+          stats[ex].prUnit = unit;
+          stats[ex].prWeightKg = w;
           stats[ex].prReps = r;
           stats[ex].prSets = s;
           stats[ex].prDate = date;
@@ -5245,8 +5285,10 @@ function computeExerciseStats() {
       }
       // Bu hafta (Pazartesi'den bugüne)
       if (date >= mondayStr) {
-        if (!stats[ex].weekWeight || w >= stats[ex].weekWeight) {
-          stats[ex].weekWeight = w;
+        if (stats[ex].weekWeightKg === null || w >= stats[ex].weekWeightKg) {
+          stats[ex].weekWeight = inputWeight;
+          stats[ex].weekUnit = unit;
+          stats[ex].weekWeightKg = w;
           stats[ex].weekReps = r;
           stats[ex].weekSets = s;
           stats[ex].weekDate = date;
@@ -5254,8 +5296,9 @@ function computeExerciseStats() {
       }
       // Geçen hafta
       if (date >= prevMondayStr && date <= prevSundayStr) {
-        if (!stats[ex].prevWeekWeight || w >= stats[ex].prevWeekWeight) {
-          stats[ex].prevWeekWeight = w;
+        if (stats[ex].prevWeekWeightKg === null || w >= stats[ex].prevWeekWeightKg) {
+          stats[ex].prevWeekWeight = inputWeight;
+          stats[ex].prevWeekWeightKg = w;
         }
       }
     });
@@ -5267,9 +5310,11 @@ function computeExerciseStats() {
       if (exercises.includes(s.name)) { s.category = cat; break; }
     }
     // Weekly delta
-    if (s.weekWeight !== null && s.prevWeekWeight !== null) {
-      s.weekDelta = parseFloat((s.weekWeight - s.prevWeekWeight).toFixed(1));
-    } else if (s.weekWeight !== null && s.prevWeekWeight === null) {
+    if (s.weekWeightKg !== null && s.prevWeekWeightKg !== null) {
+      const deltaKg = s.weekWeightKg - s.prevWeekWeightKg;
+      const delta = s.weekUnit === 'lbs' ? deltaKg / 0.453592 : deltaKg;
+      s.weekDelta = parseFloat(delta.toFixed(1));
+    } else if (s.weekWeightKg !== null && s.prevWeekWeightKg === null) {
       s.weekDelta = null; // ilk hafta, referans yok
     } else {
       s.weekDelta = null;
@@ -7077,9 +7122,19 @@ function renderProgressTracker() {
   let listHtml = '';
   filtered.forEach(ex => {
     const isSelected = selectedEx && selectedEx.name === ex.name;
-    const diff = parseFloat((ex.currentWeight - ex.baselineWeight).toFixed(1));
+    const currentUnit = ex.currentUnit || 'kg';
+    const baselineUnit = ex.baselineUnit || 'kg';
+    let baselineInCurrentUnit = ex.baselineWeight;
+    if (currentUnit !== baselineUnit) {
+      if (currentUnit === 'lbs') {
+        baselineInCurrentUnit = ex.baselineWeightKg / 0.453592;
+      } else {
+        baselineInCurrentUnit = ex.baselineWeightKg;
+      }
+    }
+    const diff = parseFloat((ex.currentWeight - baselineInCurrentUnit).toFixed(1));
     const diffNode = diff !== 0 
-      ? `<span style="font-size: 0.75rem; font-weight: bold; color: ${diff > 0 ? '#34d399' : '#f87171'}">${diff > 0 ? '+' : ''}${diff}kg</span>`
+      ? `<span style="font-size: 0.75rem; font-weight: bold; color: ${diff > 0 ? '#34d399' : '#f87171'}">${diff > 0 ? '+' : ''}${diff}${currentUnit}</span>`
       : '';
     listHtml += `
       <button onclick="setTrackerExercise('${ex.name.replace(/'/g, "\\'")}')"
@@ -7090,7 +7145,7 @@ function renderProgressTracker() {
           </div>
           <div style="text-align: left; min-width:0;">
             <p style="margin: 0; font-weight: 500; font-size: 0.875rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:140px;">${ex.name}</p>
-            <p style="margin: 0; font-size: 0.75rem; color: var(--text-muted);">${ex.currentWeight}kg × ${ex.currentReps} ${currentLang === 'en' ? 'rep' : 'tekrar'} × ${ex.currentSets||1} set</p>
+            <p style="margin: 0; font-size: 0.75rem; color: var(--text-muted);">${ex.currentWeight}${currentUnit} × ${ex.currentReps} ${currentLang === 'en' ? 'rep' : 'tekrar'} × ${ex.currentSets||1} set</p>
           </div>
         </div>
         <div style="display: flex; align-items: center; gap: 8px; flex-shrink:0;">
@@ -7105,6 +7160,9 @@ function renderProgressTracker() {
   let detailHtml = '';
   if (selectedEx) {
     const formatDate = (ds) => ds ? new Date(ds+'T00:00:00').toLocaleDateString(currentLang==='tr'?'tr-TR':'en-US', {day:'numeric',month:'short',year:'numeric'}) : '—';
+    const prUnit = selectedEx.prUnit || 'kg';
+    const currentUnit = selectedEx.currentUnit || 'kg';
+    const weekUnit = selectedEx.weekUnit || 'kg';
     
     // PR section
     const prHtml = `
@@ -7114,7 +7172,7 @@ function renderProgressTracker() {
           <span style="font-size:0.7rem;font-weight:800;text-transform:uppercase;letter-spacing:0.1em;color:#FFD700;text-shadow: 0 0 8px rgba(255,215,0,0.4);">${currentLang === 'tr' ? 'En Yüksek Kaldırış (All-Time PR)' : 'Highest Lift (All-Time PR)'}</span>
         </div>
         <div style="display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;">
-          <span style="font-size:1.8rem;font-weight:900;color:#FFD700;letter-spacing:-0.02em;">${selectedEx.prWeight} kg</span>
+          <span style="font-size:1.8rem;font-weight:900;color:#FFD700;letter-spacing:-0.02em;">${selectedEx.prWeight} ${prUnit}</span>
           <span style="font-size:0.9rem;color:rgba(255,255,255,0.7);font-weight:500;">${selectedEx.prReps} ${currentLang === 'en' ? 'reps' : 'tekrar'} × ${selectedEx.prSets||1} set</span>
         </div>
         <div style="margin-top:8px;font-size:0.75rem;color:rgba(255,255,255,0.5);display:flex;align-items:center;gap:6px;font-weight:500;">
@@ -7138,15 +7196,15 @@ function renderProgressTracker() {
         </div>
         ${hasWorkout ? `
           <div style="display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;">
-            <span style="font-size:1.6rem;font-weight:900;color:#34d399;letter-spacing:-0.02em;">${selectedEx.currentWeight} kg</span>
+            <span style="font-size:1.6rem;font-weight:900;color:#34d399;letter-spacing:-0.02em;">${selectedEx.currentWeight} ${currentUnit}</span>
             <span style="font-size:0.9rem;color:rgba(255,255,255,0.7);font-weight:500;">${selectedEx.currentReps} ${currentLang === 'en' ? 'reps' : 'tekrar'} × ${selectedEx.currentSets||1} set</span>
           </div>
           <div style="margin-top:8px;font-size:0.8rem;color:rgba(255,255,255,0.6);font-weight:500;line-height:1.4;">
             ${currentLang === 'tr' 
               ? `Geçen antrenman <strong style="color:#34d399;">${dayName}</strong> günü yapıldı. <br>
-                 ${dayName} günü <strong>${selectedEx.currentWeight} kg</strong> ile <strong>${selectedEx.currentReps}</strong> tekrar <strong>${selectedEx.currentSets||1}</strong> set atıldı.`
+                 ${dayName} günü <strong>${selectedEx.currentWeight} ${currentUnit}</strong> ile <strong>${selectedEx.currentReps}</strong> tekrar <strong>${selectedEx.currentSets||1}</strong> set atıldı.`
               : `Last workout was done on <strong style="color:#34d399;">${dayName}</strong>. <br>
-                 Performed <strong>${selectedEx.currentWeight} kg</strong> with <strong>${selectedEx.currentReps}</strong> reps for <strong>${selectedEx.currentSets||1}</strong> sets.`}
+                 Performed <strong>${selectedEx.currentWeight} ${currentUnit}</strong> with <strong>${selectedEx.currentReps}</strong> reps for <strong>${selectedEx.currentSets||1}</strong> sets.`}
           </div>
           <div style="margin-top:8px;font-size:0.75rem;color:rgba(255,255,255,0.4);display:flex;align-items:center;gap:6px;">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
@@ -7161,8 +7219,13 @@ function renderProgressTracker() {
     if (selectedEx.weekDelta !== null && hasWeek) {
       const isUp = selectedEx.weekDelta > 0;
       const isDown = selectedEx.weekDelta < 0;
-      const pct = selectedEx.prevWeekWeight ? Math.abs(Math.round((selectedEx.weekDelta / selectedEx.prevWeekWeight) * 100)) : 0;
+      const pct = selectedEx.prevWeekWeightKg ? Math.abs(Math.round((selectedEx.weekDelta / (selectedEx.prevWeekWeightKg * (selectedEx.weekUnit === 'lbs' ? 2.20462 : 1))) * 100)) : 0;
       const barW = Math.min(100, pct * 2);
+      let prevWeekWeightInWeekUnit = '—';
+      if (selectedEx.prevWeekWeightKg !== null) {
+        const converted = selectedEx.weekUnit === 'lbs' ? selectedEx.prevWeekWeightKg / 0.453592 : selectedEx.prevWeekWeightKg;
+        prevWeekWeightInWeekUnit = parseFloat(converted.toFixed(1));
+      }
       progressHtml = `
         <div style="background:linear-gradient(135deg, rgba(139, 124, 247, 0.08), rgba(139, 124, 247, 0.02)); border: 1px solid rgba(139, 124, 247, 0.25); border-radius: 16px; padding: 18px 20px; box-shadow: 0 8px 32px rgba(139, 124, 247, 0.05); backdrop-filter: blur(8px);">
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
@@ -7170,13 +7233,13 @@ function renderProgressTracker() {
             <span style="font-size:0.7rem;font-weight:800;text-transform:uppercase;letter-spacing:0.1em;color:var(--accent-primary);text-shadow: 0 0 8px rgba(139,124,247,0.3);">${t('weeklyGrowth')}</span>
           </div>
           <div style="display:flex;align-items:center;gap:12px;">
-            <span style="font-size:1.6rem;font-weight:900;color:${isUp?'#34d399':isDown?'#f87171':'var(--text-muted)'};letter-spacing:-0.02em;">${isUp?'+':''}${selectedEx.weekDelta} kg</span>
+            <span style="font-size:1.6rem;font-weight:900;color:${isUp?'#34d399':isDown?'#f87171':'var(--text-muted)'};letter-spacing:-0.02em;">${isUp?'+':''}${selectedEx.weekDelta} ${weekUnit}</span>
             ${pct > 0 ? `<span style="font-size:0.85rem;color:${isUp?'#34d399':isDown?'#f87171':'var(--text-muted)'};font-weight:700;padding:2px 8px;background:${isUp?'rgba(52,211,153,0.15)':isDown?'rgba(248,113,113,0.15)':'rgba(255,255,255,0.1)'};border-radius:12px;">${isUp?'+':''}${isDown?'-':''}${pct}%</span>` : ''}
           </div>
           <div style="margin-top:14px;background:rgba(255,255,255,0.05);border-radius:99px;height:8px;overflow:hidden;box-shadow:inset 0 1px 3px rgba(0,0,0,0.2);">
             <div style="height:100%;width:${barW}%;background:linear-gradient(90deg, ${isUp?'#10b981, #34d399':isDown?'#ef4444, #f87171':'var(--accent-primary)'});border-radius:99px;transition:width 0.8s cubic-bezier(0.4, 0, 0.2, 1);box-shadow: 0 0 10px ${isUp?'rgba(52,211,153,0.5)':isDown?'rgba(248,113,113,0.5)':'rgba(139,124,247,0.5)'};"></div>
           </div>
-          <div style="margin-top:10px;font-size:0.75rem;color:rgba(255,255,255,0.5);font-weight:500;">${currentLang === 'tr' ? 'Bu hafta vs geçen hafta' : 'This week vs last week'} (${selectedEx.prevWeekWeight || '—'} kg)</div>
+          <div style="margin-top:10px;font-size:0.75rem;color:rgba(255,255,255,0.5);font-weight:500;">${currentLang === 'tr' ? 'Bu hafta vs geçen hafta' : 'This week vs last week'} (${prevWeekWeightInWeekUnit} ${weekUnit})</div>
         </div>`;
     } else if (hasWeek) {
       progressHtml = `
@@ -8280,9 +8343,9 @@ window.renderAdminNotificationHistory = function() {
   const historyEl = document.getElementById('adminNotifHistory');
   if (!historyEl) return;
 
-  const history = adminNotificationHistory.length > 0 ? adminNotificationHistory.slice(0, 8) : activeNotifications.slice(0, 5);
+  const history = adminNotificationHistory;
   if (history.length === 0) {
-    historyEl.innerHTML = '<div style="font-size:0.7rem; color:var(--text-tertiary); text-align:center; padding:12px;">Geçmiş bulunamadı</div>';
+    historyEl.innerHTML = '<div style="font-size:0.7rem; color:var(--text-muted); text-align:center; padding:12px;">Geçmiş bulunamadı</div>';
     return;
   }
 
@@ -8290,26 +8353,76 @@ window.renderAdminNotificationHistory = function() {
     const icon = h.icon || '\uD83D\uDCE2';
     const date = new Date(h.timestamp).toLocaleDateString('tr-TR', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
     const targetLabel = __formatAdminHistoryTarget(h);
-    const canDelete = h.targetScope === 'broadcast' || h.scope === 'broadcast';
 
     return `
-      <div class="admin-history-item">
+      <div class="admin-history-item" style="display:flex; align-items:center; justify-content:space-between; padding:8px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.05); border-radius:8px; margin-bottom:6px;">
         <div style="display:flex; align-items:flex-start; gap:8px; flex:1; min-width:0;">
-          <span class="admin-history-icon">${icon}</span>
+          <span class="admin-history-icon" style="font-size:1.1rem; flex-shrink:0;">${icon}</span>
           <div style="min-width:0;">
-            <div style="font-size:0.7rem; font-weight:600; color:var(--text-primary); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${h.title}</div>
-            <div style="font-size:0.65rem; color:var(--text-secondary); margin-top:2px;">${targetLabel}</div>
-            <div style="font-size:0.65rem; color:var(--text-tertiary);">${date}</div>
+            <div style="font-size:0.75rem; font-weight:600; color:var(--text-primary); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${h.title}</div>
+            <div style="font-size:0.65rem; color:var(--text-secondary); margin-top:2px;">Alıcı: ${targetLabel}</div>
+            <div style="font-size:0.6rem; color:var(--text-muted);">${date}</div>
           </div>
         </div>
-        ${canDelete ? `
-          <button onclick="deleteNotification('${h.targetId || h.id}', 'broadcast')" style="background:none; border:none; color:var(--text-muted); cursor:pointer; padding:4px; flex-shrink:0;">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-          </button>
-        ` : ''}
+        <button onclick="deleteAdminNotification('${h.id}', '${h.targetScope || h.scope || ''}', '${h.targetUid || ''}', '${h.targetId || ''}')" style="background:none; border:none; color:#f87171; cursor:pointer; padding:6px; flex-shrink:0; display:flex; align-items:center; justify-content:center; transition:opacity 0.2s;" onmouseenter="this.style.opacity='0.7'" onmouseleave="this.style.opacity='1'">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+        </button>
       </div>
     `;
   }).join('');
+};
+
+window.deleteAdminNotification = async function(adminNotifDocId, targetScope, targetUid, targetId) {
+  if (!confirm('Bu bildirimi geçmişten ve alıcılardan silmek istediğinize emin misiniz?')) return;
+  try {
+    // 1. Delete from admin_notifications log
+    await db.doc(`admin_notifications/${adminNotifDocId}`).delete();
+    
+    // 2. Delete the actual notification from recipients
+    if (targetScope === 'broadcast' && targetId) {
+      await db.doc(`notifications/${targetId}`).delete();
+    } else if (targetScope === 'personal' && targetUid && targetId) {
+      await db.doc(`users/${targetUid}/notifications/${targetId}`).delete();
+    }
+    
+    showToast('Bildirim silindi.', 'success');
+  } catch (err) {
+    console.error('deleteAdminNotification error:', err);
+    showToast('Bildirim silinemedi: ' + err.message, 'error');
+  }
+};
+
+window.clearAdminNotificationHistory = async function() {
+  if (!confirm('Tüm gönderilen bildirim geçmişini ve bu bildirimleri alıcılardan kalıcı olarak temizlemek istediğinize emin misiniz?')) return;
+  
+  try {
+    const snap = await db.collection('admin_notifications').get();
+    const batch = db.batch();
+    
+    // For each admin_notification entry
+    for (const doc of snap.docs) {
+      const data = doc.data();
+      const targetScope = data.targetScope;
+      const targetUid = data.targetUid;
+      const targetId = data.targetId;
+      
+      // Delete admin log
+      batch.delete(doc.ref);
+      
+      // Delete actual notification
+      if (targetScope === 'broadcast' && targetId) {
+        batch.delete(db.doc(`notifications/${targetId}`));
+      } else if (targetScope === 'personal' && targetUid && targetId) {
+        batch.delete(db.doc(`users/${targetUid}/notifications/${targetId}`));
+      }
+    }
+    
+    await batch.commit();
+    showToast('Tüm bildirim geçmişi temizlendi.', 'success');
+  } catch (err) {
+    console.error('clearAdminNotificationHistory error:', err);
+    showToast('Geçmiş temizlenirken hata oluştu: ' + err.message, 'error');
+  }
 };
 
 // =============================================
@@ -10462,11 +10575,11 @@ function openBeforeAfterAnalysis() {
         <div class="ai-analysis-modal-body" style="padding:16px;">
           <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 12px; max-height:400px; overflow-y:auto; padding-right:8px;" id="aiPhotoSelectorGrid">
             ${photos.map((p, i) => `
-              <div class="ai-photo-select-item" data-id="${p.id}" data-b64="${p.image}" onclick="toggleAIPhotoSelection(this)" style="position:relative; cursor:pointer; border-radius:12px; overflow:hidden; border:2px solid transparent; transition:all 0.2s;">
+              <div class="ai-photo-select-item" data-id="${p.id}" onclick="toggleAIPhotoSelection(this)" style="position:relative; cursor:pointer; border-radius:12px; overflow:hidden; border:2px solid transparent; transition:all 0.2s;">
                 <img src="${p.image}" style="width:100%; height:110px; object-fit:cover; display:block;">
                 <div style="position:absolute; bottom:0; left:0; right:0; background:rgba(0,0,0,0.65); color:white; font-size:0.75rem; padding:6px; text-align:center; font-weight:600; backdrop-filter:blur(4px);">${p.date}</div>
                 <div class="ai-photo-select-check" style="position:absolute; top:8px; right:8px; width:22px; height:22px; background:rgba(0,0,0,0.5); border:1.5px solid white; border-radius:50%; display:flex; align-items:center; justify-content:center; opacity:0; transition:all 0.2s; backdrop-filter:blur(2px);">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
                 </div>
               </div>
             `).join('')}
@@ -10513,10 +10626,14 @@ window.startAIAnalysis = function() {
   const selectedEls = Array.from(document.querySelectorAll('.ai-photo-select-item.selected'));
   if(selectedEls.length !== 2) return;
   
-  const photosData = selectedEls.map(el => ({
-    b64: el.getAttribute('data-b64'),
-    dateText: el.querySelector('div').innerText
-  })).sort((a,b) => a.dateText.localeCompare(b.dateText));
+  const photosData = selectedEls.map(el => {
+    const id = el.getAttribute('data-id');
+    const p = (appData.progressImages || []).find(img => img.id == id);
+    return {
+      b64: p ? p.image : '',
+      dateText: el.querySelector('div').innerText
+    };
+  }).sort((a,b) => a.dateText.localeCompare(b.dateText));
   
   const beforePhoto = photosData[0];
   const afterPhoto = photosData[1];
