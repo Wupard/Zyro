@@ -1565,50 +1565,7 @@ function renderUpdatesPage(){
       const isAdmin = currentUser && (currentUser.email === 'wupard@gmail.com' || appData.firestoreAdmin === true || appData.userRank === 'admin' || appData.userRank === 'mod');
 
       let html = '';
-      
-      // Hardcoded local update for version 1.1.0 (Diet, Comment Editing, Workout Counter)
-      const localUpdateItems = [
-        '* Diyet & Beslenme, Yorum Düzenleme ve Egzersiz Sayacı',
-        '- **Diyet & Beslenme**: Yemek fotoğraflarını çekip Gemini AI ile analiz edebileceğiniz ve günlük makro hedeflerinizden düşebileceğiniz yeni bir diyet takip sistemi eklendi.',
-        '- **Hedef Belirleme**: Kalori, protein, karbonhidrat ve yağ hedeflerinizi istediğiniz gibi güncelleyebilir ve kalan miktarları anlık takip edebilirsiniz.',
-        '- **Yorum Düzenleme**: Topluluk yorumlarında ve yanıtlarında yaptığınız kendi yorumlarınızı artık inline (satır içi) olarak düzenleyebilirsiniz.',
-        '- **Bugün Egzersiz Sayacı**: Antrenman programı sayfasındaki "Bugün" kısmında o gün kaç egzersiz kaydettiğinizi dinamik olarak gösteren bir sayaç eklendi.'
-      ];
-      
-      html += `
-      <section class="card updates-card" style="margin-bottom:16px; border: 1px solid rgba(255,112,67,0.3); background: rgba(255,112,67,0.02);">
-        <div class="updates-head">
-          <div class="updates-head-icon" style="color: #ff7043; background: rgba(255,112,67,0.12);">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-              stroke-linecap="round" stroke-linejoin="round">
-              <path d="M12 2v4"/><path d="M12 18v4"/>
-              <path d="M4.93 4.93l2.83 2.83"/><path d="M16.24 16.24l2.83 2.83"/>
-              <path d="M2 12h4"/><path d="M18 12h4"/>
-              <path d="M4.93 19.07l2.83-2.83"/><path d="M16.24 7.76l2.83-2.83"/>
-            </svg>
-          </div>
-          <div style="display:flex;flex-direction:column;gap:4px;min-width:0;flex:1;">
-            <div class="updates-title" style="color: #ff7043;">Yeni Özellikler Yayında!</div>
-            <div class="updates-subtitle">Yapımcı: Zyro AI & Wupard</div>
-          </div>
-        </div>
-        <div class="updates-timeline">
-          <div class="updates-entry">
-            <div class="updates-entry-marker" style="background: rgba(255,112,67,0.1); color: #ff7043; border-color: rgba(255,112,67,0.3);">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
-                stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
-            </div>
-            <div class="updates-entry-body">
-              <div class="updates-entry-date">16 HAZİRAN 2026</div>
-              <div>
-                <div class="updates-content-parsed">
-                  ${parseUpdateContent(localUpdateItems)}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>`;
+
 
       docs.forEach(({ id, data }) => {
         window.currentUpdatesData[id] = data.items || [];
