@@ -2241,6 +2241,22 @@ function renderWorkout(tab){
       if (!appData.workoutDoneDate) appData.workoutDoneDate = {};
       appData.workoutDoneDate[tab] = todayStr();
       
+      // Auto-toggle day progress if at least 1 exercise is checked
+      const anyDone = appData.programs[tab].some(ex => ex.done);
+      const td = todayStr();
+      if (!appData.completedDays) appData.completedDays = {};
+      if (!appData.completedDays[td]) appData.completedDays[td] = {};
+      
+      if (anyDone) {
+        appData.completedDays[td].workout = true;
+        appData.attendance[td] = true;
+      } else {
+        const logs = appData.workoutLogs[td] || [];
+        if (logs.length === 0) {
+          appData.completedDays[td].workout = false;
+        }
+      }
+      
       // Auto-complete if all exercises done
       const allDone = appData.programs[tab].every(ex => ex.done);
       if (allDone) {
@@ -2248,6 +2264,8 @@ function renderWorkout(tab){
       } else {
         saveData();
         renderWorkout(tab);
+        renderAttendance();
+        renderMonthlyTracker();
       }
     });
   });
@@ -2379,7 +2397,28 @@ function renderPosture(tab){
       const idx=parseInt(btn.dataset.index);
       if(!appData.posturePrograms)appData.posturePrograms=JSON.parse(JSON.stringify(DEFAULT_POSTURE_PROGRAMS));
       appData.posturePrograms[tab][idx].done=!appData.posturePrograms[tab][idx].done;
-      saveData();renderPosture(tab);
+
+      // Auto-toggle day progress if at least 1 exercise is checked
+      const anyDone = appData.posturePrograms[tab].some(ex => ex.done);
+      const td = todayStr();
+      if (!appData.completedDays) appData.completedDays = {};
+      if (!appData.completedDays[td]) appData.completedDays[td] = {};
+      
+      if (anyDone) {
+        appData.completedDays[td].posture = true;
+      } else {
+        appData.completedDays[td].posture = false;
+      }
+
+      // Auto-complete if all exercises done
+      const allDone = appData.posturePrograms[tab].every(ex => ex.done);
+      if (allDone) {
+        completeDay('posture', tab);
+      } else {
+        saveData();
+        renderPosture(tab);
+        renderMonthlyTracker();
+      }
     });
   });
 }
@@ -2449,6 +2488,7 @@ window.completeDay = function(type, tab) {
   saveData();
   renderAttendance();
   updateStats();
+  renderMonthlyTracker();
   if(type === 'workout') renderWorkout(tab);
   if(type === 'posture') renderPosture(tab);
   
@@ -2467,13 +2507,18 @@ window.completeDay = function(type, tab) {
   setTimeout(() => showToast(msg, 'success'), 400);
 };
 
-// =============================================
-// LOGGED EXERCISES & MONTHLY TRACKER
-// =============================================
 let currentTrackerDate = new Date();
 
 window.changeTrackerMonth = function(delta) {
-  currentTrackerDate.setMonth(currentTrackerDate.getMonth() + delta);
+  const nextMonth = new Date(currentTrackerDate);
+  nextMonth.setMonth(nextMonth.getMonth() + delta);
+  const now = new Date();
+  // Don't allow navigating past the current month
+  if (nextMonth > new Date(now.getFullYear(), now.getMonth(), 28)) {
+    showToast(currentLang === 'tr' ? 'Gelecek aylara geçilemez!' : 'Cannot view future months!', 'warning');
+    return;
+  }
+  currentTrackerDate = nextMonth;
   renderMonthlyTracker();
 };
 
@@ -2489,44 +2534,74 @@ function renderMonthlyTracker() {
   const labelEl = document.getElementById('trackerMonthLabel');
   if(labelEl) labelEl.textContent = monthName;
   
-  let wHtml = `<div class="tracker-row"><div class="tracker-label">${currentLang==='tr'?'SPOR':'WORKOUT'}</div><div class="tracker-grid">`;
-  let pHtml = `<div class="tracker-divider"></div><div class="tracker-row"><div class="tracker-label">${currentLang==='tr'?'POSTÜR':'POSTURE'}</div><div class="tracker-grid">`;
-  
   const todayDate = new Date();
   todayDate.setHours(0,0,0,0);
 
   const isCurrentMonth = (y === todayDate.getFullYear() && m === todayDate.getMonth());
   const currentDay = todayDate.getDate();
 
-  for(let d=1; d<=daysInMonth; d++) {
+  // Show days up to current day for active month, or full month for past months
+  const endDay = isCurrentMonth ? currentDay : daysInMonth;
+
+  // Calculate completed count for the active portion of the month
+  let workoutCompletedCount = 0;
+  let postureCompletedCount = 0;
+  for(let d=1; d<=endDay; d++) {
+    const dStr = y + '-' + String(m+1).padStart(2,'0') + '-' + String(d).padStart(2,'0');
+    const comp = (appData.completedDays && appData.completedDays[dStr]) || {};
+    const workoutLogs = appData.workoutLogs[dStr] || [];
+    const isWorkoutDone = comp.workout || workoutLogs.length > 0;
+    if (isWorkoutDone) workoutCompletedCount++;
+    if (comp.posture) postureCompletedCount++;
+  }
+
+  let wHtml = `
+    <div class="tracker-row">
+      <div class="tracker-label-card">
+        <span class="tracker-icon">🏋️</span>
+        <div class="tracker-info">
+          <span class="tracker-title">${currentLang==='tr'?'Spor':'Workout'}</span>
+          <span class="tracker-stats">${workoutCompletedCount}/${endDay} ${currentLang==='tr'?'Gün':'Days'}</span>
+        </div>
+      </div>
+      <div class="tracker-grid">
+  `;
+
+  let pHtml = `
+    <div class="tracker-divider"></div>
+    <div class="tracker-row">
+      <div class="tracker-label-card">
+        <span class="tracker-icon">🧘</span>
+        <div class="tracker-info">
+          <span class="tracker-title">${currentLang==='tr'?'Postür':'Posture'}</span>
+          <span class="tracker-stats">${postureCompletedCount}/${endDay} ${currentLang==='tr'?'Gün':'Days'}</span>
+        </div>
+      </div>
+      <div class="tracker-grid">
+  `;
+
+  // Render days in reverse order (newest/today first)
+  for(let d=endDay; d>=1; d--) {
     const dStr = y + '-' + String(m+1).padStart(2,'0') + '-' + String(d).padStart(2,'0');
     
-    // Check if future
-    const cellDate = new Date(y, m, d);
-    const isFuture = cellDate > todayDate;
     const isToday = isCurrentMonth && d === currentDay;
-    
     const comp = (appData.completedDays && appData.completedDays[dStr]) || {};
     
-    // Workout logic: If explicitly completed OR if at least 1 exercise logged
+    // Workout logic: Completed explicitly OR has 1+ logged exercises
     const workoutLogs = appData.workoutLogs[dStr] || [];
     const isWorkoutDone = comp.workout || workoutLogs.length > 0;
     
     let wClass = '';
-    if (isWorkoutDone) wClass = 'done';
+    if (isWorkoutDone) wClass = 'done workout';
     else if (isToday) wClass = 'today';
-    else if (isFuture) wClass = 'future';
     else wClass = 'missed';
 
     let pClass = '';
-    if (comp.posture) pClass = 'done';
+    if (comp.posture) pClass = 'done posture';
     else if (isToday) pClass = 'today';
-    else if (isFuture) pClass = 'future';
     else pClass = 'missed';
     
-    // Workout cell
     wHtml += `<div class="tracker-day ${wClass}" onclick="toggleTrackerDay('${dStr}', 'workout')" title="${dStr}"><span>${d}</span>${isWorkoutDone?'<span class="tracker-check">✓</span>':''}</div>`;
-    // Posture cell
     pHtml += `<div class="tracker-day ${pClass}" onclick="toggleTrackerDay('${dStr}', 'posture')" title="${dStr}"><span>${d}</span>${comp.posture?'<span class="tracker-check">✓</span>':''}</div>`;
   }
   

@@ -1676,76 +1676,130 @@ textarea:not(.note-input) { resize: none !important; min-height: 80px; max-heigh
   display: flex; 
   flex-direction: row; 
   align-items: center; 
-  gap: 12px; 
+  gap: 14px; 
 }
-.tracker-label { 
-  width: 80px; 
-  flex-shrink: 0; 
-  font-size: 0.75rem; 
-  font-weight: 700; 
-  text-transform: uppercase; 
-  letter-spacing: 0.05em; 
-  color: var(--text-muted); 
+.tracker-label-card {
+  width: 90px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.05);
+  border-radius: 12px;
+  padding: 8px 10px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
+}
+.tracker-icon {
+  font-size: 1.1rem;
+}
+.tracker-info {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.25;
+}
+.tracker-title {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.tracker-stats {
+  font-size: 0.6rem;
+  font-weight: 600;
+  color: var(--text-muted);
 }
 .tracker-grid { 
   display: flex; 
   flex-wrap: nowrap; 
   overflow-x: auto; 
-  gap: 4px; 
+  gap: 6px; 
   scrollbar-width: none; 
-  padding: 4px 0; 
+  padding: 6px 0; 
+  flex-grow: 1;
 }
 .tracker-grid::-webkit-scrollbar { display: none; }
 .tracker-day {
-  width: 36px;
-  height: 36px;
+  width: 42px;
+  height: 42px;
   flex-shrink: 0;
   position: relative; 
-  border-radius: 6px;
-  background: rgba(255,255,255,0.04); 
-  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  background: rgba(255,255,255,0.02); 
+  border: 1px solid rgba(255,255,255,0.06);
   display: flex; 
   align-items: center; 
   justify-content: center;
-  font-size: 0.75rem; 
+  font-size: 0.82rem; 
   color: var(--text-muted); 
-  font-weight: 600; 
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  font-weight: 700; 
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   cursor: pointer;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.02);
 }
 .tracker-day:hover {
-  transform: scale(1.15);
+  transform: translateY(-2px);
   z-index: 10;
+  border-color: rgba(139, 124, 247, 0.4);
+  background: rgba(139, 124, 247, 0.06);
+  box-shadow: 0 4px 12px rgba(139,124,247,0.15);
+  color: var(--text-primary);
 }
-.tracker-day.done {
-  background: linear-gradient(135deg, rgba(99, 102, 241, 0.8), rgba(99, 102, 241, 0.4));
-  border-color: #6366f1; 
+.tracker-day.done.workout {
+  background: linear-gradient(135deg, #8b7cf7 0%, #4f46e5 100%);
+  border-color: rgba(139,124,247,0.5); 
   color: #fff;
+  box-shadow: 0 4px 14px rgba(139,124,247,0.25);
+}
+.tracker-day.done.posture {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  border-color: rgba(16,185,129,0.5); 
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(16,185,129,0.25);
+}
+@keyframes todayPulse {
+  0% { box-shadow: 0 0 0 0 rgba(139, 124, 247, 0.4); }
+  70% { box-shadow: 0 0 0 6px rgba(139, 124, 247, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(139, 124, 247, 0); }
 }
 .tracker-day.today {
-  border-color: #6366f1;
-  box-shadow: 0 0 10px rgba(99, 102, 241, 0.3);
-  color: #fff;
-  background: rgba(99, 102, 241, 0.15);
+  border: 2px solid var(--accent-primary) !important;
+  background: rgba(139, 124, 247, 0.12) !important;
+  color: var(--text-accent) !important;
+  animation: todayPulse 2.5s infinite;
 }
-.tracker-day.future {
-  background: rgba(0,0,0,0.2);
-  border-color: rgba(255,255,255,0.02);
-  opacity: 0.4;
+.tracker-day.missed {
+  background: rgba(239, 68, 68, 0.01);
+  border-color: rgba(255, 255, 255, 0.03);
+  color: rgba(255,255,255,0.2);
+}
+.tracker-day.missed:hover {
+  border-color: rgba(239, 68, 68, 0.2);
+  background: rgba(239, 68, 68, 0.03);
+  color: var(--text-primary);
 }
 .tracker-check { 
   position: absolute; 
-  bottom: 2px; 
-  right: 2px; 
-  font-size: 0.6rem; 
-  color: #22c55e; 
-  line-height: 1; 
+  bottom: -3px; 
+  right: -3px; 
+  width: 14px; 
+  height: 14px; 
+  border-radius: 50%; 
+  background: #10b981; 
+  color: white; 
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
+  font-size: 0.52rem; 
+  border: 2px solid #0f0f1a; 
   font-weight: 900;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
 }
 .tracker-divider {
   height: 1px;
   background: rgba(255,255,255,0.05);
   width: 100%;
+  margin: 4px 0;
 }
 
 /* ===========================
