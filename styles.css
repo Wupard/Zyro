@@ -189,6 +189,8 @@ body.sidebar-collapsed .sidebar-collapse-btn {
   object-fit: contain;
   transition: all var(--t-base);
   flex-shrink: 0;
+  margin-right: -15px;
+  margin-left: -15px;
 }
 body.sidebar-collapsed .sidebar-logo {
   width: 74px;
