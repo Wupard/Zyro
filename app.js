@@ -9296,18 +9296,12 @@ function renderWeeklyReport() {
   const el = id => document.getElementById(id);
   
   // Weekly Best PR / Top Muscle Logic
-  let bestPREx = null;
-  let bestPRWeight = 0;
-  let bestPRReps = 0;
-  let bestPRSets = 0;
+  let bestPRLog = null;
   for (let i = 0; i < 7; i++) {
     const d = new Date(monday); d.setDate(d.getDate() + i);
     (appData.workoutLogs[dateStr(d)] || []).forEach(l => {
-      if ((l.weight||0) > bestPRWeight) {
-        bestPRWeight = l.weight;
-        bestPREx = l.exercise;
-        bestPRReps = l.reps;
-        bestPRSets = l.sets;
+      if ((l.weight||0) > (bestPRLog ? bestPRLog.weight : 0)) {
+        bestPRLog = l;
       }
     });
   }
@@ -9352,12 +9346,14 @@ function renderWeeklyReport() {
 
   if (el('wrBestPR')) {
     const bestPRBox = el('wrBestPR').parentElement;
-    if (bestPRWeight > 0) {
-      el('wrBestPR').textContent = `${bestPRWeight} kg`;
+    if (bestPRLog && bestPRLog.weight > 0) {
+      const displayWeight = bestPRLog.unit === 'lbs' ? (bestPRLog.inputWeight || bestPRLog.weight) : bestPRLog.weight;
+      const displayUnit = bestPRLog.unit === 'lbs' ? 'lbs' : 'kg';
+      el('wrBestPR').textContent = `${displayWeight} ${displayUnit}`;
       if (bestPRBox) {
         bestPRBox.style.cursor = 'pointer';
         bestPRBox.onclick = () => {
-          showWeeklyPRPopup(bestPREx, bestPRWeight, bestPRSets||1, bestPRReps);
+          showWeeklyPRPopup(bestPRLog.exercise, displayWeight, bestPRLog.sets || 1, bestPRLog.reps, displayUnit);
         };
       }
     } else {
@@ -9862,7 +9858,7 @@ window.showPRDetailPopup = function(userData) {
 // =============================================
 // WEEKLY PR DETAIL POPUP
 // =============================================
-window.showWeeklyPRPopup = function(exercise, weight, sets, reps) {
+window.showWeeklyPRPopup = function(exercise, weight, sets, reps, unit) {
   const existing = document.getElementById('weeklyDetailPopup');
   if (existing) existing.remove();
 
@@ -9870,6 +9866,7 @@ window.showWeeklyPRPopup = function(exercise, weight, sets, reps) {
   const wt = weight || 0;
   const s = sets || 1;
   const r = reps || 0;
+  const prUnit = unit || 'kg';
 
   const overlay = document.createElement('div');
   overlay.id = 'weeklyDetailPopup';
@@ -9938,6 +9935,8 @@ window.showWeeklyPRPopup = function(exercise, weight, sets, reps) {
         -webkit-text-fill-color: transparent;
         background-clip: text;
         line-height: 1;
+        position: relative;
+        display: inline-block;
       }
       .pr-stat-label {
         font-size: 0.65rem;
@@ -9986,7 +9985,7 @@ window.showWeeklyPRPopup = function(exercise, weight, sets, reps) {
       <!-- Stats grid -->
       <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px;">
         <div class="pr-stat-box">
-          <div class="pr-stat-val">${wt}<small style="font-size:0.6em;opacity:0.7;">kg</small></div>
+          <div class="pr-stat-val">${wt}<small style="position: absolute; font-size: 0.55em; opacity: 0.7; bottom: 0.1em; left: 100%; margin-left: 2px;">${prUnit}</small></div>
           <div class="pr-stat-label">${currentLang === 'tr' ? 'Ağırlık' : 'Weight'}</div>
         </div>
         <div class="pr-stat-box">
@@ -10003,7 +10002,7 @@ window.showWeeklyPRPopup = function(exercise, weight, sets, reps) {
       ${s > 0 && r > 0 ? `
       <div style="margin-top:16px; padding:12px 16px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:14px; display:flex; align-items:center; justify-content:space-between;">
         <div style="font-size:0.75rem; color:var(--text-muted); font-weight:600;">${currentLang === 'tr' ? 'Toplam Hacim' : 'Total Volume'}</div>
-        <div style="font-family:'Space Grotesk',sans-serif; font-size:0.95rem; font-weight:800; color:var(--text-primary);">${(wt * s * r).toLocaleString(currentLang === 'tr' ? 'tr-TR' : 'en-US')} <span style="font-size:0.7rem;opacity:0.6;">kg</span></div>
+        <div style="font-family:'Space Grotesk',sans-serif; font-size:0.95rem; font-weight:800; color:var(--text-primary);">${(wt * s * r).toLocaleString(currentLang === 'tr' ? 'tr-TR' : 'en-US')} <span style="font-size:0.7rem;opacity:0.6;">${prUnit}</span></div>
       </div>` : ''}
     </div>
   `;

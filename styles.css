@@ -927,18 +927,19 @@ select.log-input option {
 
 @media (max-width: 600px) {
   .logged-row, .logged-row-header {
-    grid-template-columns: 1.2fr 1fr 1fr 40px;
+    grid-template-columns: 1.2fr 0.9fr 0.8fr 0.8fr 30px;
     font-size: 0.75rem;
-    padding: 10px 8px;
+    padding: 10px 6px;
+    gap: 4px;
   }
-  .logged-row span:nth-child(3) { display: none; } /* Hide sets or reps on mobile if needed */
-  .logged-row-header span:nth-child(3) { display: none; }
 }
 
 @media (max-width: 400px) {
   .logged-row, .logged-row-header {
-    grid-template-columns: 1.5fr 1fr 1fr 34px;
-    gap: 4px;
+    grid-template-columns: 1.1fr 0.85fr 0.75fr 0.75fr 26px;
+    font-size: 0.7rem;
+    padding: 8px 4px;
+    gap: 3px;
   }
 }
 .logged-row:hover{background:rgba(255,255,255,0.04);border-color:var(--border-card)}
@@ -2312,7 +2313,8 @@ textarea,
     padding: 10px;
     border-radius: 14px;
     gap: 8px;
-    width: 85%;
+    width: 92%;
+    margin: 0 auto;
   }
   .sidebar-top-row,
   #sidebarLevelWrap {
@@ -4114,8 +4116,8 @@ html {
   from { opacity: 0; transform: translateX(-40px); }
   to { opacity: 1; transform: translateX(0); }
 }
-.page-swipe-in-left { animation: swipeInLeft 0.28s cubic-bezier(0.25,0.46,0.45,0.94) both; }
-.page-swipe-in-right { animation: swipeInRight 0.28s cubic-bezier(0.25,0.46,0.45,0.94) both; }
+.page-swipe-in-left { animation: none !important; }
+.page-swipe-in-right { animation: none !important; }
 
 .weekly-report-card { animation: pageIn 0.4s ease both; border: 1px solid rgba(139, 124, 247, 0.2); background: linear-gradient(135deg, rgba(139,124,247,0.05), rgba(13,13,18,0.5)); box-shadow: 0 4px 24px rgba(139,124,247,0.1); }
 .wr-grid {
