@@ -249,6 +249,61 @@ Türkçe, spor koçu gibi gerçekçi ama motive edici bir üslupla yorum yap. Sa
   return data.candidates?.[0]?.content?.parts?.[0]?.text || '';
 };
 
+window.geminiAnalyzeFoodImage = async function(imageBase64) {
+  const key = getGeminiKey();
+  if (!key) throw new Error('NO_KEY');
+
+  const url = `${GEMINI_API_BASE}/${GEMINI_MODEL}:generateContent?key=${key}`;
+
+  const prompt = `Bu yemek fotoğrafını analiz et ve içindeki yiyecekleri tahmin ederek makro besin değerlerini (kalori, protein, karbonhidrat, yağ) hesapla. 
+Eğer resim bir yemek değilse veya net değilse, en yakın tahminini yap ama açıklama kısmında bunu belirt.
+
+Lütfen değerlendirmeni aşağıdaki JSON formatında, belirtilen anahtarlarla (keys) tam olarak eşleşecek şekilde ver:
+{
+  "meal_name": "Yemeğin kısa adı (Türkçe)",
+  "calories": 450,
+  "protein": 30,
+  "carbs": 45,
+  "fat": 12,
+  "description": "Yemeğin içeriği hakkında kısa bir açıklama ve tahmin açıklaması (Türkçe)"
+}
+
+Sadece geçerli bir JSON objesi döndür, markdown veya ek açıklama metni ekleme.`;
+
+  const mimeType = imageBase64.startsWith('data:image/png') ? 'image/png' : 
+                   imageBase64.startsWith('data:image/webp') ? 'image/webp' : 'image/jpeg';
+  const data = imageBase64.replace(/^data:image\/[a-z]+;base64,/, '');
+
+  const parts = [
+    { text: prompt },
+    { inlineData: { mimeType, data } }
+  ];
+
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      contents: [{ role: 'user', parts }],
+      generationConfig: { 
+        temperature: 0.3, 
+        maxOutputTokens: 1024,
+        responseMimeType: "application/json" 
+      }
+    })
+  });
+
+  if (!response.ok) {
+    const err = await response.json().catch(() => ({}));
+    if (response.status === 400 || response.status === 403) throw new Error('INVALID_KEY');
+    if (response.status === 429) throw new Error('RATE_LIMIT');
+    throw new Error(err.error?.message || `HTTP ${response.status}`);
+  }
+
+  const resData = await response.json();
+  const text = resData.candidates?.[0]?.content?.parts?.[0]?.text || '';
+  return JSON.parse(text.trim());
+};
+
 // ---- Error message helper ----
 window.geminiErrorMessage = function(err) {
   if (!err) return 'Bilinmeyen hata';

@@ -154,6 +154,12 @@
         </svg>
         <span data-i18n="navCalculators">Calculators</span>
       </a>
+      <a href="diet" class="nav-item" data-page="diet" id="nav-diet">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2v20M17 5V2M17 10c1.5 0 3-1 3-3V2M17 10v12M7 2v10a3 3 0 0 0 6 0V2"/>
+        </svg>
+        <span data-i18n="navDiet">Diyet & Beslenme</span>
+      </a>
       <a href="beforeafter" class="nav-item" data-page="beforeafter" id="nav-beforeafter">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
           stroke-linecap="round" stroke-linejoin="round">
@@ -738,9 +744,12 @@
       </section>
 
       <section class="card">
-        <div class="card-header">
+        <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
           <h3 class="card-title" data-i18n="todaysLog">Today's Log</h3>
-          <span class="card-badge" id="logDateBadge" data-i18n="today">Today</span>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span id="todayLogCount" style="font-size: 0.75rem; background: rgba(139,124,247,0.12); color: var(--accent-primary); padding: 3px 10px; border-radius: 999px; font-weight: 700; border: 1px solid rgba(139,124,247,0.2);">0 Antrenman</span>
+            <span class="card-badge" id="logDateBadge" data-i18n="today">Today</span>
+          </div>
         </div>
         <div class="logged-exercises-table" id="loggedExercises">
           <div class="logged-empty" data-i18n="noExercisesLogged">No exercises logged yet today.</div>
@@ -1400,6 +1409,210 @@
           </div>
         </div>
       </div>
+    </div>
+
+
+    <!-- ============ PAGE: DIET ============ -->
+    <div class="page" data-page="diet" id="pageDiet">
+      <!-- Premium Page Banner -->
+      <div class="page-banner page-banner--orange" style="margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; padding: 20px; background: linear-gradient(135deg, rgba(255,112,67,0.1) 0%, rgba(255,112,67,0.02) 100%); border-radius: 16px; border: 1px solid rgba(255,112,67,0.15);">
+        <div>
+          <h1 style="font-size: 1.6rem; font-weight: 800; margin: 0 0 4px 0; color: var(--text-primary); letter-spacing: -0.5px;">Diyet & Beslenme</h1>
+          <p style="margin: 0; font-size: 0.85rem; color: var(--text-muted); font-weight: 500;">Yemeklerin fotoğrafını çekip AI ile analiz et ve makrolarını takip et</p>
+        </div>
+        <div style="width: 48px; height: 48px; border-radius: 14px; background: rgba(255,112,67,0.15); display: flex; align-items: center; justify-content: center; color: #ff7043; flex-shrink: 0;">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2v20M17 5V2M17 10c1.5 0 3-1 3-3V2M17 10v12M7 2v10a3 3 0 0 0 6 0V2"/>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Macro Tracker Grid -->
+      <section class="card" style="margin-bottom: 24px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+          <h3 class="card-title" style="margin:0;">Bugünkü Makro Durumu</h3>
+          <button onclick="toggleDietTargetForm()" class="btn-small" style="font-size: 0.75rem; padding: 6px 12px; border-radius: 8px;">
+            ⚙️ Hedefleri Düzenle
+          </button>
+        </div>
+
+        <!-- Inline Target Editing Form -->
+        <div id="dietTargetFormContainer" style="display: none; margin-bottom: 20px; padding: 16px; background: var(--bg-card-alt); border: 1px solid var(--border-subtle); border-radius: 12px;">
+          <h4 style="margin: 0 0 12px 0; font-size: 0.9rem; font-weight: 700; color: var(--text-primary);">Günlük Hedeflerini Ayarla</h4>
+          <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 12px;">
+            <div style="display: flex; flex-direction: column; gap: 4px;">
+              <label style="font-size: 0.7rem; color: var(--text-muted); font-weight: 600;">Kalori (kcal)</label>
+              <input type="number" id="targetKcal" class="log-input" placeholder="2000" style="padding: 8px; font-size: 0.85rem;">
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 4px;">
+              <label style="font-size: 0.7rem; color: var(--text-muted); font-weight: 600;">Protein (g)</label>
+              <input type="number" id="targetProtein" class="log-input" placeholder="150" style="padding: 8px; font-size: 0.85rem;">
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 4px;">
+              <label style="font-size: 0.7rem; color: var(--text-muted); font-weight: 600;">Karb (g)</label>
+              <input type="number" id="targetCarbs" class="log-input" placeholder="200" style="padding: 8px; font-size: 0.85rem;">
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 4px;">
+              <label style="font-size: 0.7rem; color: var(--text-muted); font-weight: 600;">Yağ (g)</label>
+              <input type="number" id="targetFat" class="log-input" placeholder="70" style="padding: 8px; font-size: 0.85rem;">
+            </div>
+          </div>
+          <div style="display: flex; gap: 8px; justify-content: flex-end;">
+            <button class="btn-primary" style="padding: 6px 14px; font-size: 0.8rem;" onclick="saveDietTargets()">Kaydet</button>
+            <button class="btn-small" style="padding: 6px 14px; font-size: 0.8rem;" onclick="toggleDietTargetForm()">İptal</button>
+          </div>
+        </div>
+
+        <!-- Progress Metrics display -->
+        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;">
+          <!-- Calories -->
+          <div style="padding: 14px; background: rgba(255,112,67,0.06); border: 1px solid rgba(255,112,67,0.15); border-radius: 12px; text-align: center;">
+            <span style="font-size: 0.65rem; font-weight: 800; color: #ff7043; text-transform: uppercase;">KALORİ</span>
+            <div id="dietKcalVal" style="font-size: 1.3rem; font-weight: 900; margin: 4px 0;">0 / 2000</div>
+            <div style="font-size: 0.7rem; color: var(--text-muted); font-weight: 500;" id="dietKcalRem">Kalan: 2000 kcal</div>
+            <div style="width: 100%; height: 6px; background: rgba(255,255,255,0.05); border-radius: 6px; margin-top: 8px; overflow: hidden;">
+              <div id="dietKcalBar" style="height: 100%; width: 0%; background: #ff7043; border-radius: 6px; transition: width 0.3s ease;"></div>
+            </div>
+          </div>
+          <!-- Protein -->
+          <div style="padding: 14px; background: rgba(96,165,250,0.06); border: 1px solid rgba(96,165,250,0.15); border-radius: 12px; text-align: center;">
+            <span style="font-size: 0.65rem; font-weight: 800; color: #60a5fa; text-transform: uppercase;">PROTEİN</span>
+            <div id="dietProteinVal" style="font-size: 1.3rem; font-weight: 900; margin: 4px 0;">0g / 150g</div>
+            <div style="font-size: 0.7rem; color: var(--text-muted); font-weight: 500;" id="dietProteinRem">Kalan: 150g</div>
+            <div style="width: 100%; height: 6px; background: rgba(255,255,255,0.05); border-radius: 6px; margin-top: 8px; overflow: hidden;">
+              <div id="dietProteinBar" style="height: 100%; width: 0%; background: #60a5fa; border-radius: 6px; transition: width 0.3s ease;"></div>
+            </div>
+          </div>
+          <!-- Carbs -->
+          <div style="padding: 14px; background: rgba(245,158,11,0.06); border: 1px solid rgba(245,158,11,0.15); border-radius: 12px; text-align: center;">
+            <span style="font-size: 0.65rem; font-weight: 800; color: #f59e0b; text-transform: uppercase;">KARB</span>
+            <div id="dietCarbsVal" style="font-size: 1.3rem; font-weight: 900; margin: 4px 0;">0g / 200g</div>
+            <div style="font-size: 0.7rem; color: var(--text-muted); font-weight: 500;" id="dietCarbsRem">Kalan: 200g</div>
+            <div style="width: 100%; height: 6px; background: rgba(255,255,255,0.05); border-radius: 6px; margin-top: 8px; overflow: hidden;">
+              <div id="dietCarbsBar" style="height: 100%; width: 0%; background: #f59e0b; border-radius: 6px; transition: width 0.3s ease;"></div>
+            </div>
+          </div>
+          <!-- Fat -->
+          <div style="padding: 14px; background: rgba(244,63,94,0.06); border: 1px solid rgba(244,63,94,0.15); border-radius: 12px; text-align: center;">
+            <span style="font-size: 0.65rem; font-weight: 800; color: #f43f5e; text-transform: uppercase;">YAĞ</span>
+            <div id="dietFatVal" style="font-size: 1.3rem; font-weight: 900; margin: 4px 0;">0g / 70g</div>
+            <div style="font-size: 0.7rem; color: var(--text-muted); font-weight: 500;" id="dietFatRem">Kalan: 70g</div>
+            <div style="width: 100%; height: 6px; background: rgba(255,255,255,0.05); border-radius: 6px; margin-top: 8px; overflow: hidden;">
+              <div id="dietFatBar" style="height: 100%; width: 0%; background: #f43f5e; border-radius: 6px; transition: width 0.3s ease;"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Logging Card -->
+      <section class="card" style="margin-bottom: 24px; padding: 0; overflow: hidden;">
+        <div style="display: flex; border-bottom: 1px solid var(--border-subtle); background: var(--bg-card-alt);">
+          <button id="dietTabBtnAI" class="tab-btn active" style="flex: 1; border-radius: 0; padding: 14px 20px; font-weight: 700; border: none; background: transparent; color: var(--text-primary); cursor: pointer;" onclick="switchDietTab('ai')">
+            ✦ AI Fotoğraf Analizi
+          </button>
+          <button id="dietTabBtnManual" class="tab-btn" style="flex: 1; border-radius: 0; padding: 14px 20px; font-weight: 700; border: none; background: transparent; color: var(--text-muted); cursor: pointer;" onclick="switchDietTab('manual')">
+            ✍️ Manuel Ekle
+          </button>
+        </div>
+
+        <!-- Tab 1: AI Photo Uploader -->
+        <div id="dietTabAI" style="padding: 24px;">
+          <div id="dietDragDropZone" style="border: 2px dashed rgba(255,112,67,0.3); border-radius: 16px; padding: 32px 20px; text-align: center; cursor: pointer; background: rgba(255,112,67,0.02); transition: all 0.2s;" onclick="triggerDietPhotoUpload()">
+            <div style="font-size: 2.2rem; margin-bottom: 12px;">📸</div>
+            <h4 style="margin: 0 0 6px 0; font-size: 1rem; font-weight: 700; color: var(--text-primary);">Yemeğin Fotoğrafını Çek veya Yükle</h4>
+            <p style="margin: 0; font-size: 0.8rem; color: var(--text-muted);">AI otomatik olarak yemek adını ve besin makrolarını analiz eder.</p>
+            <input type="file" id="dietPhotoInput" accept="image/*" style="display: none;" onchange="handleDietPhotoSelect(event)">
+          </div>
+
+          <!-- Loading Indicator overlay -->
+          <div id="dietAiLoading" style="display: none; text-align: center; padding: 24px;">
+            <div style="animation: spin 1.5s linear infinite; display: inline-block; font-size: 1.8rem; color:#ff7043; margin-bottom: 12px;">✦</div>
+            <p style="margin: 0; font-size: 0.85rem; font-weight: 700; color: var(--text-primary);">Yemek Fotoğrafı Analiz Ediliyor...</p>
+            <p style="margin: 4px 0 0 0; font-size: 0.75rem; color: var(--text-muted);">Gemini AI besin değerlerini hesaplıyor, lütfen bekleyin.</p>
+          </div>
+
+          <!-- Analysis result form (editable) -->
+          <div id="dietAiResult" style="display: none; margin-top: 24px; padding: 20px; border: 1px solid var(--border-subtle); background: var(--bg-card-alt); border-radius: 16px;">
+            <div style="display: flex; gap: 16px; margin-bottom: 20px; flex-wrap: wrap;">
+              <div id="dietPhotoPreviewContainer" style="width: 100px; height: 100px; border-radius: 12px; border: 1px solid var(--border-subtle); overflow: hidden; background: #000; flex-shrink: 0;">
+                <img id="dietPhotoPreview" style="width: 100%; height: 100%; object-fit: cover;">
+              </div>
+              <div style="flex: 1; min-width: 200px;">
+                <h4 style="margin: 0 0 6px 0; font-size: 0.95rem; font-weight: 800; color: var(--text-primary);">AI Analiz Sonucu</h4>
+                <p id="dietAiDesc" style="margin: 0; font-size: 0.78rem; color: var(--text-muted); line-height: 1.4;"></p>
+              </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 2fr repeat(4, 1fr); gap: 12px; margin-bottom: 20px;">
+              <div style="display: flex; flex-direction: column; gap: 4px;">
+                <label style="font-size: 0.7rem; color: var(--text-muted); font-weight: 600;">Yemek Adı</label>
+                <input type="text" id="aiMealName" class="log-input" style="padding: 10px; font-size: 0.85rem;">
+              </div>
+              <div style="display: flex; flex-direction: column; gap: 4px;">
+                <label style="font-size: 0.7rem; color: var(--text-muted); font-weight: 600;">Kalori (kcal)</label>
+                <input type="number" id="aiMealKcal" class="log-input" style="padding: 10px; font-size: 0.85rem;">
+              </div>
+              <div style="display: flex; flex-direction: column; gap: 4px;">
+                <label style="font-size: 0.7rem; color: var(--text-muted); font-weight: 600;">Protein (g)</label>
+                <input type="number" id="aiMealProtein" class="log-input" style="padding: 10px; font-size: 0.85rem;">
+              </div>
+              <div style="display: flex; flex-direction: column; gap: 4px;">
+                <label style="font-size: 0.7rem; color: var(--text-muted); font-weight: 600;">Karb (g)</label>
+                <input type="number" id="aiMealCarbs" class="log-input" style="padding: 10px; font-size: 0.85rem;">
+              </div>
+              <div style="display: flex; flex-direction: column; gap: 4px;">
+                <label style="font-size: 0.7rem; color: var(--text-muted); font-weight: 600;">Yağ (g)</label>
+                <input type="number" id="aiMealFat" class="log-input" style="padding: 10px; font-size: 0.85rem;">
+              </div>
+            </div>
+
+            <div style="display: flex; gap: 10px; justify-content: flex-end;">
+              <button class="btn-primary" onclick="submitDietLog('ai')">Öğünü Kaydet</button>
+              <button class="btn-small" onclick="resetDietAiForm()">Vazgeç</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 2: Manual Log Form -->
+        <div id="dietTabManual" style="display: none; padding: 24px;">
+          <div style="display: grid; grid-template-columns: 2fr repeat(4, 1fr); gap: 12px; margin-bottom: 20px;">
+            <div style="display: flex; flex-direction: column; gap: 4px;">
+              <label style="font-size: 0.7rem; color: var(--text-muted); font-weight: 600;">Yemek Adı</label>
+              <input type="text" id="manualMealName" class="log-input" placeholder="ör: Yulaf Ezmesi" style="padding: 10px; font-size: 0.85rem;">
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 4px;">
+              <label style="font-size: 0.7rem; color: var(--text-muted); font-weight: 600;">Kalori (kcal)</label>
+              <input type="number" id="manualMealKcal" class="log-input" placeholder="350" style="padding: 10px; font-size: 0.85rem;">
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 4px;">
+              <label style="font-size: 0.7rem; color: var(--text-muted); font-weight: 600;">Protein (g)</label>
+              <input type="number" id="manualMealProtein" class="log-input" placeholder="12" style="padding: 10px; font-size: 0.85rem;">
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 4px;">
+              <label style="font-size: 0.7rem; color: var(--text-muted); font-weight: 600;">Karb (g)</label>
+              <input type="number" id="manualMealCarbs" class="log-input" placeholder="48" style="padding: 10px; font-size: 0.85rem;">
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 4px;">
+              <label style="font-size: 0.7rem; color: var(--text-muted); font-weight: 600;">Yağ (g)</label>
+              <input type="number" id="manualMealFat" class="log-input" placeholder="6" style="padding: 10px; font-size: 0.85rem;">
+            </div>
+          </div>
+          <div style="display: flex; justify-content: flex-end;">
+            <button class="btn-primary" onclick="submitDietLog('manual')">Öğünü Manuel Kaydet</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Today's Logged Meals -->
+      <section class="card">
+        <div class="card-header" style="margin-bottom:14px;">
+          <h3 class="card-title">Bugün Yenilenler</h3>
+          <span class="card-badge" style="background:rgba(255,112,67,0.12); color:#ff7043; border:1px solid rgba(255,112,67,0.2);">Yemek Listesi</span>
+        </div>
+        <div id="loggedMealsList" style="display: flex; flex-direction: column; gap: 10px;">
+          <div class="logged-empty">Henüz yemek eklenmedi.</div>
+        </div>
+      </section>
     </div>
 
 

@@ -30,6 +30,7 @@ const I18N = {
     navLeaderboard: 'Leaderboard',
     navAI: 'AI Assistant',
     navProfile: 'Profile',
+    navDiet: 'Diet & Nutrition',
     updatesTitle: 'Updates',
     updatesSubtitle: 'Get info about new features and improvements',
     shareUpdate: 'Share Update',
@@ -257,6 +258,7 @@ const I18N = {
     navLeaderboard: 'Liderlik Tablosu',
     navAI: 'AI Asistan',
     navProfile: 'Profil',
+    navDiet: 'Diyet & Beslenme',
     updatesTitle: 'Güncellemeler',
     updatesSubtitle: 'Yeni özellikler ve iyileştirmeler hakkında bilgi al',
     shareUpdate: 'Güncelleme Paylaş',
@@ -1420,7 +1422,7 @@ function __routerBasePath() {
 }
 
 const __ROUTER_BASE = __routerBasePath();
-const __ROUTER_PAGES = new Set(['dashboard','workouts','posture','progress','updates','notes','comments','calculators','beforeafter','achievements','profile','admin']);
+const __ROUTER_PAGES = new Set(['dashboard','workouts','posture','progress','updates','notes','comments','calculators','beforeafter','achievements','profile','admin','diet']);
 
 function __pageToPath(page) {
   const p = page || 'dashboard';
@@ -1507,6 +1509,7 @@ function navigateTo(page, opts){
   else if(page==='achievements')renderAchievements();
   else if(page==='profile')renderProfilePage();
   else if(page==='leaderboard') { if (typeof renderLeaderboard === 'function') renderLeaderboard(true); }
+  else if(page==='diet')renderDiet();
 
   if(window.innerWidth<=768){
     const sidebar = document.getElementById('sidebar');
@@ -2262,11 +2265,11 @@ function initLogForm(){
     e.preventDefault();
     const exercise=document.getElementById('logExercise').value;
     const weight=parseFloat(document.getElementById('logWeight').value);
+    const reps=parseInt(document.getElementById('logReps').value);
+    const sets=parseInt(document.getElementById('logSets').value);
     // 1.5: Read from custom radio buttons instead of select
     const checkedUnit = document.querySelector('input[name="logUnitRadio"]:checked');
     const unit = checkedUnit ? checkedUnit.value : 'kg';
-    const reps=parseInt(document.getElementById('logReps').value);
-    const sets=parseInt(document.getElementById('logSets').value);
     
     if(!exercise||isNaN(weight)||isNaN(reps)||isNaN(sets)) {
       showToast(currentLang === 'tr' ? 'Lütfen tüm alanları eksiksiz doldurun!' : 'Please fill in all fields!', 'error');
@@ -2282,7 +2285,7 @@ function initLogForm(){
     appData.attendance[td]=true;
     saveData();renderLoggedExercises();renderAttendance();updateMuscleMap();updateStats();
     // Check achievements: both instant and full history scan
-    checkAchievements(exercise, finalWeight);
+    checkAchievements(exercise, finalWeight, reps);
     // Scan ALL logs for missed achievements (e.g. previously logged weights)
     setTimeout(() => checkAllAchievementsFromLogs(), 500);
     clearFields();
@@ -2514,6 +2517,12 @@ window.toggleTrackerDay = function(dateStr, type) {
 function renderLoggedExercises(){
   const container=document.getElementById('loggedExercises');
   const td=todayStr();const logs=appData.workoutLogs[td]||[];
+  const countEl = document.getElementById('todayLogCount');
+  if (countEl) {
+    countEl.textContent = currentLang === 'tr' 
+      ? `${logs.length} Antrenman Kaydedildi` 
+      : `${logs.length} Workouts Logged`;
+  }
   if(logs.length===0){container.innerHTML=`<div class="logged-empty">${t('noExercisesLogged')}</div>`;return}
   let html=`<div class="logged-row logged-row-header"><span>${t('exercise')}</span><span>${t('weightLabel')}</span><span>Reps</span><span>Sets</span><span></span></div>`;
   // Display newest first (reverse order), but keep original index for deletion
@@ -4583,13 +4592,21 @@ const ACHIEVEMENT_GROUPS = [
 // Flat list for compatibility
 const ACHIEVEMENT_DEFS = ACHIEVEMENT_GROUPS.flatMap(g => g.badges.map(b => ({...b, icon: g.icon})));
 
-function checkAchievements(exercise, weight) {
+function checkAchievements(exercise, weight, reps = 1) {
   if (!appData.achievements) appData.achievements = {};
+  
+  let score = parseFloat(weight) || 0;
+  if (typeof calculateStrengthScore === 'function') {
+    score = calculateStrengthScore(score, reps);
+  } else {
+    score = score * (1 + reps / 30);
+  }
+
   const newlyUnlocked = [];
   ACHIEVEMENT_DEFS.forEach(def => {
     if (!def.exercise) return;
     if (appData.achievements[def.id]) return;
-    if (def.exercise === exercise && weight >= def.target) {
+    if (def.exercise === exercise && score >= def.target) {
       appData.achievements[def.id] = { unlockedAt: Date.now() };
       newlyUnlocked.push(def);
     }
@@ -4621,7 +4638,16 @@ function checkAllAchievementsFromLogs() {
     (dayLogs || []).forEach(log => {
       const ex = log.exercise;
       const w = parseFloat(log.weight) || 0;
-      if (!maxWeights[ex] || w > maxWeights[ex]) maxWeights[ex] = w;
+      const r = parseInt(log.reps) || 0;
+      
+      let score = w;
+      if (typeof calculateStrengthScore === 'function') {
+        score = calculateStrengthScore(w, r);
+      } else {
+        score = w * (1 + r / 30);
+      }
+      
+      if (!maxWeights[ex] || score > maxWeights[ex]) maxWeights[ex] = score;
     });
   });
 
@@ -5485,10 +5511,25 @@ function displayComments(comments) {
             </div>
             <div style="display: flex; align-items: center; gap: 8px;">
               <span style="font-size: 0.75rem; color: var(--text-muted);">${new Date(c.timestamp).toLocaleDateString()}</span>
+              ${isOwnComment ? `
+                <button onclick="toggleEditComment('${c.id}', \`${(c.text || '').replace(/`/g, '\\`').replace(/\$/g, '\\$')}\`)" style="background:none; border:none; color:var(--text-muted); cursor:pointer; padding:4px;" title="Düzenle">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                </button>
+              ` : ''}
               ${canDelete ? `<button onclick="deletePublicComment('${c.id}')" style="background:none; border:none; color:#ef4444; cursor:pointer; padding:4px;" title="Sil"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button>` : ''}
             </div>
           </div>
-          <p style="margin: 0; font-size: 0.9rem; line-height: 1.5; color: var(--text-primary); padding-left: 34px;">${_highlightMentions(c.text, uniqueKnownNames)}</p>
+          <p id="commentText_${c.id}" style="margin: 0; font-size: 0.9rem; line-height: 1.5; color: var(--text-primary); padding-left: 34px;">
+            ${_highlightMentions(c.text, uniqueKnownNames)}
+            ${c.edited ? `<span style="font-size:0.75rem; color:var(--text-muted); font-style:italic; margin-left:6px;">(düzenlendi)</span>` : ''}
+          </p>
+          <div id="editForm_${c.id}" style="display:none; margin-top:12px; padding-left:34px;">
+            <textarea id="editInput_${c.id}" class="note-input" rows="2" style="margin-bottom:8px; font-size:0.85rem; width:100%;"></textarea>
+            <div style="display:flex; gap:8px;">
+              <button class="btn-primary" style="padding:6px 16px; font-size:0.8rem;" onclick="submitEditComment('${c.id}')">Kaydet</button>
+              <button class="btn-small" onclick="toggleEditComment('${c.id}')">İptal</button>
+            </div>
+          </div>
           
           <div style="margin-top: 12px; display: flex; gap: 16px; padding-left: 34px;">
             <div style="display: flex; gap: 8px;">
@@ -5544,10 +5585,25 @@ function displayComments(comments) {
                     </div>
                     <div style="display:flex; align-items:center; gap:6px;">
                       <span style="font-size:0.65rem; color:var(--text-muted);">${new Date(r.timestamp).toLocaleDateString()}</span>
+                      ${isOwnReply ? `
+                        <button onclick="toggleEditComment('${r.id}', \`${(r.text || '').replace(/`/g, '\\`').replace(/\$/g, '\\$')}\`)" style="background:none; border:none; color:var(--text-muted); cursor:pointer; padding:2px;" title="Düzenle">
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                        </button>
+                      ` : ''}
                       ${canDeleteReply ? `<button onclick="deletePublicComment('${r.id}')" style="background:none; border:none; color:#ef4444; cursor:pointer; padding:2px;" title="Sil"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button>` : ''}
                     </div>
                   </div>
-                  <p style="margin:0; font-size:0.85rem; color:var(--text-primary);">${_highlightMentions(r.text, uniqueKnownNames)}</p>
+                  <p id="commentText_${r.id}" style="margin:0; font-size:0.85rem; color:var(--text-primary);">
+                    ${_highlightMentions(r.text, uniqueKnownNames)}
+                    ${r.edited ? `<span style="font-size:0.7rem; color:var(--text-muted); font-style:italic; margin-left:6px;">(düzenlendi)</span>` : ''}
+                  </p>
+                  <div id="editForm_${r.id}" style="display:none; margin-top:8px;">
+                    <textarea id="editInput_${r.id}" class="note-input" rows="2" style="margin-bottom:6px; font-size:0.8rem; width:100%;"></textarea>
+                    <div style="display:flex; gap:6px;">
+                      <button class="btn-primary" style="padding:4px 12px; font-size:0.75rem;" onclick="submitEditComment('${r.id}')">Kaydet</button>
+                      <button class="btn-small" style="padding:4px 10px; font-size:0.75rem;" onclick="toggleEditComment('${r.id}')">İptal</button>
+                    </div>
+                  </div>
                 </div>
               `}).join('')}
             </div>
@@ -6018,6 +6074,73 @@ window.deletePublicComment = async function(commentId) {
   } catch (e) {
     console.error('Delete Error:', e);
     showToast('Yorum silinemedi!', 'error');
+  }
+};
+
+window.toggleEditComment = function(commentId, currentText) {
+  const textEl = document.getElementById(`commentText_${commentId}`);
+  const editForm = document.getElementById(`editForm_${commentId}`);
+  const input = document.getElementById(`editInput_${commentId}`);
+  
+  if (!textEl || !editForm || !input) return;
+  
+  const isHidden = editForm.style.display === 'none' || editForm.style.display === '';
+  if (isHidden) {
+    textEl.style.display = 'none';
+    editForm.style.display = 'block';
+    if (currentText !== undefined) {
+      input.value = currentText;
+    }
+    input.focus();
+    input.selectionStart = input.selectionEnd = input.value.length;
+  } else {
+    textEl.style.display = 'block';
+    editForm.style.display = 'none';
+  }
+};
+
+window.submitEditComment = async function(commentId) {
+  const input = document.getElementById(`editInput_${commentId}`);
+  if (!input) return;
+  const newText = input.value.trim();
+  if (!newText) {
+    showToast(currentLang === 'tr' ? 'Yorum metni boş olamaz!' : 'Comment content cannot be empty!', 'error');
+    return;
+  }
+  
+  if (!currentUser) {
+    showToast(currentLang === 'tr' ? 'Düzenlemek için giriş yapmalısınız.' : 'Must be logged in to edit.', 'error');
+    return;
+  }
+
+  const isMuted = await checkUserMute(currentUser.uid);
+  if (isMuted) {
+    showToast('Yorum yapma yetkiniz geçici veya kalıcı olarak kısıtlanmıştır!', 'error');
+    return;
+  }
+  
+  try {
+    if (isFirebaseConfigured && db) {
+      await db.collection('public_comments').doc(commentId).update({
+        text: newText,
+        edited: true,
+        editedAt: Date.now()
+      });
+    } else {
+      let localComments = JSON.parse(localStorage.getItem('zyro_local_comments') || '[]');
+      const idx = localComments.findIndex(c => c.id === commentId);
+      if (idx !== -1) {
+        localComments[idx].text = newText;
+        localComments[idx].edited = true;
+        localComments[idx].editedAt = Date.now();
+        localStorage.setItem('zyro_local_comments', JSON.stringify(localComments));
+      }
+    }
+    showToast(currentLang === 'tr' ? 'Yorum güncellendi.' : 'Comment updated.', 'success');
+    renderComments();
+  } catch (e) {
+    console.error('Edit Error:', e);
+    showToast(currentLang === 'tr' ? 'Yorum güncellenemedi!' : 'Could not update comment!', 'error');
   }
 };
 
@@ -10461,4 +10584,269 @@ window.startAIAnalysis = function() {
         contentEl.innerHTML = `<div style="padding:16px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);border-radius:12px;color:#ef4444;">${window.geminiErrorMessage ? window.geminiErrorMessage(err) : err.message}</div>`;
       });
   }
+};
+
+// =============================================
+// DIET TRACKER & MACRO LOGGING
+// =============================================
+window.toggleDietTargetForm = function() {
+  const container = document.getElementById('dietTargetFormContainer');
+  if (!container) return;
+  const isHidden = container.style.display === 'none' || container.style.display === '';
+  if (isHidden) {
+    // Fill values from state/targets
+    const t = appData.dietTargets || { kcal: 2000, protein: 150, carbs: 200, fat: 70 };
+    document.getElementById('targetKcal').value = t.kcal;
+    document.getElementById('targetProtein').value = t.protein;
+    document.getElementById('targetCarbs').value = t.carbs;
+    document.getElementById('targetFat').value = t.fat;
+    container.style.display = 'block';
+  } else {
+    container.style.display = 'none';
+  }
+};
+
+window.saveDietTargets = function() {
+  const kcal = parseInt(document.getElementById('targetKcal').value) || 2000;
+  const protein = parseInt(document.getElementById('targetProtein').value) || 150;
+  const carbs = parseInt(document.getElementById('targetCarbs').value) || 200;
+  const fat = parseInt(document.getElementById('targetFat').value) || 70;
+
+  appData.dietTargets = { kcal, protein, carbs, fat };
+  saveData();
+  renderDiet();
+  document.getElementById('dietTargetFormContainer').style.display = 'none';
+  showToast(currentLang === 'tr' ? 'Hedefler kaydedildi.' : 'Goals saved.', 'success');
+};
+
+window.switchDietTab = function(tab) {
+  const tabAI = document.getElementById('dietTabAI');
+  const tabManual = document.getElementById('dietTabManual');
+  const btnAI = document.getElementById('dietTabBtnAI');
+  const btnManual = document.getElementById('dietTabBtnManual');
+
+  if (tab === 'ai') {
+    tabAI.style.display = 'block';
+    tabManual.style.display = 'none';
+    btnAI.classList.add('active');
+    btnAI.style.color = 'var(--text-primary)';
+    btnManual.classList.remove('active');
+    btnManual.style.color = 'var(--text-muted)';
+  } else {
+    tabAI.style.display = 'none';
+    tabManual.style.display = 'block';
+    btnAI.classList.remove('active');
+    btnAI.style.color = 'var(--text-muted)';
+    btnManual.classList.add('active');
+    btnManual.style.color = 'var(--text-primary)';
+  }
+};
+
+window.triggerDietPhotoUpload = function() {
+  document.getElementById('dietPhotoInput').click();
+};
+
+window.handleDietPhotoSelect = async function(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const dragZone = document.getElementById('dietDragDropZone');
+  const loading = document.getElementById('dietAiLoading');
+  const result = document.getElementById('dietAiResult');
+  const preview = document.getElementById('dietPhotoPreview');
+
+  // Convert to Base64
+  const reader = new FileReader();
+  reader.onload = async function(e) {
+    const base64 = e.target.result;
+    preview.src = base64;
+
+    // Show loading spinner
+    dragZone.style.display = 'none';
+    loading.style.display = 'block';
+    result.style.display = 'none';
+
+    try {
+      if (!window.geminiAnalyzeFoodImage) {
+        throw new Error('AI analysis module not loaded yet.');
+      }
+      
+      const res = await window.geminiAnalyzeFoodImage(base64);
+      
+      // Populate results
+      document.getElementById('aiMealName').value = res.meal_name || '';
+      document.getElementById('aiMealKcal').value = res.calories || 0;
+      document.getElementById('aiMealProtein').value = res.protein || 0;
+      document.getElementById('aiMealCarbs').value = res.carbs || 0;
+      document.getElementById('aiMealFat').value = res.fat || 0;
+      document.getElementById('dietAiDesc').textContent = res.description || '';
+
+      loading.style.display = 'none';
+      result.style.display = 'block';
+    } catch(err) {
+      console.error('AI food analysis error:', err);
+      loading.style.display = 'none';
+      dragZone.style.display = 'block';
+      showToast(window.geminiErrorMessage ? window.geminiErrorMessage(err) : 'Yemek analiz edilemedi: ' + err.message, 'error');
+    }
+  };
+  reader.readAsDataURL(file);
+};
+
+window.resetDietAiForm = function() {
+  document.getElementById('dietDragDropZone').style.display = 'block';
+  document.getElementById('dietAiResult').style.display = 'none';
+  document.getElementById('dietAiLoading').style.display = 'none';
+  document.getElementById('dietPhotoInput').value = '';
+};
+
+window.submitDietLog = function(type) {
+  let name, kcal, protein, carbs, fat;
+
+  if (type === 'ai') {
+    name = document.getElementById('aiMealName').value.trim();
+    kcal = parseInt(document.getElementById('aiMealKcal').value) || 0;
+    protein = parseInt(document.getElementById('aiMealProtein').value) || 0;
+    carbs = parseInt(document.getElementById('aiMealCarbs').value) || 0;
+    fat = parseInt(document.getElementById('aiMealFat').value) || 0;
+  } else {
+    name = document.getElementById('manualMealName').value.trim();
+    kcal = parseInt(document.getElementById('manualMealKcal').value) || 0;
+    protein = parseInt(document.getElementById('manualMealProtein').value) || 0;
+    carbs = parseInt(document.getElementById('manualMealCarbs').value) || 0;
+    fat = parseInt(document.getElementById('manualMealFat').value) || 0;
+  }
+
+  if (!name) {
+    showToast(currentLang === 'tr' ? 'Yemek adı boş olamaz!' : 'Meal name cannot be empty!', 'error');
+    return;
+  }
+
+  const meal = {
+    id: 'meal_' + Date.now(),
+    name,
+    calories: kcal,
+    protein,
+    carbs,
+    fat,
+    timestamp: Date.now()
+  };
+
+  const td = todayStr();
+  if (!appData.dietLogs) appData.dietLogs = {};
+  if (!appData.dietLogs[td]) appData.dietLogs[td] = [];
+
+  appData.dietLogs[td].push(meal);
+  saveData();
+  renderDiet();
+
+  // Reset forms
+  if (type === 'ai') {
+    window.resetDietAiForm();
+  } else {
+    document.getElementById('manualMealName').value = '';
+    document.getElementById('manualMealKcal').value = '';
+    document.getElementById('manualMealProtein').value = '';
+    document.getElementById('manualMealCarbs').value = '';
+    document.getElementById('manualMealFat').value = '';
+  }
+
+  showToast(currentLang === 'tr' ? 'Öğün kaydedildi.' : 'Meal logged.', 'success');
+};
+
+window.deleteDietLog = function(mealId) {
+  if (!confirm(currentLang === 'tr' ? 'Bu öğünü silmek istediğinizden emin misiniz?' : 'Are you sure you want to delete this meal?')) return;
+  const td = todayStr();
+  if (appData.dietLogs && appData.dietLogs[td]) {
+    appData.dietLogs[td] = appData.dietLogs[td].filter(m => m.id !== mealId);
+    saveData();
+    renderDiet();
+    showToast(currentLang === 'tr' ? 'Öğün silindi.' : 'Meal deleted.', 'success');
+  }
+};
+
+window.renderDiet = function() {
+  // Ensure objects exist
+  if (!appData.dietTargets) {
+    appData.dietTargets = { kcal: 2000, protein: 150, carbs: 200, fat: 70 };
+  }
+  if (!appData.dietLogs) {
+    appData.dietLogs = {};
+  }
+
+  const targets = appData.dietTargets;
+  const td = todayStr();
+  const logs = appData.dietLogs[td] || [];
+
+  // Calculate totals consumed today
+  let totalKcal = 0;
+  let totalProtein = 0;
+  let totalCarbs = 0;
+  let totalFat = 0;
+
+  logs.forEach(m => {
+    totalKcal += m.calories || 0;
+    totalProtein += m.protein || 0;
+    totalCarbs += m.carbs || 0;
+    totalFat += m.fat || 0;
+  });
+
+  // Calculate remaining
+  const remKcal = Math.max(0, targets.kcal - totalKcal);
+  const remProtein = Math.max(0, targets.protein - totalProtein);
+  const remCarbs = Math.max(0, targets.carbs - totalCarbs);
+  const remFat = Math.max(0, targets.fat - totalFat);
+
+  // Update UI values
+  document.getElementById('dietKcalVal').textContent = `${totalKcal} / ${targets.kcal}`;
+  document.getElementById('dietProteinVal').textContent = `${totalProtein}g / ${targets.protein}g`;
+  document.getElementById('dietCarbsVal').textContent = `${totalCarbs}g / ${targets.carbs}g`;
+  document.getElementById('dietFatVal').textContent = `${totalFat}g / ${targets.fat}g`;
+
+  // Remaining texts
+  document.getElementById('dietKcalRem').textContent = currentLang === 'tr' ? `Kalan: ${remKcal} kcal` : `Remaining: ${remKcal} kcal`;
+  document.getElementById('dietProteinRem').textContent = currentLang === 'tr' ? `Kalan: ${remProtein}g` : `Remaining: ${remProtein}g`;
+  document.getElementById('dietCarbsRem').textContent = currentLang === 'tr' ? `Kalan: ${remCarbs}g` : `Remaining: ${remCarbs}g`;
+  document.getElementById('dietFatRem').textContent = currentLang === 'tr' ? `Kalan: ${remFat}g` : `Remaining: ${remFat}g`;
+
+  // Bar progress widths
+  const pctKcal = Math.min(100, Math.round((totalKcal / targets.kcal) * 100)) || 0;
+  const pctProtein = Math.min(100, Math.round((totalProtein / targets.protein) * 100)) || 0;
+  const pctCarbs = Math.min(100, Math.round((totalCarbs / targets.carbs) * 100)) || 0;
+  const pctFat = Math.min(100, Math.round((totalFat / targets.fat) * 100)) || 0;
+
+  document.getElementById('dietKcalBar').style.width = pctKcal + '%';
+  document.getElementById('dietProteinBar').style.width = pctProtein + '%';
+  document.getElementById('dietCarbsBar').style.width = pctCarbs + '%';
+  document.getElementById('dietFatBar').style.width = pctFat + '%';
+
+  // Render log list
+  const list = document.getElementById('loggedMealsList');
+  if (logs.length === 0) {
+    list.innerHTML = `<div class="logged-empty">${currentLang === 'tr' ? 'Henüz yemek eklenmedi.' : 'No meals logged yet today.'}</div>`;
+    return;
+  }
+
+  let html = '';
+  logs.forEach(m => {
+    const timeStr = new Date(m.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    html += `
+      <div class="logged-row" style="padding: 12px; border-bottom: 1px solid var(--border-subtle); display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.01); border-radius: 8px;">
+        <div style="flex: 1; min-width: 0;">
+          <div style="font-weight: 700; font-size: 0.9rem; color: var(--text-primary); display: flex; align-items: center; gap: 8px;">
+            <span>🍽️ ${m.name}</span>
+            <span style="font-size: 0.72rem; color: var(--text-muted); font-weight: 500;">${timeStr}</span>
+          </div>
+          <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px; display: flex; gap: 10px;">
+            <span>🔥 <b>${m.calories}</b> kcal</span>
+            <span>🥩 P: <b>${m.protein}</b>g</span>
+            <span>🍞 C: <b>${m.carbs}</b>g</span>
+            <span>🥑 F: <b>${m.fat}</b>g</span>
+          </div>
+        </div>
+        <button class="delete-log" onclick="deleteDietLog('${m.id}')" style="background:none; border:none; color:#ef4444; font-size:1.1rem; cursor:pointer; padding: 4px;" title="Sil">×</button>
+      </div>
+    `;
+  });
+  list.innerHTML = html;
 };
