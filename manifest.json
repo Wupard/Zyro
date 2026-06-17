@@ -11,13 +11,13 @@
   "gcm_sender_id": "909109062896",
   "icons": [
     {
-      "src": "assets/anaekran2.png",
+      "src": "assets/anaekran.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "assets/anaekran2.png",
+      "src": "assets/anaekran.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
