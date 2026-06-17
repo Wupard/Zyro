@@ -184,16 +184,16 @@ body.sidebar-collapsed .sidebar-collapse-btn {
 
 .sidebar-brand{display:flex;align-items:center;gap:6px;padding:26px 24px 34px; white-space:nowrap; overflow:hidden;}
 .sidebar-logo {
-  width: 26px;
+  width: 48px;
   height: auto;
   object-fit: contain;
   transition: all var(--t-base);
   flex-shrink: 0;
-  margin-right: -15px;
-  margin-left: -15px;
+  margin-right: -24px;
+  margin-left: -24px;
 }
 body.sidebar-collapsed .sidebar-logo {
-  width: 31px;
+  width: 60px;
 }
 .brand-icon{font-size:1.2rem;color:var(--accent-primary);filter:drop-shadow(0 0 8px rgba(139,124,247,0.35));animation:brandPulse 3s ease-in-out infinite; flex-shrink:0;}
 @keyframes brandPulse{0%,100%{filter:drop-shadow(0 0 8px rgba(139,124,247,0.35))}50%{filter:drop-shadow(0 0 14px rgba(139,124,247,0.55))}}
@@ -2614,7 +2614,7 @@ html {
 @media(max-width: 768px) {
   html { font-size: 14px; }
   body.sidebar-collapsed { --sidebar-width: 0px; }
-  .sidebar-logo { width: 24px; }
+  .sidebar-logo { width: 44px; }
   .sidebar { transform: translateX(-100%); width: 260px; visibility: hidden; }
   .sidebar.open { transform: translateX(0); visibility: visible; }
   .sidebar-collapse-btn { display: none; }
