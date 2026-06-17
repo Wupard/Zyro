@@ -853,7 +853,12 @@ function saveData(){
       email: currentUser.email || '',
       displayName: currentUser.displayName || '',
       photoURL: currentUser.photoURL || ''
-    },{merge:true}).catch(e=>console.error('Save:',e));
+    },{merge:true}).catch(e=>{
+      console.error('Save:',e);
+      if (typeof showToast === 'function') {
+        showToast(currentLang === 'tr' ? 'Veri buluta kaydedilemedi: ' + e.message : 'Cloud sync failed: ' + e.message, 'error');
+      }
+    });
     
     // Feature 10 & 12: Public Stats Sync for Leaderboard
     syncPublicStats();

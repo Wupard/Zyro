@@ -182,7 +182,7 @@ body.sidebar-collapsed .sidebar-collapse-btn {
   left: calc(80px - 14px);
 }
 
-.sidebar-brand{display:flex;align-items:center;justify-content:center;gap:12px;padding:26px 24px 34px; white-space:nowrap; overflow:hidden;}
+.sidebar-brand{display:flex;align-items:center;justify-content:flex-start;gap:12px;padding:26px 24px 34px; white-space:nowrap; overflow:hidden;}
 .sidebar-logo {
   width: 28px;
   height: auto;
@@ -243,6 +243,7 @@ body.sidebar-collapsed #sidebarUserCard { border-radius: 12px; padding: 10px 8px
 body.sidebar-collapsed #sidebarUserCard .sidebar-user-info { display: none; }
 body.sidebar-collapsed #sidebarUserCard #sidebarLevelWrap { display: none; }
 body.sidebar-collapsed #sidebarUserCard .sidebar-top-row { justify-content: center; gap: 0; }
+body.sidebar-collapsed .nav-item-wupard { margin-top: -4px; margin-bottom: 12px; }
 
 /* Sidebar User Card Layout Overrides */
 #sidebarUserCard .user-info {
@@ -2607,6 +2608,7 @@ html {
   body.sidebar-collapsed .lang-switcher { display: flex !important; }
   body.sidebar-collapsed .user-info { display: flex !important; }
   body.sidebar-collapsed .sidebar-brand { padding: 26px 24px 34px !important; justify-content: flex-start !important; }
+  body.sidebar-collapsed .nav-item-wupard { margin-top: 8px !important; margin-bottom: 0 !important; }
   .sidebar-collapse-btn { display: none !important; }
 }
 
