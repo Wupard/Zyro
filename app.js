@@ -9550,19 +9550,20 @@ function updateLevelUI() {
     }
   }
 
-  // Dynamic Badge Emoji Selection
+  // Dynamic Badge Image Selection
   if (el('profileLevelBadgeContainer')) {
-    let badgeEmoji, badgeGlow;
-    if (level <= 5)       { badgeEmoji = '🥉'; badgeGlow = 'rgba(205,127,50,0.4)'; }
-    else if (level <= 10) { badgeEmoji = '🥈'; badgeGlow = 'rgba(192,192,192,0.4)'; }
-    else if (level <= 25) { badgeEmoji = '🥇'; badgeGlow = 'rgba(255,215,0,0.45)'; }
-    else if (level <= 50) { badgeEmoji = '💎'; badgeGlow = 'rgba(79,195,247,0.45)'; }
-    else                  { badgeEmoji = '👑'; badgeGlow = 'rgba(180,100,255,0.5)'; }
+    let badgeImage, badgeGlow;
+    if (level <= 5)       { badgeImage = 'assets/0-5.png'; badgeGlow = 'rgba(205,127,50,0.5)'; }
+    else if (level <= 15) { badgeImage = 'assets/5-15.png'; badgeGlow = 'rgba(192,192,192,0.5)'; }
+    else if (level <= 30) { badgeImage = 'assets/15-30.png'; badgeGlow = 'rgba(255,215,0,0.55)'; }
+    else if (level <= 60) { badgeImage = 'assets/30-60.png'; badgeGlow = 'rgba(79,195,247,0.55)'; }
+    else                  { badgeImage = 'assets/60-100.png'; badgeGlow = 'rgba(180,100,255,0.6)'; }
 
     const container = el('profileLevelBadgeContainer');
-    container.style.background = `radial-gradient(circle at 50% 40%, ${badgeGlow} 0%, transparent 70%)`;
-    container.style.boxShadow = `inset 0 1px 0 rgba(255,255,255,0.08), 0 4px 20px ${badgeGlow}`;
-    container.innerHTML = `<span style="font-size: 2.2rem; line-height: 1; display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; filter: drop-shadow(0 2px 8px ${badgeGlow});">${badgeEmoji}</span>`;
+    container.style.background = 'transparent';
+    container.style.boxShadow = 'none';
+    container.style.border = 'none';
+    container.innerHTML = `<img src="${badgeImage}" alt="Level Badge" style="width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 4px 12px ${badgeGlow}); transition: transform 0.3s ease; animation: lbCrownFloat 3s ease-in-out infinite;">`;
   }
 
   // Only show toast when actually leveling up (not on page load/reload)
