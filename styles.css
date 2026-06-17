@@ -182,15 +182,14 @@ body.sidebar-collapsed .sidebar-collapse-btn {
   left: calc(80px - 14px);
 }
 
-.sidebar-brand{display:flex;align-items:center;gap:6px;padding:26px 24px 34px; white-space:nowrap; overflow:hidden;}
+.sidebar-brand{display:flex;align-items:center;justify-content:center;gap:12px;padding:26px 24px 34px; white-space:nowrap; overflow:hidden;}
 .sidebar-logo {
   width: 48px;
   height: auto;
   object-fit: contain;
   transition: all var(--t-base);
   flex-shrink: 0;
-  margin-right: -24px;
-  margin-left: -24px;
+  margin: 0;
 }
 body.sidebar-collapsed .sidebar-logo {
   width: 60px;
