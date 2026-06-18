@@ -4,7 +4,7 @@
 // Bu dosya SADECE cache ve offline desteği içindir.
 // ============================================================
 
-const CACHE_NAME = 'zyro-v13';
+const CACHE_NAME = 'zyro-v14';
 const ASSETS = [
   '/',
   '/index.html',
