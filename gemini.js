@@ -1,11 +1,11 @@
 // =============================================
 // GEMINI AI — Core API Layer
 // =============================================
-// Google Gemini 1.5 Flash (ücretsiz tier) entegrasyonu
+// Google Gemini 3.5 Flash (ücretsiz tier) entegrasyonu
 // Kullanıcı kendi key'ini Profil > AI Ayarları'ndan girer
 
 const GEMINI_API_BASE = 'https://generativelanguage.googleapis.com/v1beta/models';
-const GEMINI_MODEL = 'gemini-1.5-flash';
+const GEMINI_MODEL = 'gemini-3.5-flash';
 
 // ---- Key Management ----
 window.getGeminiKey = function() {
