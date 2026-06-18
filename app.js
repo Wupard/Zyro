@@ -2865,13 +2865,20 @@ function updateMuscleMap() {
     return;
   }
 
-  // Sort exercises by sets descending
-  allExercises.sort((a,b) => b.sets - a.sets);
+  // Sort muscles by sets descending
+  const workedMuscles = Object.entries(vol)
+    .map(([m, data]) => ({ name: MUSCLE_LABELS[m] || m, sets: data.sets }))
+    .sort((a, b) => b.sets - a.sets);
 
-  summary.innerHTML = allExercises.map(ex => {
+  if (workedMuscles.length === 0 && allExercises.length > 0) {
+    // Fallback if exercises don't have mapped muscles
+    workedMuscles.push(...allExercises);
+  }
+
+  summary.innerHTML = workedMuscles.map(m => {
     return `<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.05);border-radius:10px;">
-      <span style="font-size:0.85rem;color:var(--text-secondary);font-weight:500;">${ex.name}</span>
-      <span style="font-size:0.85rem;color:var(--accent-primary);font-weight:700;font-family:'Space Grotesk',sans-serif;">${ex.sets} set</span>
+      <span style="font-size:0.85rem;color:var(--text-secondary);font-weight:500;">${m.name}</span>
+      <span style="font-size:0.85rem;color:var(--accent-primary);font-weight:700;font-family:'Space Grotesk',sans-serif;">${m.sets} set</span>
     </div>`;
   }).join('');
 }
