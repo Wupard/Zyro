@@ -1497,17 +1497,21 @@ function navigateTo(page, opts){
       else window.history.pushState(st, '', target);
     }
   }
+  const isSamePage = (currentPage === page);
   currentPage=page;
-  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
-  const nav=document.querySelector(`.nav-item[data-page="${page}"]`);
-  if(nav)nav.classList.add('active');
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  const pg=document.querySelector(`.page[data-page="${page}"]`);
-  if(pg) {
-    pg.classList.add('active');
-    if (opts.swipeDir) {
-      pg.classList.add(opts.swipeDir === 'left' ? 'page-swipe-in-left' : 'page-swipe-in-right');
-      setTimeout(() => pg.classList.remove('page-swipe-in-left', 'page-swipe-in-right'), 350);
+  
+  if (!isSamePage || opts.force) {
+    document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+    const nav=document.querySelector(`.nav-item[data-page="${page}"]`);
+    if(nav)nav.classList.add('active');
+    document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+    const pg=document.querySelector(`.page[data-page="${page}"]`);
+    if(pg) {
+      pg.classList.add('active');
+      if (opts.swipeDir) {
+        pg.classList.add(opts.swipeDir === 'left' ? 'page-swipe-in-left' : 'page-swipe-in-right');
+        setTimeout(() => pg.classList.remove('page-swipe-in-left', 'page-swipe-in-right'), 350);
+      }
     }
   }
 
@@ -2050,21 +2054,8 @@ function initGestures() {
           sidebar.classList.remove('open');
         }
       } else {
-        const SWIPE_PAGES = ['dashboard','workouts','posture','progress','updates','notes','comments','calculators','beforeafter','achievements','profile'];
-        const curIdx = SWIPE_PAGES.indexOf(currentPage);
-        
-        if (dx < -minDistance) {
-          if (curIdx >= 0 && curIdx < SWIPE_PAGES.length - 1) {
-            navigateTo(SWIPE_PAGES[curIdx + 1], { swipeDir: 'left' });
-          }
-        } else if (dx > minDistance) {
-          if (touchStartX < 40) {
-            sidebar.classList.add('open');
-          } else {
-            if (curIdx > 0) {
-              navigateTo(SWIPE_PAGES[curIdx - 1], { swipeDir: 'right' });
-            }
-          }
+        if (dx > minDistance && touchStartX < 40) {
+          sidebar.classList.add('open');
         }
       }
     }
@@ -5568,6 +5559,9 @@ function renderComments() {
 }
 
 function displayComments(comments) {
+  if (window._isVoting) {
+    return; // Prevent flicker during optimistic UI updates
+  }
   const list = document.getElementById('commentsList');
   if (comments.length === 0) {
     list.innerHTML = `<div class="logged-empty">${currentLang === 'tr' ? 'Henüz yorum yok.' : 'No comments yet.'}</div>`;
@@ -6331,9 +6325,11 @@ window.upvoteComment = async function(commentId) {
     }
 
     // Optimistic UI update (instant feedback, no re-render lag)
+    window._isVoting = true;
     _applyVoteOptimistic(commentId, alreadyUpvoted ? 'remove-up' : 'add-up', alreadyDownvoted);
 
     await docRef.update(updateData);
+    setTimeout(() => { window._isVoting = false; }, 800);
   } catch(e) {
     console.error('Upvote error:', e);
   } finally {
@@ -6383,9 +6379,11 @@ window.downvoteComment = async function(commentId) {
     }
 
     // Optimistic UI update
+    window._isVoting = true;
     _applyVoteOptimistic(commentId, alreadyDownvoted ? 'remove-down' : 'add-down', alreadyUpvoted);
 
     await docRef.update(updateData);
+    setTimeout(() => { window._isVoting = false; }, 800);
   } catch(e) {
     console.error('Downvote error:', e);
   } finally {
