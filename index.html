@@ -1549,7 +1549,7 @@
           <div id="dietAiResult" style="display: none; margin-top: 24px; padding: 20px; border: 1px solid var(--border-subtle); background: var(--bg-card-alt); border-radius: 16px;">
             <div style="display: flex; gap: 16px; margin-bottom: 20px; flex-wrap: wrap;">
               <div id="dietPhotoPreviewContainer" style="width: 100px; height: 100px; border-radius: 12px; border: 1px solid var(--border-subtle); overflow: hidden; background: #000; flex-shrink: 0;">
-                <img id="dietPhotoPreview" style="width: 100%; height: 100%; object-fit: cover;">
+                <img id="dietPhotoPreview" loading="lazy" style="width: 100%; height: 100%; object-fit: cover;">
               </div>
               <div style="flex: 1; min-width: 200px;">
                 <h4 style="margin: 0 0 6px 0; font-size: 0.95rem; font-weight: 800; color: var(--text-primary);">AI Analiz Sonucu</h4>
@@ -1964,7 +1964,7 @@
           <div id="profileLevelSection" style="display: flex; align-items: center; gap: 16px; padding: 16px; background: rgba(139,124,247,0.06); border: 1px solid rgba(139,124,247,0.15); border-radius: 14px; margin-bottom: 24px; transition: all 0.3s ease;">
             <!-- Badge Container (Responsive Image Container) -->
             <div id="profileLevelBadgeContainer" style="width: clamp(56px, 12vw, 80px); height: clamp(56px, 12vw, 80px); display: flex; align-items: center; justify-content: center; flex-shrink: 0; position: relative;">
-              <img id="profileLevelBadgeIcon" src="assets/0-5.png" alt="Level Badge" style="width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2)); transition: transform 0.3s ease; animation: lbCrownFloat 3s ease-in-out infinite;">
+              <img id="profileLevelBadgeIcon" src="assets/0-5.png" alt="Level Badge" loading="lazy" style="width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2)); transition: transform 0.3s ease; animation: lbCrownFloat 3s ease-in-out infinite;">
             </div>
             
             <!-- Seviye / XP Bilgileri -->
@@ -2689,17 +2689,17 @@
   </main>
 
   <!-- Firebase Scripts -->
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-messaging-compat.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js" defer></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js" defer></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js" defer></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js" defer></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-messaging-compat.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js" defer></script>
 
-  <script src="firebase-config.js"></script>
-  <script src="gemini.js"></script>
-  <script src="app.js?v=2.7"></script>
+  <script src="firebase-config.js" defer></script>
+  <script src="gemini.js" defer></script>
+  <script src="app.js?v=2.7" defer></script>
 
   <!-- ===== FLOATING AI CHAT BUTTON ===== -->
   <button class="ai-float-btn" id="aiFloatBtn" onclick="toggleAIDrawer()" title="AI Asistan" aria-label="AI Asistan ile sohbet et" style="display: none;">

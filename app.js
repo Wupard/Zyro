@@ -1885,10 +1885,15 @@ function initNav(){
     });
   }
   // On resize: if viewport shrinks below 1024px, remove collapsed mode
+  let resizeThrottle;
   window.addEventListener('resize', () => {
-    if(window.innerWidth <= 1024) {
-      document.body.classList.remove('sidebar-collapsed');
-    }
+    if (resizeThrottle) return;
+    resizeThrottle = setTimeout(() => {
+      if(window.innerWidth <= 1024) {
+        document.body.classList.remove('sidebar-collapsed');
+      }
+      resizeThrottle = null;
+    }, 150);
   });
   document.querySelectorAll('.nav-item').forEach(item=>{
     item.addEventListener('click',e=>{
@@ -3649,7 +3654,8 @@ window.showStrengthDetails = function(targetExercise = null) {
       const labels = historyAsc.map(h => new Date(h.timestamp).toLocaleDateString('tr-TR', {day:'numeric', month:'short'}));
       const dataPoints = historyAsc.map(h => h.weight);
       
-      new Chart(ctx, {
+      if (window.strengthMiniChartInstance) { window.strengthMiniChartInstance.destroy(); }
+      window.strengthMiniChartInstance = new Chart(ctx, {
         type: 'line',
         data: {
           labels: labels,
@@ -8607,7 +8613,8 @@ window.initMaintenanceSync = function() {
     updateMaintenanceStatusText();
     return;
   }
-  db.collection('app_state').doc('maintenance').onSnapshot(function(snap) {
+  if (window.maintenanceUnsubscribe) window.maintenanceUnsubscribe();
+  window.maintenanceUnsubscribe = db.collection('app_state').doc('maintenance').onSnapshot(function(snap) {
     const remote = snap.exists ? (snap.data() || { enabled: false }) : { enabled: false };
     const normalized = remote.expiresAt && Date.now() > remote.expiresAt ? { enabled: false } : remote;
     if (normalized.enabled) localStorage.setItem('zyro_maintenance', JSON.stringify(normalized));
@@ -10605,11 +10612,20 @@ async function aiWidgetSend() {
     const speed = 15;
     
     function typeWriter() {
-      if (i < response.length) {
+      let chunkCount = 0;
+      // Process a few characters at a time to reduce event loop overhead
+      while (i < response.length && chunkCount < 2) {
         let char = response.charAt(i);
-        if (char === '\n') answerBox.innerHTML += '<br>';
-        else answerBox.innerHTML += char;
+        if (char === '\n') {
+          answerBox.appendChild(document.createElement('br'));
+        } else {
+          answerBox.appendChild(document.createTextNode(char));
+        }
         i++;
+        chunkCount++;
+      }
+      
+      if (i < response.length) {
         setTimeout(typeWriter, speed);
       } else {
         // Format bold after typing is done for simplicity
