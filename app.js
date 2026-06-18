@@ -620,7 +620,7 @@ const ALL_EXERCISES = Object.keys(EXERCISE_MUSCLES).sort();
 // GLOBAL EXERCISE CATEGORIES
 // =============================================
 const EXERCISE_CATEGORIES = {
-  'chest': ['Flat Barbell Bench Press', 'Incline Dumbbell Press', 'Dumbbell Fly'],
+  'chest': ['Flat Barbell Bench Press', 'Incline Dumbbell Press'],
   'shoulders': ['Seated Barbell Overhead Press', 'Cable Lateral Raise', 'Cable Rope Face Pull', 'Seated Rear Delt Fly', 'Dumbbell Shrug'],
   'back': ['Medium-Grip Lat Pulldown', 'Dumbbell Row', 'Reverse Grip Lat Pulldown'],
   'legs': ['Romanian Deadlift', 'Leg Extension', 'Reverse Leg Extension', 'Adductor Machine', 'Smith Machine Calf Raise'],
@@ -669,7 +669,6 @@ const DEFAULT_PROGRAMS = {
   day2: [ // PERŞEMBE
     {name:'Flat Barbell Bench Press',sets:'3x6-8',weight:'-'},
     {name:'Incline Dumbbell Press',sets:'3x6-8',weight:'-'},
-    {name:'Dumbbell Fly',sets:'3x6-8',weight:'-'},
     {name:'Cable Rope Face Pull',sets:'3x6-8',weight:'-'},
     {name:'Seated Rear Delt Fly',sets:'3x6-8',weight:'-'},
     {name:'Seated Incline Dumbbell Curl',sets:'3x6-8',weight:'-'},
@@ -723,7 +722,6 @@ const WORKOUT_VIDEO_URLS = {
   // PERŞEMBE
   'Flat Barbell Bench Press': 'https://www.youtube.com/shorts/hWbUlkb5Ms4',
   'Incline Dumbbell Press': 'https://www.youtube.com/shorts/8fXfwG4ftaQ',
-  'Dumbbell Fly': 'https://www.youtube.com/shorts/8nG8y4LNQRM',
   'Cable Rope Face Pull': 'https://www.youtube.com/shorts/IeOqdw9WI90',
   'Seated Rear Delt Fly': 'https://www.youtube.com/shorts/PkGcUy-XDMY',
   'Seated Incline Dumbbell Curl': 'https://www.youtube.com/shorts/uCUaRFlA9vE',
@@ -965,22 +963,11 @@ function loadData(cb){
          // Veriler her zaman sunucudan cihazınıza en güncel haliyle senkronize olur
          // Böylece telefon ile PC birbirini EZMEZ.
          const serverData = snap.data().data;
-         // NOTES PROTECTION: Eğer lokal notlar sunucudakinden fazlaysa, lokali koru
-         const localNotes = appData.notes || {};
-         const serverNotes = serverData.notes || {};
-         const localNoteCount = Object.keys(localNotes).length;
-         const serverNoteCount = Object.keys(serverNotes).length;
-         
          // DIET PROTECTION: Eğer sunucuda diyet verileri yoksa, lokali koru veya varsayılanları ata
          const localDietTargets = appData.dietTargets || { kcal: 2000, protein: 150, carbs: 200, fat: 70 };
          const localDietLogs = appData.dietLogs || {};
          
          appData = serverData;
-         
-         if (localNoteCount > serverNoteCount) {
-           // Sunucuda eksik olan notları koru (merge)
-           appData.notes = { ...serverNotes, ...localNotes };
-         }
           let needSave = false;
           if (!appData.dietTargets) {
             appData.dietTargets = localDietTargets;
@@ -8904,6 +8891,28 @@ window.saveProfileBio = async function() {
         // Preserve photoURL - never wipe it on bio save
         photoURL: existingPhotoURL
       };
+
+      // Update root user profile for consistency
+      try {
+        await currentUser.updateProfile({ displayName: displayName });
+        await db.collection('users').doc(currentUser.uid).update({ displayName: displayName });
+      } catch (e) { console.warn('Root profile update failed:', e); }
+
+      // Update past comments to reflect the new name and photo
+      try {
+        const commentsQuery = await db.collection('public_comments').where('userId', '==', currentUser.uid).get();
+        if (!commentsQuery.empty) {
+          const batch = db.batch();
+          commentsQuery.forEach(doc => {
+            batch.update(doc.ref, { 
+              userName: displayName,
+              userPhoto: existingPhotoURL 
+            });
+          });
+          await batch.commit();
+        }
+      } catch (e) { console.warn('Comments update failed:', e); }
+
       renderSidebarProfile(currentUser);
       
       // Feature 10 & 12: Sync public stats when profile is saved
@@ -9481,11 +9490,6 @@ function renderWeeklyReport() {
 // LEVEL / XP SYSTEM
 // =============================================
 function calculateXP() {
-  // Admin override: if a forced XP has been set for this user, use it directly
-  if (appData && typeof appData.forcedXP === 'number') {
-    return appData.forcedXP;
-  }
-
   let xp = 0;
   // 1. Achievements (200 XP each)
   xp += Object.keys(appData.achievements || {}).length * 200;
@@ -9514,6 +9518,17 @@ function calculateXP() {
   });
   // 4. Body weight log entries (25 XP each)
   xp += Object.keys(appData.weightLog || {}).length * 25;
+
+  // 5. Apply forcedXP conversion to xpOffset if needed
+  if (appData && typeof appData.forcedXP === 'number') {
+    appData.xpOffset = appData.forcedXP - xp;
+    delete appData.forcedXP;
+  }
+  
+  if (appData && typeof appData.xpOffset === 'number') {
+    xp += appData.xpOffset;
+  }
+
   return xp;
 }
 
