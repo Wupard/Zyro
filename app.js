@@ -11152,7 +11152,8 @@ window.renderDiet = function() {
 // ADMIN: GRANT ACHIEVEMENTS TO ALL USERS
 // =============================================
 window.grantAchievementsToAll = async function() {
-  if (!appData.firestoreAdmin && appData.userRank !== 'admin' && appData.userRank !== 'mod') {
+  const isAdmin = currentUser && (currentUser.email === 'wupard@gmail.com' || appData.firestoreAdmin === true || appData.userRank === 'admin' || appData.userRank === 'mod');
+  if (!isAdmin) {
     return alert('Yetkisiz işlem!');
   }
   
