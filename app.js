@@ -978,6 +978,12 @@ function loadData(cb){
             needSave = true;
           }
           
+          if (typeof window.syncPastAchievements === 'function') {
+            if (window.syncPastAchievements()) {
+              needSave = true;
+            }
+          }
+          
           enforceVersion();
          localStorage.setItem('zyro_data', JSON.stringify(appData));
          if (needSave) {
@@ -11149,78 +11155,42 @@ window.renderDiet = function() {
 };
 
 // =============================================
-// ADMIN: GRANT ACHIEVEMENTS TO ALL USERS
+// AUTO SYNC ACHIEVEMENTS FOR CURRENT USER
 // =============================================
-window.grantAchievementsToAll = async function() {
-  const rankObj = (typeof RANKS !== 'undefined' && RANKS[appData.userRank]) ? RANKS[appData.userRank] : { canAdmin: false };
-  const isAdmin = currentUser && (currentUser.email === 'wupard@gmail.com' || appData.firestoreAdmin === true || rankObj.canAdmin || appData.userRank === 'kurucu');
-  if (!isAdmin) {
-    return alert('Yetkisiz işlem!');
-  }
+window.syncPastAchievements = function() {
+  if (!appData || !appData.workoutLogs) return false;
+  if (!appData.achievements) appData.achievements = {};
   
-  if (!confirm("Tüm kullanıcıların geçmiş verilerini (Kişisel Rekorlarını) tarayıp, eksik başarımları herkese tanımlamak istediğinize emin misiniz?")) return;
-  
-  try {
-    const btn = document.getElementById('btnGrantAchievements');
-    if(btn) { btn.disabled = true; btn.innerText = 'İşleniyor... Lütfen bekleyin'; }
-    
-    const usersSnap = await db.collection('users').get();
-    let updatedCount = 0;
-    
-    const checkAchievementsForUser = (userData) => {
-      const data = userData.data || {};
-      if (!data.achievements) data.achievements = {};
+  const maxWeights = {};
+  Object.values(appData.workoutLogs).forEach(dayLogs => {
+    (dayLogs || []).forEach(log => {
+      const ex = log.exercise;
+      const w = parseFloat(log.weight) || 0;
+      const r = parseInt(log.reps) || 0;
       
-      const maxWeights = {};
-      Object.values(data.workoutLogs || {}).forEach(dayLogs => {
-        (dayLogs || []).forEach(log => {
-          const ex = log.exercise;
-          const w = parseFloat(log.weight) || 0;
-          const r = parseInt(log.reps) || 0;
-          
-          let score = w;
-          if (typeof calculateStrengthScore === 'function') {
-            score = calculateStrengthScore(w, r);
-          } else {
-            score = w * (1 + r / 30);
-          }
-          
-          if (!maxWeights[ex] || score > maxWeights[ex]) maxWeights[ex] = score;
-        });
-      });
+      let score = w;
+      if (typeof calculateStrengthScore === 'function') {
+        score = calculateStrengthScore(w, r);
+      } else {
+        score = w * (1 + r / 30);
+      }
       
-      let modified = false;
-      ACHIEVEMENT_DEFS.forEach(def => {
-        if (!def.exercise) return;
-        if (data.achievements[def.id]) return;
-        const maxW = maxWeights[def.exercise] || 0;
-        if (maxW >= def.target) {
-          data.achievements[def.id] = { unlockedAt: Date.now() };
-          modified = true;
-        }
-      });
-      return modified ? data : null;
-    };
-    
-    const batch = db.batch();
-    
-    usersSnap.forEach(doc => {
-       const userDocData = doc.data();
-       const newData = checkAchievementsForUser(userDocData);
-       if (newData) {
-         batch.update(doc.ref, { data: newData }, { merge: true });
-         updatedCount++;
-       }
+      if (!maxWeights[ex] || score > maxWeights[ex]) maxWeights[ex] = score;
     });
-    
-    await batch.commit();
-    alert(`Başarıyla ${updatedCount} kullanıcının eksik başarımları geçmiş rekorlarına göre tanımlandı!`);
-    if(btn) { btn.disabled = false; btn.innerText = 'Tüm Geçmiş Rekorları Başarıma Çevir'; }
-  } catch (err) {
-    console.error(err);
-    alert('Hata: ' + err.message);
-    const btn = document.getElementById('btnGrantAchievements');
-    if(btn) { btn.disabled = false; btn.innerText = 'Tüm Geçmiş Rekorları Başarıma Çevir'; }
+  });
+  
+  let modified = false;
+  if (typeof ACHIEVEMENT_DEFS !== 'undefined') {
+    ACHIEVEMENT_DEFS.forEach(def => {
+      if (!def.exercise) return;
+      if (appData.achievements[def.id]) return; // already unlocked
+      const maxW = maxWeights[def.exercise] || 0;
+      if (maxW >= def.target) {
+        appData.achievements[def.id] = { unlockedAt: Date.now() };
+        modified = true;
+      }
+    });
   }
+  
+  return modified;
 };
-

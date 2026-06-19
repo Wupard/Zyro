@@ -75,6 +75,43 @@ Kurallar:
 - Emoji kullanabilirsin ama aşırıya kaçma`;
 };
 
+
+// ---- Content Preparation Helper ----
+function prepareGeminiContents(messages) {
+  if (!Array.isArray(messages) || messages.length === 0) {
+    return [];
+  }
+
+  // Filter out empty messages
+  let filtered = messages.filter(msg => msg && typeof msg.content === 'string' && msg.content.trim());
+
+  // Ensure first message has role 'user'
+  while (filtered.length > 0 && filtered[0].role !== 'user') {
+    filtered.shift();
+  }
+
+  if (filtered.length === 0) {
+    return [];
+  }
+
+  // Merge or filter consecutive messages with the same role
+  const optimized = [];
+  filtered.forEach(msg => {
+    const role = msg.role === 'user' ? 'user' : 'model';
+    if (optimized.length > 0 && optimized[optimized.length - 1].role === role) {
+      // Append content to previous message of the same role
+      optimized[optimized.length - 1].parts[0].text += '\n\n' + msg.content.trim();
+    } else {
+      optimized.push({
+        role: role,
+        parts: [{ text: msg.content.trim() }]
+      });
+    }
+  });
+
+  return optimized;
+}
+
 // ---- Text Chat ----
 window.geminiChat = async function(messages, options = {}) {
   const key = getGeminiKey();
@@ -83,42 +120,36 @@ window.geminiChat = async function(messages, options = {}) {
   const systemPrompt = options.systemPrompt || buildAISystemContext();
   const url = `${GEMINI_API_BASE}/${GEMINI_MODEL}:generateContent?key=${key}`;
 
-  const contents = [];
-  
-  // Add system prompt as first user/model pair (Gemini doesn't have system role)
-  if (systemPrompt) {
-    contents.push({ role: 'user', parts: [{ text: systemPrompt }] });
-    contents.push({ role: 'model', parts: [{ text: 'Anlaşıldı! Sana yardımcı olmaktan mutluluk duyarım. 💪' }] });
-  }
+  const contents = prepareGeminiContents(messages);
 
-  // Add conversation messages
-  messages.forEach(msg => {
-    contents.push({
-      role: msg.role === 'user' ? 'user' : 'model',
-      parts: [{ text: msg.content }]
-    });
-  });
+  const requestBody = {
+    contents,
+    generationConfig: {
+      temperature: options.temperature || 0.8,
+      maxOutputTokens: options.maxTokens || 1024,
+      topP: 0.95
+    },
+    safetySettings: [
+      { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_NONE' },
+      { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_NONE' }
+    ]
+  };
+
+  if (systemPrompt) {
+    requestBody.systemInstruction = {
+      parts: [{ text: systemPrompt }]
+    };
+  }
 
   const response = await fetch(url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      contents,
-      generationConfig: {
-        temperature: options.temperature || 0.8,
-        maxOutputTokens: options.maxTokens || 1024,
-        topP: 0.95
-      },
-      safetySettings: [
-        { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_NONE' },
-        { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_NONE' }
-      ]
-    })
+    body: JSON.stringify(requestBody)
   });
 
   if (!response.ok) {
     const err = await response.json().catch(() => ({}));
-    if (response.status === 400) throw new Error('INVALID_KEY');
+    if (response.status === 400 || response.status === 403) throw new Error('INVALID_KEY');
     if (response.status === 429) throw new Error('RATE_LIMIT');
     throw new Error(err.error?.message || `HTTP ${response.status}`);
   }
@@ -136,25 +167,26 @@ window.geminiChatStream = async function(messages, onChunk, onDone, options = {}
   const systemPrompt = options.systemPrompt || buildAISystemContext();
   const url = `${GEMINI_API_BASE}/${GEMINI_MODEL}:streamGenerateContent?alt=sse&key=${key}`;
 
-  const contents = [];
+  const contents = prepareGeminiContents(messages);
+
+  const requestBody = {
+    contents,
+    generationConfig: {
+      temperature: options.temperature || 0.8,
+      maxOutputTokens: options.maxTokens || 1024
+    }
+  };
+
   if (systemPrompt) {
-    contents.push({ role: 'user', parts: [{ text: systemPrompt }] });
-    contents.push({ role: 'model', parts: [{ text: 'Anlaşıldı! 💪' }] });
+    requestBody.systemInstruction = {
+      parts: [{ text: systemPrompt }]
+    };
   }
-  messages.forEach(msg => {
-    contents.push({
-      role: msg.role === 'user' ? 'user' : 'model',
-      parts: [{ text: msg.content }]
-    });
-  });
 
   const response = await fetch(url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      contents,
-      generationConfig: { temperature: 0.8, maxOutputTokens: 1024 }
-    })
+    body: JSON.stringify(requestBody)
   });
 
   if (!response.ok) {
@@ -168,6 +200,21 @@ window.geminiChatStream = async function(messages, onChunk, onDone, options = {}
   let fullText = '';
   let buffer = '';
 
+  const processLine = (line) => {
+    if (line.startsWith('data: ')) {
+      const jsonStr = line.slice(6).trim();
+      if (jsonStr === '[DONE]') return;
+      try {
+        const parsed = JSON.parse(jsonStr);
+        const chunk = parsed.candidates?.[0]?.content?.parts?.[0]?.text || '';
+        if (chunk) {
+          fullText += chunk;
+          onChunk(chunk, fullText);
+        }
+      } catch(e) { /* skip malformed */ }
+    }
+  };
+
   while (true) {
     const { value, done } = await reader.read();
     if (done) break;
@@ -175,23 +222,19 @@ window.geminiChatStream = async function(messages, onChunk, onDone, options = {}
     const lines = buffer.split('\n');
     buffer = lines.pop() || '';
     for (const line of lines) {
-      if (line.startsWith('data: ')) {
-        const jsonStr = line.slice(6).trim();
-        if (jsonStr === '[DONE]') continue;
-        try {
-          const parsed = JSON.parse(jsonStr);
-          const chunk = parsed.candidates?.[0]?.content?.parts?.[0]?.text || '';
-          if (chunk) {
-            fullText += chunk;
-            onChunk(chunk, fullText);
-          }
-        } catch(e) { /* skip malformed */ }
-      }
+      processLine(line);
     }
   }
+
+  // Process any leftover data in buffer
+  if (buffer.trim()) {
+    processLine(buffer);
+  }
+
   if (onDone) onDone(fullText);
   return fullText;
 };
+
 
 // ---- Image Analysis (Before/After) ----
 window.geminiAnalyzeImages = async function(imageBase64Array, customPrompt) {
