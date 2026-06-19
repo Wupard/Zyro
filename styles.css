@@ -1804,6 +1804,11 @@ textarea:not(.note-input) { resize: none !important; min-height: 80px; max-heigh
   background: rgba(239, 68, 68, 0.03);
   color: var(--text-primary);
 }
+.tracker-day.future {
+  opacity: 0.35;
+  cursor: not-allowed;
+  pointer-events: none;
+}
 .tracker-check { 
   position: absolute; 
   bottom: -3px; 

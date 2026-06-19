@@ -2593,11 +2593,12 @@ function renderMonthlyTracker() {
       <div class="tracker-grid">
   `;
 
-  // Render days in reverse order (newest/today first)
-  for(let d=endDay; d>=1; d--) {
+  // Render days in chronological order (1 to daysInMonth)
+  for(let d=1; d<=daysInMonth; d++) {
     const dStr = y + '-' + String(m+1).padStart(2,'0') + '-' + String(d).padStart(2,'0');
     
     const isToday = isCurrentMonth && d === currentDay;
+    const isFuture = isCurrentMonth && d > currentDay;
     const comp = (appData.completedDays && appData.completedDays[dStr]) || {};
     
     // Workout logic: Completed explicitly OR has 1+ logged exercises
@@ -2607,11 +2608,13 @@ function renderMonthlyTracker() {
     let wClass = '';
     if (isWorkoutDone) wClass = 'done workout';
     else if (isToday) wClass = 'today';
+    else if (isFuture) wClass = 'future';
     else wClass = 'missed';
 
     let pClass = '';
     if (comp.posture) pClass = 'done posture';
     else if (isToday) pClass = 'today';
+    else if (isFuture) pClass = 'future';
     else pClass = 'missed';
     
     wHtml += `<div class="tracker-day ${wClass}" onclick="toggleTrackerDay('${dStr}', 'workout')" title="${dStr}"><span>${d}</span>${isWorkoutDone?'<span class="tracker-check">✓</span>':''}</div>`;
@@ -2622,6 +2625,18 @@ function renderMonthlyTracker() {
   pHtml += '</div></div>';
   
   container.innerHTML = wHtml + pHtml;
+
+  // Auto-scroll the grids to center the 'today' element if exists
+  setTimeout(() => {
+    const grids = container.querySelectorAll('.tracker-grid');
+    grids.forEach(grid => {
+      const todayEl = grid.querySelector('.tracker-day.today');
+      if (todayEl) {
+        const scrollLeft = todayEl.offsetLeft - (grid.clientWidth / 2) + (todayEl.clientWidth / 2);
+        grid.scrollTo({ left: scrollLeft, behavior: 'smooth' });
+      }
+    });
+  }, 100);
 }
 
 window.toggleTrackerDay = function(dateStr, type) {
