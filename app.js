@@ -2061,6 +2061,25 @@ function initGestures() {
       } else {
         if (dx > minDistance && touchStartX < 40) {
           sidebar.classList.add('open');
+        } else if (Math.abs(dx) > minDistance) {
+          // Page swipe logic
+          const swipePages = ['dashboard', 'workouts', 'posture', 'progress', 'updates', 'notes', 'comments', 'calculators', 'diet', 'beforeafter', 'achievements', 'profile'];
+          let cPage = null;
+          document.querySelectorAll('.page').forEach(p => {
+             if (p.classList.contains('active') || p.style.display === 'block') cPage = p.dataset.page;
+          });
+          if (cPage) {
+            const idx = swipePages.indexOf(cPage);
+            if (idx !== -1) {
+              if (dx < -minDistance && idx < swipePages.length - 1) {
+                // Swipe Left -> Next Page
+                if (typeof navigateTo === 'function') navigateTo(swipePages[idx + 1]);
+              } else if (dx > minDistance && touchStartX >= 40 && idx > 0) {
+                // Swipe Right -> Prev Page
+                if (typeof navigateTo === 'function') navigateTo(swipePages[idx - 1]);
+              }
+            }
+          }
         }
       }
     }
@@ -8650,6 +8669,9 @@ window.switchProfileTab = function(tab, ev) {
   if (document.getElementById('profileTabAi')) {
     document.getElementById('profileTabAi').style.display = 'none';
   }
+  if (document.getElementById('profileTabTheme')) {
+    document.getElementById('profileTabTheme').style.display = 'none';
+  }
   
   // Update buttons
   document.querySelectorAll('.profile-tab-btn').forEach(btn => {
@@ -10868,16 +10890,23 @@ window.toggleDietTargetForm = function() {
   }
 };
 
-window.saveDietTargets = function() {
-  const kcal = parseInt(document.getElementById('targetKcal').value) || 2000;
-  const protein = parseInt(document.getElementById('targetProtein').value) || 150;
-  const carbs = parseInt(document.getElementById('targetCarbs').value) || 200;
-  const fat = parseInt(document.getElementById('targetFat').value) || 70;
+window.saveDietTargets = function(hideForm = false) {
+  const vKcal = document.getElementById('targetKcal').value;
+  const vProtein = document.getElementById('targetProtein').value;
+  const vCarbs = document.getElementById('targetCarbs').value;
+  const vFat = document.getElementById('targetFat').value;
+
+  const kcal = vKcal ? parseInt(vKcal) : (appData.dietTargets?.kcal || 2000);
+  const protein = vProtein ? parseInt(vProtein) : (appData.dietTargets?.protein || 150);
+  const carbs = vCarbs ? parseInt(vCarbs) : (appData.dietTargets?.carbs || 200);
+  const fat = vFat ? parseInt(vFat) : (appData.dietTargets?.fat || 70);
 
   appData.dietTargets = { kcal, protein, carbs, fat };
   saveData();
   renderDiet();
-  document.getElementById('dietTargetFormContainer').style.display = 'none';
+  if (hideForm) {
+    document.getElementById('dietTargetFormContainer').style.display = 'none';
+  }
   showToast(currentLang === 'tr' ? 'Hedefler kaydedildi.' : 'Goals saved.', 'success');
 };
 
@@ -11118,3 +11147,78 @@ window.renderDiet = function() {
   });
   list.innerHTML = html;
 };
+
+// =============================================
+// ADMIN: GRANT ACHIEVEMENTS TO ALL USERS
+// =============================================
+window.grantAchievementsToAll = async function() {
+  if (!appData.firestoreAdmin && appData.userRank !== 'admin' && appData.userRank !== 'mod') {
+    return alert('Yetkisiz işlem!');
+  }
+  
+  if (!confirm("Tüm kullanıcıların geçmiş verilerini (Kişisel Rekorlarını) tarayıp, eksik başarımları herkese tanımlamak istediğinize emin misiniz?")) return;
+  
+  try {
+    const btn = document.getElementById('btnGrantAchievements');
+    if(btn) { btn.disabled = true; btn.innerText = 'İşleniyor... Lütfen bekleyin'; }
+    
+    const usersSnap = await db.collection('users').get();
+    let updatedCount = 0;
+    
+    const checkAchievementsForUser = (userData) => {
+      const data = userData.data || {};
+      if (!data.achievements) data.achievements = {};
+      
+      const maxWeights = {};
+      Object.values(data.workoutLogs || {}).forEach(dayLogs => {
+        (dayLogs || []).forEach(log => {
+          const ex = log.exercise;
+          const w = parseFloat(log.weight) || 0;
+          const r = parseInt(log.reps) || 0;
+          
+          let score = w;
+          if (typeof calculateStrengthScore === 'function') {
+            score = calculateStrengthScore(w, r);
+          } else {
+            score = w * (1 + r / 30);
+          }
+          
+          if (!maxWeights[ex] || score > maxWeights[ex]) maxWeights[ex] = score;
+        });
+      });
+      
+      let modified = false;
+      ACHIEVEMENT_DEFS.forEach(def => {
+        if (!def.exercise) return;
+        if (data.achievements[def.id]) return;
+        const maxW = maxWeights[def.exercise] || 0;
+        if (maxW >= def.target) {
+          data.achievements[def.id] = { unlockedAt: Date.now() };
+          modified = true;
+        }
+      });
+      return modified ? data : null;
+    };
+    
+    const batch = db.batch();
+    
+    usersSnap.forEach(doc => {
+       const userDocData = doc.data();
+       const newData = checkAchievementsForUser(userDocData);
+       if (newData) {
+         batch.update(doc.ref, { data: newData }, { merge: true });
+         updatedCount++;
+       }
+    });
+    
+    await batch.commit();
+    alert(`Başarıyla ${updatedCount} kullanıcının eksik başarımları geçmiş rekorlarına göre tanımlandı!`);
+    if(btn) { btn.disabled = false; btn.innerText = 'Tüm Geçmiş Rekorları Başarıma Çevir'; }
+  } catch (err) {
+    console.error(err);
+    alert('Hata: ' + err.message);
+    const btn = document.getElementById('btnGrantAchievements');
+    if(btn) { btn.disabled = false; btn.innerText = 'Tüm Geçmiş Rekorları Başarıma Çevir'; }
+  }
+};
+
