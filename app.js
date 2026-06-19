@@ -6612,48 +6612,73 @@ async function adminLoadDashboardStats() {
     let activeCount = 0;
     const recentActivity = [];
     const sevenDaysAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+    
     usersSnap.forEach(doc => {
       const top = doc.data() || {};
       const data = top.data || {};
       const profile = data.profile || top.profile || {};
-      const displayName = profile.displayName || data.userName || top.userName || top.displayName || '';
+      const displayName = profile.displayName || data.userName || top.userName || top.displayName || 'Anonim';
       const photoURL = profile.photoURL || top.photoURL || '';
 
       const logs = data.workoutLogs || {};
-      const hasRecentLog = Object.keys(logs).some(dateKey => {
-        const d = new Date(dateKey);
-        return d.getTime() >= sevenDaysAgo;
-      });
+      const diets = data.dietLogs || {};
+      const hasRecentLog = Object.keys(logs).some(dateKey => new Date(dateKey).getTime() >= sevenDaysAgo);
       if (hasRecentLog) activeCount++;
-      recentActivity.push({
-        name: displayName || doc.id.slice(0, 8) + '...',
-        photoURL: photoURL,
-        logs: Object.keys(logs).length,
-        uid: doc.id
-      });
+      
+      const tStr = todayStr();
+      let allLogs = [];
+      Object.values(logs).forEach(dayArr => allLogs.push(...(dayArr||[])));
+      Object.values(diets).forEach(dayArr => allLogs.push(...(dayArr||[])));
+      
+      if (allLogs.length > 0) {
+        allLogs.sort((a,b) => b.timestamp - a.timestamp);
+        const lastAction = allLogs[0];
+        const lastActionTime = lastAction.timestamp;
+        
+        const todayWorkouts = (logs[tStr] || []).length;
+        const todayDiets = (diets[tStr] || []).length;
+        
+        recentActivity.push({
+          name: displayName,
+          photoURL: photoURL,
+          lastTime: lastActionTime,
+          lastActionDesc: lastAction.exercise ? `${lastAction.exercise}` : (lastAction.name ? `${lastAction.name}` : 'Bilinmiyor'),
+          todayStr: `Bugün: ${todayWorkouts} set, ${todayDiets} öğün`,
+          uid: doc.id
+        });
+      }
     });
+    
     const aCount = document.getElementById('adminActiveUsers');
     if (aCount) aCount.textContent = activeCount;
 
     // Render recent activity
     const actEl = document.getElementById('adminRecentActivity');
     if (actEl) {
-      const topUsers = recentActivity.sort((a, b) => b.logs - a.logs).slice(0, 5);
+      const topUsers = recentActivity.sort((a, b) => b.lastTime - a.lastTime).slice(0, 10);
       if (topUsers.length === 0) {
         actEl.textContent = 'Henüz aktivite yok.';
       } else {
         actEl.innerHTML = topUsers.map((u, i) => {
           const avatarHtml = u.photoURL 
-            ? `<img src="${u.photoURL}" style="width:28px;height:28px;border-radius:50%;object-fit:cover;border:1.5px solid rgba(255,255,255,0.1);flex-shrink:0;" referrerpolicy="no-referrer">` 
-            : `<div style="width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,0.05);border:1.5px solid rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;font-size:0.75rem;flex-shrink:0;">👤</div>`;
+            ? `<img src="${u.photoURL}" style="width:34px;height:34px;border-radius:50%;object-fit:cover;border:1.5px solid rgba(255,255,255,0.1);flex-shrink:0;" referrerpolicy="no-referrer">` 
+            : `<div style="width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,0.05);border:1.5px solid rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;font-size:0.9rem;flex-shrink:0;">👤</div>`;
+          
+          const timeStr = new Date(u.lastTime).toLocaleString('tr-TR', {day:'numeric', month:'short', hour:'2-digit', minute:'2-digit'});
+          
           return `
-            <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.05);">
-              <div style="display:flex;align-items:center;gap:10px;min-width:0;">
-                <div style="width:28px;height:28px;border-radius:8px;background:rgba(139,124,247,0.15);display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:800;color:#8b7cf7;flex-shrink:0;">${i+1}</div>
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid rgba(255,255,255,0.05);">
+              <div style="display:flex;align-items:center;gap:12px;min-width:0;text-align:left;">
                 ${avatarHtml}
-                <span style="font-size:0.85rem;font-weight:600;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${u.name}">${u.name}</span>
+                <div style="display:flex;flex-direction:column;gap:3px;overflow:hidden;">
+                  <span style="font-size:0.9rem;font-weight:700;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${u.name}">${u.name}</span>
+                  <span style="font-size:0.75rem;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Son: ${u.lastActionDesc}</span>
+                </div>
               </div>
-              <span style="font-size:0.75rem;color:var(--text-muted);flex-shrink:0;margin-left:10px;">${u.logs} gün kayıt</span>
+              <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px;flex-shrink:0;">
+                <span style="font-size:0.75rem;color:var(--text-muted);">${timeStr}</span>
+                <span style="font-size:0.75rem;font-weight:600;color:var(--accent-primary);">${u.todayStr}</span>
+              </div>
             </div>
           `;
         }).join('');
