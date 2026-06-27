@@ -1070,6 +1070,9 @@ function initAuth(){
           window.enableLevelUpToasts();
         }
       }
+      if (typeof window.applyMaintenanceState === 'function') {
+        window.applyMaintenanceState();
+      }
     });
 
     // Handle Redirect Result (for fallback)
@@ -1130,6 +1133,9 @@ function initAuth(){
     overlay.classList.add('hidden');
     const aiBtn = document.getElementById('aiFloatBtn');
     if (aiBtn) aiBtn.style.display = 'flex';
+    if (typeof window.applyMaintenanceState === 'function') {
+      window.applyMaintenanceState();
+    }
     loadData(()=>refreshAllViews());
   });
 }
@@ -8639,15 +8645,60 @@ window.applyMaintenanceState = function(forcedState) {
     overlay = document.createElement('div');
     overlay.id = 'maintenanceOverlay';
     overlay.className = 'maintenance-overlay';
-    overlay.innerHTML = '<div class="maintenance-card"><div class="maintenance-icon">\uD83D\uDD27</div><h2 class="maintenance-title">Bakim Modu</h2><div id="maintenanceOverlayMsg" class="maintenance-msg"></div><div id="maintenanceOverlayUntil" class="maintenance-until"></div></div>';
+    overlay.innerHTML = `
+      <div class="maintenance-card">
+        <div class="maintenance-icon">🔧</div>
+        <h2 class="maintenance-title">Bakım Modu</h2>
+        <div id="maintenanceOverlayMsg" class="maintenance-msg"></div>
+        <div id="maintenanceOverlayUntil" class="maintenance-until"></div>
+        <div id="maintenanceOverlayLoginContainer" style="margin-top: 24px; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 18px;">
+          <button id="maintenanceLoginBtn" class="btn-primary" style="padding: 10px 20px; font-size: 0.9rem; font-weight: 600; border-radius: 8px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; margin: 0 auto;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" style="vertical-align: middle;"><path d="M12.24 10.285V13.4h6.887c-.275 1.565-1.88 4.604-6.887 4.604-4.33 0-7.859-3.578-7.859-8s3.529-8 7.859-8c2.46 0 4.105 1.025 5.047 1.926l2.427-2.334C17.955 2.192 15.34 1 12.24 1 5.92 1 12 5.92 1 12s4.92 11 11.24 11c6.6 0 11-4.65 11-11.2 0-.756-.08-1.333-.177-1.8H12.24z"/></svg>
+            Yönetici Girişi (Google)
+          </button>
+        </div>
+      </div>
+    `;
     document.body.appendChild(overlay);
+
+    const loginBtn = overlay.querySelector('#maintenanceLoginBtn');
+    if (loginBtn) {
+      loginBtn.addEventListener('click', async () => {
+        if (typeof firebase === 'undefined' || !firebase.auth) {
+          showToast('Firebase bağlantısı kurulamadı.', 'error');
+          return;
+        }
+        const provider = new firebase.auth.GoogleAuthProvider();
+        provider.setCustomParameters({ prompt: 'select_account' });
+        try {
+          const result = await window.auth.signInWithPopup(provider);
+          const user = result.user;
+          if (user && user.email === 'wupard@gmail.com') {
+            showToast('Yönetici girişi başarılı.', 'success');
+          } else {
+            showToast('Yetkisiz hesap! Bakım modunda sadece yönetici giriş yapabilir.', 'error');
+            await window.auth.signOut();
+          }
+        } catch (e) {
+          console.warn('Popup blocked/failed, trying redirect...', e);
+          if (e.code === 'auth/popup-blocked' || e.code === 'auth/cancelled-popup-request') {
+            window.auth.signInWithRedirect(provider).catch(err => {
+              showToast('Giriş başarısız: ' + err.message, 'error');
+            });
+          } else {
+            showToast('Giriş başarısız: ' + e.message, 'error');
+          }
+        }
+      });
+    }
   }
+
   if (state.enabled) {
-    const isAdm = currentUser && (currentUser.email === 'wupard@gmail.com' || appData.firestoreAdmin === true);
+    const isAdm = currentUser && currentUser.email === 'wupard@gmail.com';
     if (!isAdm) {
       document.getElementById('maintenanceOverlayMsg').textContent = state.message || 'Kısa süreli bakım yapılıyor.';
-      const until = state.expiresAt ? new Date(state.expiresAt).toLocaleString() : '\u2014';
-      document.getElementById('maintenanceOverlayUntil').textContent = 'Tahmini bitis: ' + until;
+      const until = state.expiresAt ? new Date(state.expiresAt).toLocaleString() : '—';
+      document.getElementById('maintenanceOverlayUntil').textContent = 'Tahmini bitiş: ' + until;
       overlay.style.display = 'flex';
       document.body.style.overflow = 'hidden';
     } else {
@@ -8674,8 +8725,8 @@ window.updateMaintenanceStatusText = function(forcedState) {
 
 window.initMaintenanceSync = function() {
   if (!(isFirebaseConfigured && db)) {
-    applyMaintenanceState();
-    updateMaintenanceStatusText();
+    window.applyMaintenanceState();
+    window.updateMaintenanceStatusText();
     return;
   }
   if (window.maintenanceUnsubscribe) window.maintenanceUnsubscribe();
@@ -8684,12 +8735,12 @@ window.initMaintenanceSync = function() {
     const normalized = remote.expiresAt && Date.now() > remote.expiresAt ? { enabled: false } : remote;
     if (normalized.enabled) localStorage.setItem('zyro_maintenance', JSON.stringify(normalized));
     else localStorage.removeItem('zyro_maintenance');
-    applyMaintenanceState(normalized);
-    updateMaintenanceStatusText(normalized);
+    window.applyMaintenanceState(normalized);
+    window.updateMaintenanceStatusText(normalized);
   }, function(err) {
     console.error('Maintenance sync failed:', err);
-    applyMaintenanceState();
-    updateMaintenanceStatusText();
+    window.applyMaintenanceState();
+    window.updateMaintenanceStatusText();
   });
 };
 
