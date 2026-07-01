@@ -962,10 +962,20 @@ function loadData(cb){
       if(snap.exists && snap.data().data) {
          // Veriler her zaman sunucudan cihazınıza en güncel haliyle senkronize olur
          // Böylece telefon ile PC birbirini EZMEZ.
+         
+         // CRITICAL FIX: hasPendingWrites true ise bu snapshot bizim yerel
+         // yazmanın yansımasıdır — sunucunun onayını beklemeden appData'yı
+         // ezmemeye devam ediyoruz. Bu race condition'ı önler.
+         if (snap.metadata && snap.metadata.hasPendingWrites) {
+           // Yerel write'ın echo'su, sunucu henüz onaylamadı — atla
+           if(cb) { cb(); cb = null; }
+           return;
+         }
+         
          const serverData = snap.data().data;
-         // DIET PROTECTION: Eğer sunucuda diyet verileri yoksa, lokali koru veya varsayılanları ata
+         // DIET PROTECTION: Diyet verilerini korumak için yerel kopyaları sakla
          const localDietTargets = appData.dietTargets || { kcal: 2000, protein: 150, carbs: 200, fat: 70 };
-         const localDietLogs = appData.dietLogs || {};
+         const localDietLogs = JSON.parse(JSON.stringify(appData.dietLogs || {}));
          
          appData = serverData;
           let needSave = false;
@@ -976,6 +986,18 @@ function loadData(cb){
           if (!appData.dietLogs) {
             appData.dietLogs = localDietLogs;
             needSave = true;
+          } else {
+            // MERGE: Sunucuda olmayan ama yerel olan bugünün öğünlerini koru
+            const td = todayStr();
+            if (localDietLogs[td] && localDietLogs[td].length > 0) {
+              const serverTodayIds = new Set((appData.dietLogs[td] || []).map(m => m.id));
+              const missingMeals = localDietLogs[td].filter(m => !serverTodayIds.has(m.id));
+              if (missingMeals.length > 0) {
+                if (!appData.dietLogs[td]) appData.dietLogs[td] = [];
+                appData.dietLogs[td] = appData.dietLogs[td].concat(missingMeals);
+                needSave = true;
+              }
+            }
           }
           
           if (typeof window.syncPastAchievements === 'function') {
@@ -3866,6 +3888,7 @@ function refreshAllViews(){
   else if(currentPage==='achievements')renderAchievements();
   else if(currentPage==='leaderboard') { if (typeof renderLeaderboard === 'function') renderLeaderboard(); }
   else if(currentPage==='profile')renderProfilePage();
+  else if(currentPage==='diet') { if (typeof window.renderDiet === 'function') window.renderDiet(); }
 }
 
 let resizeTimeout;
