@@ -11296,15 +11296,28 @@ window.renderDiet = function() {
     return;
   }
 
+  // Tag → emoji mapping
+  const TAG_EMOJI = {
+    'Kahvaltı':      '🌅',
+    'Öğle Yemeği':   '☀️',
+    'Akşam Yemeği':  '🌙',
+    'Ara Öğün':      '🍎',
+    'Atıştırmalık':  '🍿',
+    'İçecek':        '🥤',
+    'Diğer':         '🍴',
+  };
+
   let html = '';
   logs.forEach(m => {
     const timeStr = new Date(m.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    const tagBadge = m.tag ? `<span style="font-size: 0.65rem; background: rgba(255,112,67,0.15); color: #ff7043; padding: 2px 6px; border-radius: 4px; font-weight: 800; text-transform: uppercase;">${m.tag}</span>` : '';
+    const icon = TAG_EMOJI[m.tag] || '🍴';
+    const tagBadge = m.tag ? `<span style="font-size: 0.65rem; background: rgba(255,112,67,0.15); color: #ff7043; padding: 2px 7px; border-radius: 4px; font-weight: 800; text-transform: uppercase; letter-spacing:0.04em;">${m.tag}</span>` : '';
     html += `
       <div class="logged-row" style="padding: 12px 14px; border-bottom: 1px solid var(--border-subtle); display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.01); border-radius: 8px; gap: 12px;">
         <div style="flex: 1; min-width: 0;">
           <div style="font-weight: 700; font-size: 0.9rem; color: var(--text-primary); display: flex; align-items: center; flex-wrap: wrap; gap: 6px 8px;">
-            <span>🍽️ ${m.name}</span>
+            <span style="font-size:1.1rem;">${icon}</span>
+            <span>${m.name}</span>
             ${tagBadge}
             <span style="font-size: 0.72rem; color: var(--text-muted); font-weight: 500;">${timeStr}</span>
           </div>
@@ -11322,6 +11335,34 @@ window.renderDiet = function() {
       </div>
     `;
   });
+
+  // Günlük toplam özet
+  html += `
+    <div style="margin-top: 14px; padding: 14px 16px; background: linear-gradient(135deg, rgba(255,112,67,0.08) 0%, rgba(255,112,67,0.03) 100%); border: 1px solid rgba(255,112,67,0.2); border-radius: 12px;">
+      <div style="font-size: 0.7rem; font-weight: 800; color: #ff7043; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 10px;">
+        📊 ${currentLang === 'tr' ? 'Bugünkü Toplam' : "Today's Total"}
+      </div>
+      <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; text-align: center;">
+        <div style="background: rgba(255,112,67,0.1); border-radius: 10px; padding: 10px 6px;">
+          <div style="font-size: 1.15rem; font-weight: 900; color: var(--text-primary); line-height:1;">${totalKcal}</div>
+          <div style="font-size: 0.62rem; color: #ff7043; font-weight: 700; margin-top: 3px; text-transform: uppercase;">🔥 kcal</div>
+        </div>
+        <div style="background: rgba(96,165,250,0.1); border-radius: 10px; padding: 10px 6px;">
+          <div style="font-size: 1.15rem; font-weight: 900; color: var(--text-primary); line-height:1;">${totalProtein}g</div>
+          <div style="font-size: 0.62rem; color: #60a5fa; font-weight: 700; margin-top: 3px; text-transform: uppercase;">🥩 Protein</div>
+        </div>
+        <div style="background: rgba(245,158,11,0.1); border-radius: 10px; padding: 10px 6px;">
+          <div style="font-size: 1.15rem; font-weight: 900; color: var(--text-primary); line-height:1;">${totalCarbs}g</div>
+          <div style="font-size: 0.62rem; color: #f59e0b; font-weight: 700; margin-top: 3px; text-transform: uppercase;">🍞 Karb</div>
+        </div>
+        <div style="background: rgba(244,63,94,0.1); border-radius: 10px; padding: 10px 6px;">
+          <div style="font-size: 1.15rem; font-weight: 900; color: var(--text-primary); line-height:1;">${totalFat}g</div>
+          <div style="font-size: 0.62rem; color: #f43f5e; font-weight: 700; margin-top: 3px; text-transform: uppercase;">🥑 Yağ</div>
+        </div>
+      </div>
+    </div>
+  `;
+
   list.innerHTML = html;
 };
 
