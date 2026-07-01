@@ -5044,7 +5044,20 @@ html {
    DIET & NUTRITION SECTION RESPONSIVE STYLING
    ========================================================================== */
 
-/* Banner responsiveness */
+/* ---- Diet Page Banner ---- */
+.diet-banner {
+  position: relative;
+  overflow: hidden;
+}
+.diet-banner::before {
+  content: '';
+  position: absolute;
+  top: -40px; right: -40px;
+  width: 160px; height: 160px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,112,67,0.18) 0%, transparent 70%);
+  pointer-events: none;
+}
 @media (max-width: 576px) {
   .diet-banner {
     flex-direction: column;
@@ -5053,23 +5066,51 @@ html {
   }
 }
 
-/* Tab button tweaks on mobile */
+/* ---- Tab Buttons ---- */
+#pageDiet .tab-btn {
+  position: relative;
+  transition: color 0.2s, background 0.2s;
+  letter-spacing: 0.01em;
+}
+#pageDiet .tab-btn::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 20%; right: 20%;
+  height: 2px;
+  background: #ff7043;
+  border-radius: 2px 2px 0 0;
+  transform: scaleX(0);
+  transition: transform 0.2s ease;
+}
+#pageDiet .tab-btn.active::after {
+  transform: scaleX(1);
+}
 @media (max-width: 480px) {
   #pageDiet .tab-btn {
-    font-size: 0.8rem !important;
-    padding: 12px 10px !important;
+    font-size: 0.78rem !important;
+    padding: 12px 8px !important;
   }
   .diet-tab-content {
     padding: 16px !important;
   }
 }
 
-/* Target setting grid layout */
+/* ---- Tab Content ---- */
+.diet-tab-content {
+  padding: 24px;
+  animation: dietFadeIn 0.2s ease;
+}
+@keyframes dietFadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ---- Target Setting Grid ---- */
 .diet-target-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 10px;
-  margin-bottom: 12px;
+  gap: 12px;
+  margin-bottom: 14px;
 }
 .diet-target-grid input {
   width: 100%;
@@ -5082,15 +5123,16 @@ html {
 }
 @media (max-width: 480px) {
   .diet-target-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
   }
 }
 
-/* Progress metrics macro grid layout */
+/* ---- Macro Progress Grid ---- */
 .diet-macros-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 16px;
+  gap: 14px;
 }
 @media (max-width: 900px) {
   .diet-macros-grid {
@@ -5106,52 +5148,92 @@ html {
     padding: 10px !important;
   }
   .diet-macros-grid [id$="Val"] {
-    font-size: 1.1rem !important;
+    font-size: 1.05rem !important;
   }
   .diet-macros-grid [id$="Rem"] {
-    font-size: 0.65rem !important;
+    font-size: 0.62rem !important;
   }
 }
 
-/* Input fields grid (Meal Name, Tag, Calories, Protein, Carbs, Fat) */
+/* ---- Meal Input Grid (Name + Tag row, then 4 macro inputs) ---- */
 .diet-inputs-grid {
+  display: grid;
+  /* Row 1: Name (flex-grow) | Tag (fixed) */
+  /* Row 2: Kcal | Protein | Carbs | Fat */
+  grid-template-columns: 1fr 180px;
+  grid-template-rows: auto auto;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+/* Name field spans col 1, Tag spans col 2 */
+.diet-inputs-grid .col-name {
+  grid-column: 1;
+  grid-row: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.diet-inputs-grid .col-tag {
+  grid-column: 2;
+  grid-row: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* The 4 macro inputs form a sub-group in row 2 spanning all columns */
+.diet-inputs-grid > div:not(.col-name):not(.col-tag) {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* Row 2: sub-grid with 4 equal columns across full width */
+.diet-inputs-grid {
+  grid-template-columns: 1fr 180px;
+}
+
+/* Wrap macro inputs in a 4-col sub-row spanning full grid */
+.diet-macro-row {
+  grid-column: 1 / -1;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 12px;
-  margin-bottom: 20px;
-  align-items: end;
 }
-.diet-inputs-grid input, .diet-inputs-grid select {
+
+.diet-inputs-grid input,
+.diet-inputs-grid select {
   width: 100%;
   box-sizing: border-box;
 }
-.diet-inputs-grid .col-name, .diet-inputs-grid .col-tag {
-  grid-column: span 2;
-}
-@media (max-width: 900px) {
+
+@media (max-width: 768px) {
   .diet-inputs-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
+    grid-template-columns: 1fr;
   }
-  .diet-inputs-grid .col-name, .diet-inputs-grid .col-tag {
-    grid-column: span 2;
+  .diet-inputs-grid .col-name,
+  .diet-inputs-grid .col-tag {
+    grid-column: 1;
+    grid-row: auto;
+  }
+  .diet-macro-row {
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 @media (max-width: 480px) {
-  .diet-inputs-grid {
+  .diet-macro-row {
     grid-template-columns: repeat(2, 1fr);
     gap: 10px;
   }
-  .diet-inputs-grid .col-name, .diet-inputs-grid .col-tag {
-    grid-column: span 2;
-  }
 }
 
-/* Action button rows */
+/* ---- Action Button Row ---- */
 .diet-actions-row {
   display: flex;
   gap: 10px;
   justify-content: flex-end;
+  margin-top: 4px;
 }
 @media (max-width: 480px) {
   .diet-actions-row {
@@ -5169,27 +5251,49 @@ html {
   }
 }
 
-/* Log deletion button */
+/* ---- Drag Drop Zone hover ---- */
+#dietDragDropZone:hover {
+  border-color: rgba(255, 112, 67, 0.6) !important;
+  background: rgba(255, 112, 67, 0.06) !important;
+  transform: translateY(-1px);
+}
+
+/* ---- Log Meal Row ---- */
+.logged-row {
+  transition: background 0.15s;
+}
+.logged-row:hover {
+  background: rgba(255,255,255,0.03) !important;
+}
+
+/* ---- Log delete button ---- */
 .delete-log {
   background: none;
   border: none;
-  color: #ef4444;
-  font-size: 1.3rem;
+  color: var(--text-muted);
+  font-size: 1.1rem;
   cursor: pointer;
-  padding: 8px 12px;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
   display: flex;
   align-items: center;
   justify-content: center;
-  min-width: 36px;
-  min-height: 36px;
-  border-radius: 6px;
-  transition: background-color 0.2s, color 0.2s;
   flex-shrink: 0;
+  transition: background 0.15s, color 0.15s;
+  padding: 0;
+  line-height: 1;
 }
 .delete-log:hover {
-  background-color: rgba(239, 68, 68, 0.1);
-  color: #f87171;
+  background: rgba(244, 63, 94, 0.15);
+  color: #f43f5e;
 }
-.delete-log:active {
-  background-color: rgba(239, 68, 68, 0.2);
+
+/* ---- Empty state ---- */
+.logged-empty {
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  padding: 32px 16px;
+  opacity: 0.7;
 }

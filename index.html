@@ -1546,55 +1546,57 @@
           </div>
 
           <!-- Analysis result form (editable) -->
-          <div id="dietAiResult" style="display: none; margin-top: 24px; padding: 20px; border: 1px solid var(--border-subtle); background: var(--bg-card-alt); border-radius: 16px;">
-            <div style="display: flex; gap: 16px; margin-bottom: 20px; flex-wrap: wrap;">
-              <div id="dietPhotoPreviewContainer" style="width: 100px; height: 100px; border-radius: 12px; border: 1px solid var(--border-subtle); overflow: hidden; background: #000; flex-shrink: 0;">
+          <div id="dietAiResult" style="display: none; margin-top: 20px; padding: 20px; border: 1px solid var(--border-subtle); background: var(--bg-card-alt); border-radius: 16px;">
+            <div style="display: flex; gap: 16px; margin-bottom: 20px; flex-wrap: wrap; align-items: flex-start;">
+              <div id="dietPhotoPreviewContainer" style="width: 90px; height: 90px; border-radius: 12px; border: 1px solid var(--border-subtle); overflow: hidden; background: #000; flex-shrink: 0;">
                 <img id="dietPhotoPreview" loading="lazy" style="width: 100%; height: 100%; object-fit: cover;">
               </div>
-              <div style="flex: 1; min-width: 200px;">
-                <h4 style="margin: 0 0 6px 0; font-size: 0.95rem; font-weight: 800; color: var(--text-primary);">AI Analiz Sonucu</h4>
-                <p id="dietAiDesc" style="margin: 0; font-size: 0.78rem; color: var(--text-muted); line-height: 1.4;"></p>
+              <div style="flex: 1; min-width: 160px;">
+                <h4 style="margin: 0 0 4px 0; font-size: 0.9rem; font-weight: 800; color: #ff7043;">✦ AI Analiz Sonucu</h4>
+                <p id="dietAiDesc" style="margin: 0; font-size: 0.78rem; color: var(--text-muted); line-height: 1.5;"></p>
               </div>
             </div>
 
             <div class="diet-inputs-grid">
-              <div class="col-name" style="display: flex; flex-direction: column; gap: 4px;">
-                <label style="font-size: 0.7rem; color: var(--text-muted); font-weight: 600;">Yemek Adı</label>
-                <input type="text" id="aiMealName" class="log-input" style="padding: 10px; font-size: 0.85rem;">
+              <div class="col-name" style="display: flex; flex-direction: column; gap: 6px;">
+                <label style="font-size: 0.7rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;">Yemek Adı</label>
+                <input type="text" id="aiMealName" class="log-input" style="padding: 10px 12px; font-size: 0.88rem;">
               </div>
-              <div class="col-tag" style="display: flex; flex-direction: column; gap: 4px;">
-                <label style="font-size: 0.7rem; color: var(--text-muted); font-weight: 600;">Etiket</label>
-                <select id="aiMealTag" class="log-input" style="padding: 10px; font-size: 0.85rem; appearance: none; background-color: var(--bg-input);">
-                  <option value="Kahvaltı">Kahvaltı</option>
-                  <option value="Öğle Yemeği">Öğle Yemeği</option>
-                  <option value="Akşam Yemeği">Akşam Yemeği</option>
-                  <option value="Ara Öğün">Ara Öğün</option>
-                  <option value="Atıştırmalık">Atıştırmalık</option>
-                  <option value="İçecek">İçecek</option>
-                  <option value="Diğer" selected>Diğer</option>
+              <div class="col-tag" style="display: flex; flex-direction: column; gap: 6px;">
+                <label style="font-size: 0.7rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;">Etiket</label>
+                <select id="aiMealTag" class="log-input" style="padding: 10px 12px; font-size: 0.88rem; appearance: none; background-color: var(--bg-input);">
+                  <option value="Kahvaltı">🌅 Kahvaltı</option>
+                  <option value="Öğle Yemeği">☀️ Öğle Yemeği</option>
+                  <option value="Akşam Yemeği">🌙 Akşam Yemeği</option>
+                  <option value="Ara Öğün">🍎 Ara Öğün</option>
+                  <option value="Atıştırmalık">🍿 Atıştırmalık</option>
+                  <option value="İçecek">🥤 İçecek</option>
+                  <option value="Diğer" selected>📦 Diğer</option>
                 </select>
               </div>
-              <div style="display: flex; flex-direction: column; gap: 4px;">
-                <label style="font-size: 0.7rem; color: var(--text-muted); font-weight: 600;">Kalori (kcal)</label>
-                <input type="number" id="aiMealKcal" class="log-input" style="padding: 10px; font-size: 0.85rem;">
-              </div>
-              <div style="display: flex; flex-direction: column; gap: 4px;">
-                <label style="font-size: 0.7rem; color: var(--text-muted); font-weight: 600;">Protein (g)</label>
-                <input type="number" id="aiMealProtein" class="log-input" style="padding: 10px; font-size: 0.85rem;">
-              </div>
-              <div style="display: flex; flex-direction: column; gap: 4px;">
-                <label style="font-size: 0.7rem; color: var(--text-muted); font-weight: 600;">Karb (g)</label>
-                <input type="number" id="aiMealCarbs" class="log-input" style="padding: 10px; font-size: 0.85rem;">
-              </div>
-              <div style="display: flex; flex-direction: column; gap: 4px;">
-                <label style="font-size: 0.7rem; color: var(--text-muted); font-weight: 600;">Yağ (g)</label>
-                <input type="number" id="aiMealFat" class="log-input" style="padding: 10px; font-size: 0.85rem;">
+              <div class="diet-macro-row">
+                <div style="display: flex; flex-direction: column; gap: 6px;">
+                  <label style="font-size: 0.7rem; color: #ff7043; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;">🔥 Kalori</label>
+                  <input type="number" id="aiMealKcal" class="log-input" placeholder="kcal" style="padding: 10px 12px; font-size: 0.88rem;">
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 6px;">
+                  <label style="font-size: 0.7rem; color: #60a5fa; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;">🥩 Protein</label>
+                  <input type="number" id="aiMealProtein" class="log-input" placeholder="g" style="padding: 10px 12px; font-size: 0.88rem;">
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 6px;">
+                  <label style="font-size: 0.7rem; color: #f59e0b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;">🍞 Karb</label>
+                  <input type="number" id="aiMealCarbs" class="log-input" placeholder="g" style="padding: 10px 12px; font-size: 0.88rem;">
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 6px;">
+                  <label style="font-size: 0.7rem; color: #f43f5e; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;">🥑 Yağ</label>
+                  <input type="number" id="aiMealFat" class="log-input" placeholder="g" style="padding: 10px 12px; font-size: 0.88rem;">
+                </div>
               </div>
             </div>
 
             <div class="diet-actions-row" style="display: flex; gap: 10px; justify-content: flex-end;">
-              <button class="btn-primary" onclick="submitDietLog('ai')">Öğünü Kaydet</button>
-              <button class="btn-small" onclick="resetDietAiForm()">Vazgeç</button>
+              <button class="btn-primary" onclick="submitDietLog('ai')">✓ Öğünü Kaydet</button>
+              <button class="btn-small" onclick="resetDietAiForm()">✕ Vazgeç</button>
             </div>
           </div>
         </div>
@@ -1602,41 +1604,43 @@
         <!-- Tab 2: Manual Log Form -->
         <div id="dietTabManual" class="diet-tab-content" style="display: none;">
           <div class="diet-inputs-grid">
-            <div class="col-name" style="display: flex; flex-direction: column; gap: 4px;">
-              <label style="font-size: 0.7rem; color: var(--text-muted); font-weight: 600;">Yemek Adı</label>
-              <input type="text" id="manualMealName" class="log-input" placeholder="ör: Yulaf Ezmesi" style="padding: 10px; font-size: 0.85rem;">
+            <div class="col-name" style="display: flex; flex-direction: column; gap: 6px;">
+              <label style="font-size: 0.7rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;">Yemek Adı</label>
+              <input type="text" id="manualMealName" class="log-input" placeholder="ör: Yulaf Ezmesi" style="padding: 10px 12px; font-size: 0.88rem;">
             </div>
-            <div class="col-tag" style="display: flex; flex-direction: column; gap: 4px;">
-              <label style="font-size: 0.7rem; color: var(--text-muted); font-weight: 600;">Etiket</label>
-              <select id="manualMealTag" class="log-input" style="padding: 10px; font-size: 0.85rem; appearance: none; background-color: var(--bg-input);">
-                <option value="Kahvaltı">Kahvaltı</option>
-                <option value="Öğle Yemeği">Öğle Yemeği</option>
-                <option value="Akşam Yemeği">Akşam Yemeği</option>
-                <option value="Ara Öğün">Ara Öğün</option>
-                <option value="Atıştırmalık">Atıştırmalık</option>
-                <option value="İçecek">İçecek</option>
-                <option value="Diğer" selected>Diğer</option>
+            <div class="col-tag" style="display: flex; flex-direction: column; gap: 6px;">
+              <label style="font-size: 0.7rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;">Etiket</label>
+              <select id="manualMealTag" class="log-input" style="padding: 10px 12px; font-size: 0.88rem; appearance: none; background-color: var(--bg-input);">
+                <option value="Kahvaltı">🌅 Kahvaltı</option>
+                <option value="Öğle Yemeği">☀️ Öğle Yemeği</option>
+                <option value="Akşam Yemeği">🌙 Akşam Yemeği</option>
+                <option value="Ara Öğün">🍎 Ara Öğün</option>
+                <option value="Atıştırmalık">🍿 Atıştırmalık</option>
+                <option value="İçecek">🥤 İçecek</option>
+                <option value="Diğer" selected>📦 Diğer</option>
               </select>
             </div>
-            <div style="display: flex; flex-direction: column; gap: 4px;">
-              <label style="font-size: 0.7rem; color: var(--text-muted); font-weight: 600;">Kalori (kcal)</label>
-              <input type="number" id="manualMealKcal" class="log-input" placeholder="350" style="padding: 10px; font-size: 0.85rem;">
-            </div>
-            <div style="display: flex; flex-direction: column; gap: 4px;">
-              <label style="font-size: 0.7rem; color: var(--text-muted); font-weight: 600;">Protein (g)</label>
-              <input type="number" id="manualMealProtein" class="log-input" placeholder="12" style="padding: 10px; font-size: 0.85rem;">
-            </div>
-            <div style="display: flex; flex-direction: column; gap: 4px;">
-              <label style="font-size: 0.7rem; color: var(--text-muted); font-weight: 600;">Karb (g)</label>
-              <input type="number" id="manualMealCarbs" class="log-input" placeholder="48" style="padding: 10px; font-size: 0.85rem;">
-            </div>
-            <div style="display: flex; flex-direction: column; gap: 4px;">
-              <label style="font-size: 0.7rem; color: var(--text-muted); font-weight: 600;">Yağ (g)</label>
-              <input type="number" id="manualMealFat" class="log-input" placeholder="6" style="padding: 10px; font-size: 0.85rem;">
+            <div class="diet-macro-row">
+              <div style="display: flex; flex-direction: column; gap: 6px;">
+                <label style="font-size: 0.7rem; color: #ff7043; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;">🔥 Kalori</label>
+                <input type="number" id="manualMealKcal" class="log-input" placeholder="kcal" style="padding: 10px 12px; font-size: 0.88rem;">
+              </div>
+              <div style="display: flex; flex-direction: column; gap: 6px;">
+                <label style="font-size: 0.7rem; color: #60a5fa; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;">🥩 Protein</label>
+                <input type="number" id="manualMealProtein" class="log-input" placeholder="g" style="padding: 10px 12px; font-size: 0.88rem;">
+              </div>
+              <div style="display: flex; flex-direction: column; gap: 6px;">
+                <label style="font-size: 0.7rem; color: #f59e0b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;">🍞 Karb</label>
+                <input type="number" id="manualMealCarbs" class="log-input" placeholder="g" style="padding: 10px 12px; font-size: 0.88rem;">
+              </div>
+              <div style="display: flex; flex-direction: column; gap: 6px;">
+                <label style="font-size: 0.7rem; color: #f43f5e; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;">🥑 Yağ</label>
+                <input type="number" id="manualMealFat" class="log-input" placeholder="g" style="padding: 10px 12px; font-size: 0.88rem;">
+              </div>
             </div>
           </div>
           <div class="diet-actions-row" style="display: flex; justify-content: flex-end;">
-            <button class="btn-primary" onclick="submitDietLog('manual')">Öğünü Manuel Kaydet</button>
+            <button class="btn-primary" onclick="submitDietLog('manual')">✓ Öğünü Manuel Kaydet</button>
           </div>
         </div>
       </section>
