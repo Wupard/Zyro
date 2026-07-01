@@ -11180,6 +11180,60 @@ window.deleteDietLog = function(mealId) {
   }
 };
 
+window.openDietEditModal = function(mealId) {
+  const td = todayStr();
+  const meals = (appData.dietLogs && appData.dietLogs[td]) || [];
+  const meal = meals.find(m => m.id === mealId);
+  if (!meal) return;
+
+  document.getElementById('editMealId').value = mealId;
+  document.getElementById('editMealName').value = meal.name || '';
+  document.getElementById('editMealTag').value = meal.tag || 'Diğer';
+  document.getElementById('editMealKcal').value = meal.calories || '';
+  document.getElementById('editMealProtein').value = meal.protein || '';
+  document.getElementById('editMealCarbs').value = meal.carbs || '';
+  document.getElementById('editMealFat').value = meal.fat || '';
+
+  const modal = document.getElementById('dietEditModal');
+  modal.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+};
+
+window.closeDietEditModal = function() {
+  document.getElementById('dietEditModal').style.display = 'none';
+  document.body.style.overflow = '';
+};
+
+window.saveEditedMeal = function() {
+  const mealId = document.getElementById('editMealId').value;
+  const name = document.getElementById('editMealName').value.trim();
+  if (!name) {
+    showToast(currentLang === 'tr' ? 'Yemek adı boş olamaz!' : 'Meal name cannot be empty!', 'error');
+    return;
+  }
+
+  const td = todayStr();
+  if (!appData.dietLogs || !appData.dietLogs[td]) return;
+
+  const idx = appData.dietLogs[td].findIndex(m => m.id === mealId);
+  if (idx === -1) return;
+
+  appData.dietLogs[td][idx] = {
+    ...appData.dietLogs[td][idx],
+    name,
+    tag: document.getElementById('editMealTag').value || 'Diğer',
+    calories: parseInt(document.getElementById('editMealKcal').value) || 0,
+    protein: parseInt(document.getElementById('editMealProtein').value) || 0,
+    carbs: parseInt(document.getElementById('editMealCarbs').value) || 0,
+    fat: parseInt(document.getElementById('editMealFat').value) || 0,
+  };
+
+  saveData();
+  renderDiet();
+  closeDietEditModal();
+  showToast(currentLang === 'tr' ? 'Öğün güncellendi.' : 'Meal updated.', 'success');
+};
+
 window.renderDiet = function() {
   // Ensure objects exist
   if (!appData.dietTargets) {
@@ -11247,7 +11301,7 @@ window.renderDiet = function() {
     const timeStr = new Date(m.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     const tagBadge = m.tag ? `<span style="font-size: 0.65rem; background: rgba(255,112,67,0.15); color: #ff7043; padding: 2px 6px; border-radius: 4px; font-weight: 800; text-transform: uppercase;">${m.tag}</span>` : '';
     html += `
-      <div class="logged-row" style="padding: 12px; border-bottom: 1px solid var(--border-subtle); display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.01); border-radius: 8px; gap: 12px;">
+      <div class="logged-row" style="padding: 12px 14px; border-bottom: 1px solid var(--border-subtle); display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.01); border-radius: 8px; gap: 12px;">
         <div style="flex: 1; min-width: 0;">
           <div style="font-weight: 700; font-size: 0.9rem; color: var(--text-primary); display: flex; align-items: center; flex-wrap: wrap; gap: 6px 8px;">
             <span>🍽️ ${m.name}</span>
@@ -11261,7 +11315,10 @@ window.renderDiet = function() {
             <span>🥑 F: <b>${m.fat}</b>g</span>
           </div>
         </div>
-        <button class="delete-log" onclick="deleteDietLog('${m.id}')" title="Sil">×</button>
+        <div style="display:flex; gap:6px; flex-shrink:0;">
+          <button class="edit-log" onclick="openDietEditModal('${m.id}')" title="Düzenle" style="background:rgba(96,165,250,0.1); border:1px solid rgba(96,165,250,0.2); color:#60a5fa; width:30px; height:30px; border-radius:7px; cursor:pointer; font-size:0.85rem; display:flex; align-items:center; justify-content:center; transition:background 0.15s;">✏️</button>
+          <button class="delete-log" onclick="deleteDietLog('${m.id}')" title="Sil">×</button>
+        </div>
       </div>
     `;
   });

@@ -1657,6 +1657,68 @@
       </section>
     </div>
 
+    <!-- ===== DIET MEAL EDIT MODAL ===== -->
+    <div id="dietEditModal" style="display:none; position:fixed; inset:0; z-index:9000; align-items:center; justify-content:center; padding:16px;">
+      <div id="dietEditBackdrop" onclick="closeDietEditModal()" style="position:absolute; inset:0; background:rgba(0,0,0,0.6); backdrop-filter:blur(4px);"></div>
+      <div style="position:relative; z-index:1; background:var(--bg-card); border:1px solid var(--border-subtle); border-radius:20px; padding:28px; width:100%; max-width:520px; box-shadow:0 24px 60px rgba(0,0,0,0.5); animation:dietFadeIn 0.2s ease;">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:22px;">
+          <div>
+            <h3 style="margin:0 0 2px 0; font-size:1.1rem; font-weight:800; color:var(--text-primary);">✏️ Öğünü Düzenle</h3>
+            <p style="margin:0; font-size:0.78rem; color:var(--text-muted);">Bilgileri güncelleyip kaydedin</p>
+          </div>
+          <button onclick="closeDietEditModal()" style="background:rgba(255,255,255,0.06); border:1px solid var(--border-subtle); color:var(--text-muted); width:32px; height:32px; border-radius:8px; cursor:pointer; font-size:1rem; display:flex; align-items:center; justify-content:center;">✕</button>
+        </div>
+
+        <input type="hidden" id="editMealId">
+
+        <!-- Name + Tag -->
+        <div style="display:grid; grid-template-columns:1fr 160px; gap:12px; margin-bottom:14px;">
+          <div style="display:flex; flex-direction:column; gap:6px;">
+            <label style="font-size:0.7rem; color:var(--text-muted); font-weight:600; text-transform:uppercase; letter-spacing:0.05em;">Yemek Adı</label>
+            <input type="text" id="editMealName" class="log-input" style="padding:10px 12px; font-size:0.88rem;">
+          </div>
+          <div style="display:flex; flex-direction:column; gap:6px;">
+            <label style="font-size:0.7rem; color:var(--text-muted); font-weight:600; text-transform:uppercase; letter-spacing:0.05em;">Etiket</label>
+            <select id="editMealTag" class="log-input" style="padding:10px 12px; font-size:0.88rem; appearance:none; background-color:var(--bg-input);">
+              <option value="Kahvaltı">🌅 Kahvaltı</option>
+              <option value="Öğle Yemeği">☀️ Öğle Yemeği</option>
+              <option value="Akşam Yemeği">🌙 Akşam Yemeği</option>
+              <option value="Ara Öğün">🍎 Ara Öğün</option>
+              <option value="Atıştırmalık">🍿 Atıştırmalık</option>
+              <option value="İçecek">🥤 İçecek</option>
+              <option value="Diğer">📦 Diğer</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Macro Inputs -->
+        <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:24px;">
+          <div style="display:flex; flex-direction:column; gap:6px;">
+            <label style="font-size:0.7rem; color:#ff7043; font-weight:700; text-transform:uppercase; letter-spacing:0.05em;">🔥 Kalori</label>
+            <input type="number" id="editMealKcal" class="log-input" placeholder="kcal" style="padding:10px 12px; font-size:0.88rem;">
+          </div>
+          <div style="display:flex; flex-direction:column; gap:6px;">
+            <label style="font-size:0.7rem; color:#60a5fa; font-weight:700; text-transform:uppercase; letter-spacing:0.05em;">🥩 Protein</label>
+            <input type="number" id="editMealProtein" class="log-input" placeholder="g" style="padding:10px 12px; font-size:0.88rem;">
+          </div>
+          <div style="display:flex; flex-direction:column; gap:6px;">
+            <label style="font-size:0.7rem; color:#f59e0b; font-weight:700; text-transform:uppercase; letter-spacing:0.05em;">🍞 Karb</label>
+            <input type="number" id="editMealCarbs" class="log-input" placeholder="g" style="padding:10px 12px; font-size:0.88rem;">
+          </div>
+          <div style="display:flex; flex-direction:column; gap:6px;">
+            <label style="font-size:0.7rem; color:#f43f5e; font-weight:700; text-transform:uppercase; letter-spacing:0.05em;">🥑 Yağ</label>
+            <input type="number" id="editMealFat" class="log-input" placeholder="g" style="padding:10px 12px; font-size:0.88rem;">
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div style="display:flex; gap:10px; justify-content:flex-end;">
+          <button class="btn-primary" onclick="saveEditedMeal()" style="gap:6px;">💾 Kaydet</button>
+          <button class="btn-small" onclick="closeDietEditModal()">İptal</button>
+        </div>
+      </div>
+    </div>
+
 
     <!-- ===== ACHIEVEMENT POPUP ===== -->
     <div class="achievement-popup" id="achievementPopup">
