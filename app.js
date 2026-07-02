@@ -201,6 +201,8 @@ const I18N = {
     '20 tekrar (10 sağ, 10 sol)': '20 reps (10 right, 10 left)',
     '1 dakika (Pozisyonda kal ve derin nefes al)': '1 min (hold and breathe deeply)',
     '1 set x 30 saniye': '1 set x 30 sec',
+    'Pelvic Floor (Kegel)': 'Pelvic Floor (Kegel)',
+    '3 set x 10 tekrar (10 sn kasılı tut)': '3 sets x 10 reps (hold 10 sec each)',
     apiKeyStatusActive: 'API key active',
     pleaseEnterValidKey: 'Please enter a valid key',
     apiKeySaved: 'API Key saved successfully!',
@@ -461,6 +463,8 @@ const I18N = {
     '20 tekrar (10 sağ, 10 sol)': '20 tekrar (10 sağ, 10 sol)',
     '1 dakika (Pozisyonda kal ve derin nefes al)': '1 dakika (Pozisyonda kal ve derin nefes al)',
     '1 set x 30 saniye': '1 set x 30 saniye',
+    'Pelvic Floor (Kegel)': 'Pelvik Taban (Kegel)',
+    '3 set x 10 tekrar (10 sn kasılı tut)': '3 set x 10 tekrar (10 sn kasılı tut)',
     apiKeyStatusActive: 'API key aktif',
     pleaseEnterValidKey: 'Lütfen geçerli bir key girin',
     apiKeySaved: 'API Key başarıyla kaydedildi!',
@@ -700,7 +704,8 @@ const POSTURE_VIDEO_URLS = {
   'Glute Bridge': 'https://www.youtube.com/watch?v=R1OXPHRqehw',
   'Deadbug': 'https://www.youtube.com/watch?v=zd160L4tPPs',
   'Thoracic Extension (Rulo veya sandalye ile)': 'https://www.youtube.com/watch?v=1uFnObPDZz0',
-  'Child’s Pose (Çocuk Pozu)': 'https://www.youtube.com/watch?v=2vJK_d3I_oU'
+  'Child’s Pose (Çocuk Pozu)': 'https://www.youtube.com/watch?v=2vJK_d3I_oU',
+  'Pelvic Floor (Kegel)': 'https://www.instagram.com/reel/DZc6YJpMnBJ/?igsh=NmMzcXl0azg5dmhs'
 };
 
 // =============================================
@@ -743,41 +748,48 @@ const DEFAULT_POSTURE_PROGRAMS = {
     {name:'Y-T-W Raises',sets:'Her harf için 15 tekrar (Toplam 45 tekrar)',done:false},
     {name:'Wall Angels',sets:'20 tekrar',done:false},
     {name:'Chin Tuck',sets:'15 tekrar (Her birinde 3 sn bekleme)',done:false},
+    {name:'Pelvic Floor (Kegel)',sets:'3 set x 10 tekrar (10 sn kasılı tut)',done:false},
   ],
   tue: [
     {name:'Cat-Cow',sets:'20 tekrar',done:false},
     {name:'Kneeling Hip Flexor Stretch',sets:'Her bacak için 30 saniye',done:false},
     {name:'Glute Bridge',sets:'2 set x 20 tekrar',done:false},
     {name:'Deadbug',sets:'20 tekrar (10 sağ, 10 sol)',done:false},
+    {name:'Pelvic Floor (Kegel)',sets:'3 set x 10 tekrar (10 sn kasılı tut)',done:false},
   ],
   wed: [
     {name:'Doorway Stretch',sets:'2 set x 30 saniye',done:false},
     {name:'Y-T-W Raises',sets:'Her harf için 15 tekrar (Toplam 45 tekrar)',done:false},
     {name:'Wall Angels',sets:'20 tekrar',done:false},
     {name:'Chin Tuck',sets:'15 tekrar (Her birinde 3 sn bekleme)',done:false},
+    {name:'Pelvic Floor (Kegel)',sets:'3 set x 10 tekrar (10 sn kasılı tut)',done:false},
   ],
   thu: [
     {name:'Cat-Cow',sets:'20 tekrar',done:false},
     {name:'Kneeling Hip Flexor Stretch',sets:'Her bacak için 30 saniye',done:false},
     {name:'Glute Bridge',sets:'2 set x 20 tekrar',done:false},
     {name:'Deadbug',sets:'20 tekrar (10 sağ, 10 sol)',done:false},
+    {name:'Pelvic Floor (Kegel)',sets:'3 set x 10 tekrar (10 sn kasılı tut)',done:false},
   ],
   fri: [
     {name:'Doorway Stretch',sets:'2 set x 30 saniye',done:false},
     {name:'Y-T-W Raises',sets:'Her harf için 15 tekrar (Toplam 45 tekrar)',done:false},
     {name:'Wall Angels',sets:'20 tekrar',done:false},
     {name:'Chin Tuck',sets:'15 tekrar (Her birinde 3 sn bekleme)',done:false},
+    {name:'Pelvic Floor (Kegel)',sets:'3 set x 10 tekrar (10 sn kasılı tut)',done:false},
   ],
   sat: [
     {name:'Cat-Cow',sets:'20 tekrar',done:false},
     {name:'Kneeling Hip Flexor Stretch',sets:'Her bacak için 30 saniye',done:false},
     {name:'Glute Bridge',sets:'2 set x 20 tekrar',done:false},
     {name:'Deadbug',sets:'20 tekrar (10 sağ, 10 sol)',done:false},
+    {name:'Pelvic Floor (Kegel)',sets:'3 set x 10 tekrar (10 sn kasılı tut)',done:false},
   ],
   sun: [
     {name:'Thoracic Extension (Rulo veya sandalye ile)',sets:'2 set x 30 saniye',done:false},
     {name:'Child’s Pose (Çocuk Pozu)',sets:'1 dakika (Pozisyonda kal ve derin nefes al)',done:false},
     {name:'Doorway Stretch',sets:'1 set x 30 saniye',done:false},
+    {name:'Pelvic Floor (Kegel)',sets:'3 set x 10 tekrar (10 sn kasılı tut)',done:false},
   ]
 };
 
@@ -2418,11 +2430,17 @@ function renderPosture(tab){
   
   list.innerHTML=exercises.map((ex,i)=>{
     const videoUrl = POSTURE_VIDEO_URLS[ex.name];
+    const isInstagram = videoUrl && videoUrl.includes('instagram.com');
     const videoBtn = videoUrl
-      ? `<a href="${videoUrl}" target="_blank" rel="noopener noreferrer" class="posture-video-btn" title="${currentLang==='tr'?'Youtube\'da İzle':'Watch on YouTube'}" onclick="event.stopPropagation()">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg>
-          ${currentLang==='tr'?'İzle':'Watch'}
-        </a>`
+      ? (isInstagram
+        ? `<a href="${videoUrl}" target="_blank" rel="noopener noreferrer" class="posture-video-btn" style="background:rgba(225,48,108,0.12);border-color:rgba(225,48,108,0.3);color:#e1306c;" title="${currentLang==='tr'?'Instagram\'da İzle':'Watch on Instagram'}" onclick="event.stopPropagation()">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+            ${currentLang==='tr'?'İzle':'Watch'}
+          </a>`
+        : `<a href="${videoUrl}" target="_blank" rel="noopener noreferrer" class="posture-video-btn" title="${currentLang==='tr'?'Youtube\'da İzle':'Watch on YouTube'}" onclick="event.stopPropagation()">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg>
+            ${currentLang==='tr'?'İzle':'Watch'}
+          </a>`)
       : '';
     return `<div class="exercise-row posture-exercise-row">
       <span class="exercise-name">${t(ex.name)}</span>
@@ -11243,8 +11261,22 @@ window.renderDiet = function() {
     appData.dietLogs = {};
   }
 
-  const targets = appData.dietTargets;
+  // AUTO-CLEAN: Sadece son 7 günün verilerini tut, daha eskilerini sil
   const td = todayStr();
+  const keepDays = 7;
+  const cutoffDate = new Date();
+  cutoffDate.setDate(cutoffDate.getDate() - keepDays);
+  const cutoffStr = dateStr(cutoffDate);
+  let needClean = false;
+  Object.keys(appData.dietLogs).forEach(day => {
+    if (day < cutoffStr) {
+      delete appData.dietLogs[day];
+      needClean = true;
+    }
+  });
+  if (needClean) saveData();
+
+  const targets = appData.dietTargets;
   const logs = appData.dietLogs[td] || [];
 
   // Calculate totals consumed today

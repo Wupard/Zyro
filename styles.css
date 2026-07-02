@@ -1610,13 +1610,20 @@ textarea:not(.note-input) { resize: none !important; min-height: 80px; max-heigh
   box-shadow: 0 2px 8px rgba(0,0,0,0.2);
   user-select: none;
 }
-.posture-video-btn svg { flex-shrink: 0; fill: #ff4444; filter: drop-shadow(0 0 3px rgba(255,0,0,0.4)); }
+.posture-video-btn svg { flex-shrink: 0; fill: currentColor; filter: drop-shadow(0 0 3px rgba(255,0,0,0.4)); }
 .posture-video-btn:hover {
   background: rgba(255, 0, 0, 0.22);
   border-color: rgba(255, 0, 0, 0.6);
   color: #fff;
   transform: translateY(-2px) scale(1.05);
   box-shadow: 0 6px 18px rgba(255, 0, 0, 0.2);
+}
+/* Instagram video btn override */
+a.posture-video-btn[style*="e1306c"]:hover {
+  background: rgba(225, 48, 108, 0.25) !important;
+  border-color: rgba(225, 48, 108, 0.6) !important;
+  color: #fff !important;
+  box-shadow: 0 6px 18px rgba(225, 48, 108, 0.25) !important;
 }
 
 .nav-item-wupard {
