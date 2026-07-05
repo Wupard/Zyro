@@ -1594,6 +1594,15 @@ function navigateTo(page, opts){
     if (wpO) wpO.classList.remove('show');
     document.body.style.overflow = '';
   }
+
+  // Scroll to top on page change (important for mobile)
+  if (!isSamePage || opts.force) {
+    const mainContent = document.querySelector('.main-content');
+    if (mainContent) {
+      mainContent.scrollTop = 0;
+    }
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  }
 }
 
 function renderUpdatesPage(){
