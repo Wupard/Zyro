@@ -6779,33 +6779,72 @@ window.adminSendNotification = async function() {
   }
 };
 
+
 window.adminResetAllXP = async function() {
   if (!currentUser || currentUser.email !== 'wupard@gmail.com') return;
-  if (!confirm('TÜM kullanıcıların XP offsetleri sıfırlanacak (forcedXP, forcedLevel, xpOffset silinecek). Emin misiniz?')) return;
+  if (!confirm('TÜM kullanıcıların XP’si SIFIRLANACAK. Kullanıcılar yeniden antrenman yaparak XP kazanmaya başlayacak. Emin misiniz?')) return;
 
   const btn = document.getElementById('adminResetXPBtn');
   if (btn) { btn.disabled = true; btn.textContent = '⏳ Sıfırlanıyor...'; }
 
+  // Her kullanıcının organik XP'sini verilerinden hesapla
+  function calcOrganicXP(data) {
+    let xp = 0;
+    // 1. Achievements
+    xp += Object.keys(data.achievements || {}).length * 240;
+    // 2. Attended days (attendance + workoutLogs birleşim)
+    const days = new Set(
+      Object.keys(data.attendance || {}).filter(d => (data.attendance || {})[d] === true)
+    );
+    Object.keys(data.workoutLogs || {}).forEach(d => {
+      if ((data.workoutLogs[d] || []).length > 0) days.add(d);
+    });
+    xp += days.size * 60;
+    // 3. Sets + PR bonus
+    const maxW = {};
+    Object.keys(data.workoutLogs || {}).sort().forEach(date => {
+      (data.workoutLogs[date] || []).forEach(l => {
+        xp += (l.sets || 1) * 12;
+        const ex = l.exercise; const w = parseFloat(l.weight) || 0;
+        if (ex && w > 0 && (!maxW[ex] || w > maxW[ex])) { maxW[ex] = w; xp += 60; }
+      });
+    });
+    // 4. Weight log
+    xp += Object.keys(data.weightLog || {}).length * 30;
+    return xp;
+  }
+
   try {
     const snap = await db.collection('users').get();
-    const batch = db.batch();
     let count = 0;
+    let ops = [];
 
     snap.forEach(doc => {
-      const ref = db.collection('users').doc(doc.id);
-      batch.update(ref, {
-        'data.xpOffset': firebase.firestore.FieldValue.delete(),
-        'data.forcedXP': firebase.firestore.FieldValue.delete(),
-        'data.forcedLevel': firebase.firestore.FieldValue.delete()
-      });
-      // public_stats'ı da sıfırla
-      const pubRef = db.collection('public_stats').doc(doc.id);
-      batch.set(pubRef, { xpOffset: 0, forcedXP: 0, forcedLevel: 0 }, { merge: true });
+      const userData = doc.data().data || {};
+      const organicXP = calcOrganicXP(userData);
+      // xpOffset = -organicXP → toplam XP = organicXP + (-organicXP) = 0
+      ops.push({ docId: doc.id, offset: -organicXP });
       count++;
     });
 
-    await batch.commit();
-    showToast(`✅ ${count} kullanıcının XP'si sıfırlandı!`, 'success');
+    // Firestore batch max 500 op — bölüşmeli gönder
+    const CHUNK = 200;
+    for (let i = 0; i < ops.length; i += CHUNK) {
+      const batch = db.batch();
+      ops.slice(i, i + CHUNK).forEach(({ docId, offset }) => {
+        const ref = db.collection('users').doc(docId);
+        batch.update(ref, {
+          'data.xpOffset': offset,
+          'data.forcedXP': firebase.firestore.FieldValue.delete(),
+          'data.forcedLevel': firebase.firestore.FieldValue.delete()
+        });
+        const pubRef = db.collection('public_stats').doc(docId);
+        batch.set(pubRef, { xp: 0, level: 1, xpOffset: offset }, { merge: true });
+      });
+      await batch.commit();
+    }
+
+    showToast(`✅ ${count} kullanıcının XP'si gerçek anlamda sıfırlandı!`, 'success');
   } catch (e) {
     console.error('XP Reset Error:', e);
     showToast('Hata: ' + e.message, 'error');
@@ -6813,6 +6852,7 @@ window.adminResetAllXP = async function() {
     if (btn) { btn.disabled = false; btn.textContent = '🔄 Tüm XP\'leri Sıfırla'; }
   }
 };
+
 
 async function adminLoadUsers() {
   const list = document.getElementById('adminUsersList');

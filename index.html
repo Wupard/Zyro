@@ -2432,12 +2432,10 @@
               Otomatik başarım tarama sistemi aktif. Başarımlar kullanıcı giriş yaptığında geçmiş rekorlarına göre otomatik tanımlanır.
             </div>
             <div style="height:1px; background:rgba(255,255,255,0.06);"></div>
-            <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">
-              <div>
-                <div style="font-size:0.85rem; font-weight:700; color:var(--text-primary);">🔄 XP Sistemi Sıfırlama</div>
-                <div style="font-size:0.75rem; color:var(--text-muted); margin-top:2px;">Tüm kullanıcıların xpOffset, forcedXP ve forcedLevel değerleri silinir. Organik XP'leri kalır.</div>
-              </div>
-              <button id="adminResetXPBtn" onclick="adminResetAllXP()" style="padding:8px 16px; background:rgba(239,68,68,0.15); border:1px solid rgba(239,68,68,0.3); color:#f87171; border-radius:9px; cursor:pointer; font-size:0.8rem; font-weight:700; white-space:nowrap; transition:all 0.2s;">
+            <div style="display:flex; flex-direction:column; gap:10px;">
+              <div style="font-size:0.85rem; font-weight:700; color:var(--text-primary);">⚠️ XP Sistemi Tam Sıfırlama</div>
+              <div style="font-size:0.75rem; color:var(--text-muted); line-height:1.5;">Tüm kullanıcıların XP'si sıfıra indirilir. Her kullanıcının mevcut organik XP'si hesaplanarak xpOffset olarak ters işaretle kaydedilir. Kullanıcılar yeniden antrenman yaparak sıfırdan XP kazanmaya başlar.</div>
+              <button id="adminResetXPBtn" onclick="adminResetAllXP()" style="width:100%; padding:12px 16px; background:rgba(239,68,68,0.15); border:1px solid rgba(239,68,68,0.35); color:#f87171; border-radius:10px; cursor:pointer; font-size:0.85rem; font-weight:800; transition:all 0.2s; margin-right:70px; box-sizing:border-box;">
                 🔄 Tüm XP'leri Sıfırla
               </button>
             </div>
