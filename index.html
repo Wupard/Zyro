@@ -1612,6 +1612,61 @@
 
         <!-- Tab 2: Manual Log Form -->
         <div id="dietTabManual" class="diet-tab-content" style="display: none;">
+
+          <!-- AI Free Text Quick Entry -->
+          <div style="margin-bottom: 20px; padding: 16px; background: linear-gradient(135deg, rgba(139,92,246,0.08) 0%, rgba(59,130,246,0.05) 100%); border: 1px solid rgba(139,92,246,0.2); border-radius: 16px;">
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px;">
+              <div style="width: 28px; height: 28px; border-radius: 8px; background: rgba(139,92,246,0.2); display: flex; align-items: center; justify-content: center; color: #a78bfa; font-size: 0.9rem; flex-shrink: 0;">✦</div>
+              <div>
+                <p style="margin: 0; font-size: 0.8rem; font-weight: 800; color: #a78bfa; letter-spacing: 0.03em;">AI İLE HIZLI GİRİŞ</p>
+                <p style="margin: 0; font-size: 0.7rem; color: var(--text-muted);">Ne yediğini yaz, makrolarını otomatik hesaplayalım</p>
+              </div>
+            </div>
+            <textarea
+              id="manualFoodTextInput"
+              class="log-input"
+              placeholder="ör: 4 yumurta, çay, 50gr lor peynir, 2 dilim ekmek..."
+              style="width: 100%; min-height: 72px; padding: 10px 12px; font-size: 0.88rem; resize: vertical; border-radius: 10px; line-height: 1.5; box-sizing: border-box; font-family: inherit;"
+            ></textarea>
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 10px; gap: 10px; flex-wrap: wrap;">
+              <p id="manualFoodTextHint" style="margin: 0; font-size: 0.72rem; color: var(--text-muted);">Miktar + besin adı yazman yeterli. AI makroları hesaplar ve formu doldurur.</p>
+              <button id="manualFoodAiBtn" onclick="analyzeManualFoodText()" style="flex-shrink: 0; display: flex; align-items: center; gap: 6px; padding: 9px 16px; border-radius: 10px; border: none; background: linear-gradient(135deg, #7c3aed, #4f46e5); color: #fff; font-size: 0.82rem; font-weight: 700; cursor: pointer; transition: opacity 0.2s, transform 0.15s; white-space: nowrap;">
+                <span id="manualFoodAiBtnSpinner" style="display: none; animation: spin 1s linear infinite; font-size: 0.9rem;">✦</span>
+                <span id="manualFoodAiBtnText">✦ AI ile Makroları Hesapla</span>
+              </button>
+            </div>
+
+            <!-- AI Result Preview (hidden until result) -->
+            <div id="manualFoodAiPreview" style="display: none; margin-top: 14px; padding: 12px 14px; background: rgba(139,92,246,0.07); border: 1px solid rgba(139,92,246,0.2); border-radius: 12px;">
+              <p style="margin: 0 0 8px 0; font-size: 0.75rem; font-weight: 800; color: #a78bfa;">✦ AI TAHMİNİ — Aşağıdaki alanlar dolduruldu, düzenleyebilirsin:</p>
+              <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;">
+                <div style="text-align: center; padding: 8px; background: rgba(255,112,67,0.1); border-radius: 8px;">
+                  <div style="font-size: 0.65rem; color: #ff7043; font-weight: 700; text-transform: uppercase;">Kalori</div>
+                  <div id="previewKcal" style="font-size: 1.1rem; font-weight: 900; color: var(--text-primary);">—</div>
+                </div>
+                <div style="text-align: center; padding: 8px; background: rgba(96,165,250,0.1); border-radius: 8px;">
+                  <div style="font-size: 0.65rem; color: #60a5fa; font-weight: 700; text-transform: uppercase;">Protein</div>
+                  <div id="previewProtein" style="font-size: 1.1rem; font-weight: 900; color: var(--text-primary);">—</div>
+                </div>
+                <div style="text-align: center; padding: 8px; background: rgba(245,158,11,0.1); border-radius: 8px;">
+                  <div style="font-size: 0.65rem; color: #f59e0b; font-weight: 700; text-transform: uppercase;">Karb</div>
+                  <div id="previewCarbs" style="font-size: 1.1rem; font-weight: 900; color: var(--text-primary);">—</div>
+                </div>
+                <div style="text-align: center; padding: 8px; background: rgba(244,63,94,0.1); border-radius: 8px;">
+                  <div style="font-size: 0.65rem; color: #f43f5e; font-weight: 700; text-transform: uppercase;">Yağ</div>
+                  <div id="previewFat" style="font-size: 1.1rem; font-weight: 900; color: var(--text-primary);">—</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Divider -->
+          <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 16px;">
+            <div style="flex: 1; height: 1px; background: var(--border-subtle);"></div>
+            <span style="font-size: 0.68rem; color: var(--text-muted); font-weight: 600; letter-spacing: 0.06em; white-space: nowrap;">VEYA MANUEL GİRİŞ</span>
+            <div style="flex: 1; height: 1px; background: var(--border-subtle);"></div>
+          </div>
+
           <div class="diet-inputs-grid">
             <div class="col-name" style="display: flex; flex-direction: column; gap: 6px;">
               <label style="font-size: 0.7rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;">Yemek Adı</label>
@@ -1648,8 +1703,9 @@
               </div>
             </div>
           </div>
-          <div class="diet-actions-row" style="display: flex; justify-content: flex-end;">
-            <button class="btn-primary" onclick="submitDietLog('manual')">✔ Öğünü Manuel Kaydet</button>
+          <div class="diet-actions-row" style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 4px;">
+            <button class="btn-small" onclick="resetManualFoodForm()" style="font-size: 0.8rem; padding: 8px 14px;">✕ Temizle</button>
+            <button class="btn-primary" onclick="submitDietLog('manual')">✔ Öğünü Kaydet</button>
           </div>
         </div>
       </section>

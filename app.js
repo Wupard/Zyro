@@ -11223,6 +11223,86 @@ window.resetDietAiForm = function() {
   document.getElementById('dietPhotoInput').value = '';
 };
 
+// Analyze free-text food input and auto-fill the manual macro form
+window.analyzeManualFoodText = async function() {
+  const textInput = document.getElementById('manualFoodTextInput');
+  const foodText = textInput ? textInput.value.trim() : '';
+
+  if (!foodText) {
+    showToast('Lütfen ne yediğini yaz!', 'error');
+    return;
+  }
+
+  if (!window.geminiAnalyzeFoodText) {
+    showToast('AI modülü henüz yüklenmedi, lütfen bekle.', 'error');
+    return;
+  }
+
+  // Show loading state on button
+  const btn = document.getElementById('manualFoodAiBtn');
+  const spinner = document.getElementById('manualFoodAiBtnSpinner');
+  const btnText = document.getElementById('manualFoodAiBtnText');
+  if (btn) btn.disabled = true;
+  if (spinner) spinner.style.display = 'inline-block';
+  if (btnText) btnText.textContent = 'Hesaplanıyor...';
+
+  try {
+    const res = await window.geminiAnalyzeFoodText(foodText);
+
+    // Fill the manual form inputs
+    document.getElementById('manualMealName').value = res.meal_name || foodText;
+    document.getElementById('manualMealKcal').value = res.calories || 0;
+    document.getElementById('manualMealProtein').value = res.protein || 0;
+    document.getElementById('manualMealCarbs').value = res.carbs || 0;
+    document.getElementById('manualMealFat').value = res.fat || 0;
+
+    // Show preview card
+    const preview = document.getElementById('manualFoodAiPreview');
+    if (preview) {
+      document.getElementById('previewKcal').textContent = (res.calories || 0) + ' kcal';
+      document.getElementById('previewProtein').textContent = (res.protein || 0) + 'g';
+      document.getElementById('previewCarbs').textContent = (res.carbs || 0) + 'g';
+      document.getElementById('previewFat').textContent = (res.fat || 0) + 'g';
+      preview.style.display = 'block';
+    }
+
+    // Update hint text with description
+    const hint = document.getElementById('manualFoodTextHint');
+    if (hint && res.description) {
+      hint.textContent = '✓ ' + res.description;
+      hint.style.color = '#a78bfa';
+    }
+
+    showToast('✦ Makrolar hesaplandı! Düzenleyip kaydedebilirsin.', 'success');
+  } catch(err) {
+    console.error('Food text analysis error:', err);
+    showToast(window.geminiErrorMessage ? window.geminiErrorMessage(err) : 'Analiz başarısız: ' + err.message, 'error');
+  } finally {
+    if (btn) btn.disabled = false;
+    if (spinner) spinner.style.display = 'none';
+    if (btnText) btnText.textContent = '✦ AI ile Makroları Hesapla';
+  }
+};
+
+// Reset the entire manual food form
+window.resetManualFoodForm = function() {
+  const textInput = document.getElementById('manualFoodTextInput');
+  if (textInput) textInput.value = '';
+  document.getElementById('manualMealName').value = '';
+  document.getElementById('manualMealTag').value = 'Diğer';
+  document.getElementById('manualMealKcal').value = '';
+  document.getElementById('manualMealProtein').value = '';
+  document.getElementById('manualMealCarbs').value = '';
+  document.getElementById('manualMealFat').value = '';
+  const preview = document.getElementById('manualFoodAiPreview');
+  if (preview) preview.style.display = 'none';
+  const hint = document.getElementById('manualFoodTextHint');
+  if (hint) {
+    hint.textContent = 'Miktar + besin adı yazman yeterli. AI makroları hesaplar ve formu doldurur.';
+    hint.style.color = '';
+  }
+};
+
 window.submitDietLog = function(type) {
   let name, tag, kcal, protein, carbs, fat;
 
@@ -11270,12 +11350,7 @@ window.submitDietLog = function(type) {
   if (type === 'ai') {
     window.resetDietAiForm();
   } else {
-    document.getElementById('manualMealName').value = '';
-    document.getElementById('manualMealTag').value = 'Diğer';
-    document.getElementById('manualMealKcal').value = '';
-    document.getElementById('manualMealProtein').value = '';
-    document.getElementById('manualMealCarbs').value = '';
-    document.getElementById('manualMealFat').value = '';
+    window.resetManualFoodForm();
   }
 
   showToast(currentLang === 'tr' ? 'Öğün kaydedildi.' : 'Meal logged.', 'success');

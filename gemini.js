@@ -356,6 +356,58 @@ Sadece geçerli bir JSON objesi döndür, markdown veya ek açıklama metni ekle
   return JSON.parse(text.trim());
 };
 
+// ---- Free Text Food Analysis (for manual entry) ----
+window.geminiAnalyzeFoodText = async function(foodText) {
+  const key = getGeminiKey();
+  if (!key) throw new Error('NO_KEY');
+
+  const url = `${GEMINI_API_BASE}/${GEMINI_MODEL}:generateContent?key=${key}`;
+
+  const prompt = `Aşağıdaki yiyecek listesini analiz et ve toplam makro besin değerlerini hesapla.
+
+Kullanıcı girişi: "${foodText}"
+
+Kuralllar:
+- Her besin için ortalama besin değerlerini kullan (gramaj belirtilmişse o miktara göre, belirtilmemişse standart porsiyon)
+- Tüm besinlerin TOPLAMINI hesapla
+- Türkçe bir özet yemek adı üret (ör: "Kahvaltı Tabağı", "Öğle Öğünü")
+- Sadece JSON döndür, ek açıklama ekleme
+
+Yanıtı şu JSON formatında ver:
+{
+  "meal_name": "Kısa bir Türkçe yemek adı",
+  "calories": 450,
+  "protein": 30,
+  "carbs": 45,
+  "fat": 12,
+  "description": "Ne analiz edildi ve nasıl hesaplandığına dair kısa Türkçe açıklama (maks 1 cümle)"
+}`;
+
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      contents: [{ role: 'user', parts: [{ text: prompt }] }],
+      generationConfig: {
+        temperature: 0.2,
+        maxOutputTokens: 512,
+        responseMimeType: 'application/json'
+      }
+    })
+  });
+
+  if (!response.ok) {
+    const err = await response.json().catch(() => ({}));
+    if (response.status === 400 || response.status === 403) throw new Error('INVALID_KEY');
+    if (response.status === 429) throw new Error('RATE_LIMIT');
+    throw new Error(err.error?.message || `HTTP ${response.status}`);
+  }
+
+  const resData = await response.json();
+  const text = resData.candidates?.[0]?.content?.parts?.[0]?.text || '';
+  return JSON.parse(text.trim());
+};
+
 // ---- Error message helper ----
 window.geminiErrorMessage = function(err) {
   if (!err) return 'Bilinmeyen hata';
