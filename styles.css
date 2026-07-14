@@ -3391,11 +3391,13 @@ html {
 
 .profile-tabs-nav {
   display: flex;
+  gap: 2px;
   margin-bottom: 24px;
   border-bottom: 1px solid var(--border-subtle);
   overflow-x: auto;
   scrollbar-width: none;
   -webkit-overflow-scrolling: touch;
+  flex-wrap: nowrap;
 }
 
 .profile-tabs-nav::-webkit-scrollbar {
@@ -3403,20 +3405,20 @@ html {
 }
 
 .profile-tab-btn {
-  flex: 1;
-  flex-shrink: 0;
-  min-width: 100px;
+  flex: 0 0 auto;
   display: inline-flex;
   justify-content: center;
   align-items: center;
-  padding: 12px 20px;
+  gap: 5px;
+  padding: 11px 14px;
   border: none;
   background: none;
   color: var(--text-muted);
   font-weight: 600;
+  font-size: 0.83rem;
   cursor: pointer;
   border-bottom: 3px solid transparent;
-  transition: background-color 0.2s, color 0.2s, border-color 0.2s, opacity 0.2s, transform 0.2s, box-shadow 0.2s, fill 0.2s, stroke 0.2s;
+  transition: color 0.2s, border-color 0.2s;
   white-space: nowrap;
 }
 
@@ -3568,12 +3570,13 @@ html {
   }
 
   .profile-tabs-nav {
-    gap: 8px;
+    gap: 2px;
   }
 
   .profile-tab-btn {
-    flex: none;
-    padding: 12px 16px;
+    flex: 0 0 auto;
+    padding: 10px 12px;
+    font-size: 0.8rem;
   }
 }
 
