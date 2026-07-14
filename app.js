@@ -6779,6 +6779,41 @@ window.adminSendNotification = async function() {
   }
 };
 
+window.adminResetAllXP = async function() {
+  if (!currentUser || currentUser.email !== 'wupard@gmail.com') return;
+  if (!confirm('TÜM kullanıcıların XP offsetleri sıfırlanacak (forcedXP, forcedLevel, xpOffset silinecek). Emin misiniz?')) return;
+
+  const btn = document.getElementById('adminResetXPBtn');
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ Sıfırlanıyor...'; }
+
+  try {
+    const snap = await db.collection('users').get();
+    const batch = db.batch();
+    let count = 0;
+
+    snap.forEach(doc => {
+      const ref = db.collection('users').doc(doc.id);
+      batch.update(ref, {
+        'data.xpOffset': firebase.firestore.FieldValue.delete(),
+        'data.forcedXP': firebase.firestore.FieldValue.delete(),
+        'data.forcedLevel': firebase.firestore.FieldValue.delete()
+      });
+      // public_stats'ı da sıfırla
+      const pubRef = db.collection('public_stats').doc(doc.id);
+      batch.set(pubRef, { xpOffset: 0, forcedXP: 0, forcedLevel: 0 }, { merge: true });
+      count++;
+    });
+
+    await batch.commit();
+    showToast(`✅ ${count} kullanıcının XP'si sıfırlandı!`, 'success');
+  } catch (e) {
+    console.error('XP Reset Error:', e);
+    showToast('Hata: ' + e.message, 'error');
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = '🔄 Tüm XP\'leri Sıfırla'; }
+  }
+};
+
 async function adminLoadUsers() {
   const list = document.getElementById('adminUsersList');
   if (!list || !db) return;
@@ -9672,45 +9707,55 @@ function renderWeeklyReport() {
 // =============================================
 function calculateXP() {
   let xp = 0;
-  // 1. Achievements (200 XP each)
-  xp += Object.keys(appData.achievements || {}).length * 200;
-  
-  // 2. Workouts (50 XP per day)
-  xp += Object.keys(appData.attendance || {}).length * 50;
+
+  // 1. Achievements (240 XP each — %20 artis)
+  xp += Object.keys(appData.achievements || {}).length * 240;
+
+  // 2. Workouts (60 XP per attended day — %20 artis)
+  // Attendance + workoutLogs gunlerini birlestir (attendance isaretlenmemis olsa bile XP ver)
+  const attendedDays = new Set(
+    Object.keys(appData.attendance || {}).filter(d => appData.attendance[d] === true)
+  );
+  Object.keys(appData.workoutLogs || {}).forEach(d => {
+    if ((appData.workoutLogs[d] || []).length > 0) attendedDays.add(d);
+  });
+  xp += attendedDays.size * 60;
 
   // 3. Sets and PRs
   const maxWeights = {};
   Object.keys(appData.workoutLogs || {}).sort().forEach(date => {
     const logs = appData.workoutLogs[date] || [];
     logs.forEach(l => {
-      // 10 XP per set
-      xp += (l.sets || 1) * 10;
-      
-      // 50 XP PR Bonus
+      // 12 XP per set (%20 artis)
+      xp += (l.sets || 1) * 12;
+
+      // 60 XP PR Bonus (%20 artis)
       const ex = l.exercise;
       const w = parseFloat(l.weight) || 0;
       if (ex && w > 0) {
         if (!maxWeights[ex] || w > maxWeights[ex]) {
           maxWeights[ex] = w;
-          xp += 50;
+          xp += 60;
         }
       }
     });
   });
-  // 4. Body weight log entries (25 XP each)
-  xp += Object.keys(appData.weightLog || {}).length * 25;
+
+  // 4. Body weight log entries (30 XP each — %20 artis)
+  xp += Object.keys(appData.weightLog || {}).length * 30;
 
   // 5. Apply forcedXP conversion to xpOffset if needed
   if (appData && typeof appData.forcedXP === 'number') {
     appData.xpOffset = appData.forcedXP - xp;
     delete appData.forcedXP;
   }
-  
+
+  // 6. xpOffset uygula — ASLA negatife dusurme (bug fix: organik XP artinca ceza verme)
   if (appData && typeof appData.xpOffset === 'number') {
-    xp += appData.xpOffset;
+    xp = Math.max(0, xp + appData.xpOffset);
   }
 
-  return xp;
+  return Math.max(0, xp);
 }
 
 function calculateLevel(xp) {

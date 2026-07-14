@@ -2427,8 +2427,20 @@
             <div style="width:4px;height:22px;background:linear-gradient(180deg,#f59e0b,#fbbf24);border-radius:2px;flex-shrink:0;"></div>
             <h3 style="margin:0;font-size:0.95rem;font-weight:800;color:var(--text-primary);">Sistem İşlemleri</h3>
           </div>
-          <div style="color:var(--text-muted);font-size:0.85rem;padding:20px;border-radius:12px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.05);text-align:center;">
-            Otomatik başarım tarama sistemi aktif. Başarımlar kullanıcı giriş yaptığında geçmiş rekorlarına göre otomatik tanımlanır.
+          <div style="display:flex; flex-direction:column; gap:12px; padding:16px; border-radius:12px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.05);">
+            <div style="font-size:0.8rem; color:var(--text-muted); line-height:1.5;">
+              Otomatik başarım tarama sistemi aktif. Başarımlar kullanıcı giriş yaptığında geçmiş rekorlarına göre otomatik tanımlanır.
+            </div>
+            <div style="height:1px; background:rgba(255,255,255,0.06);"></div>
+            <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">
+              <div>
+                <div style="font-size:0.85rem; font-weight:700; color:var(--text-primary);">🔄 XP Sistemi Sıfırlama</div>
+                <div style="font-size:0.75rem; color:var(--text-muted); margin-top:2px;">Tüm kullanıcıların xpOffset, forcedXP ve forcedLevel değerleri silinir. Organik XP'leri kalır.</div>
+              </div>
+              <button id="adminResetXPBtn" onclick="adminResetAllXP()" style="padding:8px 16px; background:rgba(239,68,68,0.15); border:1px solid rgba(239,68,68,0.3); color:#f87171; border-radius:9px; cursor:pointer; font-size:0.8rem; font-weight:700; white-space:nowrap; transition:all 0.2s;">
+                🔄 Tüm XP'leri Sıfırla
+              </button>
+            </div>
           </div>
         </div>
       </div>
