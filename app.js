@@ -1808,6 +1808,14 @@ window.adminPostUpdate = async function() {
     return;
   }
 
+  const requestBody = {
+    contents,
+    generationConfig: {
+      temperature: 0.7,
+      maxOutputTokens: 600
+    }
+  };
+
   // Save each line (including empty ones as-is so the parser can handle them)
   const items = raw.split('\n').map(l => l.trimEnd());
   if (items.every(l => !l.trim())) {
@@ -10746,10 +10754,8 @@ async function doAIChat(inputEl, sendBtn, containerId, context = 'chat') {
   }
 
   try {
-    // We only pass the last 10 messages for context to save tokens
-    const recentMessages = aiChatHistory.slice(Math.max(aiChatHistory.length - 11, 0), -1); // exclude the one we just added (wait, we already pushed it!)
-    // Actually slice(-10) is fine
-    const messagesToSend = aiChatHistory.slice(-10);
+    // Send last 6 messages for context to keep it fast
+    const messagesToSend = aiChatHistory.slice(-6);
 
     let finalResponse = '';
 
@@ -10776,19 +10782,19 @@ async function doAIChat(inputEl, sendBtn, containerId, context = 'chat') {
         if (bubble) bubble.innerHTML = formatAIMessage(fullText);
         scrollToBottom(container);
       });
-      
-      if(finalResponse) {
+
+      if (finalResponse) {
         aiChatHistory.push({ role: 'model', content: finalResponse });
+        saveAIChatHistory();
       }
     } else {
       // Fallback to non-stream
       finalResponse = await window.geminiChat(messagesToSend);
       document.getElementById(typingId)?.remove();
       aiChatHistory.push({ role: 'model', content: finalResponse });
+      saveAIChatHistory();
+      renderAIChatHistory();
     }
-
-    saveAIChatHistory();
-    renderAIChatHistory();
 
   } catch (err) {
     console.error(err);

@@ -172,8 +172,8 @@ window.geminiChatStream = async function(messages, onChunk, onDone, options = {}
   const requestBody = {
     contents,
     generationConfig: {
-      temperature: options.temperature || 0.8,
-      maxOutputTokens: options.maxTokens || 1024
+      temperature: options.temperature || 0.7,
+      maxOutputTokens: options.maxTokens || 600
     }
   };
 
