@@ -2146,6 +2146,7 @@ function initGestures() {
         e.target.closest('.card-tabs') || 
         e.target.closest('.monthly-tracker') ||
         e.target.closest('#pageCalculators') ||
+        e.target.closest('#dietWeekDayTabs') ||
         e.target.closest('.no-swipe')) {
       touchStartX = -1; // Ignore this swipe
       return;
