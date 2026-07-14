@@ -2118,7 +2118,7 @@ function initGestures() {
           sidebar.classList.add('open');
         } else if (Math.abs(dx) > minDistance) {
           // Page swipe logic
-          const swipePages = ['dashboard', 'workouts', 'posture', 'progress', 'updates', 'notes', 'comments', 'calculators', 'diet', 'beforeafter', 'achievements', 'profile'];
+          const swipePages = ['dashboard', 'workouts', 'posture', 'diet', 'progress', 'updates', 'notes', 'comments', 'calculators', 'beforeafter', 'achievements', 'leaderboard', 'ai', 'profile'];
           let cPage = null;
           document.querySelectorAll('.page').forEach(p => {
              if (p.classList.contains('active') || p.style.display === 'block') cPage = p.dataset.page;
@@ -11198,9 +11198,9 @@ window.submitDietLog = function(type) {
 
 window.deleteDietLog = function(mealId) {
   if (!confirm(currentLang === 'tr' ? 'Bu öğünü silmek istediğinizden emin misiniz?' : 'Are you sure you want to delete this meal?')) return;
-  const td = todayStr();
-  if (appData.dietLogs && appData.dietLogs[td]) {
-    appData.dietLogs[td] = appData.dietLogs[td].filter(m => m.id !== mealId);
+  const dayKey = window.selectedDietDay || todayStr();
+  if (appData.dietLogs && appData.dietLogs[dayKey]) {
+    appData.dietLogs[dayKey] = appData.dietLogs[dayKey].filter(m => m.id !== mealId);
     saveData();
     renderDiet();
     showToast(currentLang === 'tr' ? 'Öğün silindi.' : 'Meal deleted.', 'success');
@@ -11208,8 +11208,8 @@ window.deleteDietLog = function(mealId) {
 };
 
 window.openDietEditModal = function(mealId) {
-  const td = todayStr();
-  const meals = (appData.dietLogs && appData.dietLogs[td]) || [];
+  const dayKey = window.selectedDietDay || todayStr();
+  const meals = (appData.dietLogs && appData.dietLogs[dayKey]) || [];
   const meal = meals.find(m => m.id === mealId);
   if (!meal) return;
 
@@ -11239,14 +11239,14 @@ window.saveEditedMeal = function() {
     return;
   }
 
-  const td = todayStr();
-  if (!appData.dietLogs || !appData.dietLogs[td]) return;
+  const dayKey = window.selectedDietDay || todayStr();
+  if (!appData.dietLogs || !appData.dietLogs[dayKey]) return;
 
-  const idx = appData.dietLogs[td].findIndex(m => m.id === mealId);
+  const idx = appData.dietLogs[dayKey].findIndex(m => m.id === mealId);
   if (idx === -1) return;
 
-  appData.dietLogs[td][idx] = {
-    ...appData.dietLogs[td][idx],
+  appData.dietLogs[dayKey][idx] = {
+    ...appData.dietLogs[dayKey][idx],
     name,
     tag: document.getElementById('editMealTag').value || 'Diğer',
     calories: parseInt(document.getElementById('editMealKcal').value) || 0,
@@ -11270,9 +11270,8 @@ window.renderDiet = function() {
     appData.dietLogs = {};
   }
 
-  // AUTO-CLEAN: Sadece son 7 günün verilerini tut, daha eskilerini sil
-  const td = todayStr();
-  const keepDays = 7;
+  // AUTO-CLEAN: Sadece son 14 günün verilerini tut
+  const keepDays = 14;
   const cutoffDate = new Date();
   cutoffDate.setDate(cutoffDate.getDate() - keepDays);
   const cutoffStr = dateStr(cutoffDate);
@@ -11285,8 +11284,84 @@ window.renderDiet = function() {
   });
   if (needClean) saveData();
 
+  const td = todayStr();
+
+  // Initialize selected day if not set or invalid
+  if (!window.selectedDietDay || window.selectedDietDay > td) {
+    window.selectedDietDay = td;
+  }
+
+  // Build 7-day tabs (Mon-Sun style)
+  const tabsContainer = document.getElementById('dietWeekDayTabs');
+  const weekRangeLabel = document.getElementById('dietWeekRangeLabel');
+  if (tabsContainer) {
+    const days = [];
+    const TR_DAYS = ['Paz', 'Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt'];
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      const key = dateStr(d);
+      const dayName = TR_DAYS[d.getDay()];
+      const dayNum = d.getDate();
+      const hasData = appData.dietLogs[key] && appData.dietLogs[key].length > 0;
+      const isToday = key === td;
+      const isSelected = key === window.selectedDietDay;
+      days.push({ key, dayName, dayNum, hasData, isToday, isSelected });
+    }
+    // Week range label
+    if (weekRangeLabel && days.length > 0) {
+      const fmt = (d) => { const [,m,day] = d.split('-'); return `${parseInt(day)} ${['Oca','Şub','Mar','Nis','May','Haz','Tem','Ağu','Eyl','Eki','Kas','Ara'][parseInt(m)-1]}`; };
+      weekRangeLabel.textContent = `${fmt(days[0].key)} – ${fmt(days[6].key)}`;
+    }
+    tabsContainer.innerHTML = days.map(({ key, dayName, dayNum, hasData, isToday, isSelected }) => `
+      <button onclick="selectDietDay('${key}')" style="
+        flex: 1; min-width: 42px; display: flex; flex-direction: column; align-items: center; gap: 3px;
+        padding: 8px 4px; border-radius: 12px; border: 1.5px solid ${isSelected ? '#ff7043' : (hasData ? 'rgba(255,112,67,0.25)' : 'var(--border-subtle)')};
+        background: ${isSelected ? 'rgba(255,112,67,0.15)' : (hasData ? 'rgba(255,112,67,0.04)' : 'transparent')};
+        cursor: pointer; transition: all 0.2s; position: relative;
+      ">
+        <span style="font-size:0.6rem; font-weight:800; color:${isSelected ? '#ff7043' : (isToday ? 'var(--text-primary)' : 'var(--text-muted)')}; text-transform:uppercase; letter-spacing:0.04em;">${isToday ? 'Bugün' : dayName}</span>
+        <span style="font-size:1rem; font-weight:900; color:${isSelected ? '#ff7043' : 'var(--text-primary)'}; line-height:1;">${dayNum}</span>
+        ${hasData ? `<span style="width:5px; height:5px; border-radius:50%; background:${isSelected ? '#ff7043' : 'rgba(255,112,67,0.5)'};"></span>` : `<span style="width:5px; height:5px;"></span>`}
+      </button>
+    `).join('');
+  }
+
+  // Determine which day's data to show
+  const viewDay = window.selectedDietDay || td;
+  const isViewingToday = viewDay === td;
+
+  // Update section labels
+  const macroLabel = document.getElementById('dietMacroDateLabel');
+  const mealLabel = document.getElementById('dietMealListDateLabel');
+  if (macroLabel) {
+    if (isViewingToday) {
+      macroLabel.textContent = 'Bugünkü';
+    } else {
+      const d = new Date(viewDay + 'T00:00:00');
+      const TR_DAYS_FULL = ['Pazar', 'Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi'];
+      macroLabel.textContent = TR_DAYS_FULL[d.getDay()] + ' (' + viewDay.split('-').slice(1).reverse().join('.') + ')';
+    }
+  }
+  if (mealLabel) {
+    mealLabel.textContent = isViewingToday ? 'Bugün' : new Date(viewDay + 'T00:00:00').toLocaleDateString('tr-TR', { day:'numeric', month:'long' });
+  }
+
+  // Show/hide add-meal forms (only for today)
+  const loggingSection = document.querySelector('#pageDiet section.card:nth-of-type(3)');
+  // Use a different approach: find sections by looking for the tab buttons
+  const aiTabBtn = document.getElementById('dietTabBtnAI');
+  if (aiTabBtn) {
+    const loggingCard = aiTabBtn.closest('section');
+    if (loggingCard) {
+      loggingCard.style.opacity = isViewingToday ? '1' : '0.45';
+      loggingCard.style.pointerEvents = isViewingToday ? '' : 'none';
+      loggingCard.title = isViewingToday ? '' : 'Geçmiş günlere yeni öğün eklenemez';
+    }
+  }
+
   const targets = appData.dietTargets;
-  const logs = appData.dietLogs[td] || [];
+  const logs = appData.dietLogs[viewDay] || [];
 
   // Calculate totals consumed today
   let totalKcal = 0;
@@ -11313,11 +11388,132 @@ window.renderDiet = function() {
   document.getElementById('dietCarbsVal').textContent = `${totalCarbs}g / ${targets.carbs}g`;
   document.getElementById('dietFatVal').textContent = `${totalFat}g / ${targets.fat}g`;
 
-  // Remaining texts
-  document.getElementById('dietKcalRem').textContent = currentLang === 'tr' ? `Kalan: ${remKcal} kcal` : `Remaining: ${remKcal} kcal`;
-  document.getElementById('dietProteinRem').textContent = currentLang === 'tr' ? `Kalan: ${remProtein}g` : `Remaining: ${remProtein}g`;
-  document.getElementById('dietCarbsRem').textContent = currentLang === 'tr' ? `Kalan: ${remCarbs}g` : `Remaining: ${remCarbs}g`;
-  document.getElementById('dietFatRem').textContent = currentLang === 'tr' ? `Kalan: ${remFat}g` : `Remaining: ${remFat}g`;
+  // Status mapping for alerts and colors
+  const kcalStatus = totalKcal > targets.kcal ? 'exceeded' : (totalKcal === targets.kcal ? 'completed' : 'under');
+  const proteinStatus = totalProtein > targets.protein ? 'exceeded' : (totalProtein === targets.protein ? 'completed' : 'under');
+  const carbsStatus = totalCarbs > targets.carbs ? 'exceeded' : (totalCarbs === targets.carbs ? 'completed' : 'under');
+  const fatStatus = totalFat > targets.fat ? 'exceeded' : (totalFat === targets.fat ? 'completed' : 'under');
+
+  // Initialize notification state if not set
+  if (!window.dietState) {
+    window.dietState = {
+      date: '',
+      kcal: 'under',
+      protein: 'under',
+      carbs: 'under',
+      fat: 'under'
+    };
+  }
+
+  const isFirstRun = (window.dietState.date === '');
+  if (window.dietState.date !== td) {
+    window.dietState = {
+      date: td,
+      kcal: kcalStatus,
+      protein: proteinStatus,
+      carbs: carbsStatus,
+      fat: fatStatus
+    };
+  }
+
+  if (!isFirstRun) {
+    const checkStatusChange = (catKey, catNameTr, catNameEn, newStatus) => {
+      const oldStatus = window.dietState[catKey];
+      if (oldStatus !== newStatus) {
+        if (newStatus === 'completed') {
+          const msg = currentLang === 'tr' 
+            ? `Tebrikler, ${catNameTr} hedefinize tam olarak ulaştınız!` 
+            : `Congratulations, you reached your ${catNameEn} target exactly!`;
+          showToast(msg, 'success');
+        } else if (newStatus === 'exceeded') {
+          const msg = currentLang === 'tr' 
+            ? `Dikkat, ${catNameTr} hedefinizi aştınız!` 
+            : `Warning, you exceeded your ${catNameEn} target!`;
+          showToast(msg, 'error');
+        }
+        window.dietState[catKey] = newStatus;
+      }
+    };
+
+    checkStatusChange('kcal', 'Kalori', 'Calories', kcalStatus);
+    checkStatusChange('protein', 'Protein', 'Protein', proteinStatus);
+    checkStatusChange('carbs', 'Karbonhidrat', 'Carbs', carbsStatus);
+    checkStatusChange('fat', 'Yağ', 'Fat', fatStatus);
+  } else {
+    window.dietState.kcal = kcalStatus;
+    window.dietState.protein = proteinStatus;
+    window.dietState.carbs = carbsStatus;
+    window.dietState.fat = fatStatus;
+  }
+
+  // Update remainder text and styles
+  const kcalRemEl = document.getElementById('dietKcalRem');
+  const kcalBarEl = document.getElementById('dietKcalBar');
+  if (kcalStatus === 'exceeded') {
+    const exceeded = totalKcal - targets.kcal;
+    kcalRemEl.textContent = currentLang === 'tr' ? `Aşıldı: ${exceeded} kcal` : `Exceeded: ${exceeded} kcal`;
+    kcalRemEl.style.color = '#f87171'; // red text
+    kcalBarEl.style.background = '#ef4444'; // red bar
+  } else if (kcalStatus === 'completed') {
+    kcalRemEl.textContent = currentLang === 'tr' ? `Kalan: 0 kcal` : `Remaining: 0 kcal`;
+    kcalRemEl.style.color = '#4ade80'; // green text
+    kcalBarEl.style.background = '#22c55e'; // green bar
+  } else {
+    kcalRemEl.textContent = currentLang === 'tr' ? `Kalan: ${remKcal} kcal` : `Remaining: ${remKcal} kcal`;
+    kcalRemEl.style.color = 'var(--text-muted)';
+    kcalBarEl.style.background = '#ff7043'; // default orange
+  }
+
+  const proteinRemEl = document.getElementById('dietProteinRem');
+  const proteinBarEl = document.getElementById('dietProteinBar');
+  if (proteinStatus === 'exceeded') {
+    const exceeded = totalProtein - targets.protein;
+    proteinRemEl.textContent = currentLang === 'tr' ? `Aşıldı: ${exceeded}g` : `Exceeded: ${exceeded}g`;
+    proteinRemEl.style.color = '#f87171';
+    proteinBarEl.style.background = '#ef4444';
+  } else if (proteinStatus === 'completed') {
+    proteinRemEl.textContent = currentLang === 'tr' ? `Kalan: 0g` : `Remaining: 0g`;
+    proteinRemEl.style.color = '#4ade80';
+    proteinBarEl.style.background = '#22c55e';
+  } else {
+    proteinRemEl.textContent = currentLang === 'tr' ? `Kalan: ${remProtein}g` : `Remaining: ${remProtein}g`;
+    proteinRemEl.style.color = 'var(--text-muted)';
+    proteinBarEl.style.background = '#60a5fa'; // default blue
+  }
+
+  const carbsRemEl = document.getElementById('dietCarbsRem');
+  const carbsBarEl = document.getElementById('dietCarbsBar');
+  if (carbsStatus === 'exceeded') {
+    const exceeded = totalCarbs - targets.carbs;
+    carbsRemEl.textContent = currentLang === 'tr' ? `Aşıldı: ${exceeded}g` : `Exceeded: ${exceeded}g`;
+    carbsRemEl.style.color = '#f87171';
+    carbsBarEl.style.background = '#ef4444';
+  } else if (carbsStatus === 'completed') {
+    carbsRemEl.textContent = currentLang === 'tr' ? `Kalan: 0g` : `Remaining: 0g`;
+    carbsRemEl.style.color = '#4ade80';
+    carbsBarEl.style.background = '#22c55e';
+  } else {
+    carbsRemEl.textContent = currentLang === 'tr' ? `Kalan: ${remCarbs}g` : `Remaining: ${remCarbs}g`;
+    carbsRemEl.style.color = 'var(--text-muted)';
+    carbsBarEl.style.background = '#f59e0b'; // default yellow
+  }
+
+  const fatRemEl = document.getElementById('dietFatRem');
+  const fatBarEl = document.getElementById('dietFatBar');
+  if (fatStatus === 'exceeded') {
+    const exceeded = totalFat - targets.fat;
+    fatRemEl.textContent = currentLang === 'tr' ? `Aşıldı: ${exceeded}g` : `Exceeded: ${exceeded}g`;
+    fatRemEl.style.color = '#f87171';
+    fatBarEl.style.background = '#ef4444';
+  } else if (fatStatus === 'completed') {
+    fatRemEl.textContent = currentLang === 'tr' ? `Kalan: 0g` : `Remaining: 0g`;
+    fatRemEl.style.color = '#4ade80';
+    fatBarEl.style.background = '#22c55e';
+  } else {
+    fatRemEl.textContent = currentLang === 'tr' ? `Kalan: ${remFat}g` : `Remaining: ${remFat}g`;
+    fatRemEl.style.color = 'var(--text-muted)';
+    fatBarEl.style.background = '#f43f5e'; // default rose
+  }
 
   // Bar progress widths
   const pctKcal = Math.min(100, Math.round((totalKcal / targets.kcal) * 100)) || 0;
@@ -11325,10 +11521,10 @@ window.renderDiet = function() {
   const pctCarbs = Math.min(100, Math.round((totalCarbs / targets.carbs) * 100)) || 0;
   const pctFat = Math.min(100, Math.round((totalFat / targets.fat) * 100)) || 0;
 
-  document.getElementById('dietKcalBar').style.width = pctKcal + '%';
-  document.getElementById('dietProteinBar').style.width = pctProtein + '%';
-  document.getElementById('dietCarbsBar').style.width = pctCarbs + '%';
-  document.getElementById('dietFatBar').style.width = pctFat + '%';
+  kcalBarEl.style.width = pctKcal + '%';
+  proteinBarEl.style.width = pctProtein + '%';
+  carbsBarEl.style.width = pctCarbs + '%';
+  fatBarEl.style.width = pctFat + '%';
 
   // Render log list
   const list = document.getElementById('loggedMealsList');
@@ -11381,7 +11577,7 @@ window.renderDiet = function() {
   html += `
     <div style="margin-top: 14px; padding: 14px 16px; background: linear-gradient(135deg, rgba(255,112,67,0.08) 0%, rgba(255,112,67,0.03) 100%); border: 1px solid rgba(255,112,67,0.2); border-radius: 12px;">
       <div style="font-size: 0.7rem; font-weight: 800; color: #ff7043; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 10px;">
-        📊 ${currentLang === 'tr' ? 'Bugünkü Toplam' : "Today's Total"}
+        📊 ${isViewingToday ? (currentLang === 'tr' ? 'Bugünkü Toplam' : "Today's Total") : (currentLang === 'tr' ? 'Günlük Toplam' : 'Daily Total')}
       </div>
       <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; text-align: center;">
         <div style="background: rgba(255,112,67,0.1); border-radius: 10px; padding: 10px 6px;">
@@ -11405,6 +11601,17 @@ window.renderDiet = function() {
   `;
 
   list.innerHTML = html;
+};
+
+// =============================================
+// DIET DAY SELECTOR
+// =============================================
+window.selectDietDay = function(dateKey) {
+  const td = todayStr();
+  // Don't allow future dates
+  if (dateKey > td) return;
+  window.selectedDietDay = dateKey;
+  renderDiet();
 };
 
 // =============================================

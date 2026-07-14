@@ -5143,6 +5143,18 @@ html {
   }
 }
 
+/* ---- Weekly Day Tabs ---- */
+#dietWeekDayTabs {
+  -ms-overflow-style: none;
+}
+#dietWeekDayTabs::-webkit-scrollbar {
+  display: none;
+}
+#dietWeekDayTabs button:hover {
+  border-color: rgba(255, 112, 67, 0.5) !important;
+  background: rgba(255, 112, 67, 0.08) !important;
+}
+
 /* ---- Macro Progress Grid ---- */
 .diet-macros-grid {
   display: grid;

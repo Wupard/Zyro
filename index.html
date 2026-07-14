@@ -1441,10 +1441,19 @@
         </div>
       </div>
 
+      <!-- Weekly Day Selector -->
+      <section class="card" style="margin-bottom: 16px; padding: 14px 16px;">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
+          <span style="font-size:0.72rem; font-weight:800; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.08em;">📅 Haftalık Geçmiş</span>
+          <span id="dietWeekRangeLabel" style="font-size:0.7rem; color:var(--text-muted);"></span>
+        </div>
+        <div id="dietWeekDayTabs" style="display:flex; gap:6px; overflow-x:auto; padding-bottom:2px; scrollbar-width:none;"></div>
+      </section>
+
       <!-- Macro Tracker Grid -->
       <section class="card" style="margin-bottom: 24px;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
-          <h3 class="card-title" style="margin:0;">Bugünkü Makro Durumu</h3>
+          <h3 class="card-title" style="margin:0;">📊 <span id="dietMacroDateLabel">Bugünkü</span> Makro Durumu</h3>
           <button onclick="toggleDietTargetForm()" class="btn-small" style="font-size: 0.75rem; padding: 6px 12px; border-radius: 8px;">
             ⚙️ Hedefleri Düzenle
           </button>
@@ -1645,10 +1654,10 @@
         </div>
       </section>
 
-      <!-- Today's Logged Meals -->
+      <!-- Logged Meals (selected day) -->
       <section class="card">
         <div class="card-header" style="margin-bottom:14px;">
-          <h3 class="card-title">Bugün Yenilenler</h3>
+          <h3 class="card-title">🍽️ <span id="dietMealListDateLabel">Bugün</span> Yenilenler</h3>
           <span class="card-badge" style="background:rgba(255,112,67,0.12); color:#ff7043; border:1px solid rgba(255,112,67,0.2);">Yemek Listesi</span>
         </div>
         <div id="loggedMealsList" style="display: flex; flex-direction: column; gap: 10px;">
