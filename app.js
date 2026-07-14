@@ -11276,12 +11276,34 @@ window.analyzeManualFoodText = async function() {
     showToast('✦ Makrolar hesaplandı! Düzenleyip kaydedebilirsin.', 'success');
   } catch(err) {
     console.error('Food text analysis error:', err);
-    showToast(window.geminiErrorMessage ? window.geminiErrorMessage(err) : 'Analiz başarısız: ' + err.message, 'error');
+    const errMsg = err.message || String(err);
+    if (errMsg === 'NO_KEY') {
+      showNoKeyBanner();
+    } else {
+      showToast(window.geminiErrorMessage ? window.geminiErrorMessage(err) : 'Analiz başarısız: ' + errMsg, 'error');
+    }
   } finally {
     if (btn) btn.disabled = false;
     if (spinner) spinner.style.display = 'none';
     if (btnText) btnText.textContent = '✦ AI ile Makroları Hesapla';
   }
+};
+
+// Show/hide the "no API key" inline banner
+window.showNoKeyBanner = function() {
+  const banner = document.getElementById('noKeyBanner');
+  if (banner) banner.style.display = 'flex';
+};
+window.hideNoKeyBanner = function() {
+  const banner = document.getElementById('noKeyBanner');
+  if (banner) banner.style.display = 'none';
+};
+window.goToAiSettings = function() {
+  hideNoKeyBanner();
+  if (typeof switchPage === 'function') switchPage('profile');
+  setTimeout(() => {
+    if (typeof switchProfileTab === 'function') switchProfileTab('ai');
+  }, 250);
 };
 
 // Reset the entire manual food form
