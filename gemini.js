@@ -367,21 +367,14 @@ window.geminiAnalyzeFoodText = async function(foodText) {
 
 Kullanıcı girişi: "${foodText}"
 
-Kuralllar:
+Kurallar:
 - Her besin için ortalama besin değerlerini kullan (gramaj belirtilmişse o miktara göre, belirtilmemişse standart porsiyon)
 - Tüm besinlerin TOPLAMINI hesapla
 - Türkçe bir özet yemek adı üret (ör: "Kahvaltı Tabağı", "Öğle Öğünü")
-- Sadece JSON döndür, ek açıklama ekleme
+- Sadece geçerli JSON döndür, başka hiçbir şey ekleme
 
-Yanıtı şu JSON formatında ver:
-{
-  "meal_name": "Kısa bir Türkçe yemek adı",
-  "calories": 450,
-  "protein": 30,
-  "carbs": 45,
-  "fat": 12,
-  "description": "Ne analiz edildi ve nasıl hesaplandığına dair kısa Türkçe açıklama (maks 1 cümle)"
-}`;
+Yanıtı SADECE şu JSON formatında ver (başka açıklama, markdown, kod bloğu ekleme):
+{"meal_name":"Kısa Türkçe yemek adı","calories":450,"protein":30,"carbs":45,"fat":12,"description":"Kısa Türkçe açıklama"}`;
 
   const response = await fetch(url, {
     method: 'POST',
@@ -390,22 +383,33 @@ Yanıtı şu JSON formatında ver:
       contents: [{ role: 'user', parts: [{ text: prompt }] }],
       generationConfig: {
         temperature: 0.2,
-        maxOutputTokens: 512,
-        responseMimeType: 'application/json'
+        maxOutputTokens: 512
       }
     })
   });
 
   if (!response.ok) {
     const err = await response.json().catch(() => ({}));
-    if (response.status === 400 || response.status === 403) throw new Error('INVALID_KEY');
+    const errMsg = err.error?.message || '';
+    if (response.status === 403 || errMsg.includes('API_KEY')) throw new Error('INVALID_KEY');
     if (response.status === 429) throw new Error('RATE_LIMIT');
-    throw new Error(err.error?.message || `HTTP ${response.status}`);
+    throw new Error(errMsg || `HTTP ${response.status}`);
   }
 
   const resData = await response.json();
-  const text = resData.candidates?.[0]?.content?.parts?.[0]?.text || '';
-  return JSON.parse(text.trim());
+  let text = resData.candidates?.[0]?.content?.parts?.[0]?.text || '';
+
+  // Strip markdown code fences if model wraps in ```json ... ```
+  text = text.trim();
+  if (text.startsWith('```')) {
+    text = text.replace(/^```(?:json)?\s*/i, '').replace(/```\s*$/, '').trim();
+  }
+
+  // Find the first JSON object in the text
+  const jsonMatch = text.match(/\{[\s\S]*\}/);
+  if (!jsonMatch) throw new Error('Geçersiz AI yanıtı: JSON bulunamadı');
+
+  return JSON.parse(jsonMatch[0]);
 };
 
 // ---- Error message helper ----

@@ -11281,7 +11281,10 @@ window.analyzeManualFoodText = async function() {
     if (errMsg === 'NO_KEY') {
       showNoKeyBanner();
     } else {
-      showToast(window.geminiErrorMessage ? window.geminiErrorMessage(err) : 'Analiz başarısız: ' + errMsg, 'error');
+      const displayMsg = window.geminiErrorMessage
+        ? window.geminiErrorMessage(err)
+        : ('Analiz başarısız: ' + (errMsg || 'Bilinmeyen hata'));
+      showToast(displayMsg, 'error');
     }
   } finally {
     if (btn) btn.disabled = false;
