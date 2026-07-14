@@ -5,7 +5,7 @@
 // Kullanıcı kendi key'ini Profil > AI Ayarları'ndan girer
 
 const GEMINI_API_BASE = 'https://generativelanguage.googleapis.com/v1beta/models';
-const GEMINI_MODEL = 'gemini-2.0-flash';
+const GEMINI_MODEL = 'gemini-1.5-flash-latest';
 
 // ---- Key Management ----
 window.getGeminiKey = function() {

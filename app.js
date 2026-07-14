@@ -1808,13 +1808,6 @@ window.adminPostUpdate = async function() {
     return;
   }
 
-  const requestBody = {
-    contents,
-    generationConfig: {
-      temperature: 0.7,
-      maxOutputTokens: 600
-    }
-  };
 
   // Save each line (including empty ones as-is so the parser can handle them)
   const items = raw.split('\n').map(l => l.trimEnd());
