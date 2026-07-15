@@ -5,7 +5,31 @@
 // Kullanıcı kendi key'ini Profil > AI Ayarları'ndan girer
 
 const GEMINI_API_BASE = 'https://generativelanguage.googleapis.com/v1beta/models';
-const GEMINI_MODEL = 'gemini-2.0-flash';
+const GEMINI_MODEL = 'gemini-1.5-flash';
+
+// ---- Retry Helper ----
+// 429 gelince otomatik bekler ve tekrar dener
+async function geminiWithRetry(fetchFn, maxRetries = 3) {
+  const delays = [5000, 15000, 30000]; // 5sn, 15sn, 30sn
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    try {
+      return await fetchFn();
+    } catch (err) {
+      const isRateLimit = err.message === 'RATE_LIMIT' || (err.status === 429);
+      if (isRateLimit && attempt < maxRetries) {
+        const waitMs = delays[attempt] || 30000;
+        console.warn(`[Zyro Gemini] Rate limit, ${waitMs/1000}sn sonra tekrar deneniyor... (deneme ${attempt + 1}/${maxRetries})`);
+        // Kullanıcıya toast göster
+        if (window.showToast) {
+          showToast(`⏳ İstek limiti aşıldı, ${waitMs/1000} saniye sonra otomatik tekrar denenecek...`, 'warning');
+        }
+        await new Promise(r => setTimeout(r, waitMs));
+        continue;
+      }
+      throw err;
+    }
+  }
+}
 
 // ---- Key Management ----
 window.getGeminiKey = function() {
@@ -149,6 +173,7 @@ window.geminiChat = async function(messages, options = {}) {
 
   if (!response.ok) {
     const err = await response.json().catch(() => ({}));
+    console.error('[Zyro Gemini] API Error:', response.status, JSON.stringify(err));
     if (response.status === 400 || response.status === 403) throw new Error('INVALID_KEY');
     if (response.status === 429) throw new Error('RATE_LIMIT');
     throw new Error(err.error?.message || `HTTP ${response.status}`);
@@ -190,6 +215,8 @@ window.geminiChatStream = async function(messages, onChunk, onDone, options = {}
   });
 
   if (!response.ok) {
+    const errBody = await response.json().catch(() => ({}));
+    console.error('[Zyro Gemini] Stream API Error:', response.status, JSON.stringify(errBody));
     if (response.status === 400 || response.status === 403) throw new Error('INVALID_KEY');
     if (response.status === 429) throw new Error('RATE_LIMIT');
     throw new Error(`HTTP ${response.status}`);
@@ -358,12 +385,13 @@ Sadece geçerli bir JSON objesi döndür, markdown veya ek açıklama metni ekle
 
 // ---- Free Text Food Analysis (for manual entry) ----
 window.geminiAnalyzeFoodText = async function(foodText) {
-  const key = getGeminiKey();
-  if (!key) throw new Error('NO_KEY');
+  return geminiWithRetry(async () => {
+    const key = getGeminiKey();
+    if (!key) throw new Error('NO_KEY');
 
-  const url = `${GEMINI_API_BASE}/${GEMINI_MODEL}:generateContent?key=${key}`;
+    const url = `${GEMINI_API_BASE}/${GEMINI_MODEL}:generateContent?key=${key}`;
 
-  const prompt = `Aşağıdaki yiyecek listesini analiz et ve toplam makro besin değerlerini hesapla.
+    const prompt = `Aşağıdaki yiyecek listesini analiz et ve toplam makro besin değerlerini hesapla.
 
 Kullanıcı girişi: "${foodText}"
 
@@ -376,40 +404,42 @@ Kurallar:
 Yanıtı SADECE şu JSON formatında ver (başka açıklama, markdown, kod bloğu ekleme):
 {"meal_name":"Kısa Türkçe yemek adı","calories":450,"protein":30,"carbs":45,"fat":12,"description":"Kısa Türkçe açıklama"}`;
 
-  const response = await fetch(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      contents: [{ role: 'user', parts: [{ text: prompt }] }],
-      generationConfig: {
-        temperature: 0.2,
-        maxOutputTokens: 512
-      }
-    })
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ role: 'user', parts: [{ text: prompt }] }],
+        generationConfig: {
+          temperature: 0.2,
+          maxOutputTokens: 512
+        }
+      })
+    });
+
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}));
+      const errMsg = err.error?.message || '';
+      console.error('[Zyro Gemini] FoodText API Error:', response.status, JSON.stringify(err));
+      if (response.status === 403 || errMsg.includes('API_KEY')) throw new Error('INVALID_KEY');
+      if (response.status === 429) throw new Error('RATE_LIMIT');
+      throw new Error(errMsg || `HTTP ${response.status}`);
+    }
+
+    const resData = await response.json();
+    let text = resData.candidates?.[0]?.content?.parts?.[0]?.text || '';
+
+    // Strip markdown code fences if model wraps in ```json ... ```
+    text = text.trim();
+    if (text.startsWith('```')) {
+      text = text.replace(/^```(?:json)?\s*/i, '').replace(/```\s*$/, '').trim();
+    }
+
+    // Find the first JSON object in the text
+    const jsonMatch = text.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) throw new Error('Geçersiz AI yanıtı: JSON bulunamadı');
+
+    return JSON.parse(jsonMatch[0]);
   });
-
-  if (!response.ok) {
-    const err = await response.json().catch(() => ({}));
-    const errMsg = err.error?.message || '';
-    if (response.status === 403 || errMsg.includes('API_KEY')) throw new Error('INVALID_KEY');
-    if (response.status === 429) throw new Error('RATE_LIMIT');
-    throw new Error(errMsg || `HTTP ${response.status}`);
-  }
-
-  const resData = await response.json();
-  let text = resData.candidates?.[0]?.content?.parts?.[0]?.text || '';
-
-  // Strip markdown code fences if model wraps in ```json ... ```
-  text = text.trim();
-  if (text.startsWith('```')) {
-    text = text.replace(/^```(?:json)?\s*/i, '').replace(/```\s*$/, '').trim();
-  }
-
-  // Find the first JSON object in the text
-  const jsonMatch = text.match(/\{[\s\S]*\}/);
-  if (!jsonMatch) throw new Error('Geçersiz AI yanıtı: JSON bulunamadı');
-
-  return JSON.parse(jsonMatch[0]);
 };
 
 // ---- Error message helper ----

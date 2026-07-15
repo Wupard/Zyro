@@ -184,14 +184,7 @@
         </svg>
         <span data-i18n="navLeaderboard">Liderlik Tablosu</span>
       </a>
-      <a href="ai" class="nav-item ai-nav-item" data-page="ai" id="nav-ai" style="position:relative;">
-        <svg class="ai-sparkle-menu-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M12 2L13.09 9.26L20 12L13.09 14.74L12 22L10.91 14.74L4 12L10.91 9.26L12 2Z" fill="url(#ai-sparkle-gradient-btn)"/>
-          <path d="M20 4L20.54 5.63L22 6L20.54 6.37L20 8L19.46 6.37L18 6L19.46 5.63L20 4Z" fill="url(#ai-sparkle-gradient-btn)"/>
-          <path d="M5 18L5.54 19.63L7 20L5.54 20.37L5 22L4.46 20.37L3 20L4.46 19.63L5 18Z" fill="url(#ai-sparkle-gradient-btn)"/>
-        </svg>
-        <span data-i18n="navAI">AI Asistan</span>
-      </a>
+
       <a href="profile" class="nav-item" data-page="profile" id="nav-profile">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
           stroke-linecap="round" stroke-linejoin="round">
@@ -1529,160 +1522,16 @@
 
       <!-- Logging Card -->
       <section class="card" style="margin-bottom: 24px; padding: 0; overflow: hidden;">
-        <div style="display: flex; border-bottom: 1px solid var(--border-subtle); background: var(--bg-card-alt);">
-          <button id="dietTabBtnAI" class="tab-btn active" style="flex: 1; border-radius: 0; padding: 14px 20px; font-weight: 700; border: none; background: transparent; color: var(--text-primary); cursor: pointer;" onclick="switchDietTab('ai')">
-            ✦ AI Fotoğraf Analizi
-          </button>
-          <button id="dietTabBtnManual" class="tab-btn" style="flex: 1; border-radius: 0; padding: 14px 20px; font-weight: 700; border: none; background: transparent; color: var(--text-muted); cursor: pointer;" onclick="switchDietTab('manual')">
-            ✏️ Manuel Ekle
-          </button>
-        </div>
-
-        <!-- Tab 1: AI Photo Uploader -->
-        <div id="dietTabAI" class="diet-tab-content">
-          <div id="dietDragDropZone" style="border: 2px dashed rgba(255,112,67,0.3); border-radius: 16px; padding: 32px 20px; text-align: center; cursor: pointer; background: rgba(255,112,67,0.02); transition: all 0.2s;" onclick="triggerDietPhotoUpload()">
-            <div style="font-size: 2.2rem; margin-bottom: 12px;">📸</div>
-            <h4 style="margin: 0 0 6px 0; font-size: 1rem; font-weight: 700; color: var(--text-primary);">Yemeğin Fotoğrafını Çek veya Yükle</h4>
-            <p style="margin: 0; font-size: 0.8rem; color: var(--text-muted);">AI otomatik olarak yemek adını ve besin makrolarını analiz eder.</p>
-            <input type="file" id="dietPhotoInput" accept="image/*" style="display: none;" onchange="handleDietPhotoSelect(event)">
-          </div>
-
-          <!-- Loading Indicator overlay -->
-          <div id="dietAiLoading" style="display: none; text-align: center; padding: 24px;">
-            <div style="animation: spin 1.5s linear infinite; display: inline-block; font-size: 1.8rem; color:#ff7043; margin-bottom: 12px;">✦</div>
-            <p style="margin: 0; font-size: 0.85rem; font-weight: 700; color: var(--text-primary);">Yemek Fotoğrafı Analiz Ediliyor...</p>
-            <p style="margin: 4px 0 0 0; font-size: 0.75rem; color: var(--text-muted);">Gemini AI besin değerlerini hesaplıyor, lütfen bekleyin.</p>
-          </div>
-
-          <!-- Analysis result form (editable) -->
-          <div id="dietAiResult" style="display: none; margin-top: 20px; padding: 20px; border: 1px solid var(--border-subtle); background: var(--bg-card-alt); border-radius: 16px;">
-            <div style="display: flex; gap: 16px; margin-bottom: 20px; flex-wrap: wrap; align-items: flex-start;">
-              <div id="dietPhotoPreviewContainer" style="width: 90px; height: 90px; border-radius: 12px; border: 1px solid var(--border-subtle); overflow: hidden; background: #000; flex-shrink: 0;">
-                <img id="dietPhotoPreview" loading="lazy" style="width: 100%; height: 100%; object-fit: cover;">
-              </div>
-              <div style="flex: 1; min-width: 160px;">
-                <h4 style="margin: 0 0 4px 0; font-size: 0.9rem; font-weight: 800; color: #ff7043;">✦ AI Analiz Sonucu</h4>
-                <p id="dietAiDesc" style="margin: 0; font-size: 0.78rem; color: var(--text-muted); line-height: 1.5;"></p>
-              </div>
-            </div>
-
-            <div class="diet-inputs-grid">
-              <div class="col-name" style="display: flex; flex-direction: column; gap: 6px;">
-                <label style="font-size: 0.7rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;">Yemek Adı</label>
-                <input type="text" id="aiMealName" class="log-input" style="padding: 10px 12px; font-size: 0.88rem;">
-              </div>
-              <div class="col-tag" style="display: flex; flex-direction: column; gap: 6px;">
-                <label style="font-size: 0.7rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;">Etiket</label>
-                <select id="aiMealTag" class="log-input" style="padding: 10px 12px; font-size: 0.88rem; appearance: none; background-color: var(--bg-input);">
-                  <option value="Kahvaltı">🌅 Kahvaltı</option>
-                  <option value="Öğle Yemeği">☀️ Öğle Yemeği</option>
-                  <option value="Akşam Yemeği">🌙 Akşam Yemeği</option>
-                  <option value="Ara Öğün">🍎 Ara Öğün</option>
-                  <option value="Atıştırmalık">🍿 Atıştırmalık</option>
-                  <option value="İçecek">🥤 İçecek</option>
-                  <option value="Diğer" selected>📦 Diğer</option>
-                </select>
-              </div>
-              <div class="diet-macro-row">
-                <div style="display: flex; flex-direction: column; gap: 6px;">
-                  <label style="font-size: 0.7rem; color: #ff7043; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;">🔥 Kalori</label>
-                  <input type="number" id="aiMealKcal" class="log-input" placeholder="kcal" style="padding: 10px 12px; font-size: 0.88rem;">
-                </div>
-                <div style="display: flex; flex-direction: column; gap: 6px;">
-                  <label style="font-size: 0.7rem; color: #60a5fa; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;">🥩 Protein</label>
-                  <input type="number" id="aiMealProtein" class="log-input" placeholder="g" style="padding: 10px 12px; font-size: 0.88rem;">
-                </div>
-                <div style="display: flex; flex-direction: column; gap: 6px;">
-                  <label style="font-size: 0.7rem; color: #f59e0b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;">🍞 Karb</label>
-                  <input type="number" id="aiMealCarbs" class="log-input" placeholder="g" style="padding: 10px 12px; font-size: 0.88rem;">
-                </div>
-                <div style="display: flex; flex-direction: column; gap: 6px;">
-                  <label style="font-size: 0.7rem; color: #f43f5e; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;">🥑 Yağ</label>
-                  <input type="number" id="aiMealFat" class="log-input" placeholder="g" style="padding: 10px 12px; font-size: 0.88rem;">
-                </div>
-              </div>
-            </div>
-
-            <div class="diet-actions-row" style="display: flex; gap: 10px; justify-content: flex-end;">
-              <button class="btn-primary" onclick="submitDietLog('ai')">✔ Öğünü Kaydet</button>
-              <button class="btn-small" onclick="resetDietAiForm()">✕ Vazgeç</button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Tab 2: Manual Log Form -->
-        <div id="dietTabManual" class="diet-tab-content" style="display: none;">
-
-          <!-- AI Free Text Quick Entry -->
-          <div style="margin-bottom: 20px; padding: 16px; background: linear-gradient(135deg, rgba(139,92,246,0.08) 0%, rgba(59,130,246,0.05) 100%); border: 1px solid rgba(139,92,246,0.2); border-radius: 16px;">
-            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px;">
-              <div style="width: 28px; height: 28px; border-radius: 8px; background: rgba(139,92,246,0.2); display: flex; align-items: center; justify-content: center; color: #a78bfa; font-size: 0.9rem; flex-shrink: 0;">✦</div>
-              <div>
-                <p style="margin: 0; font-size: 0.8rem; font-weight: 800; color: #a78bfa; letter-spacing: 0.03em;">AI İLE HIZLI GİRİŞ</p>
-                <p style="margin: 0; font-size: 0.7rem; color: var(--text-muted);">Ne yediğini yaz, makrolarını otomatik hesaplayalım</p>
-              </div>
-            </div>
-            <textarea
-              id="manualFoodTextInput"
-              class="log-input"
-              placeholder="ör: 4 yumurta, çay, 50gr lor peynir, 2 dilim ekmek..."
-              style="width: 100%; min-height: 72px; padding: 10px 12px; font-size: 0.88rem; resize: vertical; border-radius: 10px; line-height: 1.5; box-sizing: border-box; font-family: inherit;"
-            ></textarea>
-            <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 10px; gap: 10px; flex-wrap: wrap;">
-              <p id="manualFoodTextHint" style="margin: 0; font-size: 0.72rem; color: var(--text-muted);">Miktar + besin adı yazman yeterli. AI makroları hesaplar ve formu doldurur.</p>
-              <button id="manualFoodAiBtn" onclick="analyzeManualFoodText()" style="flex-shrink: 0; display: flex; align-items: center; gap: 6px; padding: 9px 16px; border-radius: 10px; border: none; background: linear-gradient(135deg, #7c3aed, #4f46e5); color: #fff; font-size: 0.82rem; font-weight: 700; cursor: pointer; transition: opacity 0.2s, transform 0.15s; white-space: nowrap;">
-                <span id="manualFoodAiBtnSpinner" style="display: none; animation: spin 1s linear infinite; font-size: 0.9rem;">✦</span>
-                <span id="manualFoodAiBtnText">✦ AI ile Makroları Hesapla</span>
-              </button>
-            </div>
-
-            <!-- No API Key Banner (hidden by default, shown when NO_KEY error occurs) -->
-            <div id="noKeyBanner" style="display: none; margin-top: 12px; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 16px; background: linear-gradient(135deg, rgba(245,158,11,0.10) 0%, rgba(239,68,68,0.06) 100%); border: 1px solid rgba(245,158,11,0.3); border-radius: 14px; flex-wrap: wrap;">
-              <div style="display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0;">
-                <div style="width: 34px; height: 34px; border-radius: 10px; background: rgba(245,158,11,0.15); display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 1.1rem;">⚙️</div>
-                <div style="min-width: 0;">
-                  <p style="margin: 0 0 2px 0; font-size: 0.82rem; font-weight: 800; color: #fbbf24;">Gemini API Key Gerekli</p>
-                  <p style="margin: 0; font-size: 0.72rem; color: var(--text-muted); line-height: 1.4;">Bu özellik için Profil &gt; AI Ayarları'ndan API key'ini girmen gerekiyor.</p>
-                </div>
-              </div>
-              <button onclick="goToAiSettings()" id="noKeyGoSettingsBtn" style="flex-shrink: 0; display: flex; align-items: center; gap: 6px; padding: 9px 16px; border-radius: 10px; border: none; background: linear-gradient(135deg, #d97706, #b45309); color: #fff; font-size: 0.8rem; font-weight: 700; cursor: pointer; white-space: nowrap; box-shadow: 0 4px 14px rgba(217,119,6,0.35);">
-                ⚙️ AI Ayarlarına Git →
-              </button>
-            </div>
-
-            <!-- AI Result Preview (hidden until result) -->
-
-            <div id="manualFoodAiPreview" style="display: none; margin-top: 14px; padding: 12px 14px; background: rgba(139,92,246,0.07); border: 1px solid rgba(139,92,246,0.2); border-radius: 12px;">
-              <p style="margin: 0 0 8px 0; font-size: 0.75rem; font-weight: 800; color: #a78bfa;">✦ AI TAHMİNİ — Aşağıdaki alanlar dolduruldu, düzenleyebilirsin:</p>
-              <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;">
-                <div style="text-align: center; padding: 8px; background: rgba(255,112,67,0.1); border-radius: 8px;">
-                  <div style="font-size: 0.65rem; color: #ff7043; font-weight: 700; text-transform: uppercase;">Kalori</div>
-                  <div id="previewKcal" style="font-size: 1.1rem; font-weight: 900; color: var(--text-primary);">—</div>
-                </div>
-                <div style="text-align: center; padding: 8px; background: rgba(96,165,250,0.1); border-radius: 8px;">
-                  <div style="font-size: 0.65rem; color: #60a5fa; font-weight: 700; text-transform: uppercase;">Protein</div>
-                  <div id="previewProtein" style="font-size: 1.1rem; font-weight: 900; color: var(--text-primary);">—</div>
-                </div>
-                <div style="text-align: center; padding: 8px; background: rgba(245,158,11,0.1); border-radius: 8px;">
-                  <div style="font-size: 0.65rem; color: #f59e0b; font-weight: 700; text-transform: uppercase;">Karb</div>
-                  <div id="previewCarbs" style="font-size: 1.1rem; font-weight: 900; color: var(--text-primary);">—</div>
-                </div>
-                <div style="text-align: center; padding: 8px; background: rgba(244,63,94,0.1); border-radius: 8px;">
-                  <div style="font-size: 0.65rem; color: #f43f5e; font-weight: 700; text-transform: uppercase;">Yağ</div>
-                  <div id="previewFat" style="font-size: 1.1rem; font-weight: 900; color: var(--text-primary);">—</div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Divider -->
-          <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 16px;">
-            <div style="flex: 1; height: 1px; background: var(--border-subtle);"></div>
-            <span style="font-size: 0.68rem; color: var(--text-muted); font-weight: 600; letter-spacing: 0.06em; white-space: nowrap;">VEYA MANUEL GİRİŞ</span>
-            <div style="flex: 1; height: 1px; background: var(--border-subtle);"></div>
-          </div>
+        <!-- Manuel Giriş -->
+        <div id="dietTabManual" class="diet-tab-content">
 
           <div class="diet-inputs-grid">
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 16px;">
+              <div style="flex: 1; height: 1px; background: var(--border-subtle);"></div>
+              <span style="font-size: 0.68rem; color: var(--text-muted); font-weight: 600; letter-spacing: 0.06em; white-space: nowrap;">MANUEL GİRİŞ</span>
+              <div style="flex: 1; height: 1px; background: var(--border-subtle);"></div>
+            </div>
+
             <div class="col-name" style="display: flex; flex-direction: column; gap: 6px;">
               <label style="font-size: 0.7rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;">Yemek Adı</label>
               <input type="text" id="manualMealName" class="log-input" placeholder="ör: Yulaf Ezmesi" style="padding: 10px 12px; font-size: 0.88rem;">
@@ -2140,9 +1989,6 @@
         <button class="profile-tab-btn active" onclick="switchProfileTab('bio', event)" data-i18n="profileBio">Biyografi</button>
         <button class="profile-tab-btn" onclick="switchProfileTab('achievements', event)" data-i18n="achievementsTitle">Başarımlar</button>
         <button class="profile-tab-btn" onclick="switchProfileTab('security', event)" data-i18n="security">Güvenlik</button>
-        <button class="profile-tab-btn" onclick="switchProfileTab('ai', event)">
-          <span style="color:var(--accent-primary);">✨</span> <span data-i18n="aiSettings">AI Ayarları</span>
-        </button>
         <button class="profile-tab-btn" onclick="switchProfileTab('theme', event)">
           <span>🎨</span> Tema
         </button>
@@ -2239,68 +2085,6 @@
               <span style="font-size:0.82rem;color:var(--text-secondary);">Seçili tema <strong style="color:var(--accent-primary);" id="themePreviewName">Mor</strong> olarak ayarlandı.</span>
             </div>
 
-          </div>
-        </section>
-      </div>
-
-      <!-- Tab Content: AI Settings -->
-      <div id="profileTabAi" style="display:none;">
-        <section class="card">
-          <div class="card-header">
-            <div style="display:flex;align-items:center;gap:10px;">
-              <div style="width:32px;height:32px;border-radius:10px;background:linear-gradient(135deg,#8b7cf7,#5a4cc9);display:flex;align-items:center;justify-content:center;font-size:1rem;">✨</div>
-              <h3 class="card-title" style="margin:0;">Gemini AI Ayarları</h3>
-            </div>
-          </div>
-          <div style="padding:20px;display:flex;flex-direction:column;gap:16px;">
-            <!-- Info card -->
-            <div style="padding:14px 16px;background:rgba(139,124,247,0.08);border:1px solid rgba(139,124,247,0.2);border-radius:14px;">
-              <div style="font-size:0.82rem;color:var(--text-secondary);line-height:1.6;">
-                Zyro AI özelliklerini kullanmak için ücretsiz bir <strong style="color:var(--accent-primary);">Google Gemini API key</strong> gereklidir.
-                Key'in tamamen sana özeldir, başkası kullanamaz.
-              </div>
-              <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener"
-                style="display:inline-flex;align-items:center;gap:6px;margin-top:10px;font-size:0.8rem;font-weight:700;color:var(--accent-primary);text-decoration:none;background:rgba(139,124,247,0.12);border:1px solid rgba(139,124,247,0.25);padding:7px 12px;border-radius:10px;">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-                Google AI Studio'dan Ücretsiz Key Al
-              </a>
-            </div>
-            <!-- Key input -->
-            <div>
-              <label style="font-size:0.75rem;font-weight:700;color:var(--text-muted);display:block;margin-bottom:6px;">API Key</label>
-              <div class="ai-key-input-wrap">
-                <input type="password" id="aiKeyInput" class="log-input ai-key-input" placeholder="AIzaSy..." autocomplete="off">
-                <button class="ai-key-toggle" onclick="toggleAIKeyVisibility()" title="Göster/Gizle">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-                </button>
-              </div>
-              <div class="ai-key-status empty" id="aiKeyStatus">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-                API key girilmemiş
-              </div>
-            </div>
-            <div style="display:flex;gap:8px;flex-wrap:wrap;">
-              <button class="btn-primary" style="flex:1;min-width:120px;" onclick="saveAIKey()">Kayıt Et</button>
-              <button class="btn-small" style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.18);color:rgba(239,68,68,0.8);" onclick="deleteAIKey()">Key'i Sil</button>
-            </div>
-            <!-- How to get key guide -->
-            <div style="margin-top:8px;">
-              <div style="font-size:0.72rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:10px;">Nasıl Alınır?</div>
-              <div style="display:flex;flex-direction:column;gap:8px;">
-                <div style="display:flex;gap:10px;align-items:flex-start;font-size:0.82rem;color:var(--text-secondary);">
-                  <span style="width:20px;height:20px;background:rgba(139,124,247,0.15);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.65rem;font-weight:800;color:var(--accent-primary);flex-shrink:0;">1</span>
-                  <span><a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:var(--accent-primary);">aistudio.google.com</a>'a git ve Google hesabınla giriş yap</span>
-                </div>
-                <div style="display:flex;gap:10px;align-items:flex-start;font-size:0.82rem;color:var(--text-secondary);">
-                  <span style="width:20px;height:20px;background:rgba(139,124,247,0.15);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.65rem;font-weight:800;color:var(--accent-primary);flex-shrink:0;">2</span>
-                  <span>"Create API key" butonuna tıkla</span>
-                </div>
-                <div style="display:flex;gap:10px;align-items:flex-start;font-size:0.82rem;color:var(--text-secondary);">
-                  <span style="width:20px;height:20px;background:rgba(139,124,247,0.15);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.65rem;font-weight:800;color:var(--accent-primary);flex-shrink:0;">3</span>
-                  <span>Key'i kopyalayıp yukarıya yapıştır. Hepsi bu! (Ücretsiz, ayda 1500 istek)</span>
-                </div>
-              </div>
-            </div>
           </div>
         </section>
       </div>
@@ -2816,42 +2600,6 @@
       </div>
     </div>
 
-
-    <!-- ============ PAGE: AI COACH ============ -->
-    <div class="page" data-page="ai" id="pageAi">
-      <div class="page-banner page-banner--purple" style="margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; padding: 20px; background: linear-gradient(135deg, rgba(139,124,247,0.08) 0%, rgba(139,124,247,0.01) 100%); border-radius: 16px; border: 1px solid rgba(139,124,247,0.15);">
-        <div>
-          <h1 style="font-size: 1.6rem; font-weight: 800; margin: 0 0 4px 0; color: var(--text-primary); letter-spacing: -0.5px;">AI Asistan</h1>
-          <p style="margin: 0; font-size: 0.85rem; color: var(--text-muted); font-weight: 500;">Antrenman ve beslenme konusunda kişisel yapay zeka asistanın</p>
-        </div>
-        <div class="ai-banner-icon-wrap" style="width: 48px; height: 48px; border-radius: 14px; background: rgba(139,124,247,0.12); display: flex; align-items: center; justify-content: center; color: #8b7cf7; flex-shrink: 0;">
-          <svg class="ai-sparkle-banner-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M12 2C12 2 12.5 7.5 14.5 9.5C16.5 11.5 22 12 22 12C22 12 16.5 12.5 14.5 14.5C12.5 16.5 12 22 12 22C12 22 11.5 16.5 9.5 14.5C7.5 12.5 2 12 2 12C2 12 7.5 11.5 9.5 9.5C11.5 7.5 12 2 12 2Z" fill="url(#ai-sparkle-gradient-btn)"/>
-          </svg>
-        </div>
-      </div>
-
-      <div class="ai-page-full-chat">
-        <div class="ai-chips" id="aiPageChips">
-          <button class="ai-chip" onclick="aiPageSendChip('Haftalık antrenman programı oluşturur musun?')">📅 Haftalık Program</button>
-          <button class="ai-chip" onclick="aiPageSendChip('Bugünkü makro ihtiyacım nedir?')">🥩 Makro İhtiyacı</button>
-          <button class="ai-chip" onclick="aiPageSendChip('Bench press PR\'ımı nasıl artırabilirim?')">💪 Bench Press PR</button>
-        </div>
-        <div class="ai-page-messages" id="aiPageMessages">
-          <!-- Full page messages -->
-        </div>
-        <div class="ai-page-input-wrap">
-          <button onclick="clearAIChatHistory()" title="Sohbet geçmişini temizle" style="background:none;border:none;color:var(--text-muted);cursor:pointer;padding:8px;border-radius:10px;">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-          </button>
-          <textarea class="ai-chat-input" id="aiPageInput" placeholder="Yapay zeka koçuna danış..." rows="1" onkeydown="aiPageKeydown(event)" style="font-size:0.95rem;padding:12px 16px;"></textarea>
-          <button class="ai-chat-send-btn" id="aiPageSendBtn" onclick="aiPageSend()" style="width:46px;height:46px;border-radius:14px;">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-          </button>
-        </div>
-      </div>
-    </div>
-
   </main>
 
   <!-- Firebase Scripts -->
@@ -2864,61 +2612,9 @@
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js" defer></script>
 
   <script src="firebase-config.js" defer></script>
-  <script src="gemini.js" defer></script>
   <script src="app.js?v=2.7" defer></script>
 
-  <!-- ===== FLOATING AI CHAT BUTTON ===== -->
-  <button class="ai-float-btn" id="aiFloatBtn" onclick="toggleAIDrawer()" title="AI Asistan" aria-label="AI Asistan ile sohbet et" style="display: none;">
-    <div class="ai-float-btn-ring"></div>
-    <div class="ai-float-btn-ring-2"></div>
-    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M12 2L13.09 9.26L20 12L13.09 14.74L12 22L10.91 14.74L4 12L10.91 9.26L12 2Z" fill="url(#ai-premium-grad)"/>
-      <path d="M20 4L20.54 5.63L22 6L20.54 6.37L20 8L19.46 6.37L18 6L19.46 5.63L20 4Z" fill="url(#ai-premium-grad)"/>
-      <path d="M5 18L5.54 19.63L7 20L5.54 20.37L5 22L4.46 20.37L3 20L4.46 19.63L5 18Z" fill="url(#ai-premium-grad)"/>
-      <defs>
-        <linearGradient id="ai-premium-grad" x1="2" y1="2" x2="22" y2="22" gradientUnits="userSpaceOnUse">
-          <stop offset="0%" stop-color="#ffffff"/>
-          <stop offset="50%" stop-color="#e0e7ff"/>
-          <stop offset="100%" stop-color="#c7d2fe"/>
-        </linearGradient>
-      </defs>
-    </svg>
-  </button>
 
-  <!-- ===== FLOATING AI CHAT DRAWER ===== -->
-  <div class="ai-chat-drawer" id="aiChatDrawer">
-    <div class="ai-chat-drawer-header">
-      <div class="ai-chat-drawer-avatar">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M12 2C12 2 12.5 7.5 14.5 9.5C16.5 11.5 22 12 22 12C22 12 16.5 12.5 14.5 14.5C12.5 16.5 12 22 12 22C12 22 11.5 16.5 9.5 14.5C7.5 12.5 2 12 2 12C2 12 7.5 11.5 9.5 9.5C11.5 7.5 12 2 12 2Z" fill="#ffffff"/>
-        </svg>
-      </div>
-      <div class="ai-chat-drawer-title">
-        <strong>Zyro AI</strong>
-        <span>● Aktif</span>
-      </div>
-      <div class="ai-drawer-actions">
-        <button class="ai-drawer-expand-btn" onclick="switchPage('ai'); closeAIDrawer();" title="Tam ekran">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
-        </button>
-        <button class="ai-drawer-close-btn" onclick="closeAIDrawer()" title="Kapat">✕</button>
-      </div>
-    </div>
-    <div class="ai-chips" id="aiDrawerChips">
-      <button class="ai-chip" onclick="aiDrawerSendChip('Bugünkü antrenmanımı değerlendir')">💪 Antrenmanımı değerlendir</button>
-      <button class="ai-chip" onclick="aiDrawerSendChip('Toparlanma ve dinlenme önerisi ver')">😴 Toparlanma</button>
-      <button class="ai-chip" onclick="aiDrawerSendChip('Protein ihtiyacımı hesapla')">🥩 Protein ihtiyacı</button>
-    </div>
-    <div class="ai-chat-messages" id="aiDrawerMessages">
-      <!-- Messages injected by JS -->
-    </div>
-    <div class="ai-chat-input-wrap">
-      <textarea class="ai-chat-input" id="aiDrawerInput" placeholder="Bir şey sor..." rows="1" onkeydown="aiDrawerKeydown(event)"></textarea>
-      <button class="ai-chat-send-btn" id="aiDrawerSendBtn" onclick="aiDrawerSend()">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-      </button>
-    </div>
-  </div>
 
 <script>
 /* ============================================================
