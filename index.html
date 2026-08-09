@@ -582,30 +582,6 @@
           <div class="chart-container"><canvas id="dashboardChart"></canvas></div>
         </section>
 
-        <!-- AI Quick Ask Widget -->
-        <section class="ai-dashboard-widget" id="aiDashWidget">
-          <div class="ai-widget-header">
-            <div class="ai-widget-icon">✦</div>
-            <div style="flex:1;min-width:0;">
-              <div style="font-family:'Space Grotesk',sans-serif;font-size:0.95rem;font-weight:800;color:var(--text-primary);" data-i18n="aiAsk">AI Asistanına Sor</div>
-              <div style="font-size:0.72rem;color:var(--text-muted);margin-top:1px;" data-i18n="aiAskSubtitle">Beslenme, antrenman, toparlanma — her şey</div>
-            </div>
-            <button onclick="switchPage('ai')" style="font-size:0.72rem;color:var(--accent-primary);background:none;border:none;cursor:pointer;font-weight:700;display:flex;align-items:center;gap:4px;font-family:inherit;" data-i18n="aiFullChat">Tam chat ›</button>
-          </div>
-          <div class="ai-chips" style="padding:0 0 10px;">
-            <button class="ai-chip" onclick="aiWidgetAsk(t('chipNutrition'))" data-i18n="chipNutritionText">🥗 Beslenme öner</button>
-            <button class="ai-chip" onclick="aiWidgetAsk(t('chipPostWorkout'))" data-i18n="chipPostWorkoutText">🥩 Sonrası beslenme</button>
-            <button class="ai-chip" onclick="aiWidgetAsk(t('chipWorkoutAnalysis'))" data-i18n="chipWorkoutAnalysisText">💪 Antrenman analizi</button>
-            <button class="ai-chip" onclick="aiWidgetAsk(t('chipRecovery'))" data-i18n="chipRecoveryText">😴 Toparlanma</button>
-          </div>
-          <div style="display:flex;gap:8px;">
-            <input type="text" id="aiWidgetInput" class="log-input" placeholder="Bir şey sor... (ör: bugün kahvaltıda yumurta yedim, kaç kalori?)" style="flex:1;" onkeydown="if(event.key==='Enter')aiWidgetSend()">
-            <button onclick="aiWidgetSend()" class="ai-chat-send-btn" id="aiWidgetSendBtn" style="width:44px;height:44px;border-radius:13px;flex-shrink:0;">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-            </button>
-          </div>
-          <div class="ai-widget-answer" id="aiWidgetAnswer"></div>
-        </section>
       </div>
     </div>
 
