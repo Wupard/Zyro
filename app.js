@@ -1,4 +1,4 @@
-/* ===========================
+﻿/* ===========================
    Zyro — Dashboard V2
    i18n, Firebase Auth, Routing, Logging, Charts
    =========================== */
@@ -76,6 +76,9 @@ const I18N = {
     tuesday: 'Tuesday',
     thursday: 'Thursday',
     saturday: 'Saturday',
+    monday: 'Monday',
+    wednesday: 'Wednesday',
+    friday: 'Friday',
     video: 'Video',
     monShort: 'Mon',
     tueShort: 'Tue',
@@ -183,6 +186,11 @@ const I18N = {
     catTriceps: 'Triceps / Back Arm',
     catWrists: 'Wrists / Forearm',
     catCore: 'Core & Abs',
+    catForearms: 'Forearms',
+    catTraps: 'Traps',
+    catQuads: 'Quads',
+    catHamstrings: 'Hamstrings & Glutes',
+    catCalves: 'Calves',
     lblCategory: 'Category',
     repetitions: 'Reps',
     sets: 'Sets',
@@ -306,6 +314,9 @@ const I18N = {
     tuesday: 'Salı',
     thursday: 'Perşembe',
     saturday: 'Cumartesi',
+    monday: 'Pazartesi',
+    wednesday: 'Çarşamba',
+    friday: 'Cuma',
     video: 'Video',
     monShort: 'Pzt',
     tueShort: 'Sal',
@@ -413,6 +424,11 @@ const I18N = {
     catTriceps: 'Arka Kol',
     catWrists: 'Bilek',
     catCore: 'Karın & Merkez',
+    catForearms: 'Önkol',
+    catTraps: 'Trapez',
+    catQuads: 'Quadriceps',
+    catHamstrings: 'Hamstring & Kalça',
+    catCalves: 'Baldır',
     lblCategory: 'Kategori',
     repetitions: 'Tekrar',
     sets: 'Set',
@@ -582,41 +598,68 @@ const DAYS_EN = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
 const DAYS_TR = ['Pzt','Sal','Çar','Per','Cum','Cmt','Paz'];
 
 const EXERCISE_MUSCLES = {
-  // Sırt / Back
-  'Medium-Grip Lat Pulldown': ['traps'],
-  'Dumbbell Row': ['traps'],
-  'Reverse Grip Lat Pulldown': ['traps'],
-  'Dumbbell Shrug': ['traps'],
+  // Chest
+  'Incline Dumbbell Press':            ['chest', 'triceps'],
+  'Barbell Bench Press':               ['chest', 'triceps'],
+  'Dumbbell Bench Press':              ['chest', 'triceps'],
+  'Cable Crossover':                   ['chest'],
+  'Incline Dumbbell Fly':              ['chest'],
 
-  // Arka Kol / Triceps
-  'Cable Lying Triceps Extension': ['triceps'],
-  'Seated Dumbbell Overhead Tricep': ['triceps'],
-  'Single-Arm Cable Tricep Kickback': ['triceps'],
+  // Shoulders
+  'Seated Dumbbell Shoulder Press':    ['shoulders', 'triceps'],
+  'Arnold Press':                      ['shoulders', 'triceps'],
+  'Dumbbell Lateral Raise':            ['shoulders'],
+  'Face Pull':                         ['shoulders', 'traps'],
 
-  // Omuz / Shoulder
-  'Seated Barbell Overhead Press': ['shoulders'],
-  'Cable Lateral Raise': ['shoulders'],
-  'Cable Rope Face Pull': ['shoulders', 'traps'],
-  'Seated Rear Delt Fly': ['shoulders', 'traps'],
+  // Back
+  'Lat Pulldown':                      ['back', 'biceps'],
+  'Barbell Row':                       ['back', 'traps'],
+  'Seated Cable Row':                  ['back', 'traps'],
+  'Cable Reverse Fly':                 ['shoulders', 'back'],
+  'Close-Grip Lat Pulldown':           ['back', 'biceps'],
+  'Chest-Supported Row':               ['back', 'traps'],
+  'Pull-Up':                           ['back', 'biceps'],
 
-  // Ön Kol / Biceps - Forearm
-  'Reverse Cable Curl': ['biceps', 'forearms'],
+  // Biceps
+  'EZ Bar Curl':                       ['biceps'],
+  'Single-Arm Incline Dumbbell Curl':  ['biceps'],
 
-  // Göğüs / Chest
-  'Flat Barbell Bench Press': ['chest', 'triceps'],
-  'Incline Dumbbell Press': ['chest', 'triceps'],
+  // Forearms
+  'Wrist Curl':                        ['forearms'],
+  'EZ Bar Reverse Curl':               ['biceps', 'forearms'],
 
-  // Ön Kol / Biceps
-  'Seated Incline Dumbbell Curl': ['biceps'],
-  'Hammer Curl': ['biceps', 'forearms'],
-  'Single-Arm Cable Curl': ['biceps'],
+  // Traps
+  'Dumbbell Shrug':                    ['traps'],
 
-  // Bacak / Leg
-  'Romanian Deadlift': ['glutes', 'traps'],
-  'Leg Extension': ['quads'],
-  'Reverse Leg Extension': ['glutes'],
-  'Adductor Machine': ['glutes'],
-  'Smith Machine Calf Raise': ['calves'],
+  // Triceps
+  'Triceps Pushdown':                  ['triceps'],
+  'Overhead Triceps Extension':        ['triceps'],
+
+  // Quads
+  'Barbell Squat':                     ['quads', 'glutes'],
+  'Leg Press':                         ['quads', 'glutes'],
+  'Leg Press (Narrow Stance)':         ['quads'],
+  'Bulgarian Split Squat':             ['quads', 'glutes'],
+  'Leg Extension':                     ['quads'],
+  'Hack Squat':                        ['quads', 'glutes'],
+  'Walking Lunge':                     ['quads', 'glutes'],
+
+  // Hamstrings / Glutes
+  'Romanian Deadlift':                 ['hamstrings', 'glutes'],
+  'Hip Thrust':                        ['glutes', 'hamstrings'],
+  'Lying Leg Curl':                    ['hamstrings'],
+  'Seated Leg Curl':                   ['hamstrings'],
+
+  // Calves
+  'Standing Calf Raise':               ['calves'],
+  'Seated Calf Raise':                 ['calves'],
+
+  // Core
+  'Hanging Leg Raise':                 ['core'],
+  'Side Bend':                         ['core'],
+  'Plank':                             ['core'],
+  'Cable Crunch':                      ['core'],
+  'Russian Twist':                     ['core'],
 };
 const ALL_EXERCISES = Object.keys(EXERCISE_MUSCLES).sort();
 
@@ -624,18 +667,17 @@ const ALL_EXERCISES = Object.keys(EXERCISE_MUSCLES).sort();
 // GLOBAL EXERCISE CATEGORIES
 // =============================================
 const EXERCISE_CATEGORIES = {
-  'chest': ['Flat Barbell Bench Press', 'Incline Dumbbell Press'],
-  'shoulders': ['Seated Barbell Overhead Press', 'Cable Lateral Raise', 'Cable Rope Face Pull', 'Seated Rear Delt Fly', 'Dumbbell Shrug'],
-  'back': ['Medium-Grip Lat Pulldown', 'Dumbbell Row', 'Reverse Grip Lat Pulldown'],
-  'legs': ['Romanian Deadlift', 'Leg Extension', 'Reverse Leg Extension', 'Adductor Machine', 'Smith Machine Calf Raise'],
-  'biceps': [
-    'Hammer Curl', 'Seated Incline Dumbbell Curl', 'Single-Arm Cable Curl', 'Reverse Cable Curl'
-  ],
-  'triceps': [
-    'Cable Lying Triceps Extension', 'Seated Dumbbell Overhead Tricep', 'Single-Arm Cable Tricep Kickback'
-  ],
-  'wrists': [],
-  'core': []
+  'chest':      ['Incline Dumbbell Press', 'Barbell Bench Press', 'Dumbbell Bench Press', 'Cable Crossover', 'Incline Dumbbell Fly'],
+  'shoulders':  ['Seated Dumbbell Shoulder Press', 'Arnold Press', 'Dumbbell Lateral Raise', 'Face Pull'],
+  'back':       ['Lat Pulldown', 'Barbell Row', 'Seated Cable Row', 'Cable Reverse Fly', 'Close-Grip Lat Pulldown', 'Chest-Supported Row', 'Pull-Up'],
+  'biceps':     ['EZ Bar Curl', 'Single-Arm Incline Dumbbell Curl'],
+  'forearms':   ['Wrist Curl', 'EZ Bar Reverse Curl'],
+  'traps':      ['Dumbbell Shrug'],
+  'triceps':    ['Triceps Pushdown', 'Overhead Triceps Extension'],
+  'quads':      ['Barbell Squat', 'Leg Press', 'Leg Press (Narrow Stance)', 'Bulgarian Split Squat', 'Leg Extension', 'Hack Squat', 'Walking Lunge'],
+  'hamstrings': ['Romanian Deadlift', 'Hip Thrust', 'Lying Leg Curl', 'Seated Leg Curl'],
+  'calves':     ['Standing Calf Raise', 'Seated Calf Raise'],
+  'core':       ['Hanging Leg Raise', 'Side Bend', 'Plank', 'Cable Crunch', 'Russian Twist'],
 };
 
 const RANKS = {
@@ -654,40 +696,67 @@ const CATEGORY_ICONS = {
   'biceps':    '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 7.5h12M6 16.5h12M12 3v18M3 5v14M21 5v14"/></svg>', // Dumbbell (Curl)
   'triceps':   '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M19 12l-7 7-7-7"/></svg>', // Pushdown arrow
   'wrists':    '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M3 12h6M15 12h6"/></svg>', // Wrist Axis
-  'core':      '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>' // Target (Core center)
+  'core':      '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>', // Target (Core center)
+
+  'forearms':  '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3v18M18 3v18M6 9h12M6 15h12"/></svg>',
+  'traps':     '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L4 7v5c0 5.55 3.84 10.74 8 12 4.16-1.26 8-6.45 8-12V7l-8-5z"/></svg>',
+  'quads':     '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3v18M16 3v18"/><polyline points="5 9 8 6 11 9"/><polyline points="13 9 16 6 19 9"/></svg>',
+  'hamstrings':'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21V10c0-2.2 1.8-4 4-4s4 1.8 4 4v11"/><path d="M5 21h14"/></svg>',
+  'calves':    '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v14"/><polyline points="8 17 12 21 16 17"/></svg>',
 };
 
 
 const DEFAULT_PROGRAMS = {
-  day1: [ // SALI
-    {name:'Medium-Grip Lat Pulldown',sets:'3x6-8',weight:'-'},
-    {name:'Dumbbell Row',sets:'3x6-8',weight:'-'},
-    {name:'Reverse Grip Lat Pulldown',sets:'3x6-8',weight:'-'},
-    {name:'Cable Lying Triceps Extension',sets:'3x6-8',weight:'-'},
-    {name:'Seated Dumbbell Overhead Tricep',sets:'3x6-8',weight:'-'},
-    {name:'Single-Arm Cable Tricep Kickback',sets:'3x6-8',weight:'-'},
-    {name:'Seated Barbell Overhead Press',sets:'3x6-8',weight:'-'},
-    {name:'Cable Lateral Raise',sets:'3x6-8',weight:'-'},
-    {name:'Reverse Cable Curl',sets:'3x6-8',weight:'-'},
+  day1: [ // PAZARTESI - Push
+    {name:'Incline Dumbbell Press',         sets:'3x6-8',  weight:'-'},
+    {name:'Barbell Bench Press',            sets:'2x6-8',  weight:'-'},
+    {name:'Seated Dumbbell Shoulder Press', sets:'2x8-10', weight:'-'},
+    {name:'Cable Crossover',               sets:'3x12-15', weight:'-'},
+    {name:'Dumbbell Lateral Raise',        sets:'3x12-15', weight:'-'},
+    {name:'Triceps Pushdown',              sets:'2x10-12', weight:'-'},
+    {name:'Face Pull',                     sets:'2x15',    weight:'-'},
   ],
-  day2: [ // PERŞEMBE
-    {name:'Flat Barbell Bench Press',sets:'3x6-8',weight:'-'},
-    {name:'Incline Dumbbell Press',sets:'3x6-8',weight:'-'},
-    {name:'Cable Rope Face Pull',sets:'3x6-8',weight:'-'},
-    {name:'Seated Rear Delt Fly',sets:'3x6-8',weight:'-'},
-    {name:'Seated Incline Dumbbell Curl',sets:'3x6-8',weight:'-'},
-    {name:'Hammer Curl',sets:'3x6-8',weight:'-'},
-    {name:'Single-Arm Cable Curl',sets:'3x6-8',weight:'-'},
+  day2: [ // SALI - Pull
+    {name:'Lat Pulldown',                        sets:'3x6-10',  weight:'-'},
+    {name:'Barbell Row',                         sets:'3x6-8',   weight:'-'},
+    {name:'Seated Cable Row',                    sets:'2x10-12', weight:'-'},
+    {name:'Cable Reverse Fly',                   sets:'2x15',    weight:'-'},
+    {name:'Dumbbell Shrug',                      sets:'3x10-12', weight:'-'},
+    {name:'EZ Bar Curl',                         sets:'3x8-10',  weight:'-'},
+    {name:'Single-Arm Incline Dumbbell Curl',    sets:'3x10-12', weight:'-'},
+    {name:'Wrist Curl',                          sets:'3x12-15', weight:'-'},
   ],
-  day3: [ // CUMARTESİ
-    {name:'Romanian Deadlift',sets:'3x6-8',weight:'-'},
-    {name:'Leg Extension',sets:'3x6-8',weight:'-'},
-    {name:'Reverse Leg Extension',sets:'3x6-8',weight:'-'},
-    {name:'Adductor Machine',sets:'3x6-8',weight:'-'},
-    {name:'Smith Machine Calf Raise',sets:'3x6-8',weight:'-'},
-    {name:'Cable Rope Face Pull',sets:'3x6-8',weight:'-'},
-    {name:'Cable Lateral Raise',sets:'3x6-8',weight:'-'},
-    {name:'Dumbbell Shrug',sets:'3x6-8',weight:'-'},
+  day3: [ // CARSAMBA - Legs + Core
+    {name:'Barbell Squat',       sets:'3x6-8',        weight:'-'},
+    {name:'Leg Press',           sets:'2x10-12',      weight:'-'},
+    {name:'Bulgarian Split Squat',sets:'2x10 (each leg)', weight:'-'},
+    {name:'Lying Leg Curl',      sets:'3x10-12',      weight:'-'},
+    {name:'Leg Extension',       sets:'2x12-15',      weight:'-'},
+    {name:'Standing Calf Raise', sets:'3x12-15',      weight:'-'},
+    {name:'Hanging Leg Raise',   sets:'3x10-15',      weight:'-'},
+    {name:'Side Bend',           sets:'3x12 (each side)', weight:'-'},
+    {name:'Plank',               sets:'2x45 sec',     weight:'-'},
+  ],
+  day4: [ // CUMA - Upper Body
+    {name:'Dumbbell Bench Press',          sets:'2x8-10',  weight:'-'},
+    {name:'Chest-Supported Row',           sets:'2x10',    weight:'-'},
+    {name:'Arnold Press',                  sets:'2x10',    weight:'-'},
+    {name:'Close-Grip Lat Pulldown',       sets:'2x10-12', weight:'-'},
+    {name:'Dumbbell Lateral Raise',        sets:'2x15',    weight:'-'},
+    {name:'EZ Bar Curl',                   sets:'2x10-12', weight:'-'},
+    {name:'Overhead Triceps Extension',    sets:'2x10-12', weight:'-'},
+    {name:'Face Pull',                     sets:'2x15',    weight:'-'},
+    {name:'Dumbbell Shrug',                sets:'2x12',    weight:'-'},
+    {name:'EZ Bar Reverse Curl',           sets:'2x12',    weight:'-'},
+  ],
+  day5: [ // CUMARTESI - Lower Body + Core
+    {name:'Romanian Deadlift',   sets:'3x6-8',        weight:'-'},
+    {name:'Hip Thrust',          sets:'2x8-12',       weight:'-'},
+    {name:'Lying Leg Curl',      sets:'3x10-12',      weight:'-'},
+    {name:'Hack Squat',          sets:'2x10-12',      weight:'-'},
+    {name:'Seated Calf Raise',   sets:'3x15',         weight:'-'},
+    {name:'Cable Crunch',        sets:'3x12-15',      weight:'-'},
+    {name:'Side Bend',           sets:'3x12 (each side)', weight:'-'},
   ],
 };
 
@@ -712,34 +781,58 @@ const POSTURE_VIDEO_URLS = {
 // WORKOUT VIDEO URLS
 // =============================================
 const WORKOUT_VIDEO_URLS = {
-  // SALI
-  'Medium-Grip Lat Pulldown': 'https://www.youtube.com/shorts/bNmvKpJSWKM',
-  'Reverse-Grip Lat Pulldown': 'https://www.youtube.com/shorts/rguA3pm73rs',
-  'Dumbbell Row': 'https://www.youtube.com/shorts/WkFX6_GxAs8',
-  'Reverse Grip Lat Pulldown': 'https://www.youtube.com/watch?v=_o8r-w2GYKY',
-  'Cable Lying Triceps Extension': 'https://www.youtube.com/watch?v=SzQ9_1fwVZ0',
-  'Seated Dumbbell Overhead Tricep': 'https://www.youtube.com/shorts/b_r_LW4HEcM',
-  'Single-Arm Cable Tricep Kickback': 'https://www.youtube.com/shorts/7_C9_SWHZbo',
-  'Seated Barbell Overhead Press': 'https://www.youtube.com/shorts/tKPtgQI-VFM',
-  'Cable Lateral Raise': 'https://www.youtube.com/shorts/xrBcuPNTxLg',
-  'Reverse Cable Curl': 'https://www.youtube.com/watch?v=HwB-DevuJjU',
+  // Monday - Push
+  'Incline Dumbbell Press':         'https://www.youtube.com/shorts/8fXfwG4ftaQ',
+  'Barbell Bench Press':            'https://www.youtube.com/shorts/hWbUlkb5Ms4',
+  'Dumbbell Bench Press':           'https://www.youtube.com/results?search_query=Dumbbell+Bench+Press+proper+form+tutorial',
+  'Seated Dumbbell Shoulder Press': 'https://www.youtube.com/results?search_query=Seated+Dumbbell+Shoulder+Press+proper+form+tutorial',
+  'Cable Crossover':                'https://www.youtube.com/results?search_query=Cable+Crossover+proper+form+tutorial',
+  'Dumbbell Lateral Raise':         'https://www.youtube.com/results?search_query=Dumbbell+Lateral+Raise+proper+form+tutorial',
+  'Triceps Pushdown':               'https://www.youtube.com/results?search_query=Triceps+Pushdown+proper+form+tutorial',
+  'Face Pull':                      'https://www.youtube.com/shorts/IeOqdw9WI90',
 
-  // PERŞEMBE
-  'Flat Barbell Bench Press': 'https://www.youtube.com/shorts/hWbUlkb5Ms4',
-  'Incline Dumbbell Press': 'https://www.youtube.com/shorts/8fXfwG4ftaQ',
-  'Cable Rope Face Pull': 'https://www.youtube.com/shorts/IeOqdw9WI90',
-  'Seated Rear Delt Fly': 'https://www.youtube.com/shorts/PkGcUy-XDMY',
-  'Seated Incline Dumbbell Curl': 'https://www.youtube.com/shorts/uCUaRFlA9vE',
-  'Hammer Curl': 'https://www.youtube.com/shorts/lmIo_gVE8T4',
-  'Single-Arm Cable Curl': 'https://www.youtube.com/shorts/EhC6ejgDGF0',
+  // Tuesday - Pull
+  'Lat Pulldown':                       'https://www.youtube.com/shorts/bNmvKpJSWKM',
+  'Barbell Row':                        'https://www.youtube.com/results?search_query=Barbell+Row+proper+form+tutorial',
+  'Seated Cable Row':                   'https://www.youtube.com/results?search_query=Seated+Cable+Row+proper+form+tutorial',
+  'Cable Reverse Fly':                  'https://www.youtube.com/results?search_query=Cable+Reverse+Fly+proper+form+tutorial',
+  'Dumbbell Shrug':                     'https://www.youtube.com/shorts/rFsSeClGnNA',
+  'EZ Bar Curl':                        'https://www.youtube.com/results?search_query=EZ+Bar+Curl+proper+form+tutorial',
+  'Single-Arm Incline Dumbbell Curl':   'https://www.youtube.com/shorts/uCUaRFlA9vE',
+  'Wrist Curl':                         'https://www.youtube.com/results?search_query=Wrist+Curl+proper+form+tutorial',
 
-  // CUMARTESİ
-  'Romanian Deadlift': 'https://www.youtube.com/shorts/5rIqP63yWFg',
-  'Leg Extension': 'https://www.youtube.com/shorts/iQ92TuvBqRo',
-  'Reverse Leg Extension': 'https://www.youtube.com/shorts/lGNeJsdqJwg',
-  'Adductor Machine': 'https://www.youtube.com/shorts/BXs0PIkdXGs',
-  'Smith Machine Calf Raise': 'https://www.youtube.com/shorts/wlqTemUXPXY',
-  'Dumbbell Shrug': 'https://www.youtube.com/shorts/rFsSeClGnNA',
+  // Wednesday - Legs + Core
+  'Barbell Squat':      'https://www.youtube.com/results?search_query=Barbell+Squat+proper+form+tutorial',
+  'Leg Press':          'https://www.youtube.com/results?search_query=Leg+Press+proper+form+tutorial',
+  'Bulgarian Split Squat': 'https://www.youtube.com/results?search_query=Bulgarian+Split+Squat+proper+form+tutorial',
+  'Lying Leg Curl':     'https://www.youtube.com/results?search_query=Lying+Leg+Curl+proper+form+tutorial',
+  'Leg Extension':      'https://www.youtube.com/shorts/iQ92TuvBqRo',
+  'Standing Calf Raise':'https://www.youtube.com/results?search_query=Standing+Calf+Raise+proper+form+tutorial',
+  'Hanging Leg Raise':  'https://www.youtube.com/results?search_query=Hanging+Leg+Raise+proper+form+tutorial',
+  'Side Bend':          'https://www.youtube.com/results?search_query=Side+Bend+proper+form+tutorial',
+  'Plank':              'https://www.youtube.com/results?search_query=Plank+proper+form+tutorial',
+
+  // Friday - Upper Body
+  'Chest-Supported Row':        'https://www.youtube.com/results?search_query=Chest+Supported+Row+proper+form+tutorial',
+  'Arnold Press':               'https://www.youtube.com/results?search_query=Arnold+Press+proper+form+tutorial',
+  'Close-Grip Lat Pulldown':    'https://www.youtube.com/results?search_query=Close+Grip+Lat+Pulldown+proper+form+tutorial',
+  'Overhead Triceps Extension': 'https://www.youtube.com/results?search_query=Overhead+Triceps+Extension+proper+form+tutorial',
+  'EZ Bar Reverse Curl':        'https://www.youtube.com/results?search_query=EZ+Bar+Reverse+Curl+proper+form+tutorial',
+
+  // Saturday - Lower Body + Core
+  'Romanian Deadlift':  'https://www.youtube.com/shorts/5rIqP63yWFg',
+  'Hip Thrust':         'https://www.youtube.com/results?search_query=Hip+Thrust+proper+form+tutorial',
+  'Hack Squat':         'https://www.youtube.com/results?search_query=Hack+Squat+proper+form+tutorial',
+  'Seated Calf Raise':  'https://www.youtube.com/results?search_query=Seated+Calf+Raise+proper+form+tutorial',
+  'Cable Crunch':       'https://www.youtube.com/results?search_query=Cable+Crunch+proper+form+tutorial',
+
+  // Alternatives (library-only)
+  'Incline Dumbbell Fly':      'https://www.youtube.com/results?search_query=Incline+Dumbbell+Fly+proper+form+tutorial',
+  'Pull-Up':                   'https://www.youtube.com/results?search_query=Pull-Up+proper+form+tutorial',
+  'Walking Lunge':             'https://www.youtube.com/results?search_query=Walking+Lunge+proper+form+tutorial',
+  'Seated Leg Curl':           'https://www.youtube.com/results?search_query=Seated+Leg+Curl+proper+form+tutorial',
+  'Russian Twist':             'https://www.youtube.com/results?search_query=Russian+Twist+proper+form+tutorial',
+  'Leg Press (Narrow Stance)': 'https://www.youtube.com/results?search_query=Leg+Press+Narrow+Stance+proper+form+tutorial',
 };
 
 const DEFAULT_POSTURE_PROGRAMS = {
@@ -798,7 +891,18 @@ const DEFAULT_POSTURE_PROGRAMS = {
 // =============================================
 let currentUser = null;
 let currentPage = 'dashboard';
-let currentWorkoutTab = 'day1';
+function getDefaultWorkoutTab() {
+  const day = new Date().getDay(); // 0=Sun, 1=Mon, 2=Tue, 3=Wed, 4=Thu, 5=Fri, 6=Sat
+  if (day === 1) return 'day1'; // Mon
+  if (day === 2) return 'day2'; // Tue
+  if (day === 3) return 'day3'; // Wed
+  if (day === 4) return 'day4'; // Thu (rest) -> next training day is Fri (day4)
+  if (day === 5) return 'day4'; // Fri
+  if (day === 6) return 'day5'; // Sat
+  if (day === 0) return 'day1'; // Sun (rest) -> next training day is Mon (day1)
+  return 'day1';
+}
+let currentWorkoutTab = getDefaultWorkoutTab();
 let currentPostureTab = 'mon';
 let currentChartType = 'weight';
 let attendanceWeekOffset = 0;
@@ -2255,13 +2359,46 @@ function autoResetWorkoutTab(tab) {
   }
 }
 
+function migratePrograms() {
+  // Detect old program by checking if day1 contains old exercise names
+  if (!appData.programs) return;
+  const oldExercises = [
+    'Medium-Grip Lat Pulldown','Dumbbell Row','Reverse Grip Lat Pulldown',
+    'Cable Lying Triceps Extension','Seated Dumbbell Overhead Tricep',
+    'Single-Arm Cable Tricep Kickback','Seated Barbell Overhead Press',
+    'Cable Lateral Raise','Reverse Cable Curl',
+    'Flat Barbell Bench Press','Cable Rope Face Pull','Seated Rear Delt Fly',
+    'Seated Incline Dumbbell Curl','Hammer Curl','Single-Arm Cable Curl',
+    'Reverse Leg Extension','Adductor Machine','Smith Machine Calf Raise'
+  ];
+  const day1 = appData.programs.day1 || [];
+  const hasOld = day1.some(ex => oldExercises.includes(ex.name));
+  if (hasOld) {
+    // Wipe old program state entirely - fresh start with new program
+    appData.programs = null;
+    if (appData.workoutDoneDate) {
+      delete appData.workoutDoneDate.day1;
+      delete appData.workoutDoneDate.day2;
+      delete appData.workoutDoneDate.day3;
+    }
+    saveData();
+  }
+}
+
 // =============================================
 // WORKOUTS
 // =============================================
 function renderWorkout(tab){
   currentWorkoutTab=tab;
 
+  // Sync active class on workout tab buttons
+  document.querySelectorAll('[data-wktab]').forEach(b => {
+    if (b.dataset.wktab === tab) b.classList.add('active');
+    else b.classList.remove('active');
+  });
+
   // Ensure programs exist before reset check
+  migratePrograms();
   if (!appData.programs) appData.programs = JSON.parse(JSON.stringify(DEFAULT_PROGRAMS));
 
   // Auto-reset if we're in a new day
@@ -3849,13 +3986,13 @@ function renderDashboardWarnings() {
   // 1) Antrenman günü uyarısı (Sal=2, Per=4, Cmt=6)
   const today = new Date();
   const dayOfWeek = today.getDay(); // 0=Paz, 1=Pzt, 2=Sal, 3=Çar, 4=Per, 5=Cum, 6=Cmt
-  const isWorkoutDay = dayOfWeek === 2 || dayOfWeek === 4 || dayOfWeek === 6;
+  const isWorkoutDay = dayOfWeek === 1 || dayOfWeek === 2 || dayOfWeek === 3 || dayOfWeek === 5 || dayOfWeek === 6;
   if (isWorkoutDay) {
     const todayKey = todayStr();
     const attendance = appData.attendance || {};
     const alreadyLogged = attendance[todayKey] === true;
     if (!alreadyLogged) {
-      const dayLabels = {2:'Salı',4:'Perşembe',6:'Cumartesi'};
+      const dayLabels = {1:'Pazartesi',2:'Salı',3:'Çarşamba',5:'Cuma',6:'Cumartesi'};
       warnings.push({
         icon: '💪',
         title: `Bugün ${dayLabels[dayOfWeek]} — Antrenman Günü!`,
@@ -7382,13 +7519,28 @@ function renderProgressTracker() {
     'chest': currentLang === 'tr' ? 'Göğüs' : 'Chest',
     'shoulders': currentLang === 'tr' ? 'Omuz' : 'Shoulders',
     'back': currentLang === 'tr' ? 'Sırt' : 'Back',
-    'legs': currentLang === 'tr' ? 'Bacak' : 'Legs',
     'biceps': 'Biceps',
+    'forearms': currentLang === 'tr' ? 'Önkol' : 'Forearms',
+    'traps': currentLang === 'tr' ? 'Trapez' : 'Traps',
     'triceps': 'Triceps',
-    'wrists': currentLang === 'tr' ? 'Bilek' : 'Wrists',
+    'quads': 'Quads',
+    'hamstrings': currentLang === 'tr' ? 'Hamstring & Kalça' : 'Hamstrings & Glutes',
+    'calves': currentLang === 'tr' ? 'Baldır' : 'Calves',
     'core': 'Core',
+    'legs': currentLang === 'tr' ? 'Bacak' : 'Legs',
+    'wrists': currentLang === 'tr' ? 'Bilek' : 'Wrists',
     'other': currentLang === 'tr' ? 'Diğer' : 'Other'
   };
+
+
+
+
+
+
+
+
+
+
   let catBtnsHtml = `<button onclick="setTrackerCategory('')" class="tracker-cat-btn ${!currentTrackerCategory?'active':''}"><span style="display:inline-flex;align-items:center;gap:4px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg> ${currentLang === 'tr' ? 'Tümü' : 'All'}</span></button>`;
   Object.keys(EXERCISE_CATEGORIES).forEach(cat => {
     const label = CAT_LABELS[cat] || (cat.charAt(0).toUpperCase() + cat.slice(1));

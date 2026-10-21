@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -600,15 +600,23 @@
       <div class="page-header-row">
         <h2 class="page-title" data-i18n="workoutProgram" style="display:none;">Workout Program</h2>
         <div class="card-tabs" style="overflow-x: auto; white-space: nowrap; -webkit-overflow-scrolling: touch;">
-          <button class="tab-btn active" data-wktab="day1" data-i18n="tuesday"
+          <button class="tab-btn active" data-wktab="day1" data-i18n="monday"
+            style="font-size: 0.95rem; padding: 0.6rem 1.2rem; font-weight: 700;">
+            Pazartesi
+          </button>
+          <button class="tab-btn" data-wktab="day2" data-i18n="tuesday"
             style="font-size: 0.95rem; padding: 0.6rem 1.2rem; font-weight: 700;">
             Salı
           </button>
-          <button class="tab-btn" data-wktab="day2" data-i18n="thursday"
+          <button class="tab-btn" data-wktab="day3" data-i18n="wednesday"
             style="font-size: 0.95rem; padding: 0.6rem 1.2rem; font-weight: 700;">
-            Perşembe
+            Çarşamba
           </button>
-          <button class="tab-btn" data-wktab="day3" data-i18n="saturday"
+          <button class="tab-btn" data-wktab="day4" data-i18n="friday"
+            style="font-size: 0.95rem; padding: 0.6rem 1.2rem; font-weight: 700;">
+            Cuma
+          </button>
+          <button class="tab-btn" data-wktab="day5" data-i18n="saturday"
             style="font-size: 0.95rem; padding: 0.6rem 1.2rem; font-weight: 700;">
             Cumartesi
           </button>
@@ -617,7 +625,7 @@
       <section class="card">
         <div class="workout-table-head wk-head-4col">
           <span data-i18n="exercise">Exercise</span>
-          <span data-i18n="setsReps">Sets Ã— Reps</span>
+          <span data-i18n="setsReps">Sets × Reps</span>
           <span data-i18n="video">Video</span>
           <span data-i18n="done">Done</span>
         </div>
@@ -636,13 +644,16 @@
               <label for="logCategory" data-i18n="lblCategory">Kategori</label>
               <select id="logCategory" class="log-input">
                 <option value="all" data-i18n="catAll">Tümü (Tüm Vücut)</option>
-                <option value="legs" data-i18n="catLegs">Bacak &amp; Kalça</option>
                 <option value="chest" data-i18n="catChest">Göğüs</option>
-                <option value="back" data-i18n="catBack">Sırt &amp; Kanat</option>
                 <option value="shoulders" data-i18n="catShoulders">Omuz</option>
+                <option value="back" data-i18n="catBack">Sırt &amp; Kanat</option>
                 <option value="biceps" data-i18n="catBiceps">Ön Kol</option>
+                <option value="forearms" data-i18n="catForearms">Önkol</option>
+                <option value="traps" data-i18n="catTraps">Trapez</option>
                 <option value="triceps" data-i18n="catTriceps">Arka Kol</option>
-                <option value="wrists" data-i18n="catWrists">Bilek</option>
+                <option value="quads" data-i18n="catQuads">Quadriceps</option>
+                <option value="hamstrings" data-i18n="catHamstrings">Hamstring &amp; Kalça</option>
+                <option value="calves" data-i18n="catCalves">Baldır</option>
                 <option value="core" data-i18n="catCore">Karın &amp; Merkez</option>
               </select>
             </div>
@@ -751,7 +762,7 @@
       <section class="card">
         <div class="workout-table-head wk-head-4col">
           <span data-i18n="exercise">Exercise</span>
-          <span data-i18n="setsReps">Sets Ã— Reps</span>
+          <span data-i18n="setsReps">Sets × Reps</span>
           <span data-i18n="video">Video</span>
           <span data-i18n="done">Done</span>
         </div>
@@ -1113,15 +1124,28 @@
                   <label style="font-size:0.7rem;font-weight:700;color:var(--text-muted);display:block;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.04em;">Kategori Seç</label>
                   <select id="oneRMCategorySelect" class="log-input" onchange="init1RMCalculator()" style="margin-bottom: 8px;">
                     <option value="all" data-i18n="catAll">Tümü (Tüm Vücut)</option>
-                    <option value="legs" data-i18n="catLegs">Bacak &amp; Kalça</option>
                     <option value="chest" data-i18n="catChest">Göğüs</option>
-                    <option value="back" data-i18n="catBack">Sırt &amp; Kanat</option>
                     <option value="shoulders" data-i18n="catShoulders">Omuz</option>
+                    <option value="back" data-i18n="catBack">Sırt &amp; Kanat</option>
                     <option value="biceps" data-i18n="catBiceps">Ön Kol</option>
+                    <option value="forearms" data-i18n="catForearms">Önkol</option>
+                    <option value="traps" data-i18n="catTraps">Trapez</option>
                     <option value="triceps" data-i18n="catTriceps">Arka Kol</option>
-                    <option value="wrists" data-i18n="catWrists">Bilek</option>
+                    <option value="quads" data-i18n="catQuads">Quadriceps</option>
+                    <option value="hamstrings" data-i18n="catHamstrings">Hamstring &amp; Kalça</option>
+                    <option value="calves" data-i18n="catCalves">Baldır</option>
                     <option value="core" data-i18n="catCore">Karın &amp; Merkez</option>
                   </select>
+
+
+
+
+
+
+
+
+
+
                   <label style="font-size:0.7rem;font-weight:700;color:var(--text-muted);display:block;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.04em;">Egzersiz</label>
                   <select id="oneRMExerciseSelect" class="log-input" onchange="calc1RMFromLogs()">
                     <option value="">Egzersiz seçin...</option>
