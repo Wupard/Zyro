@@ -1,0 +1,1413 @@
+/* ==========================================================================
+   ZYRO DASHBOARD REDESIGN - 2026
+   Theme: Pure Deep Dark, Copper/Amber Accents, Precision Typography
+   Fonts: Unbounded (Headlines & Numbers), Manrope (Text)
+   ========================================================================== */
+
+/* --- ROOT VARIABLES --- */
+:root {
+  --db-bg: #0d0c0b;
+  --db-card: #151412;
+  --db-card-gradient: linear-gradient(180deg, #1a1815 0%, #151412 100%);
+  --db-surface-2: #1d1b18;
+  --db-line: #2a2723;
+  --db-border: #3b362f;
+  --db-text: #d6d0c4;
+  --db-text-muted: #8d867a;
+
+  --db-copper: #e08a4a;
+  --db-amber: #f0b35a;
+  --db-green: #86c19a;
+  --db-rose: #e0626b;
+
+  /* Muscle Palette */
+  --mc-chest: #e08a4a;
+  --mc-back: #86c19a;
+  --mc-shoulders: #f0b35a;
+  --mc-biceps: #e0626b;
+  --mc-triceps: #c9b08a;
+  --mc-core: #6fb7b0;
+  --mc-legs: #8aa4d6;
+
+  --db-radius: 6px;
+  --db-font-title: 'Unbounded', sans-serif;
+  --db-font-body: 'Manrope', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/* --- DASHBOARD WRAPPER & BACKGROUND LAYERS --- */
+#pageDashboard {
+  position: relative;
+  background-color: var(--db-bg);
+  color: var(--db-text);
+  font-family: var(--db-font-body);
+  padding: 0 0 60px 0;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Background Atmosphere */
+.db-atmosphere {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 0;
+}
+
+/* Faint 46px Grid fading downward */
+.db-grid-layer {
+  position: absolute;
+  inset: 0;
+  background-size: 46px 46px;
+  background-image:
+    linear-gradient(to right, rgba(214, 208, 196, 0.025) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(214, 208, 196, 0.025) 1px, transparent 1px);
+  -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 550px);
+  mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 550px);
+  z-index: 1;
+}
+
+/* Subtle Noise Texture */
+.db-noise-layer {
+  position: absolute;
+  inset: 0;
+  opacity: 0.07;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  z-index: 2;
+}
+
+/* Top-Left Copper Radial Glow */
+.db-glow-copper {
+  position: absolute;
+  top: -120px;
+  left: -80px;
+  width: 650px;
+  height: 650px;
+  background: radial-gradient(circle, rgba(224, 138, 74, 0.12) 0%, transparent 68%);
+  z-index: 1;
+}
+
+/* Right Rose Radial Glow */
+.db-glow-rose {
+  position: absolute;
+  top: 180px;
+  right: -100px;
+  width: 550px;
+  height: 550px;
+  background: radial-gradient(circle, rgba(224, 98, 107, 0.07) 0%, transparent 70%);
+  z-index: 1;
+}
+
+/* --- MAIN CONTAINER --- */
+.db-container {
+  position: relative;
+  z-index: 3;
+  max-width: 1360px;
+  margin: 0 auto;
+  padding: 20px 24px;
+}
+
+/* --- TOP BAR (1. ÜST BAR) --- */
+.db-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  padding: 12px 0 20px;
+  border-bottom: 1px solid var(--db-line);
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.db-topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+/* Barbell Plate Logo Badge */
+.db-plate-badge {
+  position: relative;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #25221d 0%, #151412 85%, #0d0c0b 100%);
+  border: 2px solid var(--db-copper);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 16px rgba(224, 138, 74, 0.25), inset 0 0 8px rgba(0,0,0,0.8);
+  flex-shrink: 0;
+}
+
+.db-plate-inner {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1.5px dashed rgba(224, 138, 74, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.db-plate-hole {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #0d0c0b;
+  border: 1.5px solid var(--db-amber);
+  box-shadow: inset 0 0 4px rgba(0,0,0,0.9);
+}
+
+.db-plate-rib {
+  position: absolute;
+  width: 2px;
+  height: 6px;
+  background: var(--db-copper);
+  opacity: 0.7;
+}
+.db-plate-rib.r-top { top: 3px; }
+.db-plate-rib.r-bottom { bottom: 3px; }
+.db-plate-rib.r-left { left: 3px; width: 6px; height: 2px; }
+.db-plate-rib.r-right { right: 3px; width: 6px; height: 2px; }
+
+.db-greeting-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.db-greeting {
+  font-family: var(--db-font-title);
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--db-text);
+  margin: 0;
+  letter-spacing: -0.02em;
+  text-transform: none;
+}
+
+.db-greeting span {
+  color: var(--db-copper);
+}
+
+.db-date-display {
+  font-size: 0.85rem;
+  color: var(--db-text-muted);
+  font-weight: 500;
+  margin: 0;
+}
+
+.db-topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Streak Flame Badge */
+.db-streak-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: var(--db-surface-2);
+  border: 1px solid rgba(224, 138, 74, 0.35);
+  border-radius: 6px;
+  color: var(--db-text);
+  font-family: var(--db-font-title);
+  font-size: 0.82rem;
+  font-weight: 600;
+  box-shadow: 0 0 16px rgba(224, 138, 74, 0.12);
+}
+
+.db-streak-icon {
+  font-size: 1.15rem;
+  filter: drop-shadow(0 0 6px rgba(224, 138, 74, 0.6));
+  animation: dbFlamePulse 2.5s infinite ease-in-out;
+}
+
+@keyframes dbFlamePulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+}
+
+/* Notification Bell */
+.db-bell-btn {
+  position: relative;
+  width: 42px;
+  height: 42px;
+  border-radius: 6px;
+  background: var(--db-surface-2);
+  border: 1px solid var(--db-border);
+  color: var(--db-text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+}
+
+.db-bell-btn:hover {
+  border-color: var(--db-copper);
+  box-shadow: 0 0 12px rgba(224, 138, 74, 0.2);
+  transform: translateY(-1px);
+}
+
+.db-bell-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  border-radius: 9px;
+  background: var(--db-rose);
+  color: #fff;
+  font-family: var(--db-font-title);
+  font-size: 0.65rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--db-bg);
+}
+
+/* --- 12-COLUMN MASTER GRID --- */
+.db-grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 20px;
+}
+
+/* Column Spans */
+.db-col-12 { grid-column: span 12; }
+.db-col-8  { grid-column: span 8; }
+.db-col-7  { grid-column: span 7; }
+.db-col-5  { grid-column: span 5; }
+.db-col-4  { grid-column: span 4; }
+.db-col-3  { grid-column: span 3; }
+
+/* --- CARD STRUCTURE & EFFECTS (KART EFEKTİ) --- */
+.db-card {
+  position: relative;
+  background: var(--db-card-gradient);
+  border-radius: var(--db-radius);
+  padding: 24px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.45);
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  animation: dbCardEnter 0.55s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: calc(var(--card-index, 0) * 60ms);
+  display: flex;
+  flex-direction: column;
+}
+
+/* 1px Gradient Border Frame via ::after with mask-composite: exclude */
+.db-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: var(--db-radius);
+  padding: 1px;
+  background: linear-gradient(135deg, #e08a4a 0%, rgba(224, 138, 74, 0.04) 50%, #f0b35a 100%);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  pointer-events: none;
+  opacity: 0.5;
+  transition: opacity 0.3s ease;
+  z-index: 2;
+}
+
+/* 105deg Diagonal Light Sweep via ::before */
+.db-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: var(--db-radius);
+  background: linear-gradient(105deg, transparent 32%, rgba(224, 138, 74, 0.16) 50%, transparent 68%);
+  background-size: 260% 260%;
+  background-position: 180% 0;
+  pointer-events: none;
+  opacity: 0;
+  z-index: 3;
+}
+
+.db-card:hover {
+  box-shadow: 0 10px 32px -4px rgba(0, 0, 0, 0.65), 0 0 22px rgba(224, 138, 74, 0.18);
+}
+
+.db-card:hover::after {
+  opacity: 1;
+}
+
+.db-card:hover::before {
+  opacity: 1;
+  animation: dbLightSweep 0.9s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+/* Summary cards lift up 2px */
+.db-summary-card:hover {
+  transform: translateY(-2px);
+}
+
+/* Card Header */
+.db-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.db-card-title {
+  font-family: var(--db-font-title);
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--db-text);
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  text-transform: none; /* sentence case */
+  letter-spacing: -0.01em;
+}
+
+/* 14x3 px Copper line before every card title */
+.db-card-title::before {
+  content: '';
+  display: inline-block;
+  width: 14px;
+  height: 3px;
+  background: var(--db-copper);
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+/* --- 2. BU HAFTA KARTI --- */
+.db-week-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.db-nav-btn {
+  width: 32px;
+  height: 32px;
+  background: var(--db-surface-2);
+  border: 1px solid var(--db-border);
+  color: var(--db-text-muted);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.db-nav-btn:hover {
+  border-color: var(--db-copper);
+  color: var(--db-text);
+}
+
+.db-week-range-label {
+  font-family: var(--db-font-title);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--db-text);
+  padding: 0 6px;
+}
+
+.db-week-days-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 10px;
+}
+
+.db-day-box {
+  position: relative;
+  background: var(--db-surface-2);
+  border: 1px solid var(--db-border);
+  border-radius: 6px;
+  padding: 14px 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.db-day-box:hover {
+  border-color: rgba(224, 138, 74, 0.4);
+  background: #23201c;
+}
+
+.db-day-box.is-selected {
+  border-color: var(--db-copper);
+  box-shadow: 0 0 16px rgba(224, 138, 74, 0.25);
+  background: #25221d;
+}
+
+.db-day-name {
+  font-size: 0.72rem;
+  color: var(--db-text-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.db-day-num {
+  font-family: var(--db-font-title);
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--db-text);
+  line-height: 1;
+}
+
+.db-day-box.is-today .db-day-num {
+  color: var(--db-copper);
+}
+
+.db-day-workout-tag {
+  font-size: 0.72rem;
+  padding: 3px 8px;
+  border-radius: 4px;
+  background: rgba(214, 208, 196, 0.05);
+  color: var(--db-text);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.db-day-workout-tag.is-rest {
+  color: var(--db-text-muted);
+  background: transparent;
+}
+
+.db-day-status-dot {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 1.5px solid var(--db-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.65rem;
+  color: transparent;
+  transition: all 0.2s ease;
+}
+
+.db-day-box.is-today .db-day-status-dot {
+  border-color: var(--db-copper);
+  box-shadow: 0 0 6px rgba(224, 138, 74, 0.5);
+}
+
+.db-day-box.is-completed .db-day-status-dot {
+  background: var(--db-copper);
+  border-color: var(--db-copper);
+  color: #0d0c0b;
+  font-weight: 900;
+  box-shadow: 0 0 10px rgba(224, 138, 74, 0.4);
+}
+
+/* --- 3. ANTRENMAN KARTI --- */
+.db-workout-card-inner {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+/* Thin progress bar at card top */
+.db-workout-progress-line {
+  position: absolute;
+  top: -24px;
+  left: -24px;
+  right: -24px;
+  height: 3px;
+  background: var(--db-line);
+  overflow: hidden;
+}
+
+.db-workout-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--db-copper), var(--db-amber));
+  width: 0%;
+  transition: width 0.4s ease;
+  box-shadow: 0 0 8px rgba(224, 138, 74, 0.6);
+}
+
+/* Rest Timer Widget */
+.db-rest-timer-box {
+  background: var(--db-surface-2);
+  border: 1px solid var(--db-border);
+  border-radius: 6px;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.db-rest-timer-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.db-timer-time {
+  font-family: var(--db-font-title);
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--db-amber);
+  letter-spacing: 0.05em;
+  min-width: 65px;
+}
+
+.db-timer-presets {
+  display: flex;
+  gap: 6px;
+}
+
+.db-timer-chip {
+  background: #25221d;
+  border: 1px solid var(--db-border);
+  color: var(--db-text-muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.db-timer-chip:hover,
+.db-timer-chip.active {
+  color: var(--db-text);
+  border-color: var(--db-copper);
+}
+
+.db-timer-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.db-timer-btn {
+  background: var(--db-copper);
+  color: #0d0c0b;
+  border: none;
+  border-radius: 4px;
+  padding: 6px 14px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+.db-timer-btn:hover { opacity: 0.9; }
+
+.db-timer-btn-sub {
+  background: transparent;
+  color: var(--db-text-muted);
+  border: 1px solid var(--db-border);
+  border-radius: 4px;
+  padding: 6px 10px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.db-timer-btn-sub:hover { color: var(--db-text); }
+
+/* Exercise Rows */
+.db-exercise-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 20px;
+  flex: 1;
+}
+
+.db-exercise-row {
+  display: grid;
+  grid-template-columns: 1fr auto auto auto;
+  align-items: center;
+  gap: 16px;
+  background: var(--db-surface-2);
+  border: 1px solid var(--db-border);
+  border-radius: 6px;
+  padding: 12px 16px;
+  transition: border-color 0.2s ease;
+}
+
+.db-exercise-row:hover {
+  border-color: rgba(224, 138, 74, 0.3);
+}
+
+.db-ex-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.db-muscle-badge {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.db-ex-name-group {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.db-ex-name {
+  font-weight: 600;
+  font-size: 0.92rem;
+  color: var(--db-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: color 0.2s;
+}
+
+/* Strike-through when all sets completed */
+.db-exercise-row.is-all-done .db-ex-name {
+  color: var(--db-text-muted);
+  text-decoration: line-through;
+  text-decoration-color: var(--db-copper);
+}
+
+.db-ex-meta {
+  font-size: 0.75rem;
+  color: var(--db-text-muted);
+}
+
+.db-ex-sets-reps {
+  font-family: var(--db-font-title);
+  font-size: 0.8rem;
+  color: var(--db-text-muted);
+  font-weight: 600;
+}
+
+/* Weight Input */
+.db-kg-wrapper {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: #141311;
+  border: 1px solid var(--db-border);
+  border-radius: 4px;
+  padding: 4px 8px;
+}
+
+.db-kg-input {
+  width: 48px;
+  background: transparent;
+  border: none;
+  color: var(--db-text);
+  font-family: var(--db-font-title);
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-align: right;
+  outline: none;
+}
+
+.db-kg-unit {
+  font-size: 0.7rem;
+  color: var(--db-text-muted);
+}
+
+/* Set Circles */
+.db-set-circles {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.db-set-circle {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1.5px solid var(--db-border);
+  background: #151412;
+  color: var(--db-text-muted);
+  font-family: var(--db-font-title);
+  font-size: 0.72rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.db-set-circle:hover {
+  border-color: var(--db-copper);
+  color: var(--db-text);
+}
+
+.db-set-circle.is-done {
+  background: var(--db-copper);
+  border-color: var(--db-copper);
+  color: #0d0c0b;
+  font-weight: 800;
+  box-shadow: 0 0 12px rgba(224, 138, 74, 0.45);
+}
+
+/* Workout Bottom Bar */
+.db-workout-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 16px;
+  border-top: 1px solid var(--db-line);
+  margin-top: auto;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.db-workout-summary-text {
+  font-size: 0.82rem;
+  color: var(--db-text-muted);
+}
+
+.db-workout-summary-text strong {
+  color: var(--db-text);
+  font-family: var(--db-font-title);
+  font-weight: 600;
+}
+
+.db-btn-complete {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(135deg, var(--db-copper) 0%, var(--db-amber) 100%);
+  color: #0d0c0b;
+  border: none;
+  border-radius: 6px;
+  padding: 10px 20px;
+  font-family: var(--db-font-title);
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.2s, box-shadow 0.2s;
+  box-shadow: 0 4px 16px rgba(224, 138, 74, 0.3);
+}
+
+.db-btn-complete:hover {
+  opacity: 0.92;
+  box-shadow: 0 6px 20px rgba(224, 138, 74, 0.45);
+}
+
+.db-btn-complete.is-finished {
+  background: var(--db-surface-2);
+  color: var(--db-green);
+  border: 1px solid var(--db-green);
+  box-shadow: none;
+}
+
+/* Rest Day Message Box */
+.db-rest-message-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 24px;
+  text-align: center;
+  gap: 16px;
+}
+
+.db-rest-icon-large {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: rgba(134, 193, 154, 0.1);
+  border: 1px solid rgba(134, 193, 154, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.6rem;
+  color: var(--db-green);
+}
+
+.db-rest-title {
+  font-family: var(--db-font-title);
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--db-text);
+  margin: 0;
+}
+
+.db-rest-desc {
+  font-size: 0.88rem;
+  color: var(--db-text-muted);
+  max-width: 440px;
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* --- 4. GÜNLÜK TAKİP KARTI --- */
+.db-trackers-col {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.db-tracker-item {
+  background: var(--db-surface-2);
+  border: 1px solid var(--db-border);
+  border-radius: 6px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.db-tracker-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.db-tracker-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--db-text-muted);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.db-tracker-value {
+  font-family: var(--db-font-title);
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--db-text);
+}
+
+/* Progress bar */
+.db-progress-track {
+  width: 100%;
+  height: 6px;
+  background: #141311;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.db-progress-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+.db-progress-fill.fill-water {
+  background: linear-gradient(90deg, #6fb7b0, #8aa4d6);
+}
+
+.db-progress-fill.fill-protein {
+  background: linear-gradient(90deg, var(--db-copper), var(--db-amber));
+}
+
+.db-tracker-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.db-tracker-btn {
+  background: #25221d;
+  border: 1px solid var(--db-border);
+  color: var(--db-text);
+  border-radius: 4px;
+  padding: 5px 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  flex: 1;
+}
+
+.db-tracker-btn:hover {
+  border-color: var(--db-copper);
+}
+
+/* Scale weigh-in form */
+.db-scale-form {
+  display: flex;
+  gap: 8px;
+}
+
+.db-scale-input {
+  flex: 1;
+  background: #141311;
+  border: 1px solid var(--db-border);
+  color: var(--db-text);
+  border-radius: 4px;
+  padding: 6px 10px;
+  font-family: var(--db-font-title);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.db-scale-btn {
+  background: var(--db-copper);
+  color: #0d0c0b;
+  border: none;
+  border-radius: 4px;
+  padding: 6px 14px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+/* --- 5. DÖRT ÖZET KARTI (3 KOLON HER BİRİ) --- */
+.db-summary-card {
+  cursor: pointer;
+}
+
+.db-stat-icon-badge {
+  width: 36px;
+  height: 36px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 14px;
+  font-size: 1rem;
+}
+
+.db-stat-icon-badge.b-copper {
+  background: rgba(224, 138, 74, 0.12);
+  border: 1px solid rgba(224, 138, 74, 0.3);
+  color: var(--db-copper);
+}
+
+.db-stat-icon-badge.b-green {
+  background: rgba(134, 193, 154, 0.12);
+  border: 1px solid rgba(134, 193, 154, 0.3);
+  color: var(--db-green);
+}
+
+.db-stat-icon-badge.b-amber {
+  background: rgba(240, 179, 90, 0.12);
+  border: 1px solid rgba(240, 179, 90, 0.3);
+  color: var(--db-amber);
+}
+
+.db-stat-icon-badge.b-rose {
+  background: rgba(224, 98, 107, 0.12);
+  border: 1px solid rgba(224, 98, 107, 0.3);
+  color: var(--db-rose);
+}
+
+.db-stat-label-muted {
+  font-size: 0.75rem;
+  color: var(--db-text-muted);
+  font-weight: 500;
+  margin-bottom: 6px;
+}
+
+.db-stat-big-val {
+  font-family: var(--db-font-title);
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--db-text);
+  line-height: 1.1;
+  margin-bottom: 12px;
+}
+
+/* Circular ring gauge for Card 1 */
+.db-ring-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 4px;
+}
+
+.db-ring-svg {
+  width: 44px;
+  height: 44px;
+  transform: rotate(-90deg);
+}
+
+.db-ring-bg {
+  fill: none;
+  stroke: var(--db-border);
+  stroke-width: 4;
+}
+
+.db-ring-fill {
+  fill: none;
+  stroke: var(--db-copper);
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-dasharray: 100;
+  stroke-dashoffset: 40;
+  transition: stroke-dashoffset 0.6s ease;
+}
+
+/* Weight Sparkline & Trend for Card 2 */
+.db-trend-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--db-green);
+}
+
+.db-mini-sparkline {
+  width: 100%;
+  height: 28px;
+  margin-top: 6px;
+}
+
+/* 4-week Consistency bars for Card 3 */
+.db-mini-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  height: 28px;
+  margin-top: 6px;
+}
+
+.db-mini-bar {
+  flex: 1;
+  background: var(--db-border);
+  border-radius: 2px;
+  transition: height 0.3s ease, background-color 0.3s;
+}
+
+.db-mini-bar.is-full {
+  background: var(--db-amber);
+}
+
+/* Strength Progress for Card 4 */
+.db-strength-detail-text {
+  font-size: 0.75rem;
+  color: var(--db-copper);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: 4px;
+}
+
+/* --- 6. HAFTALIK RAPOR KARTI (5 KOLON) --- */
+.db-report-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  flex: 1;
+}
+
+.db-report-box {
+  background: var(--db-surface-2);
+  border: 1px solid var(--db-border);
+  border-radius: 6px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.db-report-label {
+  font-size: 0.75rem;
+  color: var(--db-text-muted);
+  font-weight: 500;
+}
+
+.db-report-val {
+  font-family: var(--db-font-title);
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--db-text);
+}
+
+.db-report-sub {
+  font-size: 0.72rem;
+  color: var(--db-green);
+  font-weight: 600;
+}
+
+/* --- 7. KAS HARİTASI KARTI (7 KOLON) --- */
+.db-toggle-group {
+  display: flex;
+  background: #141311;
+  border: 1px solid var(--db-border);
+  border-radius: 4px;
+  padding: 2px;
+  gap: 2px;
+}
+
+.db-toggle-btn {
+  background: transparent;
+  border: none;
+  color: var(--db-text-muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.db-toggle-btn.active {
+  background: var(--db-surface-2);
+  color: var(--db-text);
+  border: 1px solid var(--db-border);
+}
+
+.db-muscle-totals {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding: 12px 0 16px;
+  border-bottom: 1px solid var(--db-line);
+  margin-bottom: 16px;
+}
+
+.db-muscle-total-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.db-muscle-big-num {
+  font-family: var(--db-font-title);
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--db-copper);
+  line-height: 1;
+}
+
+.db-muscle-big-num.is-ex {
+  color: var(--db-amber);
+}
+
+.db-muscle-total-label {
+  font-size: 0.72rem;
+  color: var(--db-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.db-muscle-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.db-muscle-row {
+  display: grid;
+  grid-template-columns: 100px 1fr 60px;
+  align-items: center;
+  gap: 14px;
+  padding: 6px 0;
+}
+
+.db-m-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.db-m-color-sq {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.db-m-name {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--db-text);
+  white-space: nowrap;
+}
+
+.db-m-bar-track {
+  width: 100%;
+  height: 6px;
+  background: var(--db-surface-2);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.db-m-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.4s ease;
+}
+
+.db-m-sets-count {
+  font-family: var(--db-font-title);
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--db-text-muted);
+  text-align: right;
+}
+
+/* --- 8. İLERLEME ÖZETİ (12 KOLON) --- */
+.db-chart-canvas-container {
+  position: relative;
+  width: 100%;
+  height: 260px;
+  margin-top: 10px;
+}
+
+#dbProgressCanvas {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* Volume bar chart HTML overlay fallback */
+.db-volume-bars-container {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  height: 220px;
+  padding: 10px 20px 20px;
+  gap: 16px;
+}
+
+.db-vol-bar-group {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.db-vol-val-label {
+  font-family: var(--db-font-title);
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--db-copper);
+}
+
+.db-vol-bar {
+  width: 100%;
+  max-width: 48px;
+  border-radius: 4px 4px 0 0;
+  background: linear-gradient(180deg, var(--db-copper) 0%, rgba(224, 138, 74, 0.15) 100%);
+  border: 1px solid rgba(224, 138, 74, 0.4);
+  border-bottom: none;
+  transition: height 0.4s ease;
+}
+
+.db-vol-week-label {
+  font-size: 0.72rem;
+  color: var(--db-text-muted);
+}
+
+/* --- RESPONSIVE BREAKPOINTS --- */
+@media (max-width: 1100px) {
+  .db-col-3 { grid-column: span 6; }
+  .db-col-5 { grid-column: span 12; }
+  .db-col-7 { grid-column: span 12; }
+}
+
+@media (max-width: 900px) {
+  .db-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  .db-col-12, .db-col-8, .db-col-7, .db-col-5, .db-col-4, .db-col-3 {
+    grid-column: span 1;
+  }
+  .db-week-days-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+  .db-topbar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .db-topbar-right {
+    width: 100%;
+    justify-content: space-between;
+  }
+}
+
+@media (max-width: 580px) {
+  .db-container {
+    padding: 16px 12px;
+  }
+  .db-week-days-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .db-exercise-row {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  .db-set-circles {
+    justify-content: flex-start;
+  }
+}
+
+/* --- KEYBOARD ACCESSIBILITY --- */
+.db-card button:focus-visible,
+.db-card input:focus-visible,
+.db-card select:focus-visible,
+.db-nav-btn:focus-visible,
+.db-bell-btn:focus-visible {
+  outline: 2px solid var(--db-copper) !important;
+  outline-offset: 2px !important;
+}
+
+/* --- PREFERS REDUCED MOTION --- */
+@media (prefers-reduced-motion: reduce) {
+  .db-card,
+  .db-card::before,
+  .db-card::after,
+  .db-streak-icon,
+  .db-progress-fill,
+  .db-ring-fill {
+    animation: none !important;
+    transition: none !important;
+  }
+  .db-summary-card:hover {
+    transform: none !important;
+  }
+}
+
+/* Mobile Menu Toggle */
+.db-menu-toggle {
+  display: none;
+  background: var(--db-surface-2);
+  border: 1px solid var(--db-border);
+  color: var(--db-text);
+  border-radius: 6px;
+  width: 40px;
+  height: 40px;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.2s;
+}
+
+.db-menu-toggle:hover {
+  border-color: var(--db-copper);
+  color: var(--db-copper);
+}
+
+@media (max-width: 768px) {
+  .db-menu-toggle {
+    display: flex;
+  }
+}
+.main-content > #pageDashboard {
+  max-width: 1380px !important;
+  width: 100% !important;
+}
