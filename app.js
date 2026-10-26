@@ -1665,9 +1665,6 @@ function navigateTo(page, opts){
     }
   }
 
-  const topHdr = document.querySelector('header.header');
-  if (topHdr) topHdr.style.display = (page === 'dashboard') ? 'none' : '';
-
   if(page==='dashboard')refreshDashboard();
   else if(page==='workouts'){renderWorkout(currentWorkoutTab);renderLoggedExercises()}
   else if(page==='posture'){renderPosture(currentPostureTab)}
