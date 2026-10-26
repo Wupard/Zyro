@@ -147,17 +147,6 @@ body.sidebar-collapsed .sidebar-logo {
   height: 34px;
 }
 
-/* Sidebar brand alt serit - wordmark accent */
-.sidebar-brand-strip {
-  display: block;
-  width: 100%;
-  height: 2px;
-  background: linear-gradient(90deg, rgba(139,124,247,0) 0%, rgba(139,124,247,0.7) 30%, rgba(208,150,255,0.9) 60%, rgba(139,124,247,0) 100%);
-  margin-top: 4px;
-  border-radius: 1px;
-}
-
-
 .auth-logo-ring{
   width:64px;height:64px;margin:0 auto 16px;
   border:2px solid rgba(139,124,247,0.3);border-radius:50%;
@@ -236,9 +225,7 @@ body.sidebar-collapsed .sidebar-collapse-btn {
   left: calc(80px - 14px);
 }
 
-.sidebar-brand-wrapper { display: flex; flex-direction: column; padding: 20px 24px 20px; }
-.sidebar-brand{display:flex;align-items:center;justify-content:flex-start;gap:12px;padding:0; white-space:nowrap; overflow:hidden;}
-body.sidebar-collapsed .sidebar-brand-wrapper { padding: 20px 0 20px; align-items: center; }
+.sidebar-brand{display:flex;align-items:center;justify-content:flex-start;gap:12px;padding:26px 24px 28px; white-space:nowrap; overflow:hidden;}
 body.sidebar-collapsed .brand-icon{font-size:1.2rem;color:var(--accent-primary);filter:drop-shadow(0 0 8px rgba(139,124,247,0.35));animation:brandPulse 3s ease-in-out infinite; flex-shrink:0;}
 @keyframes brandPulse{0%,100%{filter:drop-shadow(0 0 8px rgba(139,124,247,0.35))}50%{filter:drop-shadow(0 0 14px rgba(139,124,247,0.55))}}
 .brand-text{font-family:'Space Grotesk',sans-serif;font-size:1.3rem;font-weight:700;letter-spacing:.04em;background:linear-gradient(135deg,var(--text-primary),var(--accent-primary));  -webkit-background-clip:text;
@@ -246,7 +233,7 @@ body.sidebar-collapsed .brand-icon{font-size:1.2rem;color:var(--accent-primary);
   -webkit-text-fill-color:transparent;
  transition:opacity var(--t-base);}
 body.sidebar-collapsed .brand-text { opacity:0; pointer-events:none; display:none; }
-body.sidebar-collapsed .sidebar-brand { padding: 0; justify-content: center; }
+body.sidebar-collapsed .sidebar-brand { padding: 26px 0 28px; justify-content: center; }
 body.sidebar-collapsed .brand-icon { font-size: 1.6rem; }
 
 .sidebar-nav{flex:1;display:flex;flex-direction:column;gap:6px;padding:0 10px}
@@ -2678,8 +2665,7 @@ html {
   body.sidebar-collapsed .nav-item { padding-left: 16px !important; padding-right: 14px !important; justify-content: flex-start !important; }
   body.sidebar-collapsed .lang-switcher { display: flex !important; }
   body.sidebar-collapsed .user-info { display: flex !important; }
-  body.sidebar-collapsed .sidebar-brand-wrapper { padding: 20px 24px 20px !important; align-items: flex-start !important; }
-  body.sidebar-collapsed .sidebar-brand { padding: 0 !important; justify-content: flex-start !important; }
+  body.sidebar-collapsed .sidebar-brand { padding: 26px 24px 28px !important; justify-content: flex-start !important; }
   body.sidebar-collapsed .nav-item-wupard { margin-top: 8px !important; margin-bottom: 0 !important; }
   .sidebar-collapse-btn { display: none !important; }
 }
