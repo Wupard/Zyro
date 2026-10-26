@@ -1,4 +1,4 @@
-@charset "UTF-8";
+﻿@charset "UTF-8";
 /* ===========================
    Zyro — Personal Development Dashboard
    V2: Vibrant colors, animations, polished UI
@@ -109,6 +109,54 @@ h1,h2,h3,h4{font-family:'Space Grotesk','Inter',sans-serif;font-weight:600;lette
   animation:authCardIn .6s ease both;
 }
 @keyframes authCardIn{from{opacity:0;transform:translateY(20px) scale(0.97)}to{opacity:1;transform:translateY(0) scale(1)}}
+/* ====== LOGO2 - Auth Ekrani Logosu ====== */
+.auth-logo-img {
+  width: 110px;
+  height: 110px;
+  object-fit: contain;
+  display: block;
+  margin: 0 auto 8px;
+  filter: drop-shadow(0 0 28px rgba(111,90,220,0.6)) drop-shadow(0 0 8px rgba(160,140,255,0.3));
+  animation: authLogoPulse 3.5s ease-in-out infinite;
+}
+@keyframes authLogoPulse {
+  0%, 100% { filter: drop-shadow(0 0 28px rgba(111,90,220,0.55)) drop-shadow(0 0 8px rgba(160,140,255,0.3)); transform: scale(1); }
+  50%       { filter: drop-shadow(0 0 48px rgba(111,90,220,0.8)) drop-shadow(0 0 18px rgba(160,140,255,0.55)); transform: scale(1.05); }
+}
+/* Dekoratif gradient serit auth altinda */
+.auth-strip {
+  display: block;
+  width: 60px;
+  height: 3px;
+  margin: 6px auto 20px;
+  border-radius: 3px;
+  background: linear-gradient(90deg, transparent, rgba(139,124,247,0.9), rgba(200,150,255,1), rgba(139,124,247,0.9), transparent);
+}
+
+/* ====== LOGO2 - Sidebar Logosu ====== */
+.sidebar-logo {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+  flex-shrink: 0;
+  filter: drop-shadow(0 0 8px rgba(111,90,220,0.5));
+  transition: width 0.2s, height 0.2s, filter 0.2s;
+}
+body.sidebar-collapsed .sidebar-logo {
+  width: 34px;
+  height: 34px;
+}
+
+/* Sidebar brand alt serit - wordmark accent */
+.sidebar-brand-strip {
+  display: block;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, rgba(139,124,247,0) 0%, rgba(139,124,247,0.7) 30%, rgba(208,150,255,0.9) 60%, rgba(139,124,247,0) 100%);
+  margin-top: 4px;
+  border-radius: 1px;
+}
+
 
 .auth-logo-ring{
   width:64px;height:64px;margin:0 auto 16px;
@@ -188,26 +236,17 @@ body.sidebar-collapsed .sidebar-collapse-btn {
   left: calc(80px - 14px);
 }
 
-.sidebar-brand{display:flex;align-items:center;justify-content:flex-start;gap:12px;padding:26px 24px 34px; white-space:nowrap; overflow:hidden;}
-.sidebar-logo {
-  width: 28px;
-  height: auto;
-  object-fit: contain;
-  transition: background-color var(--t-base), color var(--t-base), border-color var(--t-base), opacity var(--t-base), transform var(--t-base), box-shadow var(--t-base), fill var(--t-base), stroke var(--t-base);
-  flex-shrink: 0;
-  margin: 0;
-}
-body.sidebar-collapsed .sidebar-logo {
-  width: 30px;
-}
-.brand-icon{font-size:1.2rem;color:var(--accent-primary);filter:drop-shadow(0 0 8px rgba(139,124,247,0.35));animation:brandPulse 3s ease-in-out infinite; flex-shrink:0;}
+.sidebar-brand-wrapper { display: flex; flex-direction: column; padding: 20px 24px 20px; }
+.sidebar-brand{display:flex;align-items:center;justify-content:flex-start;gap:12px;padding:0; white-space:nowrap; overflow:hidden;}
+body.sidebar-collapsed .sidebar-brand-wrapper { padding: 20px 0 20px; align-items: center; }
+body.sidebar-collapsed .brand-icon{font-size:1.2rem;color:var(--accent-primary);filter:drop-shadow(0 0 8px rgba(139,124,247,0.35));animation:brandPulse 3s ease-in-out infinite; flex-shrink:0;}
 @keyframes brandPulse{0%,100%{filter:drop-shadow(0 0 8px rgba(139,124,247,0.35))}50%{filter:drop-shadow(0 0 14px rgba(139,124,247,0.55))}}
 .brand-text{font-family:'Space Grotesk',sans-serif;font-size:1.3rem;font-weight:700;letter-spacing:.04em;background:linear-gradient(135deg,var(--text-primary),var(--accent-primary));  -webkit-background-clip:text;
   background-clip: text;
   -webkit-text-fill-color:transparent;
  transition:opacity var(--t-base);}
 body.sidebar-collapsed .brand-text { opacity:0; pointer-events:none; display:none; }
-body.sidebar-collapsed .sidebar-brand { padding: 26px 0 34px; justify-content: center; }
+body.sidebar-collapsed .sidebar-brand { padding: 0; justify-content: center; }
 body.sidebar-collapsed .brand-icon { font-size: 1.6rem; }
 
 .sidebar-nav{flex:1;display:flex;flex-direction:column;gap:6px;padding:0 10px}
@@ -2639,7 +2678,8 @@ html {
   body.sidebar-collapsed .nav-item { padding-left: 16px !important; padding-right: 14px !important; justify-content: flex-start !important; }
   body.sidebar-collapsed .lang-switcher { display: flex !important; }
   body.sidebar-collapsed .user-info { display: flex !important; }
-  body.sidebar-collapsed .sidebar-brand { padding: 26px 24px 34px !important; justify-content: flex-start !important; }
+  body.sidebar-collapsed .sidebar-brand-wrapper { padding: 20px 24px 20px !important; align-items: flex-start !important; }
+  body.sidebar-collapsed .sidebar-brand { padding: 0 !important; justify-content: flex-start !important; }
   body.sidebar-collapsed .nav-item-wupard { margin-top: 8px !important; margin-bottom: 0 !important; }
   .sidebar-collapse-btn { display: none !important; }
 }
@@ -2647,8 +2687,7 @@ html {
 @media(max-width: 768px) {
   html { font-size: 14px; }
   body.sidebar-collapsed { --sidebar-width: 0px; }
-  .sidebar-logo { width: 30px; }
-  .sidebar { transform: translateX(-100%); width: 260px; visibility: hidden; }
+    .sidebar { transform: translateX(-100%); width: 260px; visibility: hidden; }
   .sidebar.open { transform: translateX(0); visibility: visible; }
   .sidebar-collapse-btn { display: none; }
   

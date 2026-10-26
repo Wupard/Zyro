@@ -5,10 +5,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Zyro</title>
-  <link rel="icon" type="image/png" href="assets/zyro_logo_cropped.png">
+  <link rel="icon" type="image/png" href="assets/logo2.png">
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#181a2f">
-  <link rel="apple-touch-icon" href="assets/anaekran.png">
+  <link rel="apple-touch-icon" href="assets/logo2.png">
   <meta name="description"
     content="Track workouts, posture, habits, and daily progress with a beautiful personal dashboard.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -37,7 +37,8 @@
     <div class="auth-bg-glow"></div>
     <div class="auth-card">
       <div class="auth-brand">
-        <img src="assets/background.png" alt="Zyro Logo" style="width: 90px; height: 90px; object-fit: cover; border-radius: 50%; margin: 0 auto 16px; display: block;">
+        <img src="assets/logo2.png" alt="Zyro Logo" class="auth-logo-img">
+        <span class="auth-strip"></span>
         <h1 class="auth-title">Zyro</h1>
         <p class="auth-subtitle" data-i18n="authSubtitle">Personal Development Dashboard</p>
       </div>
@@ -67,9 +68,12 @@
     </svg>
   </button>
   <aside class="sidebar" id="sidebar">
-    <div class="sidebar-brand">
-      <img src="assets/zyro_logo_cropped.png" alt="Zyro Logo" class="sidebar-logo">
-      <span class="brand-text">Zyro</span>
+    <div class="sidebar-brand-wrapper">
+      <div class="sidebar-brand">
+        <img src="assets/logo2.png" alt="Zyro Logo" class="sidebar-logo">
+        <span class="brand-text">Zyro</span>
+      </div>
+      <span class="sidebar-brand-strip"></span>
     </div>
     <nav class="sidebar-nav">
       <a href="./" class="nav-item active" data-page="dashboard" id="nav-dashboard">
@@ -600,25 +604,25 @@
       <div class="page-header-row">
         <h2 class="page-title" data-i18n="workoutProgram" style="display:none;">Workout Program</h2>
         <div class="card-tabs" style="overflow-x: auto; white-space: nowrap; -webkit-overflow-scrolling: touch;">
-          <button class="tab-btn active" data-wktab="day1" data-i18n="monday"
-            style="font-size: 0.95rem; padding: 0.6rem 1.2rem; font-weight: 700;">
-            Pazartesi
-          </button>
-          <button class="tab-btn" data-wktab="day2" data-i18n="tuesday"
+          <button class="tab-btn active" data-wktab="day1" data-i18n="tuesday"
             style="font-size: 0.95rem; padding: 0.6rem 1.2rem; font-weight: 700;">
             Salı
           </button>
-          <button class="tab-btn" data-wktab="day3" data-i18n="wednesday"
+          <button class="tab-btn" data-wktab="day2" data-i18n="wednesday"
             style="font-size: 0.95rem; padding: 0.6rem 1.2rem; font-weight: 700;">
             Çarşamba
           </button>
-          <button class="tab-btn" data-wktab="day4" data-i18n="friday"
+          <button class="tab-btn" data-wktab="day3" data-i18n="friday"
             style="font-size: 0.95rem; padding: 0.6rem 1.2rem; font-weight: 700;">
             Cuma
           </button>
-          <button class="tab-btn" data-wktab="day5" data-i18n="saturday"
+          <button class="tab-btn" data-wktab="day4" data-i18n="saturday"
             style="font-size: 0.95rem; padding: 0.6rem 1.2rem; font-weight: 700;">
             Cumartesi
+          </button>
+          <button class="tab-btn" data-wktab="day5" data-i18n="sunday"
+            style="font-size: 0.95rem; padding: 0.6rem 1.2rem; font-weight: 700;">
+            Pazar
           </button>
         </div>
       </div>
@@ -645,16 +649,12 @@
               <select id="logCategory" class="log-input">
                 <option value="all" data-i18n="catAll">Tümü (Tüm Vücut)</option>
                 <option value="chest" data-i18n="catChest">Göğüs</option>
+                <option value="back" data-i18n="catBack">Sırt</option>
                 <option value="shoulders" data-i18n="catShoulders">Omuz</option>
-                <option value="back" data-i18n="catBack">Sırt &amp; Kanat</option>
-                <option value="biceps" data-i18n="catBiceps">Ön Kol</option>
-                <option value="forearms" data-i18n="catForearms">Önkol</option>
-                <option value="traps" data-i18n="catTraps">Trapez</option>
-                <option value="triceps" data-i18n="catTriceps">Arka Kol</option>
-                <option value="quads" data-i18n="catQuads">Quadriceps</option>
-                <option value="hamstrings" data-i18n="catHamstrings">Hamstring &amp; Kalça</option>
-                <option value="calves" data-i18n="catCalves">Baldır</option>
-                <option value="core" data-i18n="catCore">Karın &amp; Merkez</option>
+                <option value="biceps" data-i18n="catBiceps">Biceps</option>
+                <option value="triceps" data-i18n="catTriceps">Triceps</option>
+                <option value="legs" data-i18n="catLegs">Bacak</option>
+                <option value="core" data-i18n="catCore">Core</option>
               </select>
             </div>
             <div class="log-field">

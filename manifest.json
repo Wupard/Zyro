@@ -1,4 +1,4 @@
-{
+﻿{
   "name": "Zyro Dashboard",
   "short_name": "Zyro",
   "description": "Zyro — Kişisel Gelişim Takip Uygulaması",
@@ -11,13 +11,13 @@
   "gcm_sender_id": "909109062896",
   "icons": [
     {
-      "src": "assets/anaekran.png",
+      "src": "assets/logo2.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "assets/anaekran.png",
+      "src": "assets/logo2.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
