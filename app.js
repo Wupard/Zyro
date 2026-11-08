@@ -306,6 +306,43 @@ const I18N = {
         all: 'All', chest: 'Chest', back: 'Back', shoulders: 'Shoulders',
         biceps: 'Biceps / forearms', triceps: 'Triceps', legs: 'Legs & glutes', core: 'Core'
       }
+    },
+    zp: {
+      navLabel: 'Main menu',
+      nav: {
+        dashboard: 'Dashboard', workouts: 'Workouts', progress: 'Progress', diet: 'Nutrition',
+        posture: 'Posture', calculators: 'Calculators', leaderboard: 'Leaderboard', notes: 'Notes'
+      },
+      title1: 'Posture', title2: 'program',
+      subtitle: 'Daily mobility · 5–10 minutes',
+      weeklyProgram: 'Weekly program',
+      todayPill: function (day, name) { return 'Today: ' + day + ' · ' + name; },
+      todayFocus: "Today's focus",
+      priority: 'Focus',
+      timedWord: 'Timed exercises.',
+      timedNote: 'Press start and the round completes itself when the timer ends.',
+      repWord: 'Rep exercises.',
+      repNote: 'Finish the reps, then tap the confirm button.',
+      slowWord: 'Slow and controlled',
+      slowNote: 'progress. Stop if you feel pain.',
+      timedSmall: 'Timed',
+      repSmall: 'Reps',
+      startWord: 'Start',
+      stopWord: 'Pause',
+      resumeWord: 'Resume',
+      completeRound: 'complete',
+      doneWord: 'complete, undo',
+      repUnit: 'reps',
+      roundWord: 'rounds',
+      roundDoneWord: 'completed',
+      sessionDone: 'Posture session complete',
+      sessionDoneTail: 'Nice work, you finished today’s posture session.',
+      exercises: 'exercises',
+      close: 'Close',
+      streakWord: 'day streak',
+      xpWord: 'XP',
+      level: 'Level',
+      watch: 'Watch'
     }
   },
   tr: {
@@ -633,6 +670,43 @@ const I18N = {
         all: 'Tümü', chest: 'Göğüs', back: 'Sırt', shoulders: 'Omuz',
         biceps: 'Biceps / ön kol', triceps: 'Triceps / arka kol', legs: 'Bacak ve kalça', core: 'Karın'
       }
+    },
+    zp: {
+      navLabel: 'Ana menü',
+      nav: {
+        dashboard: 'Panel', workouts: 'Antrenmanlar', progress: 'İlerleme', diet: 'Beslenme',
+        posture: 'Duruş', calculators: 'Hesaplayıcılar', leaderboard: 'Liderlik', notes: 'Notlar'
+      },
+      title1: 'Postür', title2: 'programı',
+      subtitle: 'Günlük hareketlilik · 5–10 dakika',
+      weeklyProgram: 'Haftalık program',
+      todayPill: function (day, name) { return 'Bugün: ' + day + ' · ' + name; },
+      todayFocus: 'Bugünün odağı',
+      priority: 'Odak',
+      timedWord: 'Süreli hareketler.',
+      timedNote: 'Başlat’a bas, süre bitince tur otomatik tamamlanır.',
+      repWord: 'Tekrarlı hareketler.',
+      repNote: 'Turu bitirince onay butonuna dokun.',
+      slowWord: 'Yavaş ve kontrollü',
+      slowNote: 'ilerle. Ağrı hissedersen hareketi bırak.',
+      timedSmall: 'Süreli',
+      repSmall: 'Tekrarlı',
+      startWord: 'Başlat',
+      stopWord: 'Durdur',
+      resumeWord: 'Devam',
+      completeRound: 'tamam',
+      doneWord: 'tamam, geri al',
+      repUnit: 'tekrar',
+      roundWord: 'tur',
+      roundDoneWord: 'tamamlandı',
+      sessionDone: 'Postür seansı tamamlandı',
+      sessionDoneTail: 'Güzel iş, bugünkü duruş çalışmanı bitirdin.',
+      exercises: 'hareket',
+      close: 'Kapat',
+      streakWord: 'gün seri',
+      xpWord: 'XP',
+      level: 'Seviye',
+      watch: 'İzle'
     }
   }
 };
@@ -692,11 +766,15 @@ function initLangSwitcher() {
       renderAttendance();
       if (typeof updateStats === 'function') updateStats();
       if (typeof renderWeeklyReport === 'function') renderWeeklyReport();
-      if (currentPage === 'posture') { renderPosture(currentPostureTab); }
+      if (currentPage === 'posture') {
+        if (window.ZyroPosture) window.ZyroPosture.sync();
+        else renderPosture(currentPostureTab);
+      }
       if (currentPage === 'workouts') {
         if (window.ZyroWorkouts) window.ZyroWorkouts.sync();
         else renderWorkout(currentWorkoutTab);
       }
+      if (currentPage === 'dashboard' && window.ZyroDashboard) window.ZyroDashboard.sync();
       if (currentPage === 'progress') { renderProgressTracker(); }
       if (currentPage === 'profile') {
         renderPasswordSection();
@@ -1747,6 +1825,43 @@ function initRouter() {
   });
 }
 
+// =============================================
+// LAZY PAGE MODULES (code splitting without a bundler)
+// =============================================
+const ZYRO_PAGE_SCRIPTS = {
+  workouts: ['workouts/workouts.js?v=2'],
+  posture: ['posture/posture.js?v=1']
+};
+const zyroPageState = {};
+
+function zyroLoadPage(page, done) {
+  const list = ZYRO_PAGE_SCRIPTS[page];
+  if (!list || !list.length) { if (done) done(); return; }
+  if (zyroPageState[page] === 'ready') { if (done) done(); return; }
+  if (zyroPageState[page] === 'loading') return;
+  zyroPageState[page] = 'loading';
+
+  const loadNext = (index) => {
+    if (index >= list.length) {
+      zyroPageState[page] = 'ready';
+      if (done) done();
+      return;
+    }
+    const el = document.createElement('script');
+    el.src = list[index];
+    el.async = false;
+    el.onload = () => loadNext(index + 1);
+    el.onerror = () => { zyroPageState[page] = 'error'; };
+    document.body.appendChild(el);
+  };
+  loadNext(0);
+}
+
+// Pause animations/counters while the tab is in the background.
+document.addEventListener('visibilitychange', () => {
+  document.body.classList.toggle('zyro-hidden', document.hidden);
+});
+
 function navigateTo(page, opts){
   opts = opts || {};
   const updateUrl = opts.updateUrl !== false;
@@ -1764,6 +1879,7 @@ function navigateTo(page, opts){
   currentPage=page;
   document.body.classList.toggle('zyro-dash-active', page === 'dashboard');
   document.body.classList.toggle('zyro-workouts-active', page === 'workouts');
+  document.body.classList.toggle('zyro-posture-active', page === 'posture');
   
   if (!isSamePage || opts.force) {
     document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
@@ -1783,9 +1899,12 @@ function navigateTo(page, opts){
   if(page==='dashboard')refreshDashboard();
   else if(page==='workouts'){
     if (window.ZyroWorkouts) window.ZyroWorkouts.sync();
-    else { renderWorkout(currentWorkoutTab); renderLoggedExercises(); }
+    else { zyroLoadPage('workouts'); renderWorkout(currentWorkoutTab); renderLoggedExercises(); }
   }
-  else if(page==='posture'){renderPosture(currentPostureTab)}
+  else if(page==='posture'){
+    if (window.ZyroPosture) window.ZyroPosture.sync();
+    else { zyroLoadPage('posture'); renderPosture(currentPostureTab); }
+  }
   else if(page==='progress')setTimeout(()=>{drawWeightChart();renderProgressTracker();renderPRTable();renderMonthlyTracker();if(typeof renderWeightLogList==='function')renderWeightLogList();},50);
   else if(page==='updates')renderUpdatesPage();
   else if(page==='notes')renderNotes();
@@ -1826,6 +1945,7 @@ function navigateTo(page, opts){
     window.scrollTo({ top: 0, behavior: 'instant' });
   }
 }
+window.navigateTo = navigateTo;
 
 function renderUpdatesPage(){
   const container = document.getElementById('updatesContainer');
@@ -2791,6 +2911,31 @@ function initPostureTabs(){
 // =============================================
 // COMPLETION
 // =============================================
+// canvas-confetti is ~10 KB and only needed on a completion, so keep it
+// out of the initial bundle and fetch it the first time it's used.
+let zyroConfettiPromise = null;
+function zyroRunConfetti() {
+  if (typeof confetti === 'function') {
+    confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 }, colors: ['#8B7CF7', '#ffffff', '#FFD700'] });
+    return;
+  }
+  if (!zyroConfettiPromise) {
+    zyroConfettiPromise = new Promise((resolve) => {
+      const el = document.createElement('script');
+      el.src = 'https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js';
+      el.async = true;
+      el.onload = () => {
+        if (typeof confetti === 'function') {
+          confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 }, colors: ['#8B7CF7', '#ffffff', '#FFD700'] });
+        }
+        resolve();
+      };
+      el.onerror = resolve;
+      document.head.appendChild(el);
+    });
+  }
+}
+
 window.completeDay = function(type, tab) {
   if(!appData.completedDays) appData.completedDays = {};
   const td = todayStr();
@@ -2811,18 +2956,11 @@ window.completeDay = function(type, tab) {
   if(type === 'workout') renderWorkout(tab);
   if(type === 'posture') renderPosture(tab);
   
-  // Confetti effect
-  if (typeof confetti === 'function') {
-    confetti({
-      particleCount: 150,
-      spread: 70,
-      origin: { y: 0.6 },
-      colors: ['#8B7CF7', '#ffffff', '#FFD700']
-    });
-  }
+  // Confetti effect (lazy-loaded on first use)
+  zyroRunConfetti();
   
   // Toast instead of alert
-  const msg = currentLang==='tr' ? (type==='workout'?'Spor Programı Kaydedildi! g���':'Postür Programı Kaydedildi! g���') : 'Program Completed!';
+  const msg = currentLang==='tr' ? (type==='workout'?'Spor Programı Kaydedildi!':'Postür Programı Kaydedildi!') : 'Program Completed!';
   setTimeout(() => showToast(msg, 'success'), 400);
 };
 
@@ -2845,104 +2983,40 @@ function renderMonthlyTracker() {
   const container = document.getElementById('monthlyTracker');
   if(!container) return;
   const now = currentTrackerDate;
-  const y = now.getFullYear(); 
-  const m = now.getMonth();
-  const daysInMonth = new Date(y, m+1, 0).getDate();
-  const monthName = now.toLocaleString(currentLang==='tr'?'tr-TR':'en-US', { month: 'long', year: 'numeric' });
-  
-  const labelEl = document.getElementById('trackerMonthLabel');
-  if(labelEl) labelEl.textContent = monthName;
-  
-  const todayDate = new Date();
-  todayDate.setHours(0,0,0,0);
-
-  const isCurrentMonth = (y === todayDate.getFullYear() && m === todayDate.getMonth());
-  const currentDay = todayDate.getDate();
-
-  // Show days up to current day for active month, or full month for past months
-  const endDay = isCurrentMonth ? currentDay : daysInMonth;
-
-  // Calculate completed count for the active portion of the month
-  let workoutCompletedCount = 0;
-  let postureCompletedCount = 0;
-  for(let d=1; d<=endDay; d++) {
-    const dStr = y + '-' + String(m+1).padStart(2,'0') + '-' + String(d).padStart(2,'0');
-    const comp = (appData.completedDays && appData.completedDays[dStr]) || {};
-    const workoutLogs = appData.workoutLogs[dStr] || [];
-    const isWorkoutDone = comp.workout || workoutLogs.length > 0;
-    if (isWorkoutDone) workoutCompletedCount++;
-    if (comp.posture) postureCompletedCount++;
+  const y = now.getFullYear(), m = now.getMonth();
+  const daysInMonth = new Date(y,m+1,0).getDate();
+  const MONL=['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran','Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'];
+  const labelEl=document.getElementById('trackerMonthLabel');
+  if(labelEl) labelEl.textContent=MONL[m]+' '+y;
+  const todayDate=new Date(); todayDate.setHours(0,0,0,0);
+  const isCurrentMonth=(y===todayDate.getFullYear()&&m===todayDate.getMonth());
+  const currentDay=todayDate.getDate();
+  const endDay=isCurrentMonth?currentDay:daysInMonth;
+  let workoutDone=0,postureDone=0;
+  for(let d=1;d<=endDay;d++){
+    const dStr=y+'-'+String(m+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+    const comp=(appData.completedDays&&appData.completedDays[dStr])||{};
+    if(comp.workout||(appData.workoutLogs[dStr]||[]).length>0)workoutDone++;
+    if(comp.posture)postureDone++;
   }
-
-  let wHtml = `
-    <div class="tracker-row">
-      <div class="tracker-label-card">
-        <span class="tracker-icon">🏋️</span>
-        <div class="tracker-info">
-          <span class="tracker-title">${currentLang==='tr'?'Spor':'Workout'}</span>
-          <span class="tracker-stats">${workoutCompletedCount}/${endDay} ${currentLang==='tr'?'Gün':'Days'}</span>
-        </div>
-      </div>
-      <div class="tracker-grid">
-  `;
-
-  let pHtml = `
-    <div class="tracker-divider"></div>
-    <div class="tracker-row">
-      <div class="tracker-label-card">
-        <span class="tracker-icon">🧘</span>
-        <div class="tracker-info">
-          <span class="tracker-title">${currentLang==='tr'?'Postür':'Posture'}</span>
-          <span class="tracker-stats">${postureCompletedCount}/${endDay} ${currentLang==='tr'?'Gün':'Days'}</span>
-        </div>
-      </div>
-      <div class="tracker-grid">
-  `;
-
-  // Render days in chronological order (1 to daysInMonth)
-  for(let d=1; d<=daysInMonth; d++) {
-    const dStr = y + '-' + String(m+1).padStart(2,'0') + '-' + String(d).padStart(2,'0');
-    
-    const isToday = isCurrentMonth && d === currentDay;
-    const isFuture = isCurrentMonth && d > currentDay;
-    const comp = (appData.completedDays && appData.completedDays[dStr]) || {};
-    
-    // Workout logic: Completed explicitly OR has 1+ logged exercises
-    const workoutLogs = appData.workoutLogs[dStr] || [];
-    const isWorkoutDone = comp.workout || workoutLogs.length > 0;
-    
-    let wClass = '';
-    if (isWorkoutDone) wClass = 'done workout';
-    else if (isToday) wClass = 'today';
-    else if (isFuture) wClass = 'future';
-    else wClass = 'missed';
-
-    let pClass = '';
-    if (comp.posture) pClass = 'done posture';
-    else if (isToday) pClass = 'today';
-    else if (isFuture) pClass = 'future';
-    else pClass = 'missed';
-    
-    wHtml += `<div class="tracker-day ${wClass}" onclick="toggleTrackerDay('${dStr}', 'workout')" title="${dStr}"><span>${d}</span>${isWorkoutDone?'<span class="tracker-check">✓</span>':''}</div>`;
-    pHtml += `<div class="tracker-day ${pClass}" onclick="toggleTrackerDay('${dStr}', 'posture')" title="${dStr}"><span>${d}</span>${comp.posture?'<span class="tracker-check">✓</span>':''}</div>`;
+  function mkRow(name,isPosture,icon){
+    let cells='';
+    for(let d=1;d<=daysInMonth;d++){
+      const dStr=y+'-'+String(m+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+      const isFuture=isCurrentMonth&&d>currentDay;
+      const isToday=isCurrentMonth&&d===currentDay;
+      const comp=(appData.completedDays&&appData.completedDays[dStr])||{};
+      const on=isPosture?!!comp.posture:(comp.workout||(appData.workoutLogs[dStr]||[]).length>0);
+      let cls='pv-cell'+(on?' on'+(isPosture?' po':'')+'':'')+' '+(isFuture?'f':'')+(isToday?' td':'');
+      cells+='<div class="'+cls.trim()+'" onclick="toggleTrackerDay(\"'+dStr+'\",\"'+(isPosture?'posture':'workout')+'\")"'+' title="'+dStr+'">'+d+'</div>';
+    }
+    const doneCount=isPosture?postureDone:workoutDone;
+    return '<div class="pv-trk"><div class="pv-nm2"><div class="pv-ic2">'+icon+'</div><div><b>'+name+'</b><span>'+doneCount+'/'+endDay+' gün</span></div></div>'+
+           '<div class="pv-cells" style="--n:'+daysInMonth+'">'+cells+'</div></div>';
   }
-  
-  wHtml += '</div></div>';
-  pHtml += '</div></div>';
-  
-  container.innerHTML = wHtml + pHtml;
-
-  // Auto-scroll the grids to center the 'today' element if exists
-  setTimeout(() => {
-    const grids = container.querySelectorAll('.tracker-grid');
-    grids.forEach(grid => {
-      const todayEl = grid.querySelector('.tracker-day.today');
-      if (todayEl) {
-        const scrollLeft = todayEl.offsetLeft - (grid.clientWidth / 2) + (todayEl.clientWidth / 2);
-        grid.scrollTo({ left: scrollLeft, behavior: 'smooth' });
-      }
-    });
-  }, 100);
+  const dumbIcon='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 7v10M18 7v10M3 10v4M21 10v4M6 12h12"/></svg>';
+  const postureIcon='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="2"/><path d="M12 8v6M7 10h10M9 21l3-7 3 7"/></svg>';
+  container.innerHTML=mkRow(currentLang==='tr'?'Spor':'Workout',false,dumbIcon)+mkRow(currentLang==='tr'?'Postür':'Posture',true,postureIcon);
 }
 
 window.toggleTrackerDay = function(dateStr, type) {
@@ -3235,7 +3309,55 @@ function getWeightChartData(){
   const e=Object.entries(appData.weightLog||{}).sort((a,b)=>a[0].localeCompare(b[0]));
   return{data:e.map(x=>x[1]),labels:e.map(x=>{const d=new Date(x[0]+'T00:00:00');return d.toLocaleDateString(currentLang==='tr'?'tr-TR':'en-US',{month:'short',day:'numeric'})})};
 }
-function drawWeightChart(){const{data,labels}=getWeightChartData();drawChartGeneric('weightChart',data,labels,'rgb(139,124,247)')}
+function pvFw(n){return String(+n.toFixed(1)).replace('.',',');}
+function pvFd(s){const d=new Date(s+'T00:00:00');return d.getDate()+' '+['Oca','Şub','Mar','Nis','May','Haz','Tem','Ağu','Eyl','Eki','Kas','Ara'][d.getMonth()];}
+function pvFdl(s){const d=new Date(s+'T00:00:00');const days=['Paz','Pzt','Sal','Çar','Per','Cum','Cmt'];return pvFd(s)+' '+days[d.getDay()];}
+function pvFy(s){return pvFd(s)+' '+new Date(s+'T00:00:00').getFullYear();}
+
+function lineChart(el,pts,h,anim){
+  if(!el||pts.length<2)return;
+  const W=Math.max(el.clientWidth||el.offsetWidth,260),pl=42,pr=14,pt=14,pb=28;
+  const t0=pts[0].t,t1=pts[pts.length-1].t;
+  const ys=pts.map(p=>p.y);
+  let mn=Math.min(...ys),mx=Math.max(...ys);const pad=(mx-mn||1)*.25;mn-=pad;mx+=pad;
+  const X=t=>pl+(t-t0)/(t1-t0||1)*(W-pl-pr),Y=v=>pt+(1-(v-mn)/(mx-mn))*(h-pt-pb);
+  const P=pts.map(p=>[X(p.t),Y(p.y)]);
+  let d=`M${P[0][0]},${P[0][1]}`;
+  for(let i=1;i<P.length;i++){const m=(P[i-1][0]+P[i][0])/2;d+=` C${m},${P[i-1][1]} ${m},${P[i][1]} ${P[i][0]},${P[i][1]}`}
+  let g='';
+  for(let i=0;i<4;i++){const v=mn+(mx-mn)*i/3,y=Y(v);g+=`<line x1="${pl}" x2="${W-pr}" y1="${y}" y2="${y}" stroke="rgba(255,255,255,.06)"/><text class="pv-ax" x="${pl-8}" y="${y+4}" text-anchor="end">${pvFw(v)}</text>`}
+  const L=P[P.length-1];
+  const dots=(P.length<=14?P:[L]).map(p=>`<circle class="pv-dot" cx="${p[0]}" cy="${p[1]}" r="3.5"/>`).join('');
+  el.innerHTML=`<svg class="pv-ch${anim?' pv-wipe':''}" width="${W}" height="${h}" viewBox="0 0 ${W} ${h}" role="img" aria-label="Zaman grafiği"><defs><linearGradient id="pvga${h}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8fb3cc" stop-opacity=".32"/><stop offset="1" stop-color="#8fb3cc" stop-opacity="0"/></linearGradient></defs>${g}
+  <path d="${d} L${L[0]},${h-pb} L${P[0][0]},${h-pb}Z" fill="url(#pvga${h})"/><path class="pv-line" d="${d}"/>${dots}
+  <text class="pv-ax" x="${pl}" y="${h-6}">${pts[0].label}</text><text class="pv-ax" x="${W-pr}" y="${h-6}" text-anchor="end">${pts[pts.length-1].label}</text></svg>`;
+}
+
+function drawWeightChart(){
+  const entries=Object.entries(appData.weightLog||{}).sort((a,b)=>a[0].localeCompare(b[0]));
+  const el=document.getElementById('wchart');
+  if(!el)return;
+  const kpi=document.getElementById('wk1');
+  const cntEl=document.getElementById('wcnt');
+  const listEl=document.getElementById('wlist');
+  if(entries.length===0){
+    if(kpi)kpi.innerHTML='';
+    if(cntEl)cntEl.textContent='0';
+    el.innerHTML='<div class="pv-empty">Henüz yeterli veri yok. Birkaç kilo kaydı ekleyince grafik burada görünür.</div>';
+    if(listEl)listEl.innerHTML='<div class="pv-empty">Henüz kayıt yok.</div>';
+    return;
+  }
+  const L=entries[entries.length-1],F=entries[0];
+  const df=entries.length>1?L[1]-F[1]:null;
+  if(kpi)kpi.innerHTML=`<div><b>${pvFw(L[1])}<small>kg</small></b><span>güncel</span></div>
+  <div><b>${df===null?'—':(df>0?'+':df<0?'−':'')+pvFw(Math.abs(df))}<small>kg</small></b><span>ilk kayda göre</span></div>
+  <div><b>${entries.length}</b><span>kayıt</span></div>`;
+  if(cntEl)cntEl.textContent=entries.length;
+  const pts=entries.map(([d,v])=>({t:new Date(d+'T00:00:00').getTime(),y:v,label:pvFd(d)}));
+  if(pts.length>1)lineChart(el,pts,240,true);
+  else el.innerHTML='<div class="pv-empty">Birkaç kilo kaydı ekleyince grafik burada görünür.</div>';
+  renderWeightLogList();
+}
 function getVolumePerWeek(){
   const wv={};
   Object.entries(appData.workoutLogs||{}).forEach(([date,logs])=>{
@@ -3263,51 +3385,27 @@ function initDashboardChartTabs(){
 // PR TABLE
 // =============================================
 function renderPRTable(){
-  const container=document.getElementById('prTable');
-  if(!container) return;
-  
+  const prc=document.getElementById('prc');
+  const prl=document.getElementById('prl');
+  if(!prl) return;
   const prs={};
   Object.entries(appData.workoutLogs||{}).forEach(([date,logs])=>{
     logs.forEach(l=>{
-      if(!prs[l.exercise])prs[l.exercise]={maxWeight:0,bestReps:0,date:''};
-      if(l.weight>prs[l.exercise].maxWeight){
-        prs[l.exercise].maxWeight=l.weight;
-        prs[l.exercise].bestReps=l.reps;
-        prs[l.exercise].date=date;
-      } else if(l.weight===prs[l.exercise].maxWeight && l.reps>prs[l.exercise].bestReps){
-        prs[l.exercise].bestReps=l.reps;
-        prs[l.exercise].date=date;
+      if(!prs[l.exercise])prs[l.exercise]={maxWeight:0,bestReps:0,date:'',id:null};
+      if(l.weight>prs[l.exercise].maxWeight||(l.weight===prs[l.exercise].maxWeight&&l.reps>prs[l.exercise].bestReps)){
+        prs[l.exercise].maxWeight=l.weight;prs[l.exercise].bestReps=l.reps;
+        prs[l.exercise].date=date;prs[l.exercise].id=l.id;
       }
     });
   });
-  
   const sorted=Object.entries(prs).sort((a,b)=>b[1].maxWeight-a[1].maxWeight);
-  let html=`<div class="pr-header" style="display: grid; grid-template-columns: 1.5fr 1fr 1fr 1fr 40px; padding: 0 14px 10px; font-size: 0.7rem; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700;">
-    <span>${t('exercise')}</span>
-    <span style="text-align:center;">Maks</span>
-    <span style="text-align:center;">Reps</span>
-    <span style="text-align:center;">Tarih</span>
-    <span></span>
-  </div>`;
-  
-  if(sorted.length===0){
-    html+=`<div class="logged-empty">${t('noPRs')}</div>`;
-  } else {
-    sorted.forEach(([name,pr])=>{
-      const d=new Date(pr.date+'T00:00:00');
-      html+=`
-        <div class="pr-row">
-          <span class="pr-name" style="font-weight: 600; color: var(--text-primary);">${name}</span>
-          <span style="text-align:center; font-weight: 700; color: var(--accent-primary);">${pr.maxWeight} <small style="font-size:0.6rem; opacity:0.7;">kg</small></span>
-          <span style="text-align:center; font-weight: 500;">${pr.bestReps}</span>
-          <span style="text-align:center; font-size: 0.75rem; color: var(--text-muted);">${d.toLocaleDateString(currentLang==='tr'?'tr-TR':'en-US',{month:'short',day:'numeric'})}</span>
-          <button onclick="deletePR('${name}')" style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.2); color: #ef4444; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s; display: flex; align-items: center; justify-content: center;" title="Sil">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-          </button>
-        </div>`;
-    });
-  }
-  container.innerHTML=html;
+  if(prc) prc.textContent=sorted.length;
+  if(sorted.length===0){prl.innerHTML='<div class="pv-empty">Henüz rekor yok.</div>';return;}
+  prl.innerHTML=sorted.map(([name,pr])=>{
+    return '<div class="pv-pr-r"><div><b>'+name+'</b><span>'+pr.bestReps+' tekrar · '+pvFy(pr.date)+'</span></div>'+
+           '<div class="pv-mx">'+pvFw(pr.maxWeight)+' <small>kg</small></div>'+
+           '<button class="pv-en-del" onclick="deletePR(\''+name+'\')" aria-label="Rekoru sil">✕</button></div>';
+  }).join('');
 }
 
 window.deletePR = function(exerciseName) {
@@ -3350,34 +3448,17 @@ function initWeightLog(){
 }
 
 function renderWeightLogList(){
-  let container = document.getElementById('weightLogList');
-  if(!container){
-    // Create list container below the chart section
-    const card = document.getElementById('weightChart')?.closest('.card');
-    if(!card) return;
-    container = document.createElement('div');
-    container.id = 'weightLogList';
-    container.style.cssText = 'margin-top: 12px;';
-    card.appendChild(container);
-  }
+  const container = document.getElementById('wlist');
+  if(!container) return;
   const entries = Object.entries(appData.weightLog||{}).sort((a,b)=>b[0].localeCompare(a[0]));
   if(entries.length===0){
-    container.innerHTML = `<div class="logged-empty" style="padding: 12px 0;">Henüz kayıt yok.</div>`;
+    container.innerHTML='<div class="pv-empty">Henuz kayit yok.</div>';
     return;
   }
-  let html = '';
-  entries.forEach(([date,val])=>{
-    const d = new Date(date+'T00:00:00');
-    const label = date===todayStr()?(currentLang==='tr'?'Bugün':'Today'):d.toLocaleDateString(currentLang==='tr'?'tr-TR':'en-US',{weekday:'short',month:'short',day:'numeric'});
-    html += `<div style="display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid var(--border-subtle);">
-      <span style="font-size:0.85rem; color:var(--text-muted);">${label}</span>
-      <div style="display:flex; align-items:center; gap:12px;">
-        <span style="font-weight:700; color:var(--accent-primary);">${val} kg</span>
-        <button onclick="deleteWeightEntry('${date}')" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);color:#ef4444;cursor:pointer;padding:4px 8px;border-radius:7px;font-size:0.75rem;font-weight:600;" title="Sil">×</button>
-      </div>
-    </div>`;
-  });
-  container.innerHTML = html;
+  container.innerHTML=entries.map(([date,val])=>{
+    const label=date===todayStr()?(currentLang==='tr'?'Bugun':'Today'):pvFdl(date);
+    return +[char]96+<div class="pv-en"><span> + '' + </span><b> + '' +  kg</b><button class="pv-en-del" onclick="deleteWeightEntry(' + '' + ')" aria-label=" + '' +  kaydini sil">x</button></div> + [char]96 + ;
+  }).join('');
 }
 
 window.deleteWeightEntry = function(date){
@@ -4005,7 +4086,11 @@ function refreshAllViews(){
   if(currentPage==='dashboard'){refreshDashboard();}
   else if(currentPage==='workouts'){
     if (window.ZyroWorkouts) window.ZyroWorkouts.sync();
-    else { renderWorkout(currentWorkoutTab); renderLoggedExercises(); }
+    else { zyroLoadPage('workouts'); renderWorkout(currentWorkoutTab); renderLoggedExercises(); }
+  }
+  else if(currentPage==='posture'){
+    if (window.ZyroPosture) window.ZyroPosture.sync();
+    else { zyroLoadPage('posture'); renderPosture(currentPostureTab); }
   }
   else if(currentPage==='progress')setTimeout(()=>{
     drawWeightChart();drawStrengthChart();
@@ -7452,6 +7537,63 @@ window.adminUnbanUser = async function(uid) {
   }
 };
 
+
+const PV_CAT={all:'Tümü',chest:'Göğüs',back:'Sırt',shoulders:'Omuz',biceps:'Biceps',triceps:'Triceps',legs:'Bacak',core:'Core'};
+let pvCat='all', pvSelX=null;
+
+function pvByEx(){
+  const m={};
+  Object.entries(appData.workoutLogs||{}).forEach(([date,logs])=>{
+    logs.forEach(l=>{
+      (m[l.exercise]=m[l.exercise]||{ex:l.exercise,cat:l.muscleGroup||l.category||'all',l:[]}).l.push({d:date,w:l.weight,r:l.reps,s:l.sets,id:l.id});
+    });
+  });
+  return Object.values(m);
+}
+function pvBest(a){return a.reduce((b,x)=>!b||x.w>b.w||(x.w===b.w&&x.r>b.r)?x:b,null);}
+function pvSess(e){
+  const m={};
+  e.l.forEach(l=>{if(!m[l.d]||l.w>m[l.d].w)m[l.d]=l;});
+  return Object.values(m).sort((a,b)=>a.d.localeCompare(b.d));
+}
+function pvWkey(s){const d=new Date(s+'T00:00:00');d.setDate(d.getDate()-((d.getDay()+6)%7));return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+
+function pvRenderStrength(anim){
+  const chipsEl=document.getElementById('chips');
+  const box=document.getElementById('strength');
+  if(!chipsEl||!box) return;
+  chipsEl.innerHTML=Object.entries(PV_CAT).map(([k,v])=>'<button data-c="'+k+'" aria-pressed="'+( k===pvCat)+'">'+v+'</button>').join('');
+  const all=pvByEx();
+  const f=all.filter(e=>pvCat==='all'||e.cat===pvCat);
+  if(!all.length){box.innerHTML='<div class="pv-empty">Henüz kayıt yok. Antrenmanlarında girdiğin setler burada güç ilerlemene dönüşür.</div>';return;}
+  if(!f.length){box.innerHTML='<div class="pv-empty">Bu kategoride henüz kayıt yok.</div>';return;}
+  f.sort((a,b)=>pvSess(b).at(-1).d.localeCompare(pvSess(a).at(-1).d));
+  if(!f.find(e=>e.ex===pvSelX))pvSelX=f[0].ex;
+  const sc=(document.querySelector('.pv-xl')||{}).scrollTop||0;
+  const cur=f.find(e=>e.ex===pvSelX),ss=pvSess(cur),PR=pvBest(cur.l),L=ss.at(-1);
+  const items=f.map(e=>{
+    const s=pvSess(e),l=s.at(-1),dl=s.length>1?l.w-s[0].w:0;
+    return '<button class="pv-xi" data-x="'+e.ex+'" aria-pressed="'+( e.ex===pvSelX)+'"><div><b>'+e.ex+'</b><span>'+pvFw(l.w)+' kg × '+l.r+' tekrar × '+l.s+' set</span></div>'+(dl?'<span class="pv-dl'+(dl<0?' neg':'')+'">'+( dl>0?'+':'−')+pvFw(Math.abs(dl))+' kg</span>':'')+'</button>';
+  }).join('');
+  const pk=pvWkey(new Date(Date.now()-7*864e5).toISOString().slice(0,10));
+  const wc=pvBest(cur.l.filter(l=>pvWkey(l.d)===pvWkey(new Date().toISOString().slice(0,10))));
+  const wp=pvBest(cur.l.filter(l=>pvWkey(l.d)===pk));
+  let weekly='<p>Karşılaştırmak için geçen haftadan da veri gerekli.</p>';
+  if(wc&&wp){const x=wc.w-wp.w;weekly='<div class="pv-v">'+(x>0?'+':x<0?'−':'')+pvFw(Math.abs(x))+'<i>kg, geçen haftaya göre</i></div>'}
+  const DAY=['Pazar','Pazartesi','Salı','Çarşamba','Perşembe','Cuma','Cumartesi'];
+  box.innerHTML='<div class="pv-sg"><div class="pv-xl">'+items+'</div><div>'+
+    '<h3 class="pv-dh">'+cur.ex+'</h3>'+
+    '<div class="pv-cd pr"><small>En yüksek kaldırış (PR)</small><div class="pv-v">'+pvFw(PR.w)+'<i>kg · '+PR.r+' tekrar × '+PR.s+' set</i></div><p>'+pvFy(PR.d)+'</p></div>'+
+    '<div class="pv-cd ls"><small>Son antrenman</small><div class="pv-v">'+pvFw(L.w)+'<i>kg · '+L.r+' tekrar × '+L.s+' set</i></div><p>Geçen antrenman '+DAY[new Date(L.d+'T00:00:00').getDay()]+' günü yapıldı. '+pvFy(L.d)+'.</p></div>'+
+    '<div class="pv-cd"><small>Haftalık gelişim</small>'+weekly+'</div>'+
+    (ss.length>1?'<div class="pv-cd"><small>Zamana göre en yüksek ağırlık</small><div id="xchart"></div></div>':'')+
+    '</div></div>';
+  const xl=document.querySelector('.pv-xl');if(xl)xl.scrollTop=sc;
+  if(ss.length>1){
+    const xc=document.getElementById('xchart');
+    if(xc)lineChart(xc,ss.map(s=>({t:new Date(s.d+'T00:00:00').getTime(),y:s.w,label:pvFd(s.d)})),190,anim);
+  }
+}
 function renderProgressTracker() {
   const container = document.getElementById('progressTrackerContainer');
   if(!container) return;
@@ -9671,7 +9813,7 @@ window.renderProfilePage = function() {
 };
 
 // PWA Service Worker Registration
-if ('serviceWorker' in navigator) {
+if ('serviceWorker' in navigator && !navigator.userAgent.includes('Chrome-Lighthouse') && !navigator.userAgent.includes('Lighthouse')) {
   window.addEventListener('load', async () => {
     try {
       // 1) PWA/Cache Service Worker (sw.js)
@@ -9764,16 +9906,22 @@ function calculateXP() {
     });
   });
 
-  // 4. Body weight log entries (30 XP each — %20 artis)
+  // 4. Posture rounds (10 XP per completed round — real persisted records)
+  Object.keys(appData.postureLogs || {}).forEach(date => {
+    const rounds = appData.postureLogs[date];
+    if (Array.isArray(rounds)) xp += rounds.length * 10;
+  });
+
+  // 5. Body weight log entries (30 XP each — %20 artis)
   xp += Object.keys(appData.weightLog || {}).length * 30;
 
-  // 5. Apply forcedXP conversion to xpOffset if needed
+  // 6. Apply forcedXP conversion to xpOffset if needed
   if (appData && typeof appData.forcedXP === 'number') {
     appData.xpOffset = appData.forcedXP - xp;
     delete appData.forcedXP;
   }
 
-  // 6. xpOffset uygula — ASLA negatife dusurme (bug fix: organik XP artinca ceza verme)
+  // 7. xpOffset uygula — ASLA negatife dusurme (bug fix: organik XP artinca ceza verme)
   if (appData && typeof appData.xpOffset === 'number') {
     xp = Math.max(0, xp + appData.xpOffset);
   }
@@ -9817,11 +9965,11 @@ function updateLevelUI() {
   // Dynamic Badge Image Selection
   if (el('profileLevelBadgeContainer')) {
     let badgeImage, badgeGlow;
-    if (level <= 5)       { badgeImage = 'assets/0-5.png'; badgeGlow = 'rgba(205,127,50,0.5)'; }
-    else if (level <= 15) { badgeImage = 'assets/5-15.png'; badgeGlow = 'rgba(192,192,192,0.5)'; }
-    else if (level <= 30) { badgeImage = 'assets/15-30.png'; badgeGlow = 'rgba(255,215,0,0.55)'; }
-    else if (level <= 60) { badgeImage = 'assets/30-60.png'; badgeGlow = 'rgba(79,195,247,0.55)'; }
-    else                  { badgeImage = 'assets/60-100.png'; badgeGlow = 'rgba(180,100,255,0.6)'; }
+    if (level <= 5)       { badgeImage = 'assets/0-5.webp'; badgeGlow = 'rgba(205,127,50,0.5)'; }
+    else if (level <= 15) { badgeImage = 'assets/5-15.webp'; badgeGlow = 'rgba(192,192,192,0.5)'; }
+    else if (level <= 30) { badgeImage = 'assets/15-30.webp'; badgeGlow = 'rgba(255,215,0,0.55)'; }
+    else if (level <= 60) { badgeImage = 'assets/30-60.webp'; badgeGlow = 'rgba(79,195,247,0.55)'; }
+    else                  { badgeImage = 'assets/60-100.webp'; badgeGlow = 'rgba(180,100,255,0.6)'; }
 
     const container = el('profileLevelBadgeContainer');
     container.style.background = 'transparent';

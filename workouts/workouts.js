@@ -20,6 +20,7 @@
   var ST = {};
   var celebratedTimer = null;
   var firstRender = true;
+  var syncFrame = 0;
 
   /* ---------------- helpers ---------------- */
   function lang() {
@@ -438,9 +439,7 @@
   function refresh() {
     renderDays();
     renderList(false);
-    renderFocus();
     renderLog();
-    renderLevel();
   }
 
   /* ---------------- persistence ---------------- */
@@ -756,9 +755,7 @@
   }
 
   /* ---------------- sync ---------------- */
-  function sync() {
-    var page = document.getElementById('pageWorkouts');
-    if (!page || !page.classList.contains('active')) return;
+  function paint() {
     host = document.getElementById(HOST_ID);
     if (!host) return;
 
@@ -787,9 +784,24 @@
     celebratedTimer = setTimeout(function () { maybeCelebrate(selectedDay); }, 700);
   }
 
+  function sync() {
+    var page = document.getElementById('pageWorkouts');
+    if (!page || !page.classList.contains('active')) {
+      if (syncFrame) { cancelAnimationFrame(syncFrame); syncFrame = 0; }
+      return;
+    }
+    document.body.classList.add('zyro-workouts-active');
+    // Coalesce the several sync calls that can happen in one tick.
+    if (syncFrame) return;
+    syncFrame = requestAnimationFrame(function () {
+      syncFrame = 0;
+      var active = document.getElementById('pageWorkouts');
+      if (active && active.classList.contains('active')) paint();
+    });
+  }
+
   window.ZyroWorkouts = { sync: sync };
 
-  document.addEventListener('DOMContentLoaded', function () {
-    setTimeout(sync, 0);
-  });
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function () { setTimeout(sync, 0); });
+  else setTimeout(sync, 0);
 })();

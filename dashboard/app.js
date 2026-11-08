@@ -35,6 +35,7 @@
   }
 
   let root = null;
+  let syncFrame = 0;
 
   Z.go = function (page) {
     try {
@@ -60,19 +61,31 @@
     }, 160);
   };
 
-  Z.sync = function () {
-    const page = document.getElementById('pageDashboard');
-    if (!page || !page.classList.contains('active')) {
-      document.body.classList.remove('zyro-dash-active');
-      return;
-    }
-    document.body.classList.add('zyro-dash-active');
+  function renderDashboard() {
     const host = document.getElementById('zyroDashboardRoot');
     if (!host || !ReactDOM) return;
     if (!root) root = ReactDOM.createRoot(host);
 
     const model = Z.buildModel();
     root.render(html`<${App} model=${model}/>`);
+  }
+
+  Z.sync = function () {
+    const page = document.getElementById('pageDashboard');
+    if (!page || !page.classList.contains('active')) {
+      if (syncFrame) { cancelAnimationFrame(syncFrame); syncFrame = 0; }
+      document.body.classList.remove('zyro-dash-active');
+      return;
+    }
+    document.body.classList.add('zyro-dash-active');
+    // Several legacy helpers call sync back to back (stats, muscle map,
+    // refresh-all). Coalesce them into one render per animation frame.
+    if (syncFrame) return;
+    syncFrame = requestAnimationFrame(function () {
+      syncFrame = 0;
+      const active = document.getElementById('pageDashboard');
+      if (active && active.classList.contains('active')) renderDashboard();
+    });
   };
 
   document.addEventListener('DOMContentLoaded', function () {

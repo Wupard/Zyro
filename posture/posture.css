@@ -1,0 +1,102 @@
+/* ============================================================
+   Zyro — Posture page (approved design)
+   Reuses the .zw shell from workouts.css and adds the posture
+   specific rows, progress and mobile rules.
+   ============================================================ */
+
+body.zyro-posture-active { background: var(--bg); }
+body.zyro-posture-active .sidebar,
+body.zyro-posture-active .sidebar-collapse-btn,
+body.zyro-posture-active .main-content > .header,
+body.zyro-posture-active #notifBanner {
+  display: none !important;
+}
+body.zyro-posture-active .main-content {
+  padding: 0;
+  align-items: stretch;
+  min-height: 100dvh;
+}
+body.zyro-posture-active .main-content > .page[data-page="posture"] {
+  width: 100%;
+  max-width: none;
+  animation: none;
+}
+body.zyro-posture-active #pagePosture > :not(#zyroPostureRoot) {
+  display: none !important;
+}
+
+/* ---------- posture rows ---------- */
+.zp .day b { font-size: 16px; }
+
+/* Confetti canvas must not take part in the flex layout. */
+#zpCf {
+  position: fixed;
+  left: 0;
+  top: 0;
+  pointer-events: none;
+  z-index: 80;
+}
+
+.zp .rd {
+  position: relative;
+  display: grid;
+  grid-template-columns: 76px 1fr auto;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 10px;
+  padding: 7px 7px 7px 16px;
+  min-height: 60px;
+  border-radius: 16px;
+  border: 1px solid rgba(255,255,255,.07);
+  background: linear-gradient(90deg, rgba(143,179,204,.24) var(--p,0%), rgba(255,255,255,.035) var(--p,0%));
+  transition: opacity .3s;
+}
+.zp .rd label { color: var(--mute); font-size: 13px; }
+.zp .rd .tm {
+  font: 500 22px var(--d);
+  font-variant-numeric: tabular-nums;
+}
+.zp .rd .tm.rp { font-size: 17px; }
+.zp .rd.ok { opacity: .6; }
+.zp .go {
+  min-width: 100px;
+  height: 46px;
+  border-radius: 14px;
+  border: 1px solid var(--steel);
+  background: rgba(143,179,204,.14);
+  color: var(--text);
+  font: 500 14px var(--b);
+  cursor: pointer;
+  transition: background .25s var(--ease), color .25s var(--ease), transform .25s var(--ease);
+}
+.zp .go:hover { background: rgba(143,179,204,.28); }
+.zp .go.run { background: var(--steel); color: #13161b; }
+.zp .go:active { transform: scale(.97); }
+
+/* streak + XP summary in the side panel */
+.zp .pstats {
+  display: flex;
+  gap: 26px;
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255,255,255,.07);
+}
+.zp .pstats b {
+  font: 500 26px var(--d);
+  display: block;
+  letter-spacing: -.02em;
+}
+.zp .pstats span { color: var(--mute); font-size: 12.5px; }
+
+/* ---------- mobile ---------- */
+@media (max-width: 640px) {
+  .zp .rd {
+    grid-template-columns: 62px 1fr auto;
+    gap: 9px;
+    padding-left: 13px;
+  }
+  .zp .rd .tm { font-size: 20px; }
+  .zp .rd .tm.rp { font-size: 15px; }
+  .zp .go { min-width: 88px; height: 44px; font-size: 13px; }
+  .zp .pstats { gap: 20px; }
+}

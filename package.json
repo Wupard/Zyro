@@ -5,5 +5,9 @@
   "private": true,
   "dependencies": {
     "firebase-admin": "^12.0.0"
+  },
+  "devDependencies": {
+    "lighthouse": "^13.6.0",
+    "playwright": "^1.65.0"
   }
 }
