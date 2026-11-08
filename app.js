@@ -3457,7 +3457,7 @@ function renderWeightLogList(){
   }
   container.innerHTML=entries.map(([date,val])=>{
     const label=date===todayStr()?(currentLang==='tr'?'Bugun':'Today'):pvFdl(date);
-    return +[char]96+<div class="pv-en"><span> + '' + </span><b> + '' +  kg</b><button class="pv-en-del" onclick="deleteWeightEntry(' + '' + ')" aria-label=" + '' +  kaydini sil">x</button></div> + [char]96 + ;
+    return `<div class="pv-en"><span>${label}</span><b>${val} kg</b><button class="pv-en-del" onclick="deleteWeightEntry('${date}')" aria-label="Kaydı sil">×</button></div>`;
   }).join('');
 }
 
