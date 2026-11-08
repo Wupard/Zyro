@@ -250,7 +250,63 @@ const I18N = {
     workoutProgramSubtitle: 'Track and log today\'s exercises',
     postureProgramSubtitle: 'Improve your posture, work for a healthy body',
     notificationsEnabledSuccess: 'Notifications successfully enabled!',
-    notificationPermissionDenied: 'Notification permission denied.'
+    notificationPermissionDenied: 'Notification permission denied.',
+    zw: {
+      navLabel: 'Main menu',
+      nav: {
+        dashboard: 'Dashboard', workouts: 'Workouts', progress: 'Progress', diet: 'Nutrition',
+        posture: 'Posture', calculators: 'Calculators', leaderboard: 'Leaderboard', notes: 'Notes'
+      },
+      title1: 'Workout', title2: 'program',
+      subtitle: '5-day split · Push / Pull / Legs / Upper / Lower',
+      weeklyProgram: 'Weekly program',
+      todayPill: function (day, split) { return 'Today: ' + day + ' · ' + split; },
+      restDayPill: 'Rest day today',
+      restWord: 'Rest',
+      priority: 'Priority',
+      todayFocus: "Today's focus",
+      rirNote: 'Reps in reserve. RIR 2 means you could still do 2 more reps.',
+      compoundWord: 'Compound lifts',
+      compoundNote: 'rest 2–3 min between sets.',
+      isoWord: 'Isolation lifts',
+      isoNote: 'rest 60–90 sec between sets.',
+      freeLog: 'Free log',
+      freeLogSub: 'An exercise outside the program',
+      category: 'Category',
+      exercise: 'Exercise',
+      selectExercise: 'Select exercise…',
+      weight: 'Weight',
+      reps: 'Reps',
+      sets: 'Sets',
+      addRecord: 'Add record',
+      viewStrength: 'View strength progress',
+      todaysRecords: "Today's log",
+      records: 'records',
+      emptyLog: 'No records yet today. Tap an exercise and enter your first set.',
+      totalVolume: 'Total volume',
+      target: 'Target',
+      watch: 'Watch',
+      set: 'Set',
+      repsShort: 'reps',
+      completeWord: 'complete',
+      completedWord: 'completed',
+      savedWord: 'saved',
+      volumeWord: 'volume',
+      workoutDone: 'Workout complete',
+      workoutDoneTail: 'Great work, you finished today.',
+      exercises: 'exercises',
+      setsWord: 'sets',
+      kgVolume: 'kg volume',
+      close: 'Close',
+      fillRequired: 'Fill in exercise, reps and sets.',
+      level: 'Level',
+      decrease: 'Decrease',
+      increase: 'Increase',
+      cats: {
+        all: 'All', chest: 'Chest', back: 'Back', shoulders: 'Shoulders',
+        biceps: 'Biceps / forearms', triceps: 'Triceps', legs: 'Legs & glutes', core: 'Core'
+      }
+    }
   },
   tr: {
     authSubtitle: 'Kişisel Gelişim Paneli',
@@ -521,7 +577,63 @@ const I18N = {
     workoutProgramSubtitle: 'Bugünün egzersizlerini takip et ve kaydet',
     postureProgramSubtitle: 'Postürünü düzelt, sağlıklı bir beden için çalış',
     notificationsEnabledSuccess: 'Bildirimler başarıyla aktifleştirildi!',
-    notificationPermissionDenied: 'Bildirim izni reddedildi.'
+    notificationPermissionDenied: 'Bildirim izni reddedildi.',
+    zw: {
+      navLabel: 'Ana menü',
+      nav: {
+        dashboard: 'Panel', workouts: 'Antrenmanlar', progress: 'İlerleme', diet: 'Beslenme',
+        posture: 'Duruş', calculators: 'Hesaplayıcılar', leaderboard: 'Liderlik', notes: 'Notlar'
+      },
+      title1: 'Antrenman', title2: 'programı',
+      subtitle: '5 günlük split · Push / Pull / Legs / Upper / Lower',
+      weeklyProgram: 'Haftalık program',
+      todayPill: function (day, split) { return 'Bugün: ' + day + ' · ' + split; },
+      restDayPill: 'Bugün dinlenme günü',
+      restWord: 'Dinlenme',
+      priority: 'Öncelik',
+      todayFocus: 'Bugünün odağı',
+      rirNote: 'Başarısızlığa kalan tekrar sayısı. RIR 2 demek, 2 tekrar daha yapabilecek durumda bırakmak.',
+      compoundWord: 'Büyük hareketler',
+      compoundNote: 'arasında 2–3 dk dinlen.',
+      isoWord: 'İzolasyon hareketleri',
+      isoNote: 'arasında 60–90 sn dinlen.',
+      freeLog: 'Serbest kayıt',
+      freeLogSub: 'Programda olmayan bir egzersiz',
+      category: 'Kategori',
+      exercise: 'Egzersiz',
+      selectExercise: 'Egzersiz seç…',
+      weight: 'Ağırlık',
+      reps: 'Tekrar',
+      sets: 'Set',
+      addRecord: 'Kaydı ekle',
+      viewStrength: 'Güç ilerlemesini gör',
+      todaysRecords: 'Bugünkü kayıtlar',
+      records: 'kayıt',
+      emptyLog: 'Bugün henüz kayıt yok. Bir hareketin üstüne dokunup ilk setini gir.',
+      totalVolume: 'Toplam hacim',
+      target: 'Hedef',
+      watch: 'İzle',
+      set: 'Set',
+      repsShort: 'tekrar',
+      completeWord: 'tamam',
+      completedWord: 'tamamlandı',
+      savedWord: 'kaydedildi',
+      volumeWord: 'hacim',
+      workoutDone: 'Antrenman tamamlandı',
+      workoutDoneTail: 'Güzel iş, bugünü bitirdin.',
+      exercises: 'hareket',
+      setsWord: 'set',
+      kgVolume: 'kg hacim',
+      close: 'Kapat',
+      fillRequired: 'Egzersiz, tekrar ve set sayısını doldur.',
+      level: 'Seviye',
+      decrease: 'Azalt',
+      increase: 'Artır',
+      cats: {
+        all: 'Tümü', chest: 'Göğüs', back: 'Sırt', shoulders: 'Omuz',
+        biceps: 'Biceps / ön kol', triceps: 'Triceps / arka kol', legs: 'Bacak ve kalça', core: 'Karın'
+      }
+    }
   }
 };
 
@@ -581,7 +693,10 @@ function initLangSwitcher() {
       if (typeof updateStats === 'function') updateStats();
       if (typeof renderWeeklyReport === 'function') renderWeeklyReport();
       if (currentPage === 'posture') { renderPosture(currentPostureTab); }
-      if (currentPage === 'workouts') { renderWorkout(currentWorkoutTab); }
+      if (currentPage === 'workouts') {
+        if (window.ZyroWorkouts) window.ZyroWorkouts.sync();
+        else renderWorkout(currentWorkoutTab);
+      }
       if (currentPage === 'progress') { renderProgressTracker(); }
       if (currentPage === 'profile') {
         renderPasswordSection();
@@ -1647,6 +1762,8 @@ function navigateTo(page, opts){
   }
   const isSamePage = (currentPage === page);
   currentPage=page;
+  document.body.classList.toggle('zyro-dash-active', page === 'dashboard');
+  document.body.classList.toggle('zyro-workouts-active', page === 'workouts');
   
   if (!isSamePage || opts.force) {
     document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
@@ -1664,7 +1781,10 @@ function navigateTo(page, opts){
   }
 
   if(page==='dashboard')refreshDashboard();
-  else if(page==='workouts'){renderWorkout(currentWorkoutTab);renderLoggedExercises()}
+  else if(page==='workouts'){
+    if (window.ZyroWorkouts) window.ZyroWorkouts.sync();
+    else { renderWorkout(currentWorkoutTab); renderLoggedExercises(); }
+  }
   else if(page==='posture'){renderPosture(currentPostureTab)}
   else if(page==='progress')setTimeout(()=>{drawWeightChart();renderProgressTracker();renderPRTable();renderMonthlyTracker();if(typeof renderWeightLogList==='function')renderWeightLogList();},50);
   else if(page==='updates')renderUpdatesPage();
@@ -2301,6 +2421,7 @@ function setDate(){document.getElementById('dateDisplay').textContent=formatDate
 // =============================================
 function renderAttendance(){
   const container=document.getElementById('attendanceDays');const label=document.getElementById('attWeekLabel');
+  if(!container || !label) return;
   const today=new Date();const monday=getMonday(today);
   monday.setDate(monday.getDate()+attendanceWeekOffset*7);
   const sunday=new Date(monday);sunday.setDate(sunday.getDate()+6);
@@ -2326,8 +2447,10 @@ function renderAttendance(){
 }
 
 function initAttendanceNav(){
-  document.getElementById('attPrev').addEventListener('click',()=>{attendanceWeekOffset--;renderAttendance()});
-  document.getElementById('attNext').addEventListener('click',()=>{attendanceWeekOffset++;renderAttendance()});
+  const prev=document.getElementById('attPrev'),next=document.getElementById('attNext');
+  if(!prev || !next) return;
+  prev.addEventListener('click',()=>{attendanceWeekOffset--;renderAttendance()});
+  next.addEventListener('click',()=>{attendanceWeekOffset++;renderAttendance()});
 }
 
 // =============================================
@@ -3035,80 +3158,9 @@ window.setMuscleRange = function(range) {
 window.switchMuscleView = function(view) {}; // Deprecated but kept to prevent errors if called
 
 function updateMuscleMap() {
-  const vol = buildMuscleVolume();
-
-  const totalSetsEl = document.getElementById('mmTotalSets');
-  const totalBarEl = document.getElementById('mmTotalBar2');
-  const exCountEl = document.getElementById('mmExCount');
-  const summary = document.getElementById('muscleSummary');
-
-  if (!totalSetsEl || !summary) return;
-
-  let totalSets = 0;
-  let allExercises = [];
-  
-  const addRealLog = (log) => {
-    const s = parseInt(log.sets) || 0;
-    totalSets += s;
-    const existing = allExercises.find(e => e.name === log.exercise);
-    if (existing) {
-      existing.sets += s;
-    } else {
-      allExercises.push({ name: log.exercise, sets: s });
-    }
-  };
-
-  if (_muscleRange === 'today') {
-    (appData.workoutLogs[todayStr()] || []).forEach(addRealLog);
-  } else {
-    const monday = getMonday(new Date());
-    for (let i = 0; i < 7; i++) {
-      const d = new Date(monday); d.setDate(d.getDate() + i);
-      (appData.workoutLogs[dateStr(d)] || []).forEach(addRealLog);
-    }
+  if (window.ZyroDashboard && typeof window.ZyroDashboard.sync === 'function') {
+    window.ZyroDashboard.sync();
   }
-
-  totalSetsEl.innerText = totalSets;
-  exCountEl.innerText = allExercises.length;
-
-  // Add SVG Coloring logic
-  document.querySelectorAll('.mm-muscle').forEach(p => p.style.fill = 'rgba(255,255,255,0.02)');
-  Object.entries(vol).forEach(([m, data]) => {
-    const color = getMuscleColor(data.sets);
-    if (color) {
-      document.querySelectorAll(`.mm-muscle[data-muscle="${m}"]`).forEach(p => {
-        p.style.fill = color;
-      });
-    }
-  });
-
-  if (totalBarEl) {
-    const maxTarget = _muscleRange === 'today' ? 30 : 150;
-    const pct = Math.min(100, Math.round((totalSets / maxTarget) * 100));
-    totalBarEl.style.width = pct + '%';
-  }
-
-  if (allExercises.length === 0) {
-    summary.innerHTML = `<div class="mm-no-data" style="text-align:center;color:var(--text-muted);padding:20px 0;"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="opacity:0.3;margin-bottom:8px;"><path d="M6.5 6.5h11M6.5 17.5h11M12 2v4M12 18v4M4.5 8.5v7M19.5 8.5v7"/></svg><br><span>${_muscleRange==='today'?'Bugün egzersiz yok.':'Bu hafta egzersiz yok.'}</span></div>`;
-    return;
-  }
-
-  // Sort muscles by sets descending
-  const workedMuscles = Object.entries(vol)
-    .map(([m, data]) => ({ name: MUSCLE_LABELS[m] || m, sets: data.sets }))
-    .sort((a, b) => b.sets - a.sets);
-
-  if (workedMuscles.length === 0 && allExercises.length > 0) {
-    // Fallback if exercises don't have mapped muscles
-    workedMuscles.push(...allExercises);
-  }
-
-  summary.innerHTML = workedMuscles.map(m => {
-    return `<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.05);border-radius:10px;">
-      <span style="font-size:0.85rem;color:var(--text-secondary);font-weight:500;">${m.name}</span>
-      <span style="font-size:0.85rem;color:var(--accent-primary);font-weight:700;font-family:'Space Grotesk',sans-serif;">${m.sets} set</span>
-    </div>`;
-  }).join('');
 }
 
 // Removed tooltip rendering and stats rendering functions completely
@@ -3578,89 +3630,11 @@ window.deleteNote = function(noteId) {
 // STATS
 // =============================================
 function updateStats(){
-  const monday=getMonday(new Date());let ww=0;
-  for(let i=0;i<7;i++){const d=new Date(monday);d.setDate(d.getDate()+i);if(appData.attendance[dateStr(d)])ww++}
-  
-  // 2.5: Use weeklyGoal from localStorage for progress bar & display
-  const weeklyGoal = parseInt(localStorage.getItem('weeklyGoal')) || 6;
-  const statVal = document.getElementById('statWorkoutsVal');
-  const statBar = document.getElementById('statWorkoutsBar');
-  if (statVal) statVal.textContent = `${ww}/${weeklyGoal}`;
-  if (statBar) statBar.style.width = `${Math.min(ww/weeklyGoal*100,100)}%`;
-  // Weekly goal progress ratio (green display)
-  const ratioEl = document.getElementById('weeklyGoalRatio');
-  if (ratioEl) {
-    const pct = weeklyGoal > 0 ? Math.round((ww/weeklyGoal)*100) : 0;
-    ratioEl.textContent = `${pct}% (${ww}/${weeklyGoal})`;
-    ratioEl.style.color = pct >= 100 ? 'var(--green-vivid)' : pct >= 50 ? 'var(--orange-vivid)' : 'var(--text-secondary)';
+  // The approved dashboard is rendered by React; keep every legacy caller
+  // working by refreshing that view instead of the old DOM nodes.
+  if (window.ZyroDashboard && typeof window.ZyroDashboard.sync === 'function') {
+    window.ZyroDashboard.sync();
   }
-
-  const weights=Object.entries(appData.weightLog||{}).sort((a,b)=>b[0].localeCompare(a[0]));
-  if(weights.length>0){
-    document.getElementById('statWeightVal').textContent=`${weights[0][1]} kg`;
-    if(weights.length>1){const diff=(weights[0][1]-weights[1][1]).toFixed(1);document.getElementById('statWeightTrend').innerHTML=`<span>${diff>=0?'+':''}${diff} kg</span>`}
-  }
-
-  const fourWeeksAgo=new Date();fourWeeksAgo.setDate(fourWeeksAgo.getDate()-28);let ad=0;
-  for(let i=0;i<28;i++){const d=new Date(fourWeeksAgo);d.setDate(d.getDate()+i);if(appData.attendance[dateStr(d)])ad++}
-  const con=Math.round(ad/24*100);
-  document.getElementById('statConsistencyVal').textContent=`${Math.min(con,100)}%`;
-  document.getElementById('statConsistencyBar').style.width=`${Math.min(con,100)}%`;
-
-
-  // Streak calculation based on this week's marked days
-  // (reuses `monday` from the top of this function)
-  let weeklyStreak = 0;
-  for (let i = 0; i < 7; i++) {
-    const d = new Date(monday);
-    d.setDate(d.getDate() + i);
-    if (appData.attendance[dateStr(d)]) weeklyStreak++;
-  }
-
-  // ── Strength Progress (4th stat card) — Top Progress ──
-  const volEl = document.getElementById('statVolumeVal');
-  const volBar = document.getElementById('statVolumeBar');
-  const volDetail = document.getElementById('statVolumeDetail');
-  
-  const allStats = typeof computeExerciseStats === 'function' ? computeExerciseStats() : [];
-  let bestProgEx = null;
-  let maxProg = 0;
-  
-  allStats.forEach(s => {
-    const diff = s.currentWeight - s.baselineWeight;
-    if (diff > maxProg) { maxProg = diff; bestProgEx = s; }
-  });
-
-  if (volEl) {
-    const unitLabel = bestProgEx ? (bestProgEx.currentUnit || 'kg') : 'kg';
-    volEl.textContent = bestProgEx ? `+${parseFloat(maxProg.toFixed(1))} ${unitLabel}` : `0 ${unitLabel}`;
-  }
-  if (volBar) {
-    volBar.style.width = bestProgEx ? '100%' : '0%';
-  }
-  if (volDetail) {
-    if (bestProgEx) {
-      // Store bestProgEx name on the card for correct click routing
-      const statCard = document.querySelector('.stat-card--volume');
-      if (statCard) {
-        statCard.onclick = () => showStrengthDetails(bestProgEx.name);
-      }
-      const prDate = new Date(bestProgEx.lastUpdated + 'T00:00:00');
-      const daysDiff = Math.round((new Date() - prDate) / 86400000);
-      const ago = daysDiff === 0 
-        ? t('today') 
-        : daysDiff === 1 
-          ? t('yesterday') 
-          : (currentLang === 'tr' ? `${daysDiff} gün önce` : `${daysDiff} days ago`);
-      const exShort = bestProgEx.name.length > 18 ? bestProgEx.name.substring(0, 17) + '…' : bestProgEx.name;
-      volDetail.innerHTML = `<span style='cursor:pointer;' onmouseenter="this.style.color='var(--accent-primary)'" onmouseleave="this.style.color='var(--orange-vivid)'">${exShort} · ${ago}</span>`;
-      volDetail.style.color = 'var(--orange-vivid)';
-    } else {
-      volDetail.textContent = t('noProgressYet');
-      volDetail.style.color = 'var(--text-tertiary)';
-    }
-  }
-  
   if (typeof updateLevelUI === 'function') updateLevelUI();
 }
 
@@ -3949,11 +3923,10 @@ document.addEventListener('keydown', e => {
 // REFRESH
 // =============================================
 function refreshDashboard(){
-  updateStats();
-  updateMuscleMap();
-  if(typeof renderWeeklyReport==='function') renderWeeklyReport();
-  setTimeout(drawDashboardChart, 50);
-  renderDashboardWarnings();
+  if (window.ZyroDashboard && typeof window.ZyroDashboard.sync === 'function') {
+    window.ZyroDashboard.sync();
+  }
+  if (typeof updateLevelUI === 'function') updateLevelUI();
 }
 
 function renderDashboardWarnings() {
@@ -4029,8 +4002,11 @@ function renderDashboardWarnings() {
 }
 function refreshAllViews(){
   renderAttendance();updateStats();updateMuscleMap();
-  if(currentPage==='dashboard'){if(typeof renderWeeklyReport==='function')renderWeeklyReport();setTimeout(drawDashboardChart,50);}
-  else if(currentPage==='workouts'){renderWorkout(currentWorkoutTab);renderLoggedExercises()}
+  if(currentPage==='dashboard'){refreshDashboard();}
+  else if(currentPage==='workouts'){
+    if (window.ZyroWorkouts) window.ZyroWorkouts.sync();
+    else { renderWorkout(currentWorkoutTab); renderLoggedExercises(); }
+  }
   else if(currentPage==='progress')setTimeout(()=>{
     drawWeightChart();drawStrengthChart();
     renderMonthlyTracker();renderProgressTracker();
@@ -9744,144 +9720,8 @@ if ('serviceWorker' in navigator) {
 // WEEKLY REPORT
 // =============================================
 function renderWeeklyReport() {
-  const monday = getMonday(new Date());
-  const prevMonday = new Date(monday);
-  prevMonday.setDate(prevMonday.getDate() - 7);
-
-  let thisWorkouts = 0, thisVolume = 0, prevWorkouts = 0, prevVolume = 0;
-  const muscleSets = {};
-  let bestPR = 0;
-
-  for (let i = 0; i < 7; i++) {
-    const d = new Date(monday); d.setDate(d.getDate() + i);
-    const ds = dateStr(d);
-    if (appData.attendance[ds]) thisWorkouts++;
-    (appData.workoutLogs[ds] || []).forEach(l => {
-      thisVolume += (l.weight||0)*(l.reps||0)*(l.sets||1);
-      if ((l.weight||0) > bestPR) bestPR = l.weight;
-      const ex = (l.exercise||'').toLowerCase();
-      let m = currentLang === 'tr' ? 'Diğer' : 'Other';
-      if (ex.includes('bench')||ex.includes('chest')||ex.includes('fly')||ex.includes('pec')) m=currentLang==='tr'?'Göğüs':'Chest';
-      else if (ex.includes('pull')||ex.includes('row')||ex.includes('lat')||ex.includes('back')) m=currentLang==='tr'?'Sırt':'Back';
-      else if (ex.includes('press')||ex.includes('lateral')||ex.includes('shoulder')||ex.includes('overhead')) m=currentLang==='tr'?'Omuz':'Shoulders';
-      else if (ex.includes('squat')||ex.includes('leg')||ex.includes('lunge')||ex.includes('deadlift')) m=currentLang==='tr'?'Bacak':'Legs';
-      else if (ex.includes('curl')||ex.includes('bicep')) m='Biceps';
-      else if (ex.includes('tricep')||ex.includes('pushdown')||ex.includes('kickback')) m='Triceps';
-      muscleSets[m] = (muscleSets[m]||0) + (l.sets||1);
-    });
-  }
-  for (let i = 0; i < 7; i++) {
-    const d = new Date(prevMonday); d.setDate(d.getDate() + i);
-    const ds = dateStr(d);
-    if (appData.attendance[ds]) prevWorkouts++;
-    (appData.workoutLogs[ds] || []).forEach(l => { prevVolume += (l.weight||0)*(l.reps||0)*(l.sets||1); });
-  }
-
-  const topMuscle = Object.entries(muscleSets).sort((a,b)=>b[1]-a[1])[0];
-  const allStats = typeof computeExerciseStats === 'function' ? computeExerciseStats() : [];
-  const bestCurrentWeight = allStats.length > 0 ? Math.max(...allStats.map(s => s.currentWeight)) : 0;
-  
-  const el = id => document.getElementById(id);
-  
-  // Weekly Best PR / Top Muscle Logic
-  let bestPRLog = null;
-  for (let i = 0; i < 7; i++) {
-    const d = new Date(monday); d.setDate(d.getDate() + i);
-    (appData.workoutLogs[dateStr(d)] || []).forEach(l => {
-      if ((l.weight||0) > (bestPRLog ? bestPRLog.weight : 0)) {
-        bestPRLog = l;
-      }
-    });
-  }
-
-  if (el('wrWorkouts')) el('wrWorkouts').innerHTML = `${thisWorkouts} <span style="font-size:0.8rem;color:var(--text-tertiary);font-weight:600;">/ 3</span>`;
-  if (el('wrVolume')) el('wrVolume').textContent = Math.round(thisVolume).toLocaleString(currentLang === 'tr' ? 'tr-TR' : 'en-US');
-  
-  if (el('wrTopMuscle')) {
-    el('wrTopMuscle').textContent = topMuscle ? topMuscle[0] : '—';
-    const topMuscleBox = el('wrTopMuscle').parentElement;
-    if(topMuscleBox) {
-      if(topMuscle) {
-        topMuscleBox.style.cursor = 'pointer';
-        topMuscleBox.onclick = () => {
-          let sets = topMuscle[1];
-          let exCount = 0;
-          for (let i = 0; i < 7; i++) {
-            const d = new Date(monday); d.setDate(d.getDate() + i);
-            const logs = appData.workoutLogs[dateStr(d)] || [];
-            const uniqueEx = new Set();
-            logs.forEach(l => {
-              const ex = (l.exercise||'').toLowerCase();
-              let m = currentLang === 'tr' ? 'Diğer' : 'Other';
-              if (ex.includes('bench')||ex.includes('chest')||ex.includes('fly')||ex.includes('pec')) m=currentLang==='tr'?'Göğüs':'Chest';
-              else if (ex.includes('pull')||ex.includes('row')||ex.includes('lat')||ex.includes('back')) m=currentLang==='tr'?'Sırt':'Back';
-              else if (ex.includes('press')||ex.includes('lateral')||ex.includes('shoulder')||ex.includes('overhead')) m=currentLang==='tr'?'Omuz':'Shoulders';
-              else if (ex.includes('squat')||ex.includes('leg')||ex.includes('lunge')||ex.includes('deadlift')) m=currentLang==='tr'?'Bacak':'Legs';
-              else if (ex.includes('curl')||ex.includes('bicep')) m='Biceps';
-              else if (ex.includes('tricep')||ex.includes('pushdown')||ex.includes('kickback')) m='Triceps';
-              if(m === topMuscle[0]) uniqueEx.add(l.exercise);
-            });
-            exCount += uniqueEx.size;
-          }
-          showWeeklyMusclePopup(topMuscle[0], exCount, sets);
-        };
-      } else {
-        topMuscleBox.onclick = null;
-        topMuscleBox.style.cursor = 'default';
-      }
-    }
-  }
-
-  if (el('wrBestPR')) {
-    const bestPRBox = el('wrBestPR').parentElement;
-    if (bestPRLog && bestPRLog.weight > 0) {
-      const displayWeight = bestPRLog.unit === 'lbs' ? (bestPRLog.inputWeight || bestPRLog.weight) : bestPRLog.weight;
-      const displayUnit = bestPRLog.unit === 'lbs' ? 'lbs' : 'kg';
-      el('wrBestPR').textContent = `${displayWeight} ${displayUnit}`;
-      if (bestPRBox) {
-        bestPRBox.style.cursor = 'pointer';
-        bestPRBox.onclick = () => {
-          showWeeklyPRPopup(bestPRLog.exercise, displayWeight, bestPRLog.sets || 1, bestPRLog.reps, displayUnit);
-        };
-      }
-    } else {
-      el('wrBestPR').textContent = '— kg';
-      if (bestPRBox) {
-        bestPRBox.onclick = null;
-        bestPRBox.style.cursor = 'default';
-      }
-    }
-  }
-  const wdiff = thisWorkouts - prevWorkouts;
-  const vdiff = Math.round(thisVolume - prevVolume);
-  if (el('wrWorkoutsChange')) {
-    if (thisWorkouts === 0) {
-      el('wrWorkoutsChange').textContent = currentLang === 'tr' ? 'Henüz antrenman yok' : 'No workouts yet';
-      el('wrWorkoutsChange').className = 'wr-stat-change wr-change-same';
-    } else if (thisWorkouts >= 3) {
-      el('wrWorkoutsChange').textContent = currentLang === 'tr' ? '✨ Hedef Tamamlandı' : '✨ Goal Achieved';
-      el('wrWorkoutsChange').className = 'wr-stat-change wr-change-up';
-    } else {
-      el('wrWorkoutsChange').textContent = wdiff===0 
-        ? (currentLang === 'tr' ? '= Geçen hafta gibi' : '= Same as last week') 
-        : (wdiff>0
-            ? (currentLang === 'tr' ? `↑ ${wdiff} gün fazla` : `↑ ${wdiff} days more`)
-            : (currentLang === 'tr' ? `↓ ${Math.abs(wdiff)} gün az` : `↓ ${Math.abs(wdiff)} days less`));
-      el('wrWorkoutsChange').className = 'wr-stat-change '+(wdiff>0?'wr-change-up':wdiff<0?'wr-change-down':'wr-change-same');
-    }
-  }
-  if (el('wrVolumeChange')) {
-    if (thisWorkouts === 0) {
-      el('wrVolumeChange').textContent = '';
-      el('wrVolumeChange').className = 'wr-stat-change';
-    } else {
-      el('wrVolumeChange').textContent = vdiff===0
-        ? (currentLang === 'tr' ? '= Geçen hafta gibi' : '= Same as last week')
-        : (vdiff>0
-            ? (currentLang === 'tr' ? `↑ ${vdiff.toLocaleString('tr-TR')} kg fazla` : `↑ ${vdiff.toLocaleString('en-US')} kg more`)
-            : (currentLang === 'tr' ? `↓ ${Math.abs(vdiff).toLocaleString('tr-TR')} kg az` : `↓ ${Math.abs(vdiff).toLocaleString('en-US')} kg less`));
-      el('wrVolumeChange').className = 'wr-stat-change '+(vdiff>0?'wr-change-up':vdiff<0?'wr-change-down':'wr-change-same');
-    }
+  if (window.ZyroDashboard && typeof window.ZyroDashboard.sync === 'function') {
+    window.ZyroDashboard.sync();
   }
 }
 

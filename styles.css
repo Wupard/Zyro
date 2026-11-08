@@ -50,6 +50,18 @@
 
   /* 1.4 Sidebar Divider CSS Variable */
   --sidebar-divider-opacity: 0.7;
+
+  /* Zyro Panel v3 (approved dashboard design)
+     Shared theme tokens for the dashboard components. */
+  --bg: #13161b;
+  --text: #eceef1;
+  --mute: #8a919c;
+  --steel: #8fb3cc;
+  --sand: #dcc7a8;
+  --rose: #c99a9a;
+  --ease: cubic-bezier(.22,.8,.24,1);
+  --d: 'Bricolage Grotesque','Segoe UI',sans-serif;
+  --b: 'Hanken Grotesk','Segoe UI',sans-serif;
 }
 
 body.sidebar-collapsed {

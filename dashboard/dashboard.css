@@ -1,0 +1,460 @@
+/* ============================================================
+   Zyro Panel v3 — approved dashboard design
+   All selectors are scoped to .zyro-dash so the rest of the
+   application keeps its existing look.
+   ============================================================ */
+
+body.zyro-dash-active {
+  background: var(--bg);
+}
+body.zyro-dash-active .sidebar,
+body.zyro-dash-active .sidebar-collapse-btn,
+body.zyro-dash-active .main-content > .header,
+body.zyro-dash-active #notifBanner {
+  display: none !important;
+}
+body.zyro-dash-active .main-content {
+  padding: 0;
+  align-items: stretch;
+  min-height: 100vh;
+}
+body.zyro-dash-active .main-content > .page[data-page="dashboard"] {
+  width: 100%;
+  max-width: none;
+  animation: none;
+}
+
+.zyro-dash {
+  background: var(--bg);
+  color: var(--text);
+  font: 400 15px/1.5 var(--b);
+  min-height: 100vh;
+  width: 100%;
+  position: relative;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+.zyro-dash.page.active { display: flex; }
+.zyro-dash #zyroDashboardRoot {
+  display: flex;
+  width: 100%;
+  min-height: 100vh;
+  position: relative;
+}
+.zyro-dash *,
+.zyro-dash *::before,
+.zyro-dash *::after { box-sizing: border-box; margin: 0; }
+.zyro-dash::before,
+.zyro-dash::after {
+  content: "";
+  position: fixed;
+  border-radius: 50%;
+  filter: blur(120px);
+  pointer-events: none;
+  z-index: 0;
+}
+.zyro-dash::before {
+  width: 620px; height: 620px;
+  background: #8fb3cc; opacity: .16;
+  top: -220px; right: -120px;
+}
+.zyro-dash::after {
+  width: 520px; height: 520px;
+  background: #dcc7a8; opacity: .09;
+  bottom: -200px; left: 240px;
+}
+.zyro-dash a { color: inherit; text-decoration: none; }
+.zyro-dash :focus-visible {
+  outline: 2px solid var(--steel);
+  outline-offset: 3px;
+  border-radius: 8px;
+}
+.zyro-dash svg.i {
+  width: 19px; height: 19px;
+  stroke: currentColor; fill: none;
+  stroke-width: 1.6;
+  stroke-linecap: round; stroke-linejoin: round;
+  flex: none;
+}
+
+/* ---------- rail ---------- */
+.zyro-dash .rail {
+  position: sticky; top: 0;
+  height: 100vh; width: 236px; flex: none;
+  padding: 30px 18px;
+  display: flex; flex-direction: column; gap: 30px;
+  z-index: 2;
+  border-right: 1px solid rgba(255,255,255,.06);
+  background: rgba(19,22,27,.6);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+}
+.zyro-dash .brand {
+  display: flex; align-items: center; gap: 12px;
+  font: 700 21px var(--d);
+  padding-left: 10px;
+}
+.zyro-dash .nav { display: flex; flex-direction: column; gap: 4px; }
+.zyro-dash .nav a {
+  display: flex; gap: 14px; align-items: center;
+  padding: 11px 12px; border-radius: 12px;
+  color: var(--mute); font-size: 14.5px;
+  transition: .25s var(--ease);
+}
+.zyro-dash .nav a:hover { color: var(--text); background: rgba(255,255,255,.04); }
+.zyro-dash .nav a[aria-current] {
+  color: var(--text);
+  background: linear-gradient(90deg, rgba(143,179,204,.2), rgba(143,179,204,.03));
+  box-shadow: inset 2px 0 var(--steel);
+}
+.zyro-dash .lvl {
+  margin-top: auto; padding: 14px;
+  border-radius: 16px;
+  background: rgba(255,255,255,.04);
+  border: 1px solid rgba(255,255,255,.06);
+  font-size: 13px;
+}
+.zyro-dash .lvl b { font: 500 15px var(--d); display: block; }
+.zyro-dash .lvl span { color: var(--mute); }
+.zyro-dash .xp {
+  height: 4px; border-radius: 4px;
+  background: rgba(255,255,255,.08);
+  margin-top: 10px; overflow: hidden;
+}
+.zyro-dash .xp i {
+  display: block; height: 100%;
+  background: linear-gradient(90deg, var(--steel), var(--sand));
+  border-radius: 4px;
+}
+
+/* ---------- main ---------- */
+.zyro-dash main {
+  flex: 1; min-width: 0;
+  padding: 40px clamp(20px,4vw,56px) 64px;
+  position: relative; z-index: 1;
+  max-width: 1240px;
+}
+.zyro-dash header {
+  display: flex; justify-content: space-between; align-items: flex-end;
+  margin-bottom: 34px; gap: 20px;
+}
+.zyro-dash h1 {
+  font: 300 clamp(36px,4.6vw,58px)/1 var(--d);
+  letter-spacing: -.03em;
+}
+.zyro-dash h1 b { font-weight: 700; }
+.zyro-dash .sub { color: var(--mute); margin-top: 10px; }
+.zyro-dash .pill {
+  display: flex; gap: 10px; align-items: center;
+  padding: 10px 18px; border-radius: 999px;
+  border: 1px solid rgba(220,199,168,.3);
+  background: rgba(220,199,168,.08);
+  color: var(--sand); font-weight: 500; white-space: nowrap;
+}
+
+/* ---------- grid & panels ---------- */
+.zyro-dash .grid {
+  display: grid;
+  grid-template-columns: repeat(12,1fr);
+  gap: 18px;
+}
+.zyro-dash .p {
+  background: linear-gradient(160deg, rgba(255,255,255,.065), rgba(255,255,255,.015));
+  border: 1px solid rgba(255,255,255,.075);
+  border-radius: 24px;
+  padding: 26px;
+  position: relative;
+  overflow: hidden;
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  transition: border-color .3s;
+}
+.zyro-dash .p:hover { border-color: rgba(255,255,255,.16); }
+.zyro-dash .s8 { grid-column: span 8; }
+.zyro-dash .s4 { grid-column: span 4; }
+.zyro-dash .s12 { grid-column: span 12; }
+.zyro-dash .lab {
+  color: var(--mute); font-size: 13.5px;
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 14px;
+}
+
+/* ---------- hero ---------- */
+.zyro-dash .hero {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+  min-height: 430px; border-radius: 32px;
+  background:
+    radial-gradient(120% 90% at 85% 40%, rgba(143,179,204,.22), transparent 60%),
+    linear-gradient(160deg, rgba(255,255,255,.07), rgba(255,255,255,.01));
+}
+.zyro-dash .hero-copy {
+  display: flex; flex-direction: column; justify-content: center;
+  position: relative; z-index: 1;
+}
+.zyro-dash .hero-eyebrow { color: var(--sand); font-weight: 500; }
+.zyro-dash .hero h2 {
+  font: 700 clamp(40px,5vw,66px)/.95 var(--d);
+  letter-spacing: -.035em;
+  margin: 10px 0 18px;
+}
+.zyro-dash .hero p { color: var(--mute); max-width: 34ch; }
+.zyro-dash .tags {
+  display: flex; gap: 8px; flex-wrap: wrap;
+  margin: 22px 0 30px;
+}
+.zyro-dash .tags span {
+  padding: 6px 13px; border-radius: 999px;
+  background: rgba(255,255,255,.06);
+  font-size: 13px;
+}
+.zyro-dash .tags span {
+  display: inline-flex; align-items: center; gap: 8px;
+  cursor: pointer;
+  transition: background .25s;
+}
+.zyro-dash .tags span:hover { background: rgba(255,255,255,.12); }
+.zyro-dash .tags span::before {
+  content: ""; width: 8px; height: 8px; border-radius: 50%;
+  background: var(--c);
+}
+.zyro-dash .tags em { font-style: normal; color: var(--mute); }
+.zyro-dash .btn {
+  display: inline-flex; gap: 10px; align-items: center;
+  background: var(--text); color: #13161b;
+  border: 0; border-radius: 999px;
+  padding: 14px 26px;
+  font: 600 15px var(--b);
+  cursor: pointer;
+  transition: .3s var(--ease);
+}
+.zyro-dash .btn:hover { background: var(--sand); transform: translateY(-2px); }
+.zyro-dash .btn.sm { padding: 10px 18px; font-size: 13.5px; }
+.zyro-dash .body {
+  position: relative;
+  display: flex; flex-direction: column; align-items: center; gap: 10px;
+  z-index: 1;
+}
+.zyro-dash .body svg { height: 100%; max-height: 340px; width: auto; }
+.zyro-dash .vw { align-self: flex-end; }
+.zyro-dash #mm {
+  width: 100%; max-width: 330px; height: auto;
+  overflow: visible;
+}
+.zyro-dash .m {
+  fill: rgba(255,255,255,.045);
+  stroke: rgba(255,255,255,.16);
+  stroke-width: 1;
+  transition: fill .4s var(--ease), opacity .3s, stroke .3s;
+}
+.zyro-dash .m.on {
+  fill: var(--c);
+  fill-opacity: var(--o);
+  stroke: var(--c);
+  stroke-width: 1.4;
+  filter: drop-shadow(0 0 7px var(--c));
+}
+.zyro-dash #mm.hl .m.on { opacity: .28; }
+.zyro-dash #mm.hl .m.on.hi { opacity: 1; fill-opacity: .95; }
+.zyro-dash .base {
+  fill: rgba(255,255,255,.025);
+  stroke: rgba(255,255,255,.1);
+}
+.zyro-dash .lb line { stroke: rgba(255,255,255,.35); stroke-width: 1; }
+.zyro-dash .lb circle { fill: var(--c); }
+.zyro-dash .lb text { fill: var(--text); font: 500 12px var(--b); }
+.zyro-dash .lb {
+  opacity: 0;
+  cursor: pointer;
+  animation: zd-fade .6s var(--ease) forwards;
+  animation-delay: calc(.4s + var(--k) * .15s);
+}
+.zyro-dash .lb.still { opacity: 1; animation: none; }
+
+/* ---------- ring ---------- */
+.zyro-dash .ringbox {
+  display: grid; place-items: center;
+  position: relative; margin: 4px 0 18px;
+}
+.zyro-dash .ringbox .c { position: absolute; text-align: center; }
+.zyro-dash .ringbox .c b { font: 500 46px/1 var(--d); }
+.zyro-dash .ringbox .c span {
+  display: block; color: var(--mute);
+  font-size: 13px; margin-top: 4px;
+}
+.zyro-dash .ring { transform: rotate(-90deg); }
+.zyro-dash .ring circle {
+  fill: none; stroke-width: 9; stroke-linecap: round;
+}
+.zyro-dash .ring .t { stroke: rgba(255,255,255,.07); }
+.zyro-dash .ring .v {
+  stroke: url(#rg);
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: zd-draw 1.6s var(--ease) .3s forwards;
+}
+@keyframes zd-draw { to { stroke-dashoffset: var(--off); } }
+.zyro-dash .wk {
+  display: flex; gap: 8px; align-items: flex-end;
+  height: 64px; justify-content: space-between;
+}
+.zyro-dash .wk div {
+  flex: 1; text-align: center;
+  font-size: 11.5px; color: var(--mute);
+}
+.zyro-dash .wk i {
+  display: block;
+  border-radius: 8px;
+  background: rgba(255,255,255,.08);
+  height: var(--h);
+  margin-bottom: 6px;
+  transform-origin: bottom;
+  animation: zd-rise 1s var(--ease) both;
+  animation-delay: calc(var(--n) * 70ms + .4s);
+}
+.zyro-dash .wk .on i {
+  background: linear-gradient(var(--steel), rgba(143,179,204,.35));
+}
+.zyro-dash .wk .now { color: var(--text); }
+.zyro-dash .wk .now i { box-shadow: 0 0 0 1.5px var(--sand); }
+@keyframes zd-rise { from { transform: scaleY(0); } }
+
+/* ---------- stat tiles ---------- */
+.zyro-dash .stat b {
+  font: 500 44px/1 var(--d);
+  letter-spacing: -.02em;
+}
+.zyro-dash .stat b small {
+  font-size: 18px; color: var(--mute);
+  margin-left: 4px; font-weight: 400;
+}
+.zyro-dash .delta { font-size: 13px; margin-top: 8px; color: var(--steel); }
+.zyro-dash .spark {
+  position: absolute; left: 0; right: 0; bottom: 0;
+  height: 70px; width: 100%;
+}
+
+/* ---------- chart ---------- */
+.zyro-dash .seg {
+  display: inline-flex;
+  background: rgba(255,255,255,.06);
+  border-radius: 999px; padding: 3px;
+}
+.zyro-dash .seg button {
+  border: 0; background: none; color: var(--mute);
+  font: 500 12.5px var(--b);
+  padding: 6px 14px; border-radius: 999px;
+  cursor: pointer; transition: .25s;
+}
+.zyro-dash .seg button[aria-pressed=true] {
+  background: rgba(255,255,255,.14);
+  color: var(--text);
+}
+.zyro-dash #chart {
+  width: 100%; height: 240px; display: block;
+}
+.zyro-dash .line {
+  fill: none; stroke: var(--steel); stroke-width: 2.5;
+  stroke-linecap: round; stroke-linejoin: round;
+}
+.zyro-dash .spark,
+.zyro-dash #chart {
+  animation: zd-wipe 1.8s var(--ease) both;
+}
+@keyframes zd-wipe {
+  from { clip-path: inset(-8px 100% -8px 0); }
+  to { clip-path: inset(-8px -8px -8px 0); }
+}
+.zyro-dash .area {
+  opacity: 0;
+  animation: zd-fade 1s var(--ease) 1s forwards;
+}
+.zyro-dash .dot {
+  fill: var(--bg);
+  stroke: var(--sand);
+  stroke-width: 2.5;
+}
+.zyro-dash .ax { fill: var(--mute); font-size: 11px; }
+
+/* ---------- records ---------- */
+.zyro-dash .pr {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 14px 0;
+  border-bottom: 1px solid rgba(255,255,255,.07);
+}
+.zyro-dash .pr:last-child { border: 0; }
+.zyro-dash .pr span {
+  color: var(--mute); font-size: 13px; display: block;
+}
+.zyro-dash .pr b { font: 500 22px var(--d); }
+.zyro-dash .pr em {
+  font-style: normal; color: var(--sand);
+  font-size: 13px; margin-left: 6px;
+}
+
+/* ---------- activity heatmap ---------- */
+.zyro-dash .heat {
+  display: grid;
+  grid-auto-flow: column;
+  grid-template-rows: repeat(7,1fr);
+  gap: 6px;
+}
+.zyro-dash .heat i {
+  aspect-ratio: 1;
+  border-radius: 6px;
+  background: rgba(143,179,204,var(--a));
+  min-width: 0;
+  opacity: 0;
+  animation: zd-fade .6s var(--ease) forwards;
+  animation-delay: calc(var(--n) * 8ms + .6s);
+}
+
+@keyframes zd-fade { to { opacity: 1; } }
+
+/* ---------- empty states ---------- */
+.zyro-dash .empty-state {
+  display: flex; flex-direction: column; align-items: flex-start;
+  gap: 14px;
+  padding: 18px 0 6px;
+  color: var(--mute);
+}
+.zyro-dash .empty-state p {
+  font-size: 13.5px;
+  line-height: 1.55;
+  max-width: 40ch;
+}
+.zyro-dash .empty-state.compact { padding: 8px 0 2px; gap: 12px; }
+.zyro-dash .empty-state.compact p { font-size: 13px; }
+.zyro-dash .stat .empty-state { padding-top: 4px; }
+
+/* ---------- responsive ---------- */
+@media (max-width: 1000px) {
+  .zyro-dash { flex-direction: column; }
+  .zyro-dash #zyroDashboardRoot { flex-direction: column; }
+  .zyro-dash .rail {
+    position: static;
+    width: auto; height: auto;
+    flex-direction: row; align-items: center;
+    padding: 14px;
+    overflow-x: auto;
+    gap: 12px;
+  }
+  .zyro-dash .brand { padding: 0; }
+  .zyro-dash .nav { flex-direction: row; }
+  .zyro-dash .nav a { padding: 9px 12px; white-space: nowrap; }
+  .zyro-dash .nav a span { display: none; }
+  .zyro-dash .lvl { display: none; }
+  .zyro-dash .s8,
+  .zyro-dash .s4 { grid-column: span 12; }
+  .zyro-dash .hero { grid-template-columns: 1fr; }
+  .zyro-dash .body svg { max-height: 260px; }
+}
+@media (max-width: 600px) {
+  .zyro-dash .s4.t { grid-column: span 12; }
+  .zyro-dash .heat { gap: 3px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .zyro-dash * {
+    animation-duration: .01s !important;
+    animation-delay: 0s !important;
+  }
+}
