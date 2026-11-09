@@ -1,0 +1,2612 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Zyro</title>
+  <link rel="icon" type="image/png" href="assets/logo2.png">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#181a2f">
+  <link rel="apple-touch-icon" href="assets/logo2.png">
+  <meta name="description"
+    content="Track workouts, posture, habits, and daily progress with a beautiful personal dashboard.">
+  <link rel="preload" href="fonts/hanken-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="fonts/bricolage-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="fonts/fonts.css">
+  <link rel="stylesheet" href="styles.css?v=2.9">
+  <link rel="stylesheet" href="dashboard/dashboard.css?v=2">
+  <link rel="stylesheet" href="workouts/workouts.css?v=2">
+  <link rel="stylesheet" href="posture/posture.css?v=1">
+</head>
+
+<body>
+
+  <!-- Global SVG definitions for gradients -->
+  <svg style="position: absolute; width: 0; height: 0; overflow: hidden;" version="1.1" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="ai-sparkle-gradient-btn" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#ffffff" />
+        <stop offset="50%" stop-color="#a396ff" />
+        <stop offset="100%" stop-color="#6b5ce0" />
+      </linearGradient>
+    </defs>
+  </svg>
+
+  <!-- ========== AUTH SCREEN ========== -->
+  <div class="auth-overlay" id="authOverlay">
+    <div class="auth-bg-glow"></div>
+    <div class="auth-card">
+      <div class="auth-brand">
+        <img src="assets/logo2.webp" alt="Zyro Logo" class="auth-logo-img">
+        <span class="auth-strip"></span>
+        <h1 class="auth-title">Zyro</h1>
+        <p class="auth-subtitle" data-i18n="authSubtitle">Personal Development Dashboard</p>
+      </div>
+      <button class="google-signin-btn" id="googleSignInBtn">
+        <svg width="18" height="18" viewBox="0 0 48 48">
+          <path fill="#EA4335"
+            d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z" />
+          <path fill="#4285F4"
+            d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z" />
+          <path fill="#FBBC05"
+            d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z" />
+          <path fill="#34A853"
+            d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z" />
+        </svg>
+        <span data-i18n="signInGoogle">Sign in with Google</span>
+      </button>
+      <button class="skip-auth-btn" id="skipAuthBtn" data-i18n="continueWithout">Continue without account</button>
+      <p class="auth-note" data-i18n="authNote">Sign in to sync your data across devices</p>
+    </div>
+  </div>
+
+  <!-- ========== SIDEBAR ========== -->
+  <button class="sidebar-collapse-btn" id="sidebarCollapseBtn" aria-label="Toggle Sidebar">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+      stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="15 18 9 12 15 6"></polyline>
+    </svg>
+  </button>
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <img src="assets/logo2.webp" alt="Zyro Logo" class="sidebar-logo">
+      <span class="brand-text">Zyro</span>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="./" class="nav-item active" data-page="dashboard" id="nav-dashboard">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 3h7v7H3z" />
+          <path d="M14 3h7v7h-7z" />
+          <path d="M14 14h7v7h-7z" />
+          <path d="M3 14h7v7H3z" />
+        </svg>
+        <span data-i18n="navDashboard">Dashboard</span>
+      </a>
+      <a href="workouts" class="nav-item" data-page="workouts" id="nav-workouts">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <rect width="4" height="12" x="2" y="6" rx="1" />
+          <rect width="4" height="12" x="18" y="6" rx="1" />
+          <rect width="2" height="8" x="6" y="8" rx="0.5" />
+          <rect width="2" height="8" x="16" y="8" rx="0.5" />
+          <path d="M8 12h8" />
+        </svg>
+        <span data-i18n="navWorkouts">Workouts</span>
+      </a>
+      <a href="posture" class="nav-item" data-page="posture" id="nav-posture">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="5" r="2" />
+          <path d="M12 12V7" />
+          <path d="M16 12H8" />
+          <path d="M12 12l-4 9" />
+          <path d="M12 12l4 9" />
+        </svg>
+        <span data-i18n="navPosture">Posture</span>
+      </a>
+      <a href="diet" class="nav-item" data-page="diet" id="nav-diet">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2v20M17 5V2M17 10c1.5 0 3-1 3-3V2M17 10v12M7 2v10a3 3 0 0 0 6 0V2"/>
+        </svg>
+        <span data-i18n="navDiet">Diyet &amp; Beslenme</span>
+      </a>
+      <a href="progress" class="nav-item" data-page="progress" id="nav-progress">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="22 7 13.5 15.5 8.5 10.5 2 17" />
+          <polyline points="16 7 22 7 22 13" />
+        </svg>
+        <span data-i18n="navProgress">Progress</span>
+      </a>
+      <a href="updates" class="nav-item" data-page="updates" id="nav-updates">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 19a9 9 0 1 0 0-14" />
+          <polyline points="4 5 4 12 11 12" />
+        </svg>
+        <span data-i18n="navUpdates">Güncellemeler</span>
+      </a>
+      <a href="notes" class="nav-item" data-page="notes" id="nav-notes">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+        </svg>
+        <span data-i18n="navNotes">Notes</span>
+      </a>
+      <a href="comments" class="nav-item" data-page="comments" id="nav-comments">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <path
+            d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
+        </svg>
+        <span data-i18n="navComments">Comments</span>
+      </a>
+      <a href="calculators" class="nav-item" data-page="calculators" id="nav-calculators">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <rect x="4" y="2" width="16" height="20" rx="2" ry="2" />
+          <line x1="8" y1="6" x2="16" y2="6" />
+          <line x1="8" y1="10" x2="8.01" y2="10" />
+          <line x1="12" y1="10" x2="12.01" y2="10" />
+          <line x1="16" y1="10" x2="16.01" y2="10" />
+          <line x1="8" y1="14" x2="8.01" y2="14" />
+          <line x1="12" y1="14" x2="12.01" y2="14" />
+          <line x1="16" y1="14" x2="16.01" y2="14" />
+          <line x1="8" y1="18" x2="8.01" y2="18" />
+          <line x1="12" y1="18" x2="12.01" y2="18" />
+          <line x1="16" y1="18" x2="16.01" y2="18" />
+        </svg>
+        <span data-i18n="navCalculators">Calculators</span>
+      </a>
+      <a href="beforeafter" class="nav-item" data-page="beforeafter" id="nav-beforeafter">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2" y="3" width="9" height="18" rx="1" />
+          <rect x="13" y="3" width="9" height="18" rx="1" />
+        </svg>
+        <span data-i18n="beforeAfter">Gelişim</span>
+      </a>
+      <a href="achievements" class="nav-item" data-page="achievements" id="nav-achievements">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="8" r="6" />
+          <path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11" />
+        </svg>
+        <span data-i18n="achievements">Başarımlar</span>
+      </a>
+      <a href="leaderboard" class="nav-item" data-page="leaderboard" id="nav-leaderboard">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <path d="M2 20h20" />
+          <rect x="4" y="10" width="4" height="10" rx="1" />
+          <rect x="10" y="4" width="4" height="16" rx="1" />
+          <rect x="16" y="14" width="4" height="6" rx="1" />
+        </svg>
+        <span data-i18n="navLeaderboard">Liderlik Tablosu</span>
+      </a>
+
+      <a href="profile" class="nav-item" data-page="profile" id="nav-profile">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+          <circle cx="12" cy="7" r="4" />
+        </svg>
+        <span data-i18n="navProfile">Profil</span>
+      </a>
+      <!-- Admin Section -->
+      <div class="admin-only" style="display:none; flex-direction:column; gap:4px; margin-top:8px;">
+        <div
+          style="font-size: 0.65rem; font-weight: 800; color: var(--accent-primary); margin: 0 14px 4px; text-transform: uppercase; letter-spacing: 1px; opacity: 0.7;">
+          Yönetici Paneli</div>
+        <a href="admin" class="nav-item admin-nav-item" data-page="admin" id="nav-admin"
+          style="border-left: 3px solid var(--accent-primary); background: rgba(139, 124, 247, 0.08);">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+          </svg>
+          <span style="font-weight: 800; color: var(--accent-primary);">ADMIN MERKEZİ</span>
+        </a>
+      </div>
+      <div class="sidebar-separator"
+        style="height: 1px; background: var(--border-subtle); margin: 12px 14px; opacity: var(--sidebar-divider-opacity); box-shadow: inset 0 -1px 0 rgba(0,0,0,0.08);">
+      </div>
+      <a href="https://wupard.xyz" class="nav-item nav-item-wupard" target="_blank" rel="noopener noreferrer">
+        <div class="wfit-icon-wrap">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6 3h12l4 6-10 12L2 9z" />
+            <path d="M11 3 8 9l3 12" />
+            <path d="M13 3l3 6-3 12" />
+            <path d="M2 9h20" />
+          </svg>
+        </div>
+        <span class="wfit-label" data-i18n="navWupard">WFIT</span>
+        <span class="wfit-arrow">›</span>
+      </a>
+    </nav>
+
+    <!-- Language Switcher -->
+    <div class="lang-switcher">
+      <button class="lang-btn active" data-lang="en">EN</button>
+      <button class="lang-btn" data-lang="tr">TR</button>
+    </div>
+
+    <div class="sidebar-footer" id="sidebar-footer"
+      style="cursor:pointer; padding:0; background:transparent; border-top:none; margin: 0 10px 10px 10px;"
+      onclick="switchPage('profile'); document.getElementById('sidebar').classList.remove('open');">
+
+      <!-- Premium Card -->
+      <div id="sidebarUserCard">
+
+        <!-- Top Row: Avatar + Info + Logout -->
+        <div class="sidebar-top-row">
+
+          <!-- Avatar -->
+          <div class="user-avatar" id="userAvatar">Z</div>
+
+          <!-- Name + Rank -->
+          <div class="sidebar-user-info">
+            <span class="sidebar-user-name user-name" id="userName">Kullanıcı</span>
+            <div class="sidebar-badge-row">
+              <span class="sidebar-rank-badge" id="userRank">ÜYE</span>
+              <span class="sidebar-user-status user-status" id="userStatus"></span>
+            </div>
+          </div>
+
+          <!-- Logout Button -->
+          <button class="signout-btn" id="signOutBtn" title="Çıkış Yap"
+            onclick="event.stopPropagation()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="display:block;">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+              <polyline points="16 17 21 12 16 7"/>
+              <line x1="21" y1="12" x2="9" y2="12"/>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Bottom Row: Level + XP Bar -->
+        <div id="sidebarLevelWrap">
+          <div class="sidebar-level-row">
+            <span id="sidebarLevelBadge">Lv.1</span>
+            <span class="sidebar-xp-label">XP</span>
+          </div>
+          <div class="sidebar-xp-track">
+            <div id="sidebarLevelBar"></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </aside>
+
+
+  <!-- ========== MAIN CONTENT ========== -->
+  <main class="main-content">
+
+    <!-- Header -->
+    <header class="header">
+      <div class="header-left">
+        <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round">
+            <line x1="3" y1="6" x2="21" y2="6" />
+            <line x1="3" y1="12" x2="21" y2="12" />
+            <line x1="3" y1="18" x2="21" y2="18" />
+          </svg>
+        </button>
+        <div class="header-titles">
+          <h1 class="greeting" id="greeting">Good evening</h1>
+          <p class="date-display" id="dateDisplay"></p>
+        </div>
+      </div>
+      <!-- Notification Bell + Streak Badge (Right Side) -->
+      <div class="header-right">
+        <button class="notif-trigger" id="notifTrigger" onclick="toggleNotifDrawer()"
+          style="background:none; border:none; color:var(--text-muted); cursor:pointer; position:relative; padding:8px; border-radius:10px; transition:all 0.2s;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+            <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+          </svg>
+          <span class="notif-badge" id="notifBadge"
+            style="display:none; position:absolute; top:-4px; right:-4px; background:#ef4444; color:white; font-size:0.7rem; font-weight:800; border:2px solid var(--bg-card); border-radius:12px; padding:0 4px; min-width:18px; height:18px; align-items:center; justify-content:center; box-shadow:0 0 10px rgba(239,68,68,0.4); z-index:10;"></span>
+          <!-- New notification popup -->
+          <div id="newNotifPopup" onclick="toggleNotifDrawer(); this.style.display='none';"
+            style="display:none; position:absolute; top:36px; right:0; background:var(--accent-primary); color:white; font-size:0.8rem; font-weight:600; padding:8px 12px; border-radius:8px; white-space:nowrap; box-shadow:0 8px 24px rgba(139,124,247,0.4); z-index:20; cursor:pointer; transform-origin:top right; animation:popIn 0.3s cubic-bezier(0.34,1.56,0.64,1);">
+            <div style="position:absolute; top:-4px; right:12px; width:8px; height:8px; background:var(--accent-primary); transform:rotate(45deg);"></div>
+            <span id="newNotifPopupText">1 yeni bildiriminiz var</span>
+          </div>
+        </button>
+        <div class="streak-badge" id="streakBadge" style="display:none;">
+          <div class="streak-flame" id="streakFlame"
+            style="position:relative; width:22px; height:22px; display:flex; align-items:center; justify-content:center;">
+            <!-- Flame will be rendered here by JavaScript -->
+            <span id="streakFlameContent" style="font-size:1.2rem;">🔥</span>
+          </div>
+          <span id="streakText">Day 0</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Notification Drawer -->
+    <div class="notif-drawer" id="notifDrawer">
+      <div class="notif-drawer-inner" style="display:flex;flex-direction:column;height:100%;">
+        <div class="notif-drawer-header">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent-primary)" stroke-width="2">
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+              <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+            </svg>
+            <h3 style="margin:0;font-size:1rem;font-weight:700;">Bildirimler</h3>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <button id="markAllReadBtn"
+              style="font-size:0.72rem;color:var(--accent-primary);background:none;border:none;cursor:pointer;font-weight:600;padding:4px 8px;border-radius:6px;transition:all 0.2s;"
+              onmouseenter="this.style.background='var(--accent-glow)'"
+              onmouseleave="this.style.background='none'">Tümünü Oku</button>
+            <button
+              onclick="document.getElementById('notifDrawer').classList.remove('open');document.getElementById('notifBackdrop').classList.remove('show');"
+              style="background:none;border:none;color:var(--text-muted);cursor:pointer;padding:4px;border-radius:6px;transition:all 0.2s;"
+              onmouseenter="this.style.color='var(--text-primary)'" onmouseleave="this.style.color='var(--text-muted)'">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
+            </button>
+          </div>
+        </div>
+        <div class="notif-list" id="notifList" style="flex:1;overflow-y:auto;">
+          <div class="notif-empty">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+              style="opacity:0.3;">
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+              <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+            </svg>
+            <p>Henüz bildirim yok</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Notif Drawer Backdrop -->
+    <div class="notif-backdrop" id="notifBackdrop"></div>
+    <!-- Sidebar Backdrop (mobile) -->
+    <div id="sidebarBackdrop" class="sidebar-backdrop" aria-hidden="true"></div>
+
+    <!-- Bildirim detayı (önce metin, isteğe yorumlara git) -->
+    <div id="notifDetailModal" onclick="if(event.target===this)closeNotifDetailModal()"
+      style="display:none; position:fixed; inset:0; z-index:12000; background:rgba(0,0,0,0.55); padding:20px;">
+      <div
+        style="max-width:420px; width:100%; background:var(--bg-card); border:1px solid var(--border-subtle); border-radius:16px; padding:20px; box-shadow:0 20px 50px rgba(0,0,0,0.45);">
+        <h3 id="notifDetailTitle" style="margin:0 0 12px; font-size:1.05rem; color:var(--text-primary);"></h3>
+        <p id="notifDetailBody"
+          style="margin:0 0 20px; font-size:0.9rem; line-height:1.5; color:var(--text-secondary); white-space:pre-wrap;">
+        </p>
+        <div style="display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end;">
+          <button type="button" class="btn-small" onclick="closeNotifDetailModal()">Kapat</button>
+          <button type="button" id="notifDetailGoBtn" class="btn-primary" style="display:none;"
+            onclick="goNotifDetailToComments()">Yorumlara git</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- New Notification Banner -->
+    <div class="notif-banner" id="notifBanner" style="display:none;">
+      <div class="notif-banner-icon">📸</div>
+      <div class="notif-banner-text">
+        <strong id="notifBannerTitle">Yeni bildiriminiz var!</strong>
+        <span id="notifBannerBody">Tıklayarak görüntüleyin.</span>
+      </div>
+      <button class="notif-banner-close" onclick="closeNotifBanner()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <line x1="18" y1="6" x2="6" y2="18" />
+          <line x1="6" y1="6" x2="18" y2="18" />
+        </svg>
+      </button>
+    </div>
+
+    <!-- ============ PAGE: DASHBOARD ============ -->
+    <div class="page active zyro-dash" data-page="dashboard" id="pageDashboard">
+      <!-- React root: dashboard/dashboard-app.js -->
+      <div id="zyroDashboardRoot"><div class="sk-page" aria-hidden="true"><div class="sk sk-line w40"></div><div class="sk sk-line w60"></div><div class="sk sk-block"></div><div class="sk sk-row"><div class="sk"></div><div class="sk"></div><div class="sk"></div><div class="sk"></div><div class="sk"></div><div class="sk"></div><div class="sk"></div></div><div class="sk sk-block"></div></div></div>
+    </div>
+
+    <!-- ============ PAGE: WORKOUTS ============ -->
+    <div class="page" data-page="workouts" id="pageWorkouts">
+      <!-- Approved v2 workouts page: workouts/workouts.js (lazy-loaded) -->
+      <div id="zyroWorkoutsRoot"><div class="sk-page" aria-hidden="true"><div class="sk sk-line w40"></div><div class="sk sk-line w60"></div><div class="sk sk-block"></div><div class="sk sk-row"><div class="sk"></div><div class="sk"></div><div class="sk"></div><div class="sk"></div><div class="sk"></div><div class="sk"></div><div class="sk"></div></div><div class="sk sk-block"></div></div></div>
+      <!-- Premium Page Banner -->
+      <div class="page-banner page-banner--purple" style="margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; padding: 20px; background: linear-gradient(135deg, rgba(139,124,247,0.1) 0%, rgba(139,124,247,0.02) 100%); border-radius: 16px; border: 1px solid rgba(139,124,247,0.15);">
+        <div>
+          <h1 style="font-size: 1.6rem; font-weight: 800; margin: 0 0 4px 0; color: var(--text-primary); letter-spacing: -0.5px;" data-i18n="workoutProgram">Antrenman Programı</h1>
+          <p style="margin: 0; font-size: 0.85rem; color: var(--text-muted); font-weight: 500;" data-i18n="workoutProgramSubtitle">Bugünün egzersizlerini takip et ve kaydet</p>
+        </div>
+        <div style="width: 48px; height: 48px; border-radius: 14px; background: rgba(139,124,247,0.15); display: flex; align-items: center; justify-content: center; color: var(--accent-primary); flex-shrink: 0;">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="4" height="12" x="2" y="6" rx="1"/><rect width="4" height="12" x="18" y="6" rx="1"/><rect width="2" height="8" x="6" y="8" rx="0.5"/><rect width="2" height="8" x="16" y="8" rx="0.5"/><path d="M8 12h8"/></svg>
+        </div>
+      </div>
+      <div class="page-header-row">
+        <h2 class="page-title" data-i18n="workoutProgram" style="display:none;">Workout Program</h2>
+        <div class="card-tabs" style="overflow-x: auto; white-space: nowrap; -webkit-overflow-scrolling: touch;">
+          <button class="tab-btn active" data-wktab="day1" data-i18n="tuesday"
+            style="font-size: 0.95rem; padding: 0.6rem 1.2rem; font-weight: 700;">
+            Salı
+          </button>
+          <button class="tab-btn" data-wktab="day2" data-i18n="wednesday"
+            style="font-size: 0.95rem; padding: 0.6rem 1.2rem; font-weight: 700;">
+            Çarşamba
+          </button>
+          <button class="tab-btn" data-wktab="day3" data-i18n="friday"
+            style="font-size: 0.95rem; padding: 0.6rem 1.2rem; font-weight: 700;">
+            Cuma
+          </button>
+          <button class="tab-btn" data-wktab="day4" data-i18n="saturday"
+            style="font-size: 0.95rem; padding: 0.6rem 1.2rem; font-weight: 700;">
+            Cumartesi
+          </button>
+          <button class="tab-btn" data-wktab="day5" data-i18n="sunday"
+            style="font-size: 0.95rem; padding: 0.6rem 1.2rem; font-weight: 700;">
+            Pazar
+          </button>
+        </div>
+      </div>
+      <section class="card">
+        <div class="workout-table-head wk-head-4col">
+          <span data-i18n="exercise">Exercise</span>
+          <span data-i18n="setsReps">Sets × Reps</span>
+          <span data-i18n="video">Video</span>
+          <span data-i18n="done">Done</span>
+        </div>
+        <div class="workout-list" id="workoutList"></div>
+      </section>
+
+      <!-- Log Exercise Form -->
+      <section class="card log-card">
+        <div class="log-card-header">
+          <h3 class="card-title" data-i18n="logExercise">Log Exercise</h3>
+          <p class="log-subtitle" data-i18n="logSubtitle">Record what you actually did today</p>
+        </div>
+        <form class="log-form" id="logForm">
+          <div class="log-row log-row-top">
+            <div class="log-field">
+              <label for="logCategory" data-i18n="lblCategory">Kategori</label>
+              <select id="logCategory" class="log-input">
+                <option value="all" data-i18n="catAll">Tümü (Tüm Vücut)</option>
+                <option value="chest" data-i18n="catChest">Göğüs</option>
+                <option value="back" data-i18n="catBack">Sırt</option>
+                <option value="shoulders" data-i18n="catShoulders">Omuz</option>
+                <option value="biceps" data-i18n="catBiceps">Biceps</option>
+                <option value="triceps" data-i18n="catTriceps">Triceps</option>
+                <option value="legs" data-i18n="catLegs">Bacak</option>
+                <option value="core" data-i18n="catCore">Core</option>
+              </select>
+            </div>
+            <div class="log-field">
+              <label for="logExercise" data-i18n="exercise">Exercise</label>
+              <select id="logExercise" class="log-input">
+                <option value="">Select exercise...</option>
+              </select>
+            </div>
+          </div>
+          <div class="log-row">
+            <div class="log-field">
+              <label for="logWeight" data-i18n="weightLabel">Ağırlık</label>
+              <div style="display: flex; gap: 8px; align-items: flex-end;">
+                <input type="number" id="logWeight" class="log-input" placeholder="80" step="0.5" min="0"
+                  style="flex: 1;">
+                <!-- 1.5: Custom styled radio buttons for kg/lbs -->
+                <div class="unit-radio-group" role="radiogroup" aria-label="Weight unit">
+                  <label class="unit-radio-label">
+                    <input type="radio" name="logUnitRadio" id="logUnitKg" value="kg" checked aria-checked="true"
+                      role="radio">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                      <rect x="3" y="4" width="18" height="16" rx="3" />
+                      <path d="M8 4v16M16 4v16M3 12h18" />
+                    </svg>
+                    kg
+                  </label>
+                  <label class="unit-radio-label">
+                    <input type="radio" name="logUnitRadio" id="logUnitLbs" value="lbs" aria-checked="false"
+                      role="radio">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                      <path d="M12 3v18M3 8l9-5 9 5M3 16l9 5 9-5" />
+                    </svg>
+                    lbs
+                  </label>
+                </div>
+              </div>
+            </div>
+            <div class="log-field">
+              <label for="logReps" data-i18n="repetitions">Reps</label>
+              <input type="number" id="logReps" class="log-input" placeholder="8" min="1">
+            </div>
+            <div class="log-field">
+              <label for="logSets" data-i18n="sets">Sets</label>
+              <input type="number" id="logSets" class="log-input" placeholder="4" min="1">
+            </div>
+          </div>
+          <button type="submit" class="btn-primary" id="logSubmitBtn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="12" y1="5" x2="12" y2="19" />
+              <line x1="5" y1="12" x2="19" y2="12" />
+            </svg>
+            <span data-i18n="saveLog">Save Log</span>
+          </button>
+        </form>
+        <button class="btn-goto-progress" id="gotoStrengthBtn" onclick="goToStrengthProgress()">
+          <div class="btn-goto-icon">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+            </svg>
+          </div>
+          <span class="btn-goto-label">Güç İlerlemesini Gör</span>
+          <span class="btn-goto-arrow">›</span>
+        </button>
+      </section>
+
+      <section class="card">
+        <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+          <h3 class="card-title" data-i18n="todaysLog">Today's Log</h3>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span id="todayLogCount" style="font-size: 0.75rem; background: rgba(139,124,247,0.12); color: var(--accent-primary); padding: 3px 10px; border-radius: 999px; font-weight: 700; border: 1px solid rgba(139,124,247,0.2);">0 Antrenman</span>
+            <span class="card-badge" id="logDateBadge" data-i18n="today">Today</span>
+          </div>
+        </div>
+        <div class="logged-exercises-table" id="loggedExercises">
+          <div class="logged-empty" data-i18n="noExercisesLogged">No exercises logged yet today.</div>
+        </div>
+      </section>
+    </div>
+
+    <!-- ============ PAGE: POSTURE ============ -->
+    <div class="page" data-page="posture" id="pagePosture">
+      <!-- Approved posture page: posture/posture.js (lazy-loaded) -->
+      <div id="zyroPostureRoot"><div class="sk-page" aria-hidden="true"><div class="sk sk-line w40"></div><div class="sk sk-line w60"></div><div class="sk sk-block"></div><div class="sk sk-row"><div class="sk"></div><div class="sk"></div><div class="sk"></div><div class="sk"></div><div class="sk"></div><div class="sk"></div><div class="sk"></div></div><div class="sk sk-block"></div></div></div>
+      <!-- Premium Page Banner -->
+      <div class="page-banner page-banner--green" style="margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; padding: 20px; background: linear-gradient(135deg, rgba(78,203,141,0.08) 0%, rgba(78,203,141,0.01) 100%); border-radius: 16px; border: 1px solid rgba(78,203,141,0.15);">
+        <div>
+          <h1 style="font-size: 1.6rem; font-weight: 800; margin: 0 0 4px 0; color: var(--text-primary); letter-spacing: -0.5px;" data-i18n="postureProgram">Duruş Programı</h1>
+          <p style="margin: 0; font-size: 0.85rem; color: var(--text-muted); font-weight: 500;" data-i18n="postureProgramSubtitle">Postürünü düzelt, sağlıklı bir beden için çalış</p>
+        </div>
+        <div style="width: 48px; height: 48px; border-radius: 14px; background: rgba(78,203,141,0.12); display: flex; align-items: center; justify-content: center; color: #4ecb8d; flex-shrink: 0;">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="2"/><path d="M12 12V7"/><path d="M16 12H8"/><path d="M12 12l-4 9"/><path d="M12 12l4 9"/></svg>
+        </div>
+      </div>
+      <div class="page-header-row">
+        <h2 class="page-title" data-i18n="postureProgram" style="display:none;">Posture Program</h2>
+        <div class="card-tabs" style="overflow-x: auto; white-space: nowrap; -webkit-overflow-scrolling: touch;">
+          <button class="tab-btn active" data-pstab="mon" data-i18n="monShort">Pzt</button>
+          <button class="tab-btn" data-pstab="tue" data-i18n="tueShort">Sal</button>
+          <button class="tab-btn" data-pstab="wed" data-i18n="wedShort">Çar</button>
+          <button class="tab-btn" data-pstab="thu" data-i18n="thuShort">Per</button>
+          <button class="tab-btn" data-pstab="fri" data-i18n="friShort">Cum</button>
+          <button class="tab-btn" data-pstab="sat" data-i18n="satShort">Cmt</button>
+          <button class="tab-btn" data-pstab="sun" data-i18n="sunShort">Paz</button>
+        </div>
+      </div>
+      <section class="card">
+        <div class="workout-table-head wk-head-4col">
+          <span data-i18n="exercise">Exercise</span>
+          <span data-i18n="setsReps">Sets × Reps</span>
+          <span data-i18n="video">Video</span>
+          <span data-i18n="done">Done</span>
+        </div>
+        <div class="workout-list" id="postureList"></div>
+      </section>
+    </div>
+
+    <!-- ============ PAGE: PROGRESS ============ -->
+    <div class="page" data-page="progress" id="pageProgress">
+      <!-- Premium Page Banner -->
+      <div class="page-banner page-banner--orange" style="margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; padding: 20px; background: linear-gradient(135deg, rgba(255,112,67,0.08) 0%, rgba(255,112,67,0.01) 100%); border-radius: 16px; border: 1px solid rgba(255,112,67,0.15);">
+        <div>
+          <h1 style="font-size: 1.6rem; font-weight: 800; margin: 0 0 4px 0; color: var(--text-primary); letter-spacing: -0.5px;">İlerleme Takibi</h1>
+          <p style="margin: 0; font-size: 0.85rem; color: var(--text-muted); font-weight: 500;">Gelişimini gör, hedeflerine ulaş</p>
+        </div>
+        <div style="width: 48px; height: 48px; border-radius: 14px; background: rgba(255,112,67,0.12); display: flex; align-items: center; justify-content: center; color: #ff7043; flex-shrink: 0;">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
+        </div>
+      </div>
+
+      <section class="card" style="background:#0f0f1a; border:1px solid #1e1e2e; padding:20px; border-radius:12px;">
+        <div class="card-header" style="display:flex;justify-content:space-between;align-items:center; margin-bottom:16px; border-bottom:none; padding-bottom:0;">
+          <h3 class="card-title" style="margin:0;">Aylık İlerleme Tablosu</h3>
+          <div style="display:flex;align-items:center;gap:8px;background:#1e1e2e;padding:4px 8px;border-radius:12px;">
+            <button onclick="changeTrackerMonth(-1)" style="background:none;border:none;color:var(--text-secondary);cursor:pointer;padding:4px;">◀</button>
+            <span id="trackerMonthLabel" style="font-size:0.85rem;font-weight:700;color:var(--text-primary);min-width:110px;text-align:center;">—</span>
+            <button onclick="changeTrackerMonth(1)" style="background:none;border:none;color:var(--text-secondary);cursor:pointer;padding:4px;">▶</button>
+          </div>
+        </div>
+        <div class="monthly-tracker" id="monthlyTracker"></div>
+      </section>
+      <section class="card">
+        <div class="card-header">
+          <h3 class="card-title" data-i18n="bodyWeight">Body Weight</h3>
+          <div class="weight-input-group">
+            <input type="number" id="weightInput" class="log-input small" placeholder="78.2" step="0.1" min="0">
+            <button class="btn-small" id="weightSaveBtn" data-i18n="log">Log</button>
+          </div>
+        </div>
+        <div class="chart-container"><canvas id="weightChart"></canvas></div>
+      </section>
+      <section class="card stats-card-windex no-swipe" id="progressTrackerCard">
+        <div class="card-header" style="margin-bottom: 16px;">
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <div class="tracker-icon-bg">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="text-emerald-400">
+                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+              </svg>
+            </div>
+            <div>
+              <h3 class="card-title" data-i18n="strengthProgress" style="margin:0; font-size: 1.1rem;">Güç İlerlemesi
+              </h3>
+              <p style="margin:0; font-size: 0.8rem; color: var(--text-muted);" data-i18n="progressOverview">Analyze
+                your gains</p>
+            </div>
+          </div>
+          <!-- 2.3: Reset Strength Data button -->
+          <button onclick="resetStrengthProgress()" title="Güç verilerini sıfırla"
+            style="background:rgba(224,84,84,0.1);border:1px solid rgba(224,84,84,0.25);color:#e05454;border-radius:8px;padding:6px 12px;font-size:0.72rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:5px;transition:all 0.2s;"
+            onmouseenter="this.style.background='rgba(224,84,84,0.2)'"
+            onmouseleave="this.style.background='rgba(224,84,84,0.1)'">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+            </svg>
+            Sıfırla
+          </button>
+        </div>
+        <div id="progressTrackerContainer">
+          <!-- React-like component rendered from JS -->
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-header" id="prTableHeader" onclick="togglePRTable()" style="cursor:pointer;user-select:none;">
+          <h3 class="card-title" data-i18n="personalRecords">Personal Records</h3>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span style="font-size:0.72rem;color:var(--text-tertiary);" id="prCountBadge"></span>
+            <svg id="prToggleIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2" style="transition:transform 0.3s;">
+              <polyline points="18 15 12 9 6 15" />
+            </svg>
+          </div>
+        </div>
+        <div id="prTableWrap" class="pr-table" style="display:none; transition: all 0.3s ease;">
+          <div id="prTable" class="pr-table-content"></div>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- ============ PAGE: NOTES ============ -->
+    <div class="page" data-page="notes" id="pageNotes">
+      <!-- Premium Page Banner -->
+      <div class="page-banner page-banner--yellow" style="margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; padding: 20px; background: linear-gradient(135deg, rgba(251,191,36,0.08) 0%, rgba(251,191,36,0.01) 100%); border-radius: 16px; border: 1px solid rgba(251,191,36,0.15);">
+        <div>
+          <h1 style="font-size: 1.6rem; font-weight: 800; margin: 0 0 4px 0; color: var(--text-primary); letter-spacing: -0.5px;">Günlük Notlar</h1>
+          <p style="margin: 0; font-size: 0.85rem; color: var(--text-muted); font-weight: 500;">Düşüncelerini, planlarını ve fikirlerini kaydet</p>
+        </div>
+        <div style="width: 48px; height: 48px; border-radius: 14px; background: rgba(251,191,36,0.12); display: flex; align-items: center; justify-content: center; color: #fbbf24; flex-shrink: 0;">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        </div>
+      </div>
+      <section class="card">
+        <div class="card-header">
+          <h3 class="card-title" data-i18n="todaysEntry">Today's Entry</h3>
+          <span class="card-badge" id="noteDateBadge" data-i18n="today">Today</span>
+        </div>
+        <div style="display:flex; gap:10px; margin-bottom:10px; align-items:center;">
+          <input type="text" id="noteTitleInput" class="log-input" placeholder="Başlık (Opsiyonel)" style="flex:1; font-weight:700;">
+          <div style="display:flex; gap:6px; background:var(--bg-input); padding:6px; border-radius:12px; border:1px solid var(--border-subtle);">
+            <div class="note-color-btn active" data-color="default" style="width:20px; height:20px; border-radius:50%; background:var(--bg-card-alt); border:2px solid var(--accent-primary); cursor:pointer;"></div>
+            <div class="note-color-btn" data-color="red" style="width:20px; height:20px; border-radius:50%; background:rgba(224,84,84,0.15); border:2px solid transparent; cursor:pointer;"></div>
+            <div class="note-color-btn" data-color="blue" style="width:20px; height:20px; border-radius:50%; background:rgba(92,138,222,0.15); border:2px solid transparent; cursor:pointer;"></div>
+            <div class="note-color-btn" data-color="green" style="width:20px; height:20px; border-radius:50%; background:rgba(78,203,141,0.15); border:2px solid transparent; cursor:pointer;"></div>
+            <div class="note-color-btn" data-color="orange" style="width:20px; height:20px; border-radius:50%; background:rgba(224,148,58,0.15); border:2px solid transparent; cursor:pointer;"></div>
+          </div>
+        </div>
+        <textarea class="note-input" id="noteInput" rows="5" placeholder="Notunuzu yazın..."></textarea>
+        <div class="note-tags" style="margin-top:10px;">
+          <button class="tag-btn" data-tag="Daha sonra">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10" />
+              <path d="M12 6v6l4 2" />
+            </svg>
+            Daha Sonra
+          </button>
+          <button class="tag-btn" data-tag="Fikir">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path
+                d="M9 18h6M10 22h4M12 2a7 7 0 0 1 7 7 7 7 0 0 1-4 6.32V17H9v-1.69A7.004 7.004 0 0 1 5 9a7 7 0 0 1 7-7z" />
+            </svg>
+            Fikir
+          </button>
+          <button class="tag-btn" data-tag="GYM">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M6.5 6.5h11M6.5 17.5h11M12 2v4M12 18v4M4.5 8.5v7M19.5 8.5v7" />
+            </svg>
+            GYM
+          </button>
+        </div>
+        <button class="btn-primary" id="saveNoteBtn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+            <polyline points="17 21 17 13 7 13 7 21" />
+            <polyline points="7 3 7 8 15 8" />
+          </svg>
+          <span data-i18n="saveNote">Save Note</span>
+        </button>
+      </section>
+      <section class="card">
+        <div class="card-header">
+          <h3 class="card-title" data-i18n="pastEntries">Past Entries</h3>
+          <button class="btn-small" id="bulkDeleteNotesBtn"
+            style="display:none; background:rgba(239, 68, 68, 0.1); color:#ef4444; border:1px solid rgba(239, 68, 68, 0.2);"
+            onclick="bulkDeleteNotes()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="3 6 5 6 21 6" />
+              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+              <line x1="10" y1="11" x2="10" y2="17" />
+              <line x1="14" y1="11" x2="14" y2="17" />
+            </svg>
+            Seçilenleri Sil
+          </button>
+        </div>
+        <div class="notes-history" id="notesHistory"></div>
+      </section>
+    </div>
+
+    <!-- ============ PAGE: COMMENTS ============ -->
+    <div class="page" data-page="comments" id="pageComments">
+      <!-- Premium Page Banner -->
+      <div class="page-banner page-banner--blue" style="margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; padding: 20px; background: linear-gradient(135deg, rgba(92,138,222,0.08) 0%, rgba(92,138,222,0.01) 100%); border-radius: 16px; border: 1px solid rgba(92,138,222,0.15);">
+        <div>
+          <h1 style="font-size: 1.6rem; font-weight: 800; margin: 0 0 4px 0; color: var(--text-primary); letter-spacing: -0.5px;">Yorumlar</h1>
+          <p style="margin: 0; font-size: 0.85rem; color: var(--text-muted); font-weight: 500;">Toplulukla etkileşime geç, geri bildirim bırak</p>
+        </div>
+        <div style="width: 48px; height: 48px; border-radius: 14px; background: rgba(92,138,222,0.12); display: flex; align-items: center; justify-content: center; color: #5c8ade; flex-shrink: 0;">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+        </div>
+      </div>
+      <section class="card">
+        <div class="card-header">
+          <h3 class="card-title">Geri Bildirim / Yorum Bırak</h3>
+        </div>
+        <div class="comment-form-wrap">
+          <div class="comment-field" style="margin-bottom: 16px;">
+            <label
+              style="font-size: 0.72rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.04em; font-weight: 700; display: block; margin-bottom: 8px;">Gönderme
+              Türü</label>
+            <div class="comment-type-selector" style="display: flex; gap: 20px;">
+              <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.85rem;">
+                <input type="radio" name="commentType" value="normal" checked
+                  style="accent-color: var(--accent-primary);"> Normal
+              </label>
+              <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.85rem;">
+                <input type="radio" name="commentType" value="anonymous" style="accent-color: var(--accent-primary);">
+                Anonim
+              </label>
+            </div>
+          </div>
+          <textarea class="note-input" id="commentInput" rows="4"
+            placeholder="Fikirlerini bizimle paylaş..."></textarea>
+          <button class="btn-primary" id="sendCommentBtn" style="margin-top: 16px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="22" y1="2" x2="11" y2="13" />
+              <polygon points="22 2 15 22 11 13 2 9 22 2" />
+            </svg>
+            <span>Gönder</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- Admin Notification Panel Moved to Drawer -->
+
+      <section class="card" id="publicCommentsCard">
+        <div class="card-header">
+          <h3 class="card-title">Son Yorumlar</h3>
+        </div>
+        <div id="commentsList" class="comments-list">
+          <!-- Comments will be rendered here -->
+        </div>
+      </section>
+    </div>
+
+    <!-- ============ PAGE: CALCULATORS ============ -->
+    <div class="page" data-page="calculators" id="pageCalculators">
+
+      <!-- Premium Calculators Header -->
+      <div class="card"
+        style="margin-bottom: 24px; position: relative; overflow: hidden; padding: 32px 24px; border-radius: 24px; background: linear-gradient(135deg, rgba(139,124,247,0.1), transparent);">
+        <div style="position: absolute; right: -20px; top: -20px; opacity: 0.05; pointer-events: none;">
+          <svg width="200" height="200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <rect x="4" y="2" width="16" height="20" rx="2" ry="2" />
+            <line x1="8" y1="6" x2="16" y2="6" />
+            <line x1="8" y1="10" x2="8.01" y2="10" />
+            <line x1="12" y1="10" x2="12.01" y2="10" />
+            <line x1="16" y1="10" x2="16.01" y2="10" />
+            <line x1="8" y1="14" x2="8.01" y2="14" />
+            <line x1="12" y1="14" x2="12.01" y2="14" />
+            <line x1="16" y1="14" x2="16.01" y2="14" />
+            <line x1="8" y1="18" x2="8.01" y2="18" />
+            <line x1="12" y1="18" x2="12.01" y2="18" />
+            <line x1="16" y1="18" x2="16.01" y2="18" />
+          </svg>
+        </div>
+
+        <div style="position: relative; z-index: 10; display: flex; align-items: center; gap: 16px;">
+          <div
+            style="width: 56px; height: 56px; border-radius: 16px; background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)); display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 16px rgba(139,124,247,0.3); flex-shrink: 0;">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <rect x="4" y="2" width="16" height="20" rx="2" ry="2" />
+              <line x1="8" y1="6" x2="16" y2="6" />
+              <line x1="8" y1="10" x2="8.01" y2="10" />
+              <line x1="12" y1="10" x2="12.01" y2="10" />
+              <line x1="16" y1="10" x2="16.01" y2="10" />
+              <line x1="8" y1="14" x2="8.01" y2="14" />
+              <line x1="12" y1="14" x2="12.01" y2="14" />
+              <line x1="16" y1="14" x2="16.01" y2="14" />
+              <line x1="8" y1="18" x2="8.01" y2="18" />
+              <line x1="12" y1="18" x2="12.01" y2="18" />
+              <line x1="16" y1="18" x2="16.01" y2="18" />
+            </svg>
+          </div>
+          <div>
+            <h2
+              style="font-size: 2rem; font-weight: 900; margin: 0 0 4px; color: var(--text-primary); letter-spacing: -0.03em;"
+              data-i18n="navCalculators">Hesaplayıcılar</h2>
+            <p style="font-size: 0.9rem; color: var(--text-secondary); margin: 0;">Performansını takip et ve analiz et
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="calc-container">
+        <!-- Calculator Sidebar Menu -->
+        <div class="calc-sidebar card">
+          <button class="calc-nav-btn" data-calc="1rm" data-i18n="calc1RM">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10" />
+              <circle cx="12" cy="12" r="6" />
+              <circle cx="12" cy="12" r="2" />
+            </svg>
+            1RM Hesapla
+          </button>
+          <button class="calc-nav-btn active" data-calc="converter" data-i18n="calcConverter">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 3v18" />
+              <rect x="4" y="6" width="6" height="4" />
+              <rect x="14" y="14" width="6" height="4" />
+              <path d="M7 3h10" />
+            </svg>
+            Birim Dönüştürücü
+          </button>
+          <button class="calc-nav-btn" data-calc="bfp" data-i18n="calcBfp">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+              <circle cx="12" cy="7" r="4" />
+            </svg>
+            Yağ Oranı
+          </button>
+          <button class="calc-nav-btn" data-calc="growth" data-i18n="calcGrowth">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="22 7 13.5 15.5 8.5 10.5 2 17" />
+              <polyline points="16 7 22 7 22 13" />
+            </svg>
+            Gelişim
+          </button>
+          <button class="calc-nav-btn" data-calc="macros" data-i18n="calcMacros">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
+            </svg>
+            Makro/Kalori
+          </button>
+        </div>
+
+        <!-- Calculator Content Area -->
+        <div class="calc-content">
+          <!-- Converter UI -->
+          <div class="calc-view active" id="calc-converter">
+            <div class="card calc-card">
+              <div class="calc-input-row">
+                <div class="calc-field">
+                  <label>KILOGRAM (KG)</label>
+                  <div class="calc-input-wrapper">
+                    <input type="number" id="calcKg" class="calc-input" placeholder="0">
+                    <span class="calc-unit">KG</span>
+                  </div>
+                </div>
+                <div class="calc-field">
+                  <label>POUNDS (LBS)</label>
+                  <div class="calc-input-wrapper">
+                    <input type="number" id="calcLbs" class="calc-input" placeholder="0">
+                    <span class="calc-unit">LB</span>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <div class="calc-view" id="calc-1rm">
+            <!-- 1RM Auto Calculator Card -->
+            <section class="card" style="margin-bottom:20px;">
+              <div class="card-header">
+                <div style="display:flex;align-items:center;gap:10px;">
+                  <div style="width:36px;height:36px;border-radius:12px;background:rgba(139,124,247,0.12);border:1px solid rgba(139,124,247,0.22);display:flex;align-items:center;justify-content:center;color:var(--accent-primary);">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
+                  </div>
+                  <div>
+                    <h3 class="card-title" style="margin:0;">1RM Hesaplayıcı</h3>
+                    <p style="margin:0;font-size:0.72rem;color:var(--text-muted);">Epley formülü • Loglardan otomatik</p>
+                  </div>
+                </div>
+              </div>
+              <div style="margin-top:16px;">
+                <div style="margin-bottom:12px;">
+                  <label style="font-size:0.7rem;font-weight:700;color:var(--text-muted);display:block;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.04em;">Kategori Seç</label>
+                  <select id="oneRMCategorySelect" class="log-input" onchange="init1RMCalculator()" style="margin-bottom: 8px;">
+                    <option value="all" data-i18n="catAll">Tümü (Tüm Vücut)</option>
+                    <option value="chest" data-i18n="catChest">Göğüs</option>
+                    <option value="shoulders" data-i18n="catShoulders">Omuz</option>
+                    <option value="back" data-i18n="catBack">Sırt &amp; Kanat</option>
+                    <option value="biceps" data-i18n="catBiceps">Ön Kol</option>
+                    <option value="forearms" data-i18n="catForearms">Önkol</option>
+                    <option value="traps" data-i18n="catTraps">Trapez</option>
+                    <option value="triceps" data-i18n="catTriceps">Arka Kol</option>
+                    <option value="quads" data-i18n="catQuads">Quadriceps</option>
+                    <option value="hamstrings" data-i18n="catHamstrings">Hamstring &amp; Kalça</option>
+                    <option value="calves" data-i18n="catCalves">Baldır</option>
+                    <option value="core" data-i18n="catCore">Karın &amp; Merkez</option>
+                  </select>
+
+
+
+
+
+
+
+
+
+
+                  <label style="font-size:0.7rem;font-weight:700;color:var(--text-muted);display:block;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.04em;">Egzersiz</label>
+                  <select id="oneRMExerciseSelect" class="log-input" onchange="calc1RMFromLogs()">
+                    <option value="">Egzersiz seçin...</option>
+                  </select>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
+                  <div>
+                    <label style="font-size:0.7rem;font-weight:700;color:var(--text-muted);display:block;margin-bottom:6px;">Ağırlık (kg)</label>
+                    <input type="number" id="oneRMWeight" class="log-input" placeholder="0" step="0.5" min="0" oninput="calc1RMManual()">
+                  </div>
+                  <div>
+                    <label style="font-size:0.7rem;font-weight:700;color:var(--text-muted);display:block;margin-bottom:6px;">Tekrar Sayısı</label>
+                    <input type="number" id="oneRMReps" class="log-input" placeholder="0" min="1" max="30" oninput="calc1RMManual()">
+                  </div>
+                </div>
+                <div id="oneRMResult" style="display:none;background:linear-gradient(135deg,rgba(139,124,247,0.12),rgba(78,203,141,0.05));border:1px solid rgba(139,124,247,0.25);border-radius:16px;padding:20px;text-align:center;margin-top:4px;">
+                  <div style="font-size:0.65rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:6px;">Tahmini Maksimum (1RM)</div>
+                  <div style="font-family:'Space Grotesk',sans-serif;font-size:2.8rem;font-weight:900;background:linear-gradient(135deg,var(--accent-primary),var(--accent-secondary));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;" id="oneRMValue">— kg</div>
+                  <div id="oneRMBreakdown" style="margin-top:14px;display:grid;grid-template-columns:repeat(3,1fr);gap:8px;"></div>
+                </div>
+              </div>
+            </section>
+          </div>
+
+          <div class="calc-view" id="calc-bfp">
+            <div class="card calc-card">
+              <div
+                style="display: flex; padding: 4px; background: var(--bg-main); border: 1px solid var(--border-color); border-radius: 12px; width: fit-content; margin: 0 auto 24px;">
+                <button id="bfp-btn-male" class="bfp-gender-btn active"
+                  style="padding: 8px 24px; border-radius: 8px; font-size: 0.85rem; font-weight: bold; border: none; background: var(--accent-primary); color: white; cursor: pointer; transition: all 0.2s;"
+                  onclick="setBfpGender('male')">Erkek</button>
+                <button id="bfp-btn-female" class="bfp-gender-btn"
+                  style="padding: 8px 24px; border-radius: 8px; font-size: 0.85rem; font-weight: bold; border: none; background: transparent; color: var(--text-muted); cursor: pointer; transition: all 0.2s;"
+                  onclick="setBfpGender('female')">Kadın</button>
+              </div>
+              <div class="calc-input-row" style="grid-template-columns: 1fr 1fr;">
+                <div class="calc-field">
+                  <label>BOY</label>
+                  <div class="calc-input-wrapper">
+                    <input type="number" id="calcBfpH" class="calc-input" placeholder="cm" min="0">
+                    <span class="calc-unit">CM</span>
+                  </div>
+                </div>
+                <div class="calc-field">
+                  <label>BEL</label>
+                  <div class="calc-input-wrapper">
+                    <input type="number" id="calcBfpW" class="calc-input" placeholder="cm" min="0">
+                    <span class="calc-unit">CM</span>
+                  </div>
+                </div>
+                <div class="calc-field">
+                  <label>BOYUN</label>
+                  <div class="calc-input-wrapper">
+                    <input type="number" id="calcBfpN" class="calc-input" placeholder="cm" min="0">
+                    <span class="calc-unit">CM</span>
+                  </div>
+                </div>
+                <div class="calc-field" id="calcBfpHipField" style="display: none;">
+                  <label>KALÇA</label>
+                  <div class="calc-input-wrapper">
+                    <input type="number" id="calcBfpHip" class="calc-input" placeholder="cm" min="0">
+                    <span class="calc-unit">CM</span>
+                  </div>
+                </div>
+              </div>
+              <button class="btn-primary" style="width: 100%; padding: 16px; margin-top: 16px; font-size: 1.1rem;"
+                onclick="calcBFP()">Yağ Oranını Hesapla</button>
+
+              <div id="res-bfp" class="calc-info-box"
+                style="display:none; flex-direction: column; align-items: center; justify-content: center; padding: 32px; background: rgba(139, 124, 247, 0.05); margin-top: 24px; border-radius: 16px; border: 1px solid var(--border-color);">
+                <p
+                  style="font-size: 0.75rem; color: var(--accent-primary); text-transform: uppercase; letter-spacing: 0.1em; font-weight: bold; margin-bottom: 8px;">
+                  % YAĞ ORANI</p>
+                <p id="res-bfp-val" style="font-size: 4rem; font-weight: 900; color: var(--text-main); margin: 0;">0%
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="calc-view" id="calc-growth">
+            <div class="card calc-card">
+              <div style="margin-bottom: 24px; padding-bottom: 24px; border-bottom: 1px solid var(--border-color);">
+                <h4
+                  style="font-size: 0.75rem; font-weight: 900; color: var(--accent-primary); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 16px;">
+                  ÖNCEKİ KALDIRIŞ</h4>
+                <div class="calc-input-row" style="margin-bottom: 0;">
+                  <div class="calc-field">
+                    <label>AĞIRLIK</label>
+                    <div class="calc-input-wrapper">
+                      <input type="number" id="calcGrOldW" class="calc-input" placeholder="örn: 80" min="0">
+                    </div>
+                  </div>
+                  <div class="calc-field">
+                    <label>TEKRAR</label>
+                    <div class="calc-input-wrapper">
+                      <input type="number" id="calcGrOldR" class="calc-input" placeholder="örn: 8" min="0">
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div style="margin-bottom: 24px;">
+                <h4
+                  style="font-size: 0.75rem; font-weight: 900; color: var(--accent-secondary); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 16px;">
+                  ŞU ANKİ KALDIRIŞ</h4>
+                <div class="calc-input-row" style="margin-bottom: 0;">
+                  <div class="calc-field">
+                    <label>AĞIRLIK</label>
+                    <div class="calc-input-wrapper">
+                      <input type="number" id="calcGrNewW" class="calc-input" placeholder="örn: 85" min="0">
+                    </div>
+                  </div>
+                  <div class="calc-field">
+                    <label>TEKRAR</label>
+                    <div class="calc-input-wrapper">
+                      <input type="number" id="calcGrNewR" class="calc-input" placeholder="örn: 10" min="0">
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <button class="btn-primary" style="width: 100%; padding: 16px; font-size: 1.1rem;"
+                onclick="calcGrowth()">Kıyasla</button>
+
+              <div id="res-growth" class="calc-info-box"
+                style="display:none; flex-direction: column; align-items: center; justify-content: center; padding: 32px; background: rgba(255,255,255,0.02); border: 2px solid var(--accent-primary); border-radius: 20px; margin-top: 24px;">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--accent-primary)"
+                  stroke-width="2" style="margin-bottom: 16px;">
+                  <polyline points="22 7 13.5 15.5 8.5 10.5 2 17" />
+                  <polyline points="16 7 22 7 22 13" />
+                </svg>
+                <p id="res-growth-val"
+                  style="font-size: 1.5rem; font-weight: 900; color: var(--text-main); margin-bottom: 16px; text-align: center;">
+                  Gücün %X arttı</p>
+                <div
+                  style="width: 100%; height: 8px; background: var(--bg-main); border-radius: 4px; overflow: hidden;">
+                  <div id="res-growth-bar"
+                    style="height: 100%; background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary)); width: 0%; transition: width 1s ease;">
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="calc-view" id="calc-macros">
+            <div class="card calc-card">
+              <div class="calc-input-row" style="grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 16px;">
+                <div class="calc-field">
+                  <label>AĞIRLIK</label>
+                  <div class="calc-input-wrapper">
+                    <input type="number" id="calcMacW" class="calc-input" placeholder="kg" min="0">
+                  </div>
+                </div>
+                <div class="calc-field">
+                  <label>BOY</label>
+                  <div class="calc-input-wrapper">
+                    <input type="number" id="calcMacH" class="calc-input" placeholder="cm" min="0">
+                  </div>
+                </div>
+                <div class="calc-field">
+                  <label>YAŞ</label>
+                  <div class="calc-input-wrapper">
+                    <input type="number" id="calcMacA" class="calc-input" placeholder="yıl" min="0">
+                  </div>
+                </div>
+              </div>
+              <div class="calc-field" style="margin-bottom: 24px;">
+                <label>AKTİVİTE SEVİYESİ</label>
+                <div class="rich-select-container">
+                  <div class="rich-select-trigger" id="richSelectTrigger">
+                    <div class="rich-option-content">
+                      <span class="rich-option-title">Moderately Active</span>
+                      <span class="rich-option-desc">Moderate exercise (3–5 days/week)</span>
+                    </div>
+                    <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                      stroke-width="2.5">
+                      <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                  </div>
+                  <div class="rich-select-options" id="richOptions">
+                    <div class="rich-option-item" data-value="1.2">
+                      <div class="rich-option-content">
+                        <span class="rich-option-title">Sedentary</span>
+                        <span class="rich-option-desc">Little to no exercise</span>
+                      </div>
+                      <div class="rich-option-check">✔</div>
+                    </div>
+                    <div class="rich-option-item" data-value="1.375">
+                      <div class="rich-option-content">
+                        <span class="rich-option-title">Lightly Active</span>
+                        <span class="rich-option-desc">Light exercise (1–3 days/week)</span>
+                      </div>
+                      <div class="rich-option-check">✔</div>
+                    </div>
+                    <div class="rich-option-item selected" data-value="1.55">
+                      <div class="rich-option-content">
+                        <span class="rich-option-title">Moderately Active</span>
+                        <span class="rich-option-desc">Moderate exercise (3–5 days/week)</span>
+                      </div>
+                      <div class="rich-option-check">✔</div>
+                    </div>
+                    <div class="rich-option-item" data-value="1.725">
+                      <div class="rich-option-content">
+                        <span class="rich-option-title">Very Active</span>
+                        <span class="rich-option-desc">Intense exercise (6–7 days/week)</span>
+                      </div>
+                      <div class="rich-option-check">✔</div>
+                    </div>
+                    <div class="rich-option-item" data-value="1.9">
+                      <div class="rich-option-content">
+                        <span class="rich-option-title">Extremely Active</span>
+                        <span class="rich-option-desc">Physical job or double training</span>
+                      </div>
+                      <div class="rich-option-check">✔</div>
+                    </div>
+                  </div>
+                  <input type="hidden" id="calcMacAct" value="1.55">
+                </div>
+              </div>
+              <div
+                style="display: flex; padding: 4px; background: var(--bg-main); border: 1px solid var(--border-color); border-radius: 12px; width: fit-content; margin: 0 auto 24px;">
+                <button id="mac-btn-male" class="mac-gender-btn active"
+                  style="padding: 8px 24px; border-radius: 8px; font-size: 0.85rem; font-weight: bold; border: none; background: var(--accent-primary); color: white; cursor: pointer; transition: all 0.2s;"
+                  onclick="setMacGender('male')">Erkek</button>
+                <button id="mac-btn-female" class="mac-gender-btn"
+                  style="padding: 8px 24px; border-radius: 8px; font-size: 0.85rem; font-weight: bold; border: none; background: transparent; color: var(--text-muted); cursor: pointer; transition: all 0.2s;"
+                  onclick="setMacGender('female')">Kadın</button>
+              </div>
+
+              <button class="btn-primary" style="width: 100%; padding: 16px; font-size: 1.1rem;"
+                onclick="calcMacros()">Makro / Kalori Hesapla</button>
+
+              <div id="res-macros"
+                style="display:none; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-top: 24px;">
+                <div
+                  style="grid-column: span 2; padding: 20px; background: var(--accent-glow); border: 1px solid var(--accent-primary); border-radius: 16px; text-align: center;">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    class="text-accent-primary" style="margin: 0 auto 4px; color: var(--accent-primary);">
+                    <path d="M12 2c0 0-5 3.5-5 9s5 9 5 9 5-3.5 5-9-5-9-5-9z" />
+                  </svg>
+                  <p
+                    style="font-size: 0.65rem; text-transform: uppercase; font-weight: 900; color: var(--text-muted); margin-bottom: 4px;">
+                    KALORİ</p>
+                  <p id="res-mac-kcal" style="font-size: 2.5rem; font-weight: 900; color: var(--text-main); margin: 0;">
+                    0</p>
+                </div>
+                <div
+                  style="padding: 16px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; text-align: center;">
+                  <p
+                    style="font-size: 0.65rem; text-transform: uppercase; font-weight: 900; color: var(--text-muted); margin-bottom: 4px;">
+                    PROTEİN</p>
+                  <p id="res-mac-p" style="font-size: 1.5rem; font-weight: 900; color: #60a5fa; margin: 0;">0g</p>
+                </div>
+                <div
+                  style="padding: 16px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; text-align: center;">
+                  <p
+                    style="font-size: 0.65rem; text-transform: uppercase; font-weight: 900; color: var(--text-muted); margin-bottom: 4px;">
+                    KARB</p>
+                  <p id="res-mac-c" style="font-size: 1.5rem; font-weight: 900; color: #f59e0b; margin: 0;">0g</p>
+                </div>
+                <div
+                  style="grid-column: span 2; padding: 16px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; text-align: center;">
+                  <p
+                    style="font-size: 0.65rem; text-transform: uppercase; font-weight: 900; color: var(--text-muted); margin-bottom: 4px;">
+                    YAĞ</p>
+                  <p id="res-mac-f" style="font-size: 1.5rem; font-weight: 900; color: #f43f5e; margin: 0;">0g</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ============ PAGE: DIET ============ -->
+    <div class="page" data-page="diet" id="pageDiet">
+      <!-- Premium Page Banner -->
+      <div class="page-banner page-banner--orange diet-banner" style="margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; padding: 20px; background: linear-gradient(135deg, rgba(255,112,67,0.1) 0%, rgba(255,112,67,0.02) 100%); border-radius: 16px; border: 1px solid rgba(255,112,67,0.15);">
+        <div>
+          <h1 style="font-size: 1.6rem; font-weight: 800; margin: 0 0 4px 0; color: var(--text-primary); letter-spacing: -0.5px;">Diyet & Beslenme</h1>
+          <p style="margin: 0; font-size: 0.85rem; color: var(--text-muted); font-weight: 500;">Yemeklerin fotoğrafını çekip AI ile analiz et ve makrolarını takip et</p>
+        </div>
+        <div style="width: 48px; height: 48px; border-radius: 14px; background: rgba(255,112,67,0.15); display: flex; align-items: center; justify-content: center; color: #ff7043; flex-shrink: 0;">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2v20M17 5V2M17 10c1.5 0 3-1 3-3V2M17 10v12M7 2v10a3 3 0 0 0 6 0V2"/>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Weekly Day Selector -->
+      <section class="card" style="margin-bottom: 16px; padding: 14px 16px;">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
+          <span style="font-size:0.72rem; font-weight:800; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.08em;">📅 Haftalık Geçmiş</span>
+          <span id="dietWeekRangeLabel" style="font-size:0.7rem; color:var(--text-muted);"></span>
+        </div>
+        <div id="dietWeekDayTabs" style="display:flex; gap:6px; overflow-x:auto; padding-bottom:2px; scrollbar-width:none;"></div>
+      </section>
+
+      <!-- Macro Tracker Grid -->
+      <section class="card" style="margin-bottom: 24px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
+          <h3 class="card-title" style="margin:0;">📊 <span id="dietMacroDateLabel">Bugünkü</span> Makro Durumu</h3>
+          <button onclick="toggleDietTargetForm()" class="btn-small" style="font-size: 0.75rem; padding: 6px 12px; border-radius: 8px;">
+            ⚙️ Hedefleri Düzenle
+          </button>
+        </div>
+
+        <!-- Inline Target Editing Form -->
+        <div id="dietTargetFormContainer" style="display: none; margin-bottom: 20px; padding: 16px; background: var(--bg-card-alt); border: 1px solid var(--border-subtle); border-radius: 12px;">
+          <h4 style="margin: 0 0 12px 0; font-size: 0.9rem; font-weight: 700; color: var(--text-primary);">Günlük Hedeflerini Ayarla</h4>
+          <div class="diet-target-grid">
+            <div style="display: flex; flex-direction: column; gap: 4px;">
+              <label style="font-size: 0.7rem; color: var(--text-muted); font-weight: 600;">Kalori (kcal)</label>
+              <input type="number" id="targetKcal" class="log-input" placeholder="2000" style="padding: 8px; font-size: 0.85rem;" onchange="saveDietTargets()">
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 4px;">
+              <label style="font-size: 0.7rem; color: var(--text-muted); font-weight: 600;">Protein (g)</label>
+              <input type="number" id="targetProtein" class="log-input" placeholder="150" style="padding: 8px; font-size: 0.85rem;" onchange="saveDietTargets()">
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 4px;">
+              <label style="font-size: 0.7rem; color: var(--text-muted); font-weight: 600;">Karb (g)</label>
+              <input type="number" id="targetCarbs" class="log-input" placeholder="200" style="padding: 8px; font-size: 0.85rem;" onchange="saveDietTargets()">
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 4px;">
+              <label style="font-size: 0.7rem; color: var(--text-muted); font-weight: 600;">Yağ (g)</label>
+              <input type="number" id="targetFat" class="log-input" placeholder="70" style="padding: 8px; font-size: 0.85rem;" onchange="saveDietTargets()">
+            </div>
+          </div>
+          <div class="diet-actions-row" style="display: flex; gap: 8px; justify-content: flex-end;">
+            <button class="btn-primary" style="padding: 6px 14px; font-size: 0.8rem;" onclick="saveDietTargets(true)">Kaydet</button>
+            <button class="btn-small" style="padding: 6px 14px; font-size: 0.8rem;" onclick="toggleDietTargetForm()">İptal</button>
+          </div>
+        </div>
+
+        <!-- Progress Metrics display -->
+        <div class="diet-macros-grid">
+          <!-- Calories -->
+          <div style="padding: 14px; background: rgba(255,112,67,0.06); border: 1px solid rgba(255,112,67,0.15); border-radius: 12px; text-align: center;">
+            <span style="font-size: 0.65rem; font-weight: 800; color: #ff7043; text-transform: uppercase;">KALORİ</span>
+            <div id="dietKcalVal" style="font-size: 1.3rem; font-weight: 900; margin: 4px 0;">0 / 2000</div>
+            <div style="font-size: 0.7rem; color: var(--text-muted); font-weight: 500;" id="dietKcalRem">Kalan: 2000 kcal</div>
+            <div style="width: 100%; height: 6px; background: rgba(255,255,255,0.05); border-radius: 6px; margin-top: 8px; overflow: hidden;">
+              <div id="dietKcalBar" style="height: 100%; width: 0%; background: #ff7043; border-radius: 6px; transition: width 0.3s ease;"></div>
+            </div>
+          </div>
+          <!-- Protein -->
+          <div style="padding: 14px; background: rgba(96,165,250,0.06); border: 1px solid rgba(96,165,250,0.15); border-radius: 12px; text-align: center;">
+            <span style="font-size: 0.65rem; font-weight: 800; color: #60a5fa; text-transform: uppercase;">PROTEİN</span>
+            <div id="dietProteinVal" style="font-size: 1.3rem; font-weight: 900; margin: 4px 0;">0g / 150g</div>
+            <div style="font-size: 0.7rem; color: var(--text-muted); font-weight: 500;" id="dietProteinRem">Kalan: 150g</div>
+            <div style="width: 100%; height: 6px; background: rgba(255,255,255,0.05); border-radius: 6px; margin-top: 8px; overflow: hidden;">
+              <div id="dietProteinBar" style="height: 100%; width: 0%; background: #60a5fa; border-radius: 6px; transition: width 0.3s ease;"></div>
+            </div>
+          </div>
+          <!-- Carbs -->
+          <div style="padding: 14px; background: rgba(245,158,11,0.06); border: 1px solid rgba(245,158,11,0.15); border-radius: 12px; text-align: center;">
+            <span style="font-size: 0.65rem; font-weight: 800; color: #f59e0b; text-transform: uppercase;">KARB</span>
+            <div id="dietCarbsVal" style="font-size: 1.3rem; font-weight: 900; margin: 4px 0;">0g / 200g</div>
+            <div style="font-size: 0.7rem; color: var(--text-muted); font-weight: 500;" id="dietCarbsRem">Kalan: 200g</div>
+            <div style="width: 100%; height: 6px; background: rgba(255,255,255,0.05); border-radius: 6px; margin-top: 8px; overflow: hidden;">
+              <div id="dietCarbsBar" style="height: 100%; width: 0%; background: #f59e0b; border-radius: 6px; transition: width 0.3s ease;"></div>
+            </div>
+          </div>
+          <!-- Fat -->
+          <div style="padding: 14px; background: rgba(244,63,94,0.06); border: 1px solid rgba(244,63,94,0.15); border-radius: 12px; text-align: center;">
+            <span style="font-size: 0.65rem; font-weight: 800; color: #f43f5e; text-transform: uppercase;">YAĞ</span>
+            <div id="dietFatVal" style="font-size: 1.3rem; font-weight: 900; margin: 4px 0;">0g / 70g</div>
+            <div style="font-size: 0.7rem; color: var(--text-muted); font-weight: 500;" id="dietFatRem">Kalan: 70g</div>
+            <div style="width: 100%; height: 6px; background: rgba(255,255,255,0.05); border-radius: 6px; margin-top: 8px; overflow: hidden;">
+              <div id="dietFatBar" style="height: 100%; width: 0%; background: #f43f5e; border-radius: 6px; transition: width 0.3s ease;"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Logging Card -->
+      <section class="card" style="margin-bottom: 24px; padding: 0; overflow: hidden;">
+        <!-- Manuel Giriş -->
+        <div id="dietTabManual" class="diet-tab-content">
+
+          <div class="diet-inputs-grid">
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 16px;">
+              <div style="flex: 1; height: 1px; background: var(--border-subtle);"></div>
+              <span style="font-size: 0.68rem; color: var(--text-muted); font-weight: 600; letter-spacing: 0.06em; white-space: nowrap;">MANUEL GİRİŞ</span>
+              <div style="flex: 1; height: 1px; background: var(--border-subtle);"></div>
+            </div>
+
+            <div class="col-name" style="display: flex; flex-direction: column; gap: 6px;">
+              <label style="font-size: 0.7rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;">Yemek Adı</label>
+              <input type="text" id="manualMealName" class="log-input" placeholder="ör: Yulaf Ezmesi" style="padding: 10px 12px; font-size: 0.88rem;">
+            </div>
+            <div class="col-tag" style="display: flex; flex-direction: column; gap: 6px;">
+              <label style="font-size: 0.7rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;">Etiket</label>
+              <select id="manualMealTag" class="log-input" style="padding: 10px 12px; font-size: 0.88rem; appearance: none; background-color: var(--bg-input);">
+                <option value="Kahvaltı">🌅 Kahvaltı</option>
+                <option value="Öğle Yemeği">☀️ Öğle Yemeği</option>
+                <option value="Akşam Yemeği">🌙 Akşam Yemeği</option>
+                <option value="Ara Öğün">🍎 Ara Öğün</option>
+                <option value="Atıştırmalık">🍿 Atıştırmalık</option>
+                <option value="İçecek">🥤 İçecek</option>
+                <option value="Diğer" selected>📦 Diğer</option>
+              </select>
+            </div>
+            <div class="diet-macro-row">
+              <div style="display: flex; flex-direction: column; gap: 6px;">
+                <label style="font-size: 0.7rem; color: #ff7043; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;">🔥 Kalori</label>
+                <input type="number" id="manualMealKcal" class="log-input" placeholder="kcal" style="padding: 10px 12px; font-size: 0.88rem;">
+              </div>
+              <div style="display: flex; flex-direction: column; gap: 6px;">
+                <label style="font-size: 0.7rem; color: #60a5fa; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;">🥩 Protein</label>
+                <input type="number" id="manualMealProtein" class="log-input" placeholder="g" style="padding: 10px 12px; font-size: 0.88rem;">
+              </div>
+              <div style="display: flex; flex-direction: column; gap: 6px;">
+                <label style="font-size: 0.7rem; color: #f59e0b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;">🍞 Karb</label>
+                <input type="number" id="manualMealCarbs" class="log-input" placeholder="g" style="padding: 10px 12px; font-size: 0.88rem;">
+              </div>
+              <div style="display: flex; flex-direction: column; gap: 6px;">
+                <label style="font-size: 0.7rem; color: #f43f5e; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;">🥑 Yağ</label>
+                <input type="number" id="manualMealFat" class="log-input" placeholder="g" style="padding: 10px 12px; font-size: 0.88rem;">
+              </div>
+            </div>
+          </div>
+          <div class="diet-actions-row" style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 4px;">
+            <button class="btn-small" onclick="resetManualFoodForm()" style="font-size: 0.8rem; padding: 8px 14px;">✕ Temizle</button>
+            <button class="btn-primary" onclick="submitDietLog('manual')">✔ Öğünü Kaydet</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Logged Meals (selected day) -->
+      <section class="card">
+        <div class="card-header" style="margin-bottom:14px;">
+          <h3 class="card-title">🍽️ <span id="dietMealListDateLabel">Bugün</span> Yenilenler</h3>
+          <span class="card-badge" style="background:rgba(255,112,67,0.12); color:#ff7043; border:1px solid rgba(255,112,67,0.2);">Yemek Listesi</span>
+        </div>
+        <div id="loggedMealsList" style="display: flex; flex-direction: column; gap: 10px;">
+          <div class="logged-empty">Henüz yemek eklenmedi.</div>
+        </div>
+      </section>
+    </div>
+
+    <!-- ===== DIET MEAL EDIT MODAL ===== -->
+    <div id="dietEditModal" style="display:none; position:fixed; inset:0; z-index:9000; align-items:center; justify-content:center; padding:16px;">
+      <div id="dietEditBackdrop" onclick="closeDietEditModal()" style="position:absolute; inset:0; background:rgba(0,0,0,0.6); backdrop-filter:blur(4px);"></div>
+      <div style="position:relative; z-index:1; background:var(--bg-card); border:1px solid var(--border-subtle); border-radius:20px; padding:28px; width:100%; max-width:520px; box-shadow:0 24px 60px rgba(0,0,0,0.5); animation:dietFadeIn 0.2s ease;">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:22px;">
+          <div>
+            <h3 style="margin:0 0 2px 0; font-size:1.1rem; font-weight:800; color:var(--text-primary);">✏️ Öğünü Düzenle</h3>
+            <p style="margin:0; font-size:0.78rem; color:var(--text-muted);">Bilgileri güncelleyip kaydedin</p>
+          </div>
+          <button onclick="closeDietEditModal()" style="background:rgba(255,255,255,0.06); border:1px solid var(--border-subtle); color:var(--text-muted); width:32px; height:32px; border-radius:8px; cursor:pointer; font-size:1rem; display:flex; align-items:center; justify-content:center;">✕</button>
+        </div>
+
+        <input type="hidden" id="editMealId">
+
+        <!-- Name + Tag -->
+        <div style="display:grid; grid-template-columns:1fr 160px; gap:12px; margin-bottom:14px;">
+          <div style="display:flex; flex-direction:column; gap:6px;">
+            <label style="font-size:0.7rem; color:var(--text-muted); font-weight:600; text-transform:uppercase; letter-spacing:0.05em;">Yemek Adı</label>
+            <input type="text" id="editMealName" class="log-input" style="padding:10px 12px; font-size:0.88rem;">
+          </div>
+          <div style="display:flex; flex-direction:column; gap:6px;">
+            <label style="font-size:0.7rem; color:var(--text-muted); font-weight:600; text-transform:uppercase; letter-spacing:0.05em;">Etiket</label>
+            <select id="editMealTag" class="log-input" style="padding:10px 12px; font-size:0.88rem; appearance:none; background-color:var(--bg-input);">
+              <option value="Kahvaltı">🌅 Kahvaltı</option>
+              <option value="Öğle Yemeği">☀️ Öğle Yemeği</option>
+              <option value="Akşam Yemeği">🌙 Akşam Yemeği</option>
+              <option value="Ara Öğün">🍎 Ara Öğün</option>
+              <option value="Atıştırmalık">🍿 Atıştırmalık</option>
+              <option value="İçecek">🥤 İçecek</option>
+              <option value="Diğer">📦 Diğer</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Macro Inputs -->
+        <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:24px;">
+          <div style="display:flex; flex-direction:column; gap:6px;">
+            <label style="font-size:0.7rem; color:#ff7043; font-weight:700; text-transform:uppercase; letter-spacing:0.05em;">🔥 Kalori</label>
+            <input type="number" id="editMealKcal" class="log-input" placeholder="kcal" style="padding:10px 12px; font-size:0.88rem;">
+          </div>
+          <div style="display:flex; flex-direction:column; gap:6px;">
+            <label style="font-size:0.7rem; color:#60a5fa; font-weight:700; text-transform:uppercase; letter-spacing:0.05em;">🥩 Protein</label>
+            <input type="number" id="editMealProtein" class="log-input" placeholder="g" style="padding:10px 12px; font-size:0.88rem;">
+          </div>
+          <div style="display:flex; flex-direction:column; gap:6px;">
+            <label style="font-size:0.7rem; color:#f59e0b; font-weight:700; text-transform:uppercase; letter-spacing:0.05em;">🍞 Karb</label>
+            <input type="number" id="editMealCarbs" class="log-input" placeholder="g" style="padding:10px 12px; font-size:0.88rem;">
+          </div>
+          <div style="display:flex; flex-direction:column; gap:6px;">
+            <label style="font-size:0.7rem; color:#f43f5e; font-weight:700; text-transform:uppercase; letter-spacing:0.05em;">🥑 Yağ</label>
+            <input type="number" id="editMealFat" class="log-input" placeholder="g" style="padding:10px 12px; font-size:0.88rem;">
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div style="display:flex; gap:10px; justify-content:flex-end;">
+          <button class="btn-primary" onclick="saveEditedMeal()" style="gap:6px;">💾 Kaydet</button>
+          <button class="btn-small" onclick="closeDietEditModal()">İptal</button>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ===== ACHIEVEMENT POPUP ===== -->
+    <div class="achievement-popup" id="achievementPopup">
+      <canvas id="confettiCanvas"></canvas>
+      <div class="achievement-popup-card">
+        <div class="achievement-popup-icon" id="achievementIcon">
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <circle cx="12" cy="8" r="6" />
+            <path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11" />
+          </svg>
+        </div>
+        <div class="achievement-popup-title" id="achievementTitle">Başarım Kazanıldı!</div>
+        <div class="achievement-popup-desc" id="achievementDesc">Harika iş çıkardın!</div>
+        <button class="achievement-popup-close" onclick="closeAchievementPopup()">Devam Et</button>
+      </div>
+    </div>
+
+    <!-- ===== WEEKLY GOAL BOTTOM SHEET ===== -->
+    <div class="weekly-goal-sheet" id="weeklyGoalSheet">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent-primary)" stroke-width="2">
+          <circle cx="12" cy="12" r="10" />
+          <polyline points="12 6 12 12 16 14" />
+        </svg>
+        <h3 style="margin:0;">Haftalık Hedefini Belirle</h3>
+      </div>
+      <p>Bu hafta kaç gün antrenman yapmayı planlıyorsunuz?</p>
+      <div class="weekly-goal-slider-wrap">
+        <div class="weekly-goal-display" id="weeklyGoalDisplay">3</div>
+        <input type="range" class="weekly-goal-slider" id="weeklyGoalSlider" min="1" max="7" value="3"
+          style="--fill: 42%">
+      </div>
+      <button class="weekly-goal-confirm" onclick="confirmWeeklyGoal()">Hedefi Kaydet</button>
+    </div>
+
+    <!-- ===== PAGE: ACHIEVEMENTS ===== -->
+    <div class="page" data-page="achievements" id="pageAchievements">
+      <div class="page-banner page-banner--purple" style="margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; padding: 20px; background: linear-gradient(135deg, rgba(139,124,247,0.1) 0%, rgba(139,124,247,0.02) 100%); border-radius: 16px; border: 1px solid rgba(139,124,247,0.15);">
+        <div>
+          <h1 style="font-size: 1.6rem; font-weight: 800; margin: 0 0 4px 0; color: var(--text-primary); letter-spacing: -0.5px;">Başarımlar & Rozetler</h1>
+          <p style="margin: 0; font-size: 0.85rem; color: var(--text-muted); font-weight: 500;">Kilidini açtığınız ödüller ve hedefler</p>
+        </div>
+        <div style="width: 48px; height: 48px; border-radius: 14px; background: rgba(139,124,247,0.15); display: flex; align-items: center; justify-content: center; color: var(--accent-primary);">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15l-3.5 3 1.5-6.5-5-4h6.5L12 2l2.5 5.5H21l-5 4 1.5 6.5L12 15z"/></svg>
+        </div>
+      </div>
+      <div id="achievementsGrid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(140px, 1fr)); gap:16px;">
+        <!-- Achievements rendered here -->
+      </div>
+    </div>
+
+    <!-- ===== PAGE: LEADERBOARD ===== -->
+    <div class="page" data-page="leaderboard" id="pageLeaderboard">
+      <div class="lb-header-section">
+        <div class="lb-header-icon">👑</div>
+        <h1 class="lb-header-title">Liderlik Tablosu</h1>
+        <p class="lb-header-subtitle">Topluluğun en iyileriyle yarışın</p>
+      </div>
+      
+      <div class="lb-filters">
+        <button class="lb-filter-btn active" onclick="setLeaderboardFilter('level')" id="lbFilterLevel">Seviye (XP)</button>
+        <button class="lb-filter-btn" onclick="setLeaderboardFilter('pr')" id="lbFilterPR">En Yüksek PR</button>
+      </div>
+
+      <div id="leaderboardList" class="lb-list">
+        <!-- Leaderboard items injected here -->
+        <div style="text-align:center; padding:40px; color:var(--text-muted);">
+          <div class="loader-mini" style="margin:0 auto 12px;"></div>
+          Yükleniyor...
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== PAGE: BEFORE/AFTER ===== -->
+    <div class="page" data-page="beforeafter" id="pageBeforeafter">
+      <!-- Premium Page Banner -->
+      <div class="page-banner page-banner--pink" style="margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; padding: 20px; background: linear-gradient(135deg, rgba(236,72,153,0.08) 0%, rgba(236,72,153,0.01) 100%); border-radius: 16px; border: 1px solid rgba(236,72,153,0.15);">
+        <div>
+          <h1 style="font-size: 1.6rem; font-weight: 800; margin: 0 0 4px 0; color: var(--text-primary); letter-spacing: -0.5px;">Gelişim Fotoğrafları</h1>
+          <p style="margin: 0; font-size: 0.85rem; color: var(--text-muted); font-weight: 500;">Bedenindeki değişimi gözlemle ve belgele</p>
+        </div>
+        <div style="width: 48px; height: 48px; border-radius: 14px; background: rgba(236,72,153,0.12); display: flex; align-items: center; justify-content: center; color: #ec4899; flex-shrink: 0;">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="9" height="18" rx="1"/><rect x="13" y="3" width="9" height="18" rx="1"/></svg>
+        </div>
+      </div>
+      <section class="card" id="progressPhotosCardMain">
+        <div class="card-header">
+          <h3 class="card-title">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              style="vertical-align:middle;margin-right:6px;">
+              <rect x="3" y="3" width="18" height="18" rx="2" />
+              <circle cx="8.5" cy="8.5" r="1.5" />
+              <polyline points="21 15 16 10 5 21" />
+            </svg>
+            Fotoğraflar
+          </h3>
+          <div class="header-actions">
+            <button class="btn-small" id="comparePhotosBtnMain" onclick="toggleCompareMode()"
+              style="background:rgba(139,124,247,0.15);color:var(--accent-primary);border:1px solid rgba(139,124,247,0.3);">Karşılaştır</button>
+            <button class="ai-analyze-btn" id="aiAnalyzePhotosBtn" onclick="openBeforeAfterAnalysis()">
+              <svg class="ai-sparkle-btn-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C12 2 12.5 7.5 14.5 9.5C16.5 11.5 22 12 22 12C22 12 16.5 12.5 14.5 14.5C12.5 16.5 12 22 12 22C12 22 11.5 16.5 9.5 14.5C7.5 12.5 2 12 2 12C2 12 7.5 11.5 9.5 9.5C11.5 7.5 12 2 12 2Z" fill="url(#ai-sparkle-gradient-btn)"/></svg>
+              AI Analiz Et
+            </button>
+            <button class="btn-small" onclick="document.getElementById('progressPhotoInputMain').click()">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <line x1="12" y1="5" x2="12" y2="19" />
+                <line x1="5" y1="12" x2="19" y2="12" />
+              </svg>
+              Yeni Fotoğraf
+            </button>
+          </div>
+        </div>
+        <input type="file" id="progressPhotoInputMain" accept="image/*" style="display:none"
+          onchange="handleProgressPhoto(event)">
+        <div id="progressPhotoForm"
+          style="display:none;padding:16px;background:var(--bg-input);border-radius:12px;margin-bottom:16px;border:1px solid var(--border-card);">
+          <div class="log-row">
+            <div class="log-field">
+              <label>Tarih</label>
+              <input type="date" id="photoDate" class="log-input">
+            </div>
+            <div class="log-field">
+              <label>Boy (cm)</label>
+              <input type="number" id="photoHeight" class="log-input" placeholder="örn: 180">
+            </div>
+            <div class="log-field">
+              <label>Kilo (kg)</label>
+              <input type="number" id="photoWeight" class="log-input" placeholder="örn: 80">
+            </div>
+          </div>
+          <div class="log-row">
+            <div class="log-field">
+              <label>Yağ Oranı (%)</label>
+              <input type="number" id="photoFat" class="log-input" placeholder="örn: 15">
+            </div>
+            <div class="log-field">
+              <label>Vücut Ölçüleri (Not)</label>
+              <input type="text" id="photoNote" class="log-input" placeholder="Kol: 38cm, Bel: 85cm...">
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:12px;">
+            <button class="btn-primary" style="flex:1;" onclick="saveProgressPhoto()">Kaydet</button>
+            <button class="btn-small"
+              style="background:var(--bg-card);color:var(--text-primary);border:1px solid var(--border-subtle);"
+              onclick="cancelProgressPhoto()">İptal</button>
+          </div>
+        </div>
+        <div id="compareView" class="compare-view" style="display:none;"></div>
+        <div class="progress-photos-grid" id="progressPhotosGrid">
+          <div class="logged-empty" style="grid-column:1/-1;">Henüz fotoğraf eklenmedi.</div>
+        </div>
+      </section>
+
+
+      <!-- Body Measurements Tracker -->
+      <section class="card">
+        <div class="card-header">
+          <h3 class="card-title">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              style="vertical-align:middle;margin-right:6px;">
+              <path d="M2 12h5l2 9 4-18 2 9h5" />
+            </svg>
+            Vücut Ölçüleri
+          </h3>
+          <button class="btn-small"
+            onclick="document.getElementById('bodyMeasForm').style.display = document.getElementById('bodyMeasForm').style.display === 'none' ? 'block' : 'none'">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <line x1="12" y1="5" x2="12" y2="19" />
+              <line x1="5" y1="12" x2="19" y2="12" />
+            </svg>
+            Ölçü Ekle
+          </button>
+        </div>
+        <div id="bodyMeasForm"
+          style="display:none; padding:16px; background:var(--bg-input); border-radius:12px; margin-bottom:16px; border:1px solid var(--border-card);">
+          <div class="log-row">
+            <div class="log-field"><label>Tarih</label><input type="date" id="measFormDate" class="log-input"></div>
+            <div class="log-field"><label>Kilo (kg)</label><input type="number" id="measFormWeight" class="log-input"
+                placeholder="80" step="0.1"></div>
+            <div class="log-field"><label>Yağ Oranı (%)</label><input type="number" id="measFormFat" class="log-input"
+                placeholder="15" step="0.1"></div>
+          </div>
+          <div class="log-row">
+            <div class="log-field"><label>Kol (cm)</label><input type="number" id="measFormArm" class="log-input"
+                placeholder="38" step="0.1"></div>
+            <div class="log-field"><label>Göğüs (cm)</label><input type="number" id="measFormChest" class="log-input"
+                placeholder="100" step="0.1"></div>
+            <div class="log-field"><label>Bel (cm)</label><input type="number" id="measFormWaist" class="log-input"
+                placeholder="85" step="0.1"></div>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:12px;">
+            <button class="btn-primary" style="flex:1;" onclick="saveBodyMeasurement()">Kaydet</button>
+            <button class="btn-small"
+              style="background:var(--bg-card);color:var(--text-primary);border:1px solid var(--border-subtle);"
+              onclick="document.getElementById('bodyMeasForm').style.display='none'">İptal</button>
+          </div>
+        </div>
+        <div class="measurements-history" id="bodyMeasHistory">
+          <div class="logged-empty">Henüz ölçü eklenmedi.</div>
+        </div>
+      </section>
+    </div>
+
+    <!-- ============ PAGE: UPDATES ============ -->
+    <div class="page" data-page="updates" id="pageUpdates">
+      <!-- Premium Page Banner -->
+      <div class="page-banner page-banner--emerald" style="margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; padding: 20px; background: linear-gradient(135deg, rgba(16,185,129,0.08) 0%, rgba(16,185,129,0.01) 100%); border-radius: 16px; border: 1px solid rgba(16,185,129,0.15);">
+        <div>
+          <h1 style="font-size: 1.6rem; font-weight: 800; margin: 0 0 4px 0; color: var(--text-primary); letter-spacing: -0.5px;" data-i18n="updatesTitle">Güncellemeler</h1>
+          <p style="margin: 0; font-size: 0.85rem; color: var(--text-muted); font-weight: 500;" data-i18n="updatesSubtitle">Yeni özellikler ve iyileştirmeler hakkında bilgi al</p>
+        </div>
+        <div style="width: 48px; height: 48px; border-radius: 14px; background: rgba(16,185,129,0.12); display: flex; align-items: center; justify-content: center; color: #10b981; flex-shrink: 0;">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19a9 9 0 1 0 0-14"/><polyline points="4 5 4 12 11 12"/></svg>
+        </div>
+      </div>
+      <div class="page-header-row" style="margin-bottom:20px;">
+        <h2 class="page-title" style="display:none;">Güncellemeler</h2>
+        <!-- Admin: Quick post button (only visible to admins via .admin-only) -->
+        <button class="admin-only btn-small admin-update-toggle-btn" id="adminUpdateToggleBtn"
+          onclick="toggleAdminUpdateForm()"
+          style="display:none; gap:6px; align-items:center; background:rgba(139,124,247,0.12); border:1px solid rgba(139,124,247,0.3); color:var(--accent-primary);">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
+          </svg>
+          <span data-i18n="shareUpdate">Güncelleme Paylaş</span>
+        </button>
+      </div>
+
+      <!-- Admin: Collapsible Post Form -->
+      <div class="admin-only admin-update-form-wrap" id="adminUpdateFormWrap"
+        style="display:none; overflow:hidden; max-height:0; transition:max-height 0.45s cubic-bezier(0.4,0,0.2,1), opacity 0.3s ease; opacity:0; margin-bottom:0;">
+        <div class="admin-update-form-inner">
+          <div style="display:flex; flex-direction:column; gap:14px;">
+            <div style="width:100%;">
+              <div style="font-size:0.72rem; color:var(--text-secondary); margin-bottom:8px; line-height:1.6; padding:10px 14px; background:rgba(139,124,247,0.06); border-radius:10px; border-left:3px solid var(--accent-primary);">
+                <strong style="color:var(--accent-primary);" data-i18n="syntax">Söz dizimi:</strong>
+                &nbsp;<code style="color:#e0943a;">*Başlık</code> = bölüm başlığı &nbsp;|&nbsp;
+                <code style="color:#4ecb8d;">-madde</code> = liste maddesi &nbsp;|&nbsp;
+                <code style="color:#d96ea3;">**bold**</code> = kalın yazı &nbsp;|&nbsp;
+                Boş satırlar gösterilmez
+              </div>
+              <textarea id="adminUpdateContent" class="log-input admin-update-textarea"
+                rows="16"
+                style="width:100%; min-height:340px; resize:vertical; font-family:'Inter',monospace; font-size:0.88rem; line-height:1.7; padding:16px; border-radius:12px;"
+                placeholder="*Spor Programı&#10;-Ağırlıklar güncellendi&#10;-Yeni hareketler eklendi&#10;&#10;*UI Güncellemeleri&#10;-Tasarım **tamamen** yenilendi&#10;-Animasyonlar eklendi"></textarea>
+            </div>
+            <button class="btn-primary admin-update-send-btn" onclick="adminPostUpdate()" id="adminUpdateSendBtn"
+              style="width:fit-content; padding:12px 28px;">
+              <span id="adminUpdateSendText" style="font-weight:700; margin-right:8px;" data-i18n="save">Paylaş</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" id="adminUpdateSendIcon">
+                <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
+              </svg>
+              <div class="loader-mini" id="adminUpdateLoader" style="display:none;"></div>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Dynamic Updates Container -->
+      <div id="updatesContainer">
+        <div class="updates-loading" style="text-align:center; padding:40px; color:var(--text-tertiary);" data-i18n="loadingUpdates">
+          <div class="loader-mini" style="margin:0 auto 12px;"></div>
+          Güncellemeler yükleniyor...
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ PAGE: PROFILE ============ -->
+    <div class="page" data-page="profile" id="pageProfile">
+      <!-- Premium Page Banner -->
+      <div class="page-banner page-banner--purple" style="margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; padding: 20px; background: linear-gradient(135deg, rgba(139,124,247,0.1) 0%, rgba(139,124,247,0.02) 100%); border-radius: 16px; border: 1px solid rgba(139,124,247,0.15);">
+        <div>
+          <h1 style="font-size: 1.6rem; font-weight: 800; margin: 0 0 4px 0; color: var(--text-primary); letter-spacing: -0.5px;" data-i18n="navProfile">Profil</h1>
+          <p style="margin: 0; font-size: 0.85rem; color: var(--text-muted); font-weight: 500;" data-i18n="profileSubtitle">Hesap bilgilerini yönet ve kişiselleştir</p>
+        </div>
+        <div style="width: 48px; height: 48px; border-radius: 14px; background: rgba(139,124,247,0.15); display: flex; align-items: center; justify-content: center; color: var(--accent-primary); flex-shrink: 0;">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        </div>
+      </div>
+      <!-- Profile Page (Full Width Two-Column Layout) -->
+      <div class="profile-layout-grid">
+        
+        <div class="profile-left-col-card">
+          
+          <div class="profile-user-card-header">
+            <div class="profile-avatar-container">
+              <div id="profilePageAvatar" style="width: 90px; height: 90px; border-radius: 20px; background: rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: center; overflow: hidden; border: 2px solid var(--accent-primary); box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="1.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+              </div>
+              <label for="profilePhotoFile" style="cursor: pointer; font-size: 0.65rem; font-weight: 700; color: var(--text-primary); text-transform: uppercase; letter-spacing: 0.05em; text-align: center; background: rgba(139,124,247,0.15); border: 1px solid rgba(139,124,247,0.3); padding: 5px 10px; border-radius: 12px; transition: all 0.2s; white-space: nowrap;" data-i18n="changePhoto">
+                Fotoğrafı Değiştir
+              </label>
+              <input type="file" id="profilePhotoFile" accept="image/*" onchange="handleProfilePhotoUpload(event)" style="display: none;">
+            </div>
+            
+            <div class="profile-fields-container">
+              <div>
+                <label style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 8px; text-transform: uppercase;" data-i18n="fullName">Ad Soyad</label>
+                <input type="text" id="profileDisplayName" class="log-input" placeholder="Adınızı girin" style="font-size: 1rem; padding: 12px; background: rgba(255,255,255,0.03);">
+              </div>
+              <div>
+                <label style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 8px; text-transform: uppercase;">E-Mail</label>
+                <input type="email" id="profileEmail" class="log-input" placeholder="E-mail adresi" readonly style="font-size: 1rem; padding: 12px; background: rgba(255,255,255,0.02); opacity: 0.7; cursor: not-allowed; border: 1px dashed rgba(255,255,255,0.1);">
+              </div>
+            </div>
+          </div>
+          
+          <!-- Seviye & XP Bilgisi -->
+          <div id="profileLevelSection" style="display: flex; align-items: center; gap: 16px; padding: 16px; background: rgba(139,124,247,0.06); border: 1px solid rgba(139,124,247,0.15); border-radius: 14px; margin-bottom: 24px; transition: all 0.3s ease;">
+            <!-- Badge Container (Responsive Image Container) -->
+            <div id="profileLevelBadgeContainer" style="width: clamp(56px, 12vw, 80px); height: clamp(56px, 12vw, 80px); display: flex; align-items: center; justify-content: center; flex-shrink: 0; position: relative;">
+              <img id="profileLevelBadgeIcon" src="assets/0-5.webp" alt="Level Badge" loading="lazy" style="width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2)); transition: transform 0.3s ease; animation: lbCrownFloat 3s ease-in-out infinite;">
+            </div>
+            
+            <!-- Seviye / XP Bilgileri -->
+            <div style="flex: 1; min-width: 0;">
+              <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 6px;">
+                <span id="profileLevelBadge" style="font-family: 'Space Grotesk', sans-serif; font-size: 1.1rem; font-weight: 800; color: var(--text-primary); letter-spacing: -0.3px;">Level 1</span>
+                <span id="profileXPText" style="font-size: 0.78rem; font-weight: 600; color: var(--text-muted);">0 XP • 0% → Lv.2</span>
+              </div>
+              
+              <!-- İlerleme Çubuğu -->
+              <div style="width: 100%; height: 6px; background: rgba(255,255,255,0.04); border-radius: 10px; overflow: hidden; border: 1px solid rgba(255,255,255,0.06); margin-bottom: 6px; position: relative;">
+                <div id="profileXPBar" style="width: 0%; height: 100%; background: linear-gradient(90deg, var(--accent-deep), var(--accent-primary)); border-radius: 10px; transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);"></div>
+              </div>
+              
+              <div id="profileXPRemaining" style="font-size: 0.72rem; font-weight: 500; color: var(--text-muted); display: flex; align-items: center; gap: 4px;">
+                <span style="color: var(--accent-primary);">✨</span> <span id="profileXPRemainingText">Sonraki seviye için 50 XP kaldı</span>
+              </div>
+            </div>
+          </div>
+          
+          <button class="btn-primary" onclick="saveProfile()" style="width: 100%; padding: 14px; font-size: 1rem;" data-i18n="save">Kaydet</button>
+        </div>
+
+      <div class="profile-right-col">
+      <!-- Tabs -->
+      <div class="profile-tabs-nav">
+        <button class="profile-tab-btn active" onclick="switchProfileTab('bio', event)" data-i18n="profileBio">Biyografi</button>
+        <button class="profile-tab-btn" onclick="switchProfileTab('achievements', event)" data-i18n="achievementsTitle">Başarımlar</button>
+        <button class="profile-tab-btn" onclick="switchProfileTab('security', event)" data-i18n="security">Güvenlik</button>
+        <button class="profile-tab-btn" onclick="switchProfileTab('theme', event)">
+          <span>🎨</span> Tema
+        </button>
+      </div>
+
+
+      <!-- Tab Content: Theme Settings -->
+      <div id="profileTabTheme" style="display:none;">
+        <section class="card">
+          <div class="card-header">
+            <div style="display:flex;align-items:center;gap:10px;">
+              <div style="width:32px;height:32px;border-radius:10px;background:linear-gradient(135deg,var(--accent-primary),var(--accent-deep));display:flex;align-items:center;justify-content:center;font-size:1rem;">🎨</div>
+              <h3 class="card-title" style="margin:0;">Tema Rengi</h3>
+            </div>
+          </div>
+          <div style="padding:20px;display:flex;flex-direction:column;gap:20px;">
+            <p style="font-size:0.82rem;color:var(--text-secondary);line-height:1.6;">
+              Sitenin genel accent rengini seç. Seçim cihazına kaydedilir.
+            </p>
+
+            <!-- Color Swatches Grid -->
+            <div class="theme-swatches" id="themeSwatches">
+
+              <!-- Mor (Varsayılan) -->
+              <button class="theme-swatch active" id="theme-purple"
+                onclick="applyTheme('purple')"
+                style="--sw:#8b7cf7;">
+                <span class="swatch-dot" style="background:linear-gradient(135deg,#8b7cf7,#5a4cc9);"></span>
+                <span class="swatch-label">Mor</span>
+                <span class="swatch-check">✔</span>
+              </button>
+
+              <!-- Kırmızı -->
+              <button class="theme-swatch" id="theme-red"
+                onclick="applyTheme('red')">
+                <span class="swatch-dot" style="background:linear-gradient(135deg,#f05555,#b91c1c);"></span>
+                <span class="swatch-label">Kırmızı</span>
+                <span class="swatch-check">✔</span>
+              </button>
+
+              <!-- Pembe -->
+              <button class="theme-swatch" id="theme-pink"
+                onclick="applyTheme('pink')">
+                <span class="swatch-dot" style="background:linear-gradient(135deg,#ec4899,#9d174d);"></span>
+                <span class="swatch-label">Pembe</span>
+                <span class="swatch-check">✔</span>
+              </button>
+
+              <!-- Turuncu -->
+              <button class="theme-swatch" id="theme-orange"
+                onclick="applyTheme('orange')">
+                <span class="swatch-dot" style="background:linear-gradient(135deg,#f97316,#c2410c);"></span>
+                <span class="swatch-label">Turuncu</span>
+                <span class="swatch-check">✔</span>
+              </button>
+
+              <!-- Yeşil -->
+              <button class="theme-swatch" id="theme-green"
+                onclick="applyTheme('green')">
+                <span class="swatch-dot" style="background:linear-gradient(135deg,#22c55e,#15803d);"></span>
+                <span class="swatch-label">Yeşil</span>
+                <span class="swatch-check">✔</span>
+              </button>
+
+              <!-- Mavi -->
+              <button class="theme-swatch" id="theme-blue"
+                onclick="applyTheme('blue')">
+                <span class="swatch-dot" style="background:linear-gradient(135deg,#3b82f6,#1d4ed8);"></span>
+                <span class="swatch-label">Mavi</span>
+                <span class="swatch-check">✔</span>
+              </button>
+
+              <!-- Altın -->
+              <button class="theme-swatch" id="theme-gold"
+                onclick="applyTheme('gold')">
+                <span class="swatch-dot" style="background:linear-gradient(135deg,#eab308,#a16207);"></span>
+                <span class="swatch-label">Altın</span>
+                <span class="swatch-check">✔</span>
+              </button>
+
+              <!-- Kahve -->
+              <button class="theme-swatch" id="theme-brown"
+                onclick="applyTheme('brown')">
+                <span class="swatch-dot" style="background:linear-gradient(135deg,#a8714a,#7c4a24);"></span>
+                <span class="swatch-label">Kahve</span>
+                <span class="swatch-check">✔</span>
+              </button>
+
+            </div>
+
+            <!-- Preview bar -->
+            <div style="padding:14px 16px;background:var(--accent-glow);border:1px solid var(--accent-primary);border-radius:12px;display:flex;align-items:center;gap:12px;transition:all 0.4s;" id="themePreviewBar">
+              <div style="width:10px;height:10px;border-radius:50%;background:var(--accent-primary);box-shadow:0 0 8px var(--accent-primary);"></div>
+              <span style="font-size:0.82rem;color:var(--text-secondary);">Seçili tema <strong style="color:var(--accent-primary);" id="themePreviewName">Mor</strong> olarak ayarlandı.</span>
+            </div>
+
+          </div>
+        </section>
+      </div>
+
+      <!-- Tab Content: Bio -->
+      <div id="profileTabBio" style="display:block;">
+        <section class="card">
+          <div class="card-header">
+            <h3 class="card-title">Hakkında</h3>
+          </div>
+          <div style="padding:20px; display:flex; flex-direction:column; gap:16px;">
+            <div>
+              <label
+                style="font-size:0.75rem; font-weight:700; color:var(--text-muted); display:block; margin-bottom:6px;">Biyografi</label>
+              <textarea id="profileBio" class="note-input" rows="4" placeholder="Kendiniz hakkında yazın..."></textarea>
+            </div>
+            <div class="profile-bio-grid">
+              <div>
+                <label
+                  style="font-size:0.75rem; font-weight:700; color:var(--text-muted); display:block; margin-bottom:6px;">Boy
+                  (cm)</label>
+                <input type="number" id="profileHeight" class="log-input" placeholder="180" step="1">
+              </div>
+              <div>
+                <label
+                  style="font-size:0.75rem; font-weight:700; color:var(--text-muted); display:block; margin-bottom:6px;">Kilo
+                  (kg)</label>
+                <input type="number" id="profileWeight" class="log-input" placeholder="80" step="0.1">
+              </div>
+              <div>
+                <label
+                  style="font-size:0.75rem; font-weight:700; color:var(--text-muted); display:block; margin-bottom:6px;">Yaş</label>
+                <input type="number" id="profileAge" class="log-input" placeholder="25" step="1">
+              </div>
+              <div>
+                <label
+                  style="font-size:0.75rem; font-weight:700; color:var(--text-muted); display:block; margin-bottom:6px;">Cinsiyet</label>
+                <select id="profileGender" class="log-input" style="background:var(--bg-input);">
+                  <option value="male">Erkek</option>
+                  <option value="female">Kadın</option>
+                </select>
+              </div>
+            </div>
+            <button class="btn-primary" onclick="saveProfileBio()" style="width:100%; margin-top:12px;">Kaydet</button>
+          </div>
+        </section>
+      </div>
+
+      <!-- Tab Content: Achievements -->
+      <div id="profileTabAchievements" style="display:none;">
+        <section class="card">
+          <div class="card-header">
+            <h3 class="card-title">Seçili Başarımlar (3 Tane)</h3>
+            <p style="font-size:0.75rem; color:var(--text-tertiary); margin:0; margin-top:4px;">Profilde gösterilecek 3
+              başarımı seçin</p>
+          </div>
+          <div style="padding:20px;">
+            <div id="profileAchievementsGrid"
+              style="display:grid; grid-template-columns:repeat(auto-fill,minmax(120px,1fr)); gap:12px; margin-bottom:20px;">
+            </div>
+            <button class="btn-primary" onclick="saveProfileAchievements()" style="width:100%;">Başarımları
+              Kaydet</button>
+          </div>
+        </section>
+      </div>
+
+      <!-- Tab Content: Security -->
+      <div id="profileTabSecurity" style="display:none;">
+        <section class="card">
+          <div class="card-header">
+            <h3 class="card-title">Şifre Yönetimi</h3>
+          </div>
+          <div style="padding:20px; display:flex; flex-direction:column; gap:16px;" id="passwordSection">
+            <!-- Will be rendered by JavaScript -->
+          </div>
+        </section>
+
+        <section class="card" style="margin-top: 20px;">
+          <div class="card-header">
+            <h3 class="card-title">Bildirim Ayarları (Push)</h3>
+          </div>
+          <div style="padding:20px; display:flex; flex-direction:column; gap:16px;">
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0;">Anlık uygulama bildirimleri ile yorum yanıtlarını ve önemli duyuruları kaçırmayın.</p>
+            <div id="pushNotificationStatus" style="font-size: 0.85rem; font-weight: bold; margin-bottom: 8px;">Durum: Yükleniyor...</div>
+            <button id="btnEnablePush" class="btn-primary" onclick="requestNotificationPermission()" style="width:100%; display:none;">Bildirimlere İzin Ver</button>
+          </div>
+        </section>
+      </div>
+      </div>
+      </div>
+    </div>
+
+    <!-- ============ PAGE: ADMIN ============ -->
+    <div class="page" data-page="admin" id="pageAdmin">
+      <div class="admin-card-premium">
+        <div class="admin-header-main">
+          <div class="admin-brand-section">
+            <div class="admin-crown-icon">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+              </svg>
+            </div>
+            <div>
+              <h2 class="admin-title">Yönetim Merkezi</h2>
+              <p class="admin-subtitle">Zyro Global Admin Paneli</p>
+            </div>
+          </div>
+          <div class="admin-status-badge">Sistem Aktif</div>
+        </div>
+
+        <div class="admin-nav-tabs">
+          <button onclick="adminShowSection('dashboard')" class="admin-tab-btn active" id="adminTabDashboard">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+              <rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
+            </svg>
+            Genel Bakış
+          </button>
+          <button onclick="adminShowSection('notifications')" class="admin-tab-btn" id="adminTabNotifications">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+              <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+            </svg>
+            Duyurular
+          </button>
+          <button onclick="adminShowSection('users')" class="admin-tab-btn" id="adminTabUsers">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+              <circle cx="9" cy="7" r="4"/>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><circle cx="19" cy="11" r="4"/>
+            </svg>
+            Kullanıcılar
+          </button>
+          <button onclick="adminShowSection('comments')" class="admin-tab-btn" id="adminTabComments">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+            </svg>
+            Yorumlar
+          </button>
+          <button onclick="adminShowSection('reports')" class="admin-tab-btn" id="adminTabReports">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/>
+              <line x1="4" y1="22" x2="4" y2="15"/>
+            </svg>
+            Raporlar
+          </button>
+        </div>
+      </div>
+
+      <!-- ── DASHBOARD ── -->
+      <div id="adminDashboardSection" class="admin-content-section">
+        <div class="admin-stats-grid">
+          <div class="admin-stat-card">
+            <div class="admin-stat-icon" style="background:rgba(139,124,247,0.12);">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8b7cf7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><circle cx="19" cy="11" r="4"/></svg>
+            </div>
+            <div class="admin-stat-value" id="adminTotalUsers">—</div>
+            <div class="admin-stat-label">Toplam Kullanıcı</div>
+          </div>
+          <div class="admin-stat-card">
+            <div class="admin-stat-icon" style="background:rgba(0,210,130,0.1);">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00d282" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+            </div>
+            <div class="admin-stat-value" id="adminActiveUsers">—</div>
+            <div class="admin-stat-label">Aktif Kullanıcı</div>
+          </div>
+          <div class="admin-stat-card">
+            <div class="admin-stat-icon" style="background:rgba(79,142,247,0.12);">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#4f8ef7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+            </div>
+            <div class="admin-stat-value" id="adminTodayComments">—</div>
+            <div class="admin-stat-label">Bugünkü Yorumlar</div>
+          </div>
+          <div class="admin-stat-card">
+            <div class="admin-stat-icon" style="background:rgba(255,165,0,0.1);">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ffa500" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            </div>
+            <div class="admin-stat-value" id="adminTodayDate" style="font-size:1.1rem;">—</div>
+            <div class="admin-stat-label">Sistem Tarihi</div>
+          </div>
+        </div>
+
+        <div style="padding:0 2px;">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+            <div style="width:4px;height:22px;background:linear-gradient(180deg,#8b7cf7,#4f8ef7);border-radius:2px;flex-shrink:0;"></div>
+            <h3 style="margin:0;font-size:0.95rem;font-weight:800;color:var(--text-primary);">Son Aktivite</h3>
+          </div>
+          <div id="adminRecentActivity" style="color:var(--text-muted);font-size:0.85rem;padding:20px;border-radius:12px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.05);text-align:center;">
+            Yükleniyor...
+          </div>
+        </div>
+
+        <div style="padding:0 2px; margin-top:24px;">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+            <div style="width:4px;height:22px;background:linear-gradient(180deg,#f59e0b,#fbbf24);border-radius:2px;flex-shrink:0;"></div>
+            <h3 style="margin:0;font-size:0.95rem;font-weight:800;color:var(--text-primary);">Sistem İşlemleri</h3>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:12px; padding:16px; border-radius:12px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.05);">
+            <div style="font-size:0.8rem; color:var(--text-muted); line-height:1.5;">
+              Otomatik başarım tarama sistemi aktif. Başarımlar kullanıcı giriş yaptığında geçmiş rekorlarına göre otomatik tanımlanır.
+            </div>
+            <div style="height:1px; background:rgba(255,255,255,0.06);"></div>
+            <div style="display:flex; flex-direction:column; gap:10px;">
+              <div style="font-size:0.85rem; font-weight:700; color:var(--text-primary);">⚠️ XP Sistemi Tam Sıfırlama</div>
+              <div style="font-size:0.75rem; color:var(--text-muted); line-height:1.5;">Tüm kullanıcıların XP'si sıfıra indirilir. Her kullanıcının mevcut organik XP'si hesaplanarak xpOffset olarak ters işaretle kaydedilir. Kullanıcılar yeniden antrenman yaparak sıfırdan XP kazanmaya başlar.</div>
+              <button id="adminResetXPBtn" onclick="adminResetAllXP()" style="width:100%; padding:12px 16px; background:rgba(239,68,68,0.15); border:1px solid rgba(239,68,68,0.35); color:#f87171; border-radius:10px; cursor:pointer; font-size:0.85rem; font-weight:800; transition:all 0.2s; margin-right:70px; box-sizing:border-box;">
+                🔄 Tüm XP'leri Sıfırla
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── REPORTS ── -->
+      <div id="adminReportsSection" class="admin-content-section" style="display:none;">
+        <div class="admin-section-header">
+          <h3 class="admin-section-title">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            Kullanıcı Raporları
+          </h3>
+          <button onclick="adminLoadReports()" class="btn-small" style="display:flex;align-items:center;gap:6px;">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+            Yenile
+          </button>
+        </div>
+        <div style="padding:16px;">
+          <div id="adminReportsList"><div class="logged-empty">Yükleniyor...</div></div>
+        </div>
+      </div>
+
+      <!-- ── DUYURULAR ── -->
+      <div id="adminNotificationsSection" class="admin-content-section" style="display:none;">
+        <div class="admin-section-header">
+          <h3 class="admin-section-title">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8b7cf7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+            Duyuru & Bildirim Yönetimi
+          </h3>
+        </div>
+
+        <div style="padding:24px; display:flex; flex-direction:column; gap:20px;">
+          <!-- Target -->
+          <div class="input-group">
+            <label style="font-size:0.72rem;font-weight:700;color:var(--text-muted);margin-bottom:8px;display:block;text-transform:uppercase;letter-spacing:0.06em;">Hedef Kullanıcı(lar)</label>
+            <select id="adminNotifRecipient" class="log-input" onchange="toggleAdminUidInput(this.value)">
+              <option value="all">🌍 Tüm Kullanıcılar</option>
+              <option value="specific">👤 Belirli Kullanıcı (UID)</option>
+            </select>
+          </div>
+
+          <div id="adminNotifUidWrap" class="input-group" style="display:none;">
+            <label style="font-size:0.72rem;font-weight:700;color:var(--text-muted);margin-bottom:8px;display:block;text-transform:uppercase;letter-spacing:0.06em;">Kullanıcı UID</label>
+            <input type="text" id="adminNotifUid" class="log-input" placeholder="Örn: u8xJ...7vQ2">
+          </div>
+
+          <!-- Category + Title — side by side -->
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+            <div class="input-group">
+              <label style="font-size:0.72rem;font-weight:700;color:var(--text-muted);margin-bottom:8px;display:block;text-transform:uppercase;letter-spacing:0.06em;">Kategori</label>
+              <select id="adminNotifCategory" class="log-input">
+                <option value="system">🔧 Sistem Güncellemesi</option>
+                <option value="announcement">📢 Duyuru</option>
+                <option value="feature">✨ Yeni Özellik</option>
+                <option value="maintenance">🔨 Bakım</option>
+                <option value="urgent">⚠️ Acil Bildirim</option>
+              </select>
+            </div>
+            <div class="input-group">
+              <label style="font-size:0.72rem;font-weight:700;color:var(--text-muted);margin-bottom:8px;display:block;text-transform:uppercase;letter-spacing:0.06em;">Başlık</label>
+              <input type="text" id="adminNotifTitle" class="log-input" placeholder="Bildirim başlığı">
+            </div>
+          </div>
+
+          <!-- Message -->
+          <div class="input-group">
+            <label style="font-size:0.72rem;font-weight:700;color:var(--text-muted);margin-bottom:8px;display:block;text-transform:uppercase;letter-spacing:0.06em;">Mesaj İçeriği</label>
+            <textarea id="adminNotifMessage" class="note-input" rows="4" placeholder="Kullanıcılara gösterilecek mesaj..."></textarea>
+          </div>
+
+          <!-- Expiry -->
+          <div class="input-group">
+            <label style="font-size:0.72rem;font-weight:700;color:var(--text-muted);margin-bottom:8px;display:block;text-transform:uppercase;letter-spacing:0.06em;">Geçerlilik Süresi</label>
+            <div style="display:flex;gap:8px;align-items:center;">
+              <div style="display:flex;flex-direction:column;gap:4px;align-items:center;">
+                <input type="number" id="adminNotifExpiryDays" class="log-input small" value="7" min="0" placeholder="0" style="width:72px;text-align:center;">
+                <span style="font-size:0.65rem;color:var(--text-muted);">Gün</span>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:4px;align-items:center;">
+                <input type="number" id="adminNotifExpiryHours" class="log-input small" value="0" min="0" max="23" placeholder="0" style="width:72px;text-align:center;">
+                <span style="font-size:0.65rem;color:var(--text-muted);">Saat</span>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:4px;align-items:center;">
+                <input type="number" id="adminNotifExpiryMinutes" class="log-input small" value="0" min="0" max="59" placeholder="0" style="width:72px;text-align:center;">
+                <span style="font-size:0.65rem;color:var(--text-muted);">Dakika</span>
+              </div>
+            </div>
+            <input type="hidden" id="adminNotifExpiry" value="7">
+          </div>
+
+          <!-- Notification History -->
+          <div id="adminNotifHistorySection" style="padding-top:16px; border-top:1px solid rgba(255,255,255,0.06);">
+            <h4 style="font-size:0.82rem;font-weight:700;color:var(--text-secondary);margin:0 0 12px;display:flex;align-items:center;justify-content:space-between;width:100%;">
+              <span style="display:flex;align-items:center;gap:8px;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                Gönderilen Bildirimler
+              </span>
+              <button onclick="clearAdminNotificationHistory()" style="background:none;border:none;color:var(--accent-primary);font-size:0.75rem;cursor:pointer;font-weight:600;padding:2px 8px;border-radius:4px;transition:all 0.2s;" onmouseenter="this.style.background='rgba(139,124,247,0.1)'" onmouseleave="this.style.background='none'">Geçmişi Temizle</button>
+            </h4>
+            <div id="adminNotifHistory" style="display:flex;flex-direction:column;gap:8px;max-height:200px;overflow-y:auto;"></div>
+          </div>
+
+          <!-- Maintenance mode -->
+          <div class="admin-only admin-maintenance">
+            <div class="admin-maintenance-header">
+              <h4 class="admin-maintenance-title">🔧 Bakım Modu</h4>
+              <div id="adminMaintenanceStatus" class="admin-maintenance-status"></div>
+            </div>
+            <div class="admin-maintenance-body">
+              <label class="admin-maintenance-label">Mesaj (kullanıcılara gösterilecek)</label>
+              <input type="text" id="adminMaintenanceMessage" class="log-input" placeholder="Bakım sebebi veya bilgilendirme mesajı...">
+              <label class="admin-maintenance-label">Süre</label>
+              <div class="admin-maintenance-duration">
+                <input type="number" id="adminMaintenanceExpiryDays" class="log-input small" value="0" min="0" placeholder="Gün" style="width:80px;">
+                <input type="number" id="adminMaintenanceExpiryHours" class="log-input small" value="1" min="0" max="23" placeholder="Saat" style="width:80px;">
+                <input type="number" id="adminMaintenanceExpiryMinutes" class="log-input small" value="0" min="0" max="59" placeholder="Dakika" style="width:100px;">
+              </div>
+              <div class="admin-maintenance-actions">
+                <button class="btn-primary" id="adminSaveMaintenanceBtn">Bakım Modunu Kaydet / Aç</button>
+                <button class="btn-small" id="adminClearMaintenanceBtn">Kapat</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Send button -->
+          <button class="btn-primary" onclick="adminSendNotificationV2()" style="width:100%;padding:14px;font-size:0.95rem;display:flex;align-items:center;justify-content:center;gap:10px;">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            <span id="adminNotifBtnText">Bildirimi Yayınla</span>
+            <div class="loader-mini" id="adminNotifLoader" style="display:none;"></div>
+          </button>
+        </div>
+      </div>
+
+      <!-- ── KULLANICLAR ── -->
+      <div id="adminUsersSection" class="admin-content-section" style="display:none;">
+        <div class="admin-section-header">
+          <h3 class="admin-section-title">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4f8ef7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><circle cx="19" cy="11" r="4"/></svg>
+            Kullanıcı Yönetimi
+          </h3>
+          <div id="adminUserCount" style="font-size:0.78rem;color:var(--text-muted);font-weight:600;"></div>
+        </div>
+        <div id="adminUsersList" style="padding:10px;"></div>
+      </div>
+
+      <!-- ── YORUMLAR ── -->
+      <div id="adminCommentsSection" class="admin-content-section" style="display:none;">
+        <div class="admin-section-header">
+          <h3 class="admin-section-title">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8b7cf7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+            Yorum Yönetimi
+          </h3>
+        </div>
+        <div id="adminAllCommentsList" style="padding:10px;"></div>
+      </div>
+
+    </div>
+
+
+    <!-- ============ MODAL: STRENGTH DETAILS ============ -->
+    <div class="modal" id="strengthDetailsModal"
+      onclick="if(event.target===this)closeStrengthDetails()"
+      style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:2000; align-items:center; justify-content:center; padding:20px;">
+      <div class="modal-content card"
+        style="width:100%; max-width:500px; max-height:90vh; overflow-y:auto; border: 1px solid var(--accent-primary); box-shadow: 0 0 30px rgba(139,124,247,0.2);">
+        <div class="card-header"
+          style="position:sticky; top:0; background:var(--bg-card); z-index:10; border-bottom: 1px solid var(--border-subtle);">
+          <h3 class="card-title" id="strengthDetailTitle">Güç Gelişimi Detayları</h3>
+          <button class="btn-small" onclick="closeStrengthDetails()"
+            style="background:transparent; color:var(--text-muted); padding:4px;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
+        </div>
+        <div id="strengthDetailContent" style="padding:20px;">
+          <!-- Content will be rendered here -->
+        </div>
+      </div>
+    </div>
+
+    <div class="modal" id="adminUserDetailModal"
+      style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:2000; align-items:center; justify-content:center; padding:20px;">
+      <div class="modal-content card"
+        style="width:100%; max-width:760px; max-height:90vh; display:flex; flex-direction:column; border: 1px solid var(--border-card); box-shadow: 0 0 30px rgba(139,124,247,0.18); overflow:hidden;">
+        <!-- Header: fixed, never scrolls -->
+        <div class="card-header"
+          style="flex-shrink:0; background:var(--bg-card); z-index:10; border-bottom: 1px solid var(--border-subtle);">
+          <h3 class="card-title" id="adminUserDetailTitle">Kullanıcı Detayı</h3>
+          <button class="btn-small" onclick="closeAdminUserDetail()"
+            style="background:transparent; color:var(--text-muted); padding:4px;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
+        </div>
+        <!-- Content: scrollable independently -->
+        <div id="adminUserDetailContent" style="padding:20px; overflow-y:auto; flex:1;"></div>
+      </div>
+    </div>
+
+    <!-- ============ REPORT MODAL ============ -->
+    <div id="reportModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:3000; align-items:center; justify-content:center; padding:20px;">
+      <div class="card" style="width:100%; max-width:480px; padding:24px; border:1px solid rgba(239,68,68,0.2); box-shadow:0 0 40px rgba(239,68,68,0.12);">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+          <div style="display:flex; align-items:center; gap:10px;">
+            <div style="width:36px;height:36px;border-radius:10px;background:rgba(239,68,68,0.1);display:flex;align-items:center;justify-content:center;font-size:1.1rem;">🚩</div>
+            <h3 style="margin:0; font-size:1.05rem; font-weight:800; color:var(--text-primary);">İçerik Raporla</h3>
+          </div>
+          <button onclick="closeReportModal()" style="background:transparent;border:none;color:var(--text-muted);cursor:pointer;padding:4px;">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+        <div id="reportCommentPreview" style="background:rgba(255,255,255,0.03);border:1px solid var(--border-subtle);border-radius:10px;padding:12px;margin-bottom:16px;font-size:0.85rem;color:var(--text-secondary);max-height:80px;overflow:hidden;text-overflow:ellipsis;"></div>
+        <div style="margin-bottom:14px;">
+          <label style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-muted);display:block;margin-bottom:8px;">Sebep</label>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;" id="reportReasonBtns">
+            <button class="report-reason-btn active" data-reason="spam" onclick="selectReportReason(this)" style="padding:10px;border-radius:10px;border:1px solid rgba(239,68,68,0.3);background:rgba(239,68,68,0.08);color:var(--text-primary);font-size:0.82rem;cursor:pointer;text-align:left;">🔧 Spam</button>
+            <button class="report-reason-btn" data-reason="hakaret" onclick="selectReportReason(this)" style="padding:10px;border-radius:10px;border:1px solid var(--border-subtle);background:transparent;color:var(--text-primary);font-size:0.82rem;cursor:pointer;text-align:left;">🤬 Hakaret</button>
+            <button class="report-reason-btn" data-reason="uygunsuz" onclick="selectReportReason(this)" style="padding:10px;border-radius:10px;border:1px solid var(--border-subtle);background:transparent;color:var(--text-primary);font-size:0.82rem;cursor:pointer;text-align:left;">⛔ Uygunsuz İçerik</button>
+            <button class="report-reason-btn" data-reason="diger" onclick="selectReportReason(this)" style="padding:10px;border-radius:10px;border:1px solid var(--border-subtle);background:transparent;color:var(--text-primary);font-size:0.82rem;cursor:pointer;text-align:left;">❓ Diğer</button>
+          </div>
+        </div>
+        <div style="margin-bottom:20px;">
+          <label style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-muted);display:block;margin-bottom:8px;">Açıklama (isteğe bağlı)</label>
+          <textarea id="reportDescription" class="note-input" rows="3" placeholder="Daha fazla bilgi ver..." style="font-size:0.85rem;resize:none;"></textarea>
+        </div>
+        <div style="display:flex; gap:10px;">
+          <button onclick="closeReportModal()" style="flex:1;padding:12px;border-radius:12px;border:1px solid var(--border-subtle);background:transparent;color:var(--text-muted);font-size:0.85rem;cursor:pointer;">İptal</button>
+          <button onclick="submitReport()" style="flex:2;padding:12px;border-radius:12px;border:none;background:linear-gradient(135deg,#dc2626,#ef4444);color:#fff;font-size:0.85rem;font-weight:700;cursor:pointer;">🚩 Raporu Gönder</button>
+        </div>
+        <input type="hidden" id="reportTargetCommentId">
+        <input type="hidden" id="reportTargetUserId">
+        <input type="hidden" id="reportTargetUserName">
+      </div>
+    </div>
+
+    <!-- ============ REPORT REPLY MODAL (Admin) ============ -->
+    <div id="reportReplyModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:3000; align-items:center; justify-content:center; padding:20px;">
+      <div class="card" style="width:100%; max-width:460px; padding:24px; border:1px solid rgba(139,124,247,0.2);">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px;">
+          <h3 style="margin:0; font-size:1rem; font-weight:800;">🔨 Rapora Cevap Ver</h3>
+          <button onclick="closeReportReplyModal()" style="background:transparent;border:none;color:var(--text-muted);cursor:pointer;">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+        <div id="reportReplyPreview" style="background:rgba(255,255,255,0.03);border:1px solid var(--border-subtle);border-radius:10px;padding:12px;margin-bottom:14px;font-size:0.82rem;color:var(--text-secondary);"></div>
+        <label style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-muted);display:block;margin-bottom:8px;">Admin Cevabı</label>
+        <textarea id="reportReplyText" class="note-input" rows="4" placeholder="Rapora cevabınızı yazın..." style="font-size:0.85rem;resize:none;margin-bottom:16px;"></textarea>
+        <div style="display:flex;gap:10px;">
+          <button onclick="closeReportReplyModal()" style="flex:1;padding:11px;border-radius:12px;border:1px solid var(--border-subtle);background:transparent;color:var(--text-muted);font-size:0.85rem;cursor:pointer;">İptal</button>
+          <button onclick="sendReportReply()" style="flex:2;padding:11px;border-radius:12px;border:none;background:linear-gradient(135deg,var(--accent-deep),var(--accent-primary));color:#fff;font-size:0.85rem;font-weight:700;cursor:pointer;">Cevap Gönder</button>
+        </div>
+        <input type="hidden" id="reportReplyTargetId">
+        <input type="hidden" id="reportReplyReporterId">
+      </div>
+    </div>
+
+
+    <!-- ============ NOTIFICATION PROMPT MODAL ============ -->
+    <div id="notificationPromptModal" style="display:none; position:fixed; inset:0; background:rgba(13,13,18,0.85); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); z-index:3000; align-items:center; justify-content:center; padding:20px; transition: opacity 0.3s ease; opacity:0;">
+      <style>
+        @keyframes pulse-dot {
+          0% { transform: scale(0.9); opacity: 0.8; }
+          50% { transform: scale(1.2); opacity: 1; }
+          100% { transform: scale(0.9); opacity: 0.8; }
+        }
+        .bell-pulse-icon {
+          animation: bell-swing 3.5s infinite ease-in-out;
+          transform-origin: top center;
+        }
+        @keyframes bell-swing {
+          0% { transform: rotate(0); }
+          4% { transform: rotate(12deg); }
+          8% { transform: rotate(-12deg); }
+          12% { transform: rotate(10deg); }
+          16% { transform: rotate(-10deg); }
+          20% { transform: rotate(8deg); }
+          24% { transform: rotate(-8deg); }
+          28% { transform: rotate(0); }
+          100% { transform: rotate(0); }
+        }
+      </style>
+      <div class="card" style="width:100%; max-width:360px; padding:24px 20px; border:1px solid rgba(139,124,247,0.25); box-shadow: 0 10px 40px rgba(139,124,247,0.15); border-radius: var(--radius-lg); text-align:center; transform: scale(0.9); transition: transform 0.3s ease; background: linear-gradient(145deg, var(--bg-card), var(--bg-secondary));">
+        <div style="width:56px; height:56px; border-radius:50%; background:rgba(139,124,247,0.1); border: 1px solid rgba(139,124,247,0.2); display:flex; align-items:center; justify-content:center; margin:0 auto 16px auto; color:var(--accent-primary); box-shadow: 0 0 20px rgba(139,124,247,0.1); position:relative;">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="bell-pulse-icon">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+            <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+          </svg>
+          <div style="position:absolute; top:-1px; right:-1px; width:10px; height:10px; border-radius:50%; background:var(--red-vivid); border:2px solid var(--bg-card); animation: pulse-dot 2s infinite;"></div>
+        </div>
+        <h3 id="notifPromptTitle" style="margin:0 0 8px 0; font-size:1.15rem; font-weight:800; font-family:'Space Grotesk','Inter',sans-serif; color:var(--text-primary); letter-spacing:-0.5px;">Bildirimleri Etkinleştirin</h3>
+        <p id="notifPromptDesc" style="margin:0 0 20px 0; font-size:0.82rem; color:var(--text-secondary); line-height:1.45; font-weight:500;">Yeni antrenman programları, güncellemeler ve önemli hatırlatıcıları anında almak için bildirim izinlerini açın.</p>
+        <div style="display:flex; flex-direction:column; gap:10px;">
+          <button onclick="approveNotificationPermission()" id="notifPromptBtnAllow" style="width:100%; padding:11px; border-radius:12px; border:none; background:linear-gradient(135deg, var(--accent-secondary), var(--accent-primary)); color:#fff; font-size:0.85rem; font-weight:700; cursor:pointer; box-shadow:0 4px 15px rgba(139,124,247,0.35); transition: transform 0.2s, box-shadow 0.2s; display:flex; align-items:center; justify-content:center; gap:8px;" onmouseover="this.style.transform='translateY(-1px)'; this.style.box-shadow='0 6px 20px rgba(139,124,247,0.45)';" onmouseout="this.style.transform='none'; this.style.box-shadow='0 4px 15px rgba(139,124,247,0.35)';">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+            <span>İzin Ver</span>
+          </button>
+          <button onclick="closeNotificationPromptModal()" id="notifPromptBtnLater" style="width:100%; padding:11px; border-radius:12px; border:1px solid var(--border-subtle); background:transparent; color:var(--text-muted); font-size:0.82rem; font-weight:600; cursor:pointer; transition: background 0.2s, color 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.03)'; this.style.color='var(--text-primary)';" onmouseout="this.style.background='transparent'; this.style.color='var(--text-muted)';">
+            <span>Daha Sonra</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Firebase Scripts -->
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js" defer></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js" defer></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js" defer></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js" defer></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-messaging-compat.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
+
+  <script src="firebase-config.js" defer></script>
+
+  <!-- Shared programs (Workouts + Posture pages and the dashboard) -->
+  <script src="shared/program.js?v=1" defer></script>
+  <script src="shared/posture-program.js?v=1" defer></script>
+
+  <!-- Zyro Panel v3 (React, no build step) -->
+  <script src="vendor/react.production.min.js" defer></script>
+  <script src="vendor/react-dom.production.min.js" defer></script>
+  <script src="vendor/htm.umd.js" defer></script>
+  <script src="dashboard/core.js?v=1" defer></script>
+  <script src="dashboard/data.js?v=2" defer></script>
+  <script src="dashboard/components/icons.js?v=1" defer></script>
+  <script src="dashboard/components/ui.js?v=1" defer></script>
+  <script src="dashboard/components/muscle-map.js?v=1" defer></script>
+  <script src="dashboard/components/rail.js?v=1" defer></script>
+  <script src="dashboard/components/header.js?v=1" defer></script>
+  <script src="dashboard/components/hero.js?v=1" defer></script>
+  <script src="dashboard/components/weekly-goal.js?v=1" defer></script>
+  <script src="dashboard/components/stat-cards.js?v=1" defer></script>
+  <script src="dashboard/components/progress-chart.js?v=1" defer></script>
+  <script src="dashboard/components/records.js?v=1" defer></script>
+  <script src="dashboard/components/heatmap.js?v=1" defer></script>
+  <script src="dashboard/app.js?v=1" defer></script>
+
+  <!-- Approved v2 Workouts + Posture pages are loaded on first visit -->
+  <script src="app.js?v=3.1" defer></script>
+
+
+
+<script>
+/* ============================================================
+   TEMA RENGİ SİSTEMİ
+   ============================================================ */
+const THEMES = {
+  purple: {
+    name: 'Mor',
+    primary:    '#8b7cf7',
+    secondary:  '#7566e0',
+    deep:       '#5a4cc9',
+    glow:       'rgba(139,124,247,0.14)',
+    glowStrong: 'rgba(139,124,247,0.28)',
+    textAccent: '#b5a8f8',
+    shadow:     '0 0 24px rgba(139,124,247,0.12)',
+  },
+  red: {
+    name: 'Kırmızı',
+    primary:    '#f05555',
+    secondary:  '#d63c3c',
+    deep:       '#b91c1c',
+    glow:       'rgba(240,85,85,0.14)',
+    glowStrong: 'rgba(240,85,85,0.28)',
+    textAccent: '#f99898',
+    shadow:     '0 0 24px rgba(240,85,85,0.12)',
+  },
+  pink: {
+    name: 'Pembe',
+    primary:    '#ec4899',
+    secondary:  '#db2777',
+    deep:       '#9d174d',
+    glow:       'rgba(236,72,153,0.14)',
+    glowStrong: 'rgba(236,72,153,0.28)',
+    textAccent: '#f9a8d4',
+    shadow:     '0 0 24px rgba(236,72,153,0.12)',
+  },
+  orange: {
+    name: 'Turuncu',
+    primary:    '#f97316',
+    secondary:  '#ea6c0a',
+    deep:       '#c2410c',
+    glow:       'rgba(249,115,22,0.14)',
+    glowStrong: 'rgba(249,115,22,0.28)',
+    textAccent: '#fdba74',
+    shadow:     '0 0 24px rgba(249,115,22,0.12)',
+  },
+  green: {
+    name: 'Yeşil',
+    primary:    '#22c55e',
+    secondary:  '#16a34a',
+    deep:       '#15803d',
+    glow:       'rgba(34,197,94,0.14)',
+    glowStrong: 'rgba(34,197,94,0.28)',
+    textAccent: '#86efac',
+    shadow:     '0 0 24px rgba(34,197,94,0.12)',
+  },
+  blue: {
+    name: 'Mavi',
+    primary:    '#3b82f6',
+    secondary:  '#2563eb',
+    deep:       '#1d4ed8',
+    glow:       'rgba(59,130,246,0.14)',
+    glowStrong: 'rgba(59,130,246,0.28)',
+    textAccent: '#93c5fd',
+    shadow:     '0 0 24px rgba(59,130,246,0.12)',
+  },
+  gold: {
+    name: 'Altın',
+    primary:    '#eab308',
+    secondary:  '#ca8a04',
+    deep:       '#a16207',
+    glow:       'rgba(234,179,8,0.14)',
+    glowStrong: 'rgba(234,179,8,0.28)',
+    textAccent: '#fde047',
+    shadow:     '0 0 24px rgba(234,179,8,0.12)',
+  },
+  brown: {
+    name: 'Kahve',
+    primary:    '#a8714a',
+    secondary:  '#8f5c38',
+    deep:       '#7c4a24',
+    glow:       'rgba(168,113,74,0.14)',
+    glowStrong: 'rgba(168,113,74,0.28)',
+    textAccent: '#c9956e',
+    shadow:     '0 0 24px rgba(168,113,74,0.12)',
+  },
+};
+
+function applyTheme(key) {
+  const t = THEMES[key];
+  if (!t) return;
+  const r = document.documentElement;
+  r.style.setProperty('--accent-primary',     t.primary);
+  r.style.setProperty('--accent-secondary',   t.secondary);
+  r.style.setProperty('--accent-deep',        t.deep);
+  r.style.setProperty('--accent-glow',        t.glow);
+  r.style.setProperty('--accent-glow-strong', t.glowStrong);
+  r.style.setProperty('--text-accent',        t.textAccent);
+  r.style.setProperty('--shadow-glow',        t.shadow);
+
+  // swatch active durumu
+  document.querySelectorAll('.theme-swatch').forEach(el => el.classList.remove('active'));
+  const btn = document.getElementById('theme-' + key);
+  if (btn) btn.classList.add('active');
+
+  // preview bar güncelle
+  const pname = document.getElementById('themePreviewName');
+  if (pname) pname.textContent = t.name;
+
+  // localStorage'a kaydet
+  localStorage.setItem('zyro-theme', key);
+}
+
+function loadSavedTheme() {
+  const saved = localStorage.getItem('zyro-theme') || 'purple';
+  applyTheme(saved);
+}
+
+// Sayfa yüklenince temayı uygula
+loadSavedTheme();
+
+// switchProfileTab için theme desteği
+const _origSwitchProfileTab = window.switchProfileTab;
+window.switchProfileTab = function(tab, event) {
+  // Theme tab content göster/gizle
+  const themePanel = document.getElementById('profileTabTheme');
+  if (themePanel) themePanel.style.display = (tab === 'theme') ? 'block' : 'none';
+  if (typeof _origSwitchProfileTab === 'function') {
+    _origSwitchProfileTab(tab, event);
+  } else {
+    // fallback: tab panellerini aç/kapa
+    ['Bio','Achievements','Security','Ai','Theme'].forEach(t => {
+      const el = document.getElementById('profileTab' + t);
+      if (el) el.style.display = (tab === t.toLowerCase()) ? 'block' : 'none';
+    });
+    document.querySelectorAll('.profile-tab-btn').forEach(b => b.classList.remove('active'));
+    if (event && event.currentTarget) event.currentTarget.classList.add('active');
+  }
+};
+</script>
+</body>
+
+
+</html>

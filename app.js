@@ -720,13 +720,15 @@ function t(key) {
 function applyTranslations() {
   document.querySelectorAll('[data-i18n]').forEach(el => {
     const key = el.dataset.i18n;
+    if (el.dataset.i18nDefault === undefined) el.dataset.i18nDefault = el.textContent.trim();
     const val = t(key);
-    if (val) {
-      if (key === 'geminiInfo' || key === 'step1' || key === 'step2' || key === 'step3') {
-        el.innerHTML = val;
-      } else {
-        el.textContent = val;
-      }
+    // Never print the raw key; fall back to the label baked into the markup.
+    const text = (val && val !== key) ? val : (el.dataset.i18nDefault || '');
+    if (!text) return;
+    if (key === 'geminiInfo' || key === 'step1' || key === 'step2' || key === 'step3') {
+      el.innerHTML = text;
+    } else {
+      el.textContent = text;
     }
   });
   document.querySelectorAll('[data-i18n-title]').forEach(el => {
