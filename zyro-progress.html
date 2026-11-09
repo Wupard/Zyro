@@ -38,6 +38,10 @@ svg.i{width:19px;height:19px;stroke:currentColor;fill:none;stroke-width:1.6;stro
 .wfit .ico{width:32px;height:32px;border-radius:10px;background:rgba(220,199,168,.18);color:var(--sand);display:grid;place-items:center;flex:none}
 .wfit b{font:500 14px var(--d);letter-spacing:.04em;flex:1}
 .wfit .ch{color:var(--mute)}
+.lang{display:grid;grid-template-columns:1fr 1fr;gap:3px;padding:3px;border-radius:12px;background:rgba(255,255,255,.05)}
+.lang button{border:0;background:none;color:var(--mute);font:500 12.5px var(--b);padding:7px 0;border-radius:9px;transition:.25s}
+.lang button[aria-pressed=true]{background:rgba(255,255,255,.13);color:var(--text)}
+.col .lang{grid-template-columns:1fr}.col .lang button:not([aria-pressed=true]){display:none}
 .user{display:flex;align-items:center;gap:12px;padding:10px;border-radius:16px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06)}
 .av{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,rgba(143,179,204,.35),rgba(220,199,168,.3));display:grid;place-items:center;font:600 15px var(--d);flex:none}
 .who{flex:1;min-width:0;line-height:1.25}
@@ -207,30 +211,32 @@ details[open] .chev{transform:rotate(180deg)}
   </div>
 
   <nav class="nav" aria-label="Ana menü">
-    <a class="ni" href="#"><svg class="i"><use href="#i-grid"/></svg><span class="t">Panel</span></a>
-    <a class="ni" href="#"><svg class="i"><use href="#i-dumb"/></svg><span class="t">Antrenmanlar</span></a>
-    <a class="ni" href="#"><svg class="i"><use href="#i-post"/></svg><span class="t">Duruş</span></a>
-    <a class="ni" href="#"><svg class="i"><use href="#i-fork"/></svg><span class="t">Beslenme</span></a>
-    <a class="ni" href="#" aria-current="page"><svg class="i"><use href="#i-trend"/></svg><span class="t">İlerleme</span></a>
-    <a class="ni" href="#"><svg class="i"><use href="#i-ba"/></svg><span class="t">Önce / Sonra</span></a>
-    <div class="sep">Topluluk</div>
-    <a class="ni" href="#"><svg class="i"><use href="#i-award"/></svg><span class="t">Başarımlar</span></a>
-    <a class="ni" href="#"><svg class="i"><use href="#i-cup"/></svg><span class="t">Liderlik</span></a>
-    <a class="ni" href="#"><svg class="i"><use href="#i-chat"/></svg><span class="t">Yorumlar</span></a>
-    <a class="ni" href="#"><svg class="i"><use href="#i-note"/></svg><span class="t">Notlar</span></a>
-    <div class="sep">Araçlar</div>
-    <a class="ni" href="#"><svg class="i"><use href="#i-calc"/></svg><span class="t">Hesaplayıcılar</span></a>
-    <a class="ni" href="#"><svg class="i"><use href="#i-upd"/></svg><span class="t">Güncellemeler</span></a>
-    <a class="ni" href="#"><svg class="i"><use href="#i-prof"/></svg><span class="t">Profil</span></a>
-    <div class="sep">Yönetici paneli</div>
-    <a class="ni adm" href="#"><svg class="i"><use href="#i-layers"/></svg><span class="t">Admin merkezi</span></a>
+    <a class="ni" href="#" data-k="dash"><svg class="i"><use href="#i-grid"/></svg><span class="t"></span></a>
+    <a class="ni" href="#" data-k="work"><svg class="i"><use href="#i-dumb"/></svg><span class="t"></span></a>
+    <a class="ni" href="#" data-k="post"><svg class="i"><use href="#i-post"/></svg><span class="t"></span></a>
+    <a class="ni" href="#" data-k="diet"><svg class="i"><use href="#i-fork"/></svg><span class="t"></span></a>
+    <a class="ni" href="#" aria-current="page" data-k="prog"><svg class="i"><use href="#i-trend"/></svg><span class="t"></span></a>
+    <a class="ni" href="#" data-k="ba"><svg class="i"><use href="#i-ba"/></svg><span class="t"></span></a>
+    <div class="sep" data-k="s1"></div>
+    <a class="ni" href="#" data-k="ach"><svg class="i"><use href="#i-award"/></svg><span class="t"></span></a>
+    <a class="ni" href="#" data-k="lead"><svg class="i"><use href="#i-cup"/></svg><span class="t"></span></a>
+    <a class="ni" href="#" data-k="comm"><svg class="i"><use href="#i-chat"/></svg><span class="t"></span></a>
+    <a class="ni" href="#" data-k="notes"><svg class="i"><use href="#i-note"/></svg><span class="t"></span></a>
+    <div class="sep" data-k="s2"></div>
+    <a class="ni" href="#" data-k="calc"><svg class="i"><use href="#i-calc"/></svg><span class="t"></span></a>
+    <a class="ni" href="#" data-k="upd"><svg class="i"><use href="#i-upd"/></svg><span class="t"></span></a>
+    <a class="ni" href="#" data-k="prof"><svg class="i"><use href="#i-prof"/></svg><span class="t"></span></a>
+    <!-- Sadece admin kullanıcılarına göster -->
+    <div class="sep" data-k="s3"></div>
+    <a class="ni adm" href="#" data-k="adm"><svg class="i"><use href="#i-layers"/></svg><span class="t"></span></a>
   </nav>
 
   <div class="foot">
     <a class="wfit" href="#" aria-label="WFIT"><span class="ico"><svg class="i" style="width:17px;height:17px"><use href="#i-gem"/></svg></span><b>WFIT</b><svg class="i ch" style="width:16px;height:16px"><use href="#i-right"/></svg></a>
+    <div class="lang" role="group" aria-label="Dil"><button data-l="en" aria-pressed="false">EN</button><button data-l="tr" aria-pressed="true">TR</button></div>
     <div class="user">
       <div class="av">K</div>
-      <div class="who"><b>Kullanıcı <em>Üye</em></b><small>Seviye 1 · 0 XP</small><div class="xp"><i style="--x:0%"></i></div></div>
+      <div class="who"><b>Kullanıcı <em data-k="role"></em></b><small data-k="lvl"></small><div class="xp"><i style="--x:0%"></i></div></div>
       <button class="out" aria-label="Çıkış yap"><svg class="i" style="width:18px;height:18px"><use href="#i-out"/></svg></button>
     </div>
   </div>
@@ -401,10 +407,24 @@ function all(anim){cal();wRender(anim);sRender(anim);prRender()}
 let rz;addEventListener('resize',()=>{if(innerWidth===lw)return;lw=innerWidth;clearTimeout(rz);rz=setTimeout(()=>all(false),160)});
 
 // --- menü daralt ---
+const L={
+ tr:{dash:'Panel',work:'Antrenmanlar',post:'Duruş',diet:'Beslenme',prog:'İlerleme',ba:'Önce / Sonra',s1:'Topluluk',ach:'Başarımlar',lead:'Liderlik',comm:'Yorumlar',notes:'Notlar',s2:'Araçlar',calc:'Hesaplayıcılar',upd:'Güncellemeler',prof:'Profil',s3:'Yönetici paneli',adm:'Admin merkezi',role:'Üye',lvl:'Seviye 1 · 0 XP',col:'Menüyü daralt',exp:'Menüyü genişlet'},
+ en:{dash:'Dashboard',work:'Workouts',post:'Posture',diet:'Diet & Nutrition',prog:'Progress',ba:'Before/After',s1:'Community',ach:'Achievements',lead:'Leaderboard',comm:'Comments',notes:'Notes',s2:'Tools',calc:'Calculators',upd:'Updates',prof:'Profile',s3:'Admin panel',adm:'Admin center',role:'Member',lvl:'Level 1 · 0 XP',col:'Collapse menu',exp:'Expand menu'}
+};
+let lang='tr';
+function render(){
+  const t=L[lang];document.documentElement.lang=lang;
+  document.querySelectorAll('[data-k]').forEach(e=>{const v=t[e.dataset.k];if(!v)return;
+    const s=e.querySelector('.t');(s||e).textContent=v;
+    if(e.classList.contains('ni')){e.title=v;e.setAttribute('aria-label',v)}});
+  document.querySelectorAll('.lang button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.l===lang));
+  const c=document.body.classList.contains('col');$('#cb').setAttribute('aria-label',c?t.exp:t.col);
+}
+$('.lang').onclick=e=>{const b=e.target.closest('button');if(b){lang=b.dataset.l;render()}};
 $('#cb').onclick=()=>{const c=document.body.classList.toggle('col');$('#cb').setAttribute('aria-expanded',!c);
-  try{localStorage.setItem('zyro-menu',c?'1':'0')}catch(e){}};
+  try{localStorage.setItem('zyro-menu',c?'1':'0')}catch(e){}render()};
 try{if(localStorage.getItem('zyro-menu')==='1')document.body.classList.add('col')}catch(e){}
-
+render();
 all(true);
 </script>
 </body>
