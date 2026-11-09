@@ -1,6 +1,6 @@
-﻿@charset "UTF-8";
+@charset "UTF-8";
 /* ===========================
-   Zyro — Personal Development Dashboard
+   Zyro â€” Personal Development Dashboard
    V2: Vibrant colors, animations, polished UI
    =========================== */
 
@@ -33,9 +33,9 @@
   --border-subtle: rgba(255,255,255,0.06);
   --border-card: rgba(255,255,255,0.08);
 
-  --radius-sm: 10px;
-  --radius-md: 14px;
-  --radius-lg: 18px;
+  --radius-sm: 12px;
+  --radius-md: 18px;
+  --radius-lg: 24px;
   --shadow-card: 0 4px 20px rgba(0,0,0,0.4);
   --shadow-glow: 0 0 24px rgba(139,124,247,0.12);
   --t-fast: 0.18s ease;
@@ -155,7 +155,7 @@ h1,h2,h3,h4{font-family:'Space Grotesk','Inter',sans-serif;font-weight:600;lette
   height: 32px;
   object-fit: contain;
   flex-shrink: 0;
-  filter: drop-shadow(0 0 8px rgba(111,90,220,0.5));
+  filter: none;
   transition: width 0.2s, height 0.2s, filter 0.2s;
 }
 body.sidebar-collapsed .sidebar-logo {
@@ -195,11 +195,11 @@ body.sidebar-collapsed .sidebar-logo {
 /* ===========================
    SIDEBAR
    =========================== */
-/* ===== SIDEBAR — Zyro rail style ===== */
+/* ===== SIDEBAR â€” Zyro rail style ===== */
 .sidebar{
   position:fixed;top:0;left:0;width:var(--sidebar-width);
   height:100vh;height:100dvh;
-  background:rgba(19,22,27,.94);
+  background:#13161b;
   border-right:1px solid rgba(255,255,255,.06);
   display:flex;flex-direction:column;
   padding:22px 14px 16px;gap:14px;
@@ -467,7 +467,7 @@ body.sidebar-collapsed .sep{display:block;height:1px;padding:0;margin:8px 10px;b
   box-shadow:0 8px 16px rgba(224,148,58,0.2), 0 0 12px rgba(224,84,84,0.1);
   border-color:rgba(224,148,58,0.4);
 }
-/* 1.2 — Flame: Single icon, 8-frame sprite-sheet @keyframes, 1.2s, ease-in-out, infinite */
+/* 1.2 â€” Flame: Single icon, 8-frame sprite-sheet @keyframes, 1.2s, ease-in-out, infinite */
 .streak-flame{
   font-size:1.1rem;
   display:inline-block;
@@ -549,37 +549,37 @@ body.sidebar-collapsed .sep{display:block;height:1px;padding:0;margin:8px 10px;b
 }
 .page-banner:hover { transform: translateY(-2px); }
 
-/* Purple — Workouts, Achievements, Profile */
+/* Purple â€” Workouts, Achievements, Profile */
 .page-banner--purple:hover {
   border-color: rgba(139,124,247,0.55) !important;
   box-shadow: 0 0 0 1px rgba(139,124,247,0.3), 0 8px 24px rgba(139,124,247,0.15);
 }
-/* Green — Posture */
+/* Green â€” Posture */
 .page-banner--green:hover {
   border-color: rgba(78,203,141,0.55) !important;
   box-shadow: 0 0 0 1px rgba(78,203,141,0.3), 0 8px 24px rgba(78,203,141,0.15);
 }
-/* Orange — Progress */
+/* Orange â€” Progress */
 .page-banner--orange:hover {
   border-color: rgba(255,112,67,0.55) !important;
   box-shadow: 0 0 0 1px rgba(255,112,67,0.3), 0 8px 24px rgba(255,112,67,0.15);
 }
-/* Yellow — Notes */
+/* Yellow â€” Notes */
 .page-banner--yellow:hover {
   border-color: rgba(251,191,36,0.55) !important;
   box-shadow: 0 0 0 1px rgba(251,191,36,0.3), 0 8px 24px rgba(251,191,36,0.15);
 }
-/* Blue — Comments */
+/* Blue â€” Comments */
 .page-banner--blue:hover {
   border-color: rgba(92,138,222,0.55) !important;
   box-shadow: 0 0 0 1px rgba(92,138,222,0.3), 0 8px 24px rgba(92,138,222,0.15);
 }
-/* Pink — Before/After */
+/* Pink â€” Before/After */
 .page-banner--pink:hover {
   border-color: rgba(236,72,153,0.55) !important;
   box-shadow: 0 0 0 1px rgba(236,72,153,0.3), 0 8px 24px rgba(236,72,153,0.15);
 }
-/* Emerald — Updates */
+/* Emerald â€” Updates */
 .page-banner--emerald:hover {
   border-color: rgba(16,185,129,0.55) !important;
   box-shadow: 0 0 0 1px rgba(16,185,129,0.3), 0 8px 24px rgba(16,185,129,0.15);
@@ -650,8 +650,8 @@ body.sidebar-collapsed .sep{display:block;height:1px;padding:0;margin:8px 10px;b
   padding:24px;margin-bottom:16px;transition:border-color var(--t-base), box-shadow var(--t-base);
 }
 .card:hover, .card:focus-within {
-  border-color: var(--accent-primary);
-  box-shadow: 0 0 0 1px var(--accent-primary);
+  border-color: rgba(143,179,204,.25);
+  box-shadow: 0 4px 24px rgba(0,0,0,0.3);
 }
 .card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px}
 .header-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
@@ -833,9 +833,9 @@ body.sidebar-collapsed .sep{display:block;height:1px;padding:0;margin:8px 10px;b
   font-size:.85rem;outline:none;transition: background-color var(--t-base), color var(--t-base), border-color var(--t-base), opacity var(--t-base), transform var(--t-base), box-shadow var(--t-base), fill var(--t-base), stroke var(--t-base);
 }
 .log-input:focus {
-  border-color: var(--accent-primary);
-  box-shadow: 0 0 0 1px var(--accent-primary), 0 0 12px rgba(139, 124, 247, 0.2);
-  background: rgba(139, 124, 247, 0.02);
+  border-color: var(--steel);
+  box-shadow: 0 0 0 1px rgba(143,179,204,0.4);
+  background: rgba(143,179,204,0.03);
 }
 .log-input.small{max-width:120px;padding:9px 14px;font-size:.82rem}
 .log-input::placeholder{color:var(--text-tertiary)}
@@ -865,28 +865,28 @@ select.log-input option {
 .btn-primary{
   display:flex;align-items:center;justify-content:center;gap:8px;
   padding:13px 24px;
-  background:linear-gradient(135deg,var(--accent-deep),var(--accent-primary));
-  color:var(--text-primary);border:none;border-radius:var(--radius-sm);
+  background:var(--text-primary);
+  color:#13161b;border:none;border-radius:999px;
   font-size:.85rem;font-weight:600;font-family:'Inter',sans-serif;
   cursor:pointer;transition: background-color var(--t-base), color var(--t-base), border-color var(--t-base), opacity var(--t-base), transform var(--t-base), box-shadow var(--t-base), fill var(--t-base), stroke var(--t-base);position:relative;overflow:hidden;
 }
 .btn-primary::after{
   content:'';position:absolute;inset:0;
-  background:linear-gradient(135deg,transparent 40%,rgba(255,255,255,0.1) 50%,transparent 60%);
+  background:linear-gradient(135deg,transparent 40%,rgba(255,255,255,0.15) 50%,transparent 60%);
   transform:translateX(-100%);transition:transform .6s ease;
 }
-.btn-primary:hover{transform:translateY(-2px);box-shadow:0 4px 20px rgba(139,124,247,0.3)}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(0,0,0,0.3);background:var(--sand)}
 .btn-primary:hover::after{transform:translateX(100%)}
 .btn-primary:active{transform:translateY(0)}
 
 .btn-small{
-  padding:9px 18px;
-  background:linear-gradient(135deg,var(--accent-deep),var(--accent-primary));
-  color:var(--text-primary);border:none;border-radius:var(--radius-sm);
-  font-size:.78rem;font-weight:600;font-family:'Inter',sans-serif;
+  padding:8px 16px;
+  background:rgba(255,255,255,0.07);
+  color:var(--text-primary);border:1px solid rgba(255,255,255,0.1);border-radius:999px;
+  font-size:.78rem;font-weight:500;font-family:'Inter',sans-serif;
   cursor:pointer;transition: background-color var(--t-base), color var(--t-base), border-color var(--t-base), opacity var(--t-base), transform var(--t-base), box-shadow var(--t-base), fill var(--t-base), stroke var(--t-base);
 }
-.btn-small:hover{transform:translateY(-1px);box-shadow:0 2px 12px rgba(139,124,247,0.3)}
+.btn-small:hover{transform:translateY(-1px);background:rgba(255,255,255,0.11);border-color:rgba(255,255,255,0.18)}
 
 .btn-goto-progress {
   display: flex;
@@ -1033,7 +1033,7 @@ select.log-input option {
   flex-direction: column;
   gap: 12px;
 }
-/* 1.8 — Comment border fix: pseudo-element bottom border on hover */
+/* 1.8 â€” Comment border fix: pseudo-element bottom border on hover */
 .comment-item {
   animation: cardIn 0.4s ease both;
   border: 1px solid var(--border-subtle);
@@ -1074,7 +1074,7 @@ select.log-input option {
   .comment-item p, .comment-item div[id^="replyForm_"], .comment-item .comment-replies { padding-left: 28px !important; }
 }
 
-/* Admin Sidebar Styling — overridden by Zyro rail styles above */
+/* Admin Sidebar Styling â€” overridden by Zyro rail styles above */
 .admin-nav-item {
   position: relative;
   overflow: hidden;
@@ -1199,7 +1199,7 @@ body.is-admin .sidebar { border-right: 2px solid var(--accent-primary); }
 
 
 /* ============================================================
-   ADMIN PANEL — Professional Redesign
+   ADMIN PANEL â€” Professional Redesign
    ============================================================ */
 
 .admin-card-premium {
@@ -1501,7 +1501,7 @@ body.is-admin .sidebar { border-right: 2px solid var(--accent-primary); }
 .note-input::placeholder{color:var(--text-tertiary)}
 .note-input:focus{border-color:rgba(139,124,247,0.35);box-shadow:0 0 0 3px var(--accent-glow)}
 
-/* 1.6 — Global textarea constraint */
+/* 1.6 â€” Global textarea constraint */
 textarea:not(.note-input) { resize: none !important; min-height: 80px; max-height: 240px; overflow-y: auto; }
 
 .note-tags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}
@@ -1629,7 +1629,7 @@ a.posture-video-btn[style*="e1306c"]:hover {
   box-shadow: 0 6px 18px rgba(225, 48, 108, 0.25) !important;
 }
 
-/* WFIT card — styled by Zyro rail rules (.nav-item-wupard.wfit) above */
+/* WFIT card â€” styled by Zyro rail rules (.nav-item-wupard.wfit) above */
 
 .video-modal {
   position: fixed; inset: 0; z-index: 2000; background: rgba(6,6,14,0.85);
@@ -1852,7 +1852,7 @@ a.posture-video-btn[style*="e1306c"]:hover {
 .calc-unit { position: absolute; right: 20px; color: var(--text-tertiary); font-weight: 600; font-size: 0.85rem; pointer-events: none; }
 .calc-info-box { background: rgba(139, 124, 247, 0.03); border: 1px solid rgba(139, 124, 247, 0.1); border-radius: var(--radius-sm); padding: 24px; }
 
-/* 1.5 — Custom kg/lbs radio buttons */
+/* 1.5 â€” Custom kg/lbs radio buttons */
 .unit-radio-group {
   display: flex;
   gap: 6px;
@@ -2130,7 +2130,7 @@ textarea,
 }
 
 /* ===========================
-   ADMIN CROWN — SVG based
+   ADMIN CROWN â€” SVG based
    =========================== */
 .admin-crown-icon {
   width: 56px;
@@ -2145,7 +2145,7 @@ textarea,
 }
 
 /* ===========================
-   NOTE TAGS — Premium style with SVG
+   NOTE TAGS â€” Premium style with SVG
    =========================== */
 .note-tags {
   display: flex;
@@ -2196,19 +2196,9 @@ textarea,
 /* ===========================
    SIDEBAR USER CARD
    =========================== */
-#sidebarUserCard {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  padding: 12px;
-  background: #1A1A2E;
-  border: 1px solid rgba(255,255,255,0.05);
-  border-radius: 16px;
-  position: relative;
-  overflow: hidden;
-}
+#sidebarUserCard { width: 100%; display: flex; align-items: center; gap: 12px; }
 
-/* Sidebar user card — styled by Zyro rail rules above (.sidebar-footer.user, .user-avatar.av, .sidebar-user-info.who, .xp#sidebarLevelWrap, .signout-btn.out) */
+/* Sidebar user card â€” styled by Zyro rail rules above (.sidebar-footer.user, .user-avatar.av, .sidebar-user-info.who, .xp#sidebarLevelWrap, .signout-btn.out) */
 
 /* ---- Mobile optimisation ---- */
 @media (max-width: 768px) {
@@ -2273,6 +2263,14 @@ textarea,
 /* ===========================
    BEFORE/AFTER PAGE
    =========================== */
+
+/* Page banner override for diet & before/after */
+#pageDiet .page-banner,
+#pageBeforeafter .page-banner {
+  border-radius: 20px !important;
+  padding: 22px 20px !important;
+}
+
 .progress-photos-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
@@ -2280,7 +2278,7 @@ textarea,
   margin-top: 16px;
 }
 .progress-photo-item {
-  border-radius: var(--radius-md);
+  border-radius: 20px;
   overflow: hidden;
   background: var(--bg-card-alt, var(--bg-input));
   border: 1px solid var(--border-card);
@@ -2289,7 +2287,7 @@ textarea,
 .progress-photo-item:hover {
   transform: translateY(-3px);
   box-shadow: 0 8px 24px rgba(0,0,0,0.4);
-  border-color: rgba(139,124,247,0.2);
+  border-color: rgba(143,179,204,0.3);
 }
 .progress-photo-item img {
   width: 100%;
@@ -2309,7 +2307,7 @@ textarea,
   gap: 16px;
 }
 .compare-photo-wrap {
-  border-radius: var(--radius-md);
+  border-radius: 20px;
   overflow: hidden;
   position: relative;
   border: 1px solid var(--border-card);
@@ -2329,6 +2327,19 @@ textarea,
   font-size: 0.75rem;
   font-weight: 600;
   padding: 20px 12px 10px;
+}
+
+/* Mobile: before/after grid */
+@media (max-width: 600px) {
+  .progress-photos-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+  .compare-view {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  #pageBeforeafter .card { padding: 16px; }
 }
 
 /* ===========================
@@ -2574,7 +2585,7 @@ html {
 }
 
 /* ===========================
-   ACHIEVEMENT PAGE — Professional Redesign
+   ACHIEVEMENT PAGE â€” Professional Redesign
    =========================== */
 
  #achievementsGrid {
@@ -2914,7 +2925,7 @@ html {
 }
 
 /* ===========================
-   MUSCLE MAP — Premium V2
+   MUSCLE MAP â€” Premium V2
    =========================== */
 .mm-range-btn {
   font-size:0.72rem;font-weight:700;padding:5px 14px;border-radius:8px;
@@ -3104,7 +3115,7 @@ html {
 }
 
 /* ===========================
-   PROFILE HERO CARD — Animated Background
+   PROFILE HERO CARD â€” Animated Background
    =========================== */
 .profile-hero-card {
   position: relative;
@@ -3112,7 +3123,7 @@ html {
   border-radius: 20px;
   padding: 32px 24px;
   margin-bottom: 24px;
-  /* Solid dark base — color comes entirely from the blurred orbs below */
+  /* Solid dark base â€” color comes entirely from the blurred orbs below */
   background: #0d0d15;
   border: 1px solid rgba(139,124,247,0.18);
 }
@@ -3633,7 +3644,7 @@ html {
   transform: scale(1.08);
 }
 
-/* Admin update form — collapsible panel */
+/* Admin update form â€” collapsible panel */
 .admin-update-form-wrap{
   border-radius: 18px;
   margin-bottom: 0;
@@ -3723,12 +3734,12 @@ html {
   .admin-update-form-inner{ padding:14px 16px; }
 }
 
-/* Floating orbs — the ONLY color source, smoothly animatable */
+/* Floating orbs â€” the ONLY color source, smoothly animatable */
 .profile-orb {
   position: absolute;
   border-radius: 50%;
   pointer-events: none;
-  /* Radial gradients already fade to transparent — a 55px blur would
+  /* Radial gradients already fade to transparent â€” a 55px blur would
      force a full repaint of the layer on every animation frame. */
   will-change: transform;
 }
@@ -3763,7 +3774,7 @@ html {
   animation: orbFloat3 14s ease-in-out infinite;
 }
 
-/* Float keyframes — smooth position drift */
+/* Float keyframes â€” smooth position drift */
 @keyframes orbFloat1 {
   0%   { transform: translate(0px, 0px)   scale(1); }
   25%  { transform: translate(-18px, 12px) scale(1.06); }
@@ -3786,7 +3797,7 @@ html {
   100% { transform: translate(-50%, -50%) scale(1);    opacity: 0.5; }
 }
 
-/* Hue-rotate keyframes — smooth color shift, NEVER abrupt */
+/* Hue-rotate keyframes â€” smooth color shift, NEVER abrupt */
 @keyframes orbHue1 {
   0%   { filter: blur(55px) hue-rotate(0deg); }
   100% { filter: blur(55px) hue-rotate(360deg); }
@@ -3829,7 +3840,7 @@ html {
   transform: scale(1.08);
 }
 
-/* Admin update form — collapsible panel */
+/* Admin update form â€” collapsible panel */
 .admin-update-form-wrap{
   border-radius: 18px;
   margin-bottom: 0;
@@ -3919,12 +3930,12 @@ html {
   .admin-update-form-inner{ padding:14px 16px; }
 }
 
-/* Floating orbs — the ONLY color source, smoothly animatable */
+/* Floating orbs â€” the ONLY color source, smoothly animatable */
 .profile-orb {
   position: absolute;
   border-radius: 50%;
   pointer-events: none;
-  /* Radial gradients already fade to transparent — a 55px blur would
+  /* Radial gradients already fade to transparent â€” a 55px blur would
      force a full repaint of the layer on every animation frame. */
   will-change: transform;
 }
@@ -3959,7 +3970,7 @@ html {
   animation: orbFloat3 14s ease-in-out infinite;
 }
 
-/* Float keyframes — smooth position drift */
+/* Float keyframes â€” smooth position drift */
 @keyframes orbFloat1 {
   0%   { transform: translate(0px, 0px)   scale(1); }
   25%  { transform: translate(-18px, 12px) scale(1.06); }
@@ -3982,7 +3993,7 @@ html {
   100% { transform: translate(-50%, -50%) scale(1);    opacity: 0.5; }
 }
 
-/* Hue-rotate keyframes — smooth color shift, NEVER abrupt */
+/* Hue-rotate keyframes â€” smooth color shift, NEVER abrupt */
 @keyframes orbHue1 {
   0%   { filter: blur(55px) hue-rotate(0deg); }
   100% { filter: blur(55px) hue-rotate(360deg); }
@@ -4266,7 +4277,7 @@ html {
 }
 
 /* ============================================================
-   ZYRO AI — Styles
+   ZYRO AI â€” Styles
    ============================================================ */
 
 /* ---- Floating AI Button ---- */
@@ -4871,6 +4882,7 @@ html {
 .diet-banner {
   position: relative;
   overflow: hidden;
+  border-radius: 20px !important;
 }
 .diet-banner::before {
   content: '';
@@ -4885,8 +4897,10 @@ html {
   .diet-banner {
     flex-direction: column;
     align-items: flex-start !important;
-    gap: 16px;
+    gap: 12px;
+    padding: 16px !important;
   }
+  .diet-banner h1 { font-size: 1.3rem !important; }
 }
 
 /* ---- Tab Buttons ---- */
@@ -4969,6 +4983,9 @@ html {
   grid-template-columns: repeat(4, 1fr);
   gap: 14px;
 }
+.diet-macros-grid > div {
+  border-radius: 18px !important;
+}
 @media (max-width: 900px) {
   .diet-macros-grid {
     grid-template-columns: repeat(2, 1fr);
@@ -4980,13 +4997,14 @@ html {
     gap: 10px;
   }
   .diet-macros-grid > div {
-    padding: 10px !important;
+    padding: 14px 12px !important;
+    border-radius: 16px !important;
   }
   .diet-macros-grid [id$="Val"] {
-    font-size: 1.05rem !important;
+    font-size: 1.1rem !important;
   }
   .diet-macros-grid [id$="Rem"] {
-    font-size: 0.62rem !important;
+    font-size: 0.65rem !important;
   }
 }
 
@@ -5142,7 +5160,7 @@ html {
 
 body { min-height: 100dvh; }
 
-/* Paused while the tab is hidden — keeps animations off the CPU. */
+/* Paused while the tab is hidden â€” keeps animations off the CPU. */
 body.zyro-hidden *,
 body.zyro-hidden *::before,
 body.zyro-hidden *::after {
@@ -5193,7 +5211,7 @@ body.zyro-hidden *::after {
     padding: 6px 6px calc(6px + env(safe-area-inset-bottom));
     border-right: 0;
     border-top: 1px solid rgba(255,255,255,.08);
-    background: rgba(15,15,22,.97);
+    background: rgba(13,13,18,.98);
     overflow: visible;
   }
   .sidebar-brand,
@@ -5228,17 +5246,17 @@ body.zyro-hidden *::after {
 
   .nav-item,
   body.sidebar-collapsed .nav-item {
-    flex: 1 0 72px;
+    flex: 1 0 60px;
     flex-direction: column;
     justify-content: center;
     gap: 3px;
     padding: 8px 4px !important;
-    min-height: 48px;
+    min-height: 52px;
     min-width: 0;
     font-size: 10px;
     line-height: 1.2;
     text-align: center;
-    border-radius: 12px;
+    border-radius: 14px;
     white-space: nowrap;
     overflow: visible;
   }
@@ -5250,7 +5268,7 @@ body.zyro-hidden *::after {
     overflow: hidden;
     text-overflow: ellipsis;
   }
-  .nav-item.active { box-shadow:inset 0 0 0 1px rgba(143,179,204,.35); }
+  .nav-item.active { box-shadow:inset 0 0 0 1px rgba(143,179,204,.35); background: rgba(143,179,204,.12); }
   .nav-item.admin-nav-item { border-left: 0 !important; }
 
   .menu-toggle { display: none !important; }
@@ -5260,21 +5278,21 @@ body.zyro-hidden *::after {
   body.sidebar-collapsed .main-content {
     margin: 0 auto !important;
     width: 100%;
-    max-width: 1240px;
-    padding: 20px 20px calc(84px + env(safe-area-inset-bottom)) !important;
+    max-width: 100%;
+    padding: 16px 16px calc(80px + env(safe-area-inset-bottom)) !important;
     min-height: 100dvh;
     overflow-y: visible;
   }
   .main-content > header,
   .main-content > section,
-  .main-content > .page { max-width: 1240px; }
+  .main-content > .page { max-width: 100%; }
 
   /* iOS zooms any field below 16px. */
   input,
   select,
   textarea { font-size: 16px !important; }
 
-  /* Comfortable touch targets for the primary controls. */
+  /* Touch targets */
   .btn-primary,
   .btn-secondary,
   .header button,
@@ -5284,7 +5302,28 @@ body.zyro-hidden *::after {
   .calc-nav-btn { min-height: 44px; }
 
   .toast-container,
-  .notification-toast { bottom: calc(84px + env(safe-area-inset-bottom)) !important; }
+  .notification-toast { bottom: calc(80px + env(safe-area-inset-bottom)) !important; }
+
+  /* ---- Mobile card optimizations ---- */
+  .card { padding: 18px 16px; border-radius: 20px; }
+  .card-header { margin-bottom: 14px; }
+
+  /* Page title responsive */
+  .page-title { font-size: 1.3rem !important; }
+
+  /* Stat cards on mobile */
+  .stat-card { border-radius: 20px !important; padding: 16px !important; }
+
+  /* Buttons full-width touch */
+  .btn-primary { border-radius: 14px; padding: 12px 20px; }
+  .btn-small { border-radius: 10px; min-height: 38px; }
+
+  /* Log inputs */
+  .log-input { border-radius: 12px !important; }
+
+  /* Header in pages */
+  .pv-header { margin-bottom: 20px; }
+  .pv-p { border-radius: 20px !important; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -5293,7 +5332,7 @@ body.zyro-hidden *::after {
 
 
 /* ===================================================
-   PROGRESS VIEW (pv-*) — reference: zyro-progress.html
+   PROGRESS VIEW (pv-*) â€” reference: zyro-progress.html
    =================================================== */
 #pageProgress { padding: 0; }
 
@@ -5443,3 +5482,196 @@ body.zyro-hidden *::after {
   .pv-wf .pv-in { width:100px; }
   #pageProgress .pv-trk { grid-template-columns:1fr; gap:12px; }
 }
+
+
+/* ============================================================
+   ZYRO — DESIGN REFRESH (köşe yuvarlama + mobil + diyet/ba)
+   ============================================================ */
+
+/* ---- Global radius tokens zaten güncellendi (:root),
+aşağıdakiler spesifik elementler için ---- */
+
+/* Nav-item sidebar */
+.nav-item { border-radius: 14px; }
+.nav-item-wupard.wfit { border-radius: 16px; }
+.sidebar-footer.user { border-radius: 18px; }
+
+/* Stat cards */
+.stat-card { border-radius: 22px !important; }
+
+/* Page banner genel */
+.page-banner { border-radius: 20px !important; }
+
+/* Modal */
+.modal-panel, .modal-content { border-radius: 24px !important; }
+
+/* Workout card */
+.workout-card { border-radius: 22px !important; }
+
+/* ---- DIET PAGE redesign ---- */
+#pageDiet .card { border-radius: 22px; }
+#pageDiet .card-title { font-family: var(--d); font-weight: 600; }
+
+/* Week day tab buttons */
+#dietWeekDayTabs button {
+  border-radius: 14px !important;
+  padding: 10px 14px !important;
+  font-weight: 600 !important;
+  font-size: 0.78rem !important;
+  min-width: 56px;
+}
+
+/* Macro cards (diyet sayfasındaki 4'lü) */
+.diet-macros-grid > div {
+  border-radius: 18px !important;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.diet-macros-grid > div:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+}
+
+/* Log meal input card */
+#pageDiet section.card[style*="overflow: hidden"] {
+  border-radius: 22px;
+}
+
+/* Target form */
+#dietTargetFormContainer {
+  border-radius: 16px !important;
+}
+
+/* Log row */
+.logged-row {
+  border-radius: 14px;
+  padding: 10px 12px !important;
+  margin: 0 !important;
+}
+
+/* ---- BEFORE/AFTER PAGE redesign ---- */
+#pageBeforeafter .card { border-radius: 22px; }
+#pageBeforeafter .card-title { font-family: var(--d); font-weight: 600; }
+
+.progress-photo-item { border-radius: 20px; }
+.compare-photo-wrap { border-radius: 20px; }
+
+/* Body Measurements form */
+#bodyMeasForm { border-radius: 16px !important; }
+
+/* AI analyze button */
+.ai-analyze-btn {
+  border-radius: 999px !important;
+}
+
+/* Progress photo form */
+#progressPhotoForm { border-radius: 16px !important; }
+
+/* ---- MOBILE: Diyet & Before/After ---- */
+@media (max-width: 768px) {
+  #pageDiet .page-banner,
+  #pageBeforeafter .page-banner {
+    padding: 16px !important;
+  }
+  #pageDiet .page-banner h1,
+  #pageBeforeafter .page-banner h1 {
+    font-size: 1.3rem !important;
+  }
+
+  /* Log input row: stack on mobile */
+  .log-row {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 10px !important;
+  }
+
+  /* Card padding tighter on mobile */
+  #pageDiet .card,
+  #pageBeforeafter .card {
+    padding: 16px !important;
+    border-radius: 20px !important;
+  }
+
+  /* before/after photos grid */
+  .progress-photos-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 10px !important;
+  }
+  .compare-view {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+
+  /* diet macro grid 2-col on tablet */
+  .diet-macros-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  /* Diet input grid: single col */
+  .diet-inputs-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .diet-inputs-grid .col-name,
+  .diet-inputs-grid .col-tag {
+    grid-column: 1 !important;
+    grid-row: auto !important;
+  }
+}
+
+@media (max-width: 480px) {
+  /* Extra small: macro cards */
+  .diet-macros-grid > div {
+    padding: 14px 10px !important;
+  }
+  .diet-macros-grid [id$="Val"] {
+    font-size: 1.05rem !important;
+  }
+
+  /* Log row stack fully */
+  .log-row {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Photo meta smaller */
+  .progress-photo-meta {
+    font-size: 0.7rem !important;
+    padding: 8px 10px !important;
+  }
+
+  /* Diet actions: full width buttons */
+  .diet-actions-row {
+    flex-direction: column-reverse !important;
+    gap: 8px !important;
+  }
+  .diet-actions-row button {
+    width: 100% !important;
+    justify-content: center !important;
+  }
+
+  /* Page banner icon hide on tiny screens */
+  .page-banner > div:last-child {
+    display: none !important;
+  }
+}
+
+/* ---- HEADER mobile ---- */
+@media (max-width: 768px) {
+  .header {
+    padding-bottom: 12px;
+    margin-bottom: 16px;
+  }
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 10px !important;
+  }
+  .stat-card {
+    padding: 16px !important;
+  }
+}
+
+/* ---- Streak pill (home header) ---- */
+.streak-pill {
+  background: rgba(255,255,255,0.07) !important;
+  border: 1px solid rgba(255,255,255,0.1) !important;
+  border-radius: 999px !important;
+}
+
+
