@@ -14,7 +14,6 @@
     const S = model.S;
     return html`<${React.Fragment}>
       <${Z.IconSprite}/>
-      <${Z.Rail} model=${model} onNavigate=${Z.go}/>
       <main>
         <${Z.Header} model=${model}/>
         <div className="grid">

@@ -7,16 +7,9 @@
 body.zyro-dash-active {
   background: var(--bg);
 }
-body.zyro-dash-active .sidebar,
-body.zyro-dash-active .sidebar-collapse-btn,
 body.zyro-dash-active .main-content > .header,
 body.zyro-dash-active #notifBanner {
   display: none !important;
-}
-body.zyro-dash-active .main-content {
-  padding: 0;
-  align-items: stretch;
-  min-height: 100vh;
 }
 body.zyro-dash-active .main-content > .page[data-page="dashboard"] {
   width: 100%;
@@ -38,8 +31,7 @@ body.zyro-dash-active .main-content > .page[data-page="dashboard"] {
 .zyro-dash #zyroDashboardRoot {
   display: flex;
   width: 100%;
-  /* 236px rail + 1240px content = the approved reference shell. */
-  max-width: 1476px;
+  max-width: 1240px;
   margin: 0 auto;
   min-height: 100dvh;
   position: relative;
@@ -79,48 +71,6 @@ body.zyro-dash-active .main-content > .page[data-page="dashboard"] {
   flex: none;
 }
 
-/* ---------- rail ---------- */
-.zyro-dash .rail {
-  position: sticky; top: 0;
-  height: 100dvh; width: 236px; flex: none;
-  padding: 30px 18px;
-  display: flex; flex-direction: column; gap: 30px;
-  z-index: 2;
-  border-right: 1px solid rgba(255,255,255,.06);
-  background: rgba(19,22,27,.94);
-}
-.zyro-dash .brand {
-  display: flex; align-items: center; gap: 12px;
-  font: 700 21px var(--d);
-  padding-left: 10px;
-}
-.zyro-dash .nav {
-  display: flex; flex: 1 1 auto; flex-direction: column; gap: 4px;
-  min-height: 0; overflow-y: auto; overscroll-behavior: contain;
-  scrollbar-width: none;
-}
-.zyro-dash .nav::-webkit-scrollbar { display: none; }
-.zyro-dash .nav a {
-  display: flex; gap: 14px; align-items: center;
-  padding: 11px 12px; border-radius: 12px;
-  color: var(--mute); font-size: 14.5px;
-  transition: .25s var(--ease);
-}
-.zyro-dash .nav a:hover { color: var(--text); background: rgba(255,255,255,.04); }
-.zyro-dash .nav a[aria-current] {
-  color: var(--text);
-  background: linear-gradient(90deg, rgba(143,179,204,.2), rgba(143,179,204,.03));
-  box-shadow: inset 2px 0 var(--steel);
-}
-.zyro-dash .lvl {
-  margin-top: auto; padding: 14px;
-  border-radius: 16px;
-  background: rgba(255,255,255,.04);
-  border: 1px solid rgba(255,255,255,.06);
-  font-size: 13px;
-}
-.zyro-dash .lvl b { font: 500 15px var(--d); display: block; }
-.zyro-dash .lvl span { color: var(--mute); }
 .zyro-dash .xp {
   height: 4px; border-radius: 4px;
   background: rgba(255,255,255,.08);
@@ -433,19 +383,6 @@ body.zyro-dash-active .main-content > .page[data-page="dashboard"] {
 @media (max-width: 1000px) {
   .zyro-dash { flex-direction: column; }
   .zyro-dash #zyroDashboardRoot { flex-direction: column; }
-  .zyro-dash .rail {
-    position: static;
-    width: auto; height: auto;
-    flex-direction: row; align-items: center;
-    padding: 14px;
-    overflow-x: auto;
-    gap: 12px;
-  }
-  .zyro-dash .brand { padding: 0; }
-  .zyro-dash .nav { flex-direction: row; }
-  .zyro-dash .nav a { padding: 9px 12px; white-space: nowrap; }
-  .zyro-dash .nav a span { display: none; }
-  .zyro-dash .lvl { display: none; }
   .zyro-dash .s8,
   .zyro-dash .s4 { grid-column: span 12; }
   .zyro-dash .hero { grid-template-columns: 1fr; }
@@ -456,58 +393,19 @@ body.zyro-dash-active .main-content > .page[data-page="dashboard"] {
   .zyro-dash .heat { gap: 3px; }
 }
 
-/* Bottom tab bar — approved mobile layout. After the top-rail rules. */
+/* Bottom spacing for the global mobile tab bar. */
 @media (max-width: 1000px) {
   .zyro-dash { min-height: 100dvh; }
-  .zyro-dash .rail {
-    position: fixed; top: auto; bottom: 0; left: 0; right: 0;
-    width: auto; height: auto; z-index: 40;
-    padding: 6px 6px calc(6px + env(safe-area-inset-bottom));
-    gap: 0;
-    border-right: 0;
-    border-top: 1px solid rgba(255,255,255,.08);
-    background: rgba(19,22,27,.97);
-    overflow: visible;
-  }
-  .zyro-dash .brand, .zyro-dash .lvl { display: none; }
-  .zyro-dash .nav {
-    width: 100%;
-    flex-direction: row;
-    gap: 2px;
-    overflow-x: auto;
-    overscroll-behavior-x: contain;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-    overflow-y: hidden;
-  }
-  .zyro-dash .nav::-webkit-scrollbar { display: none; }
-  .zyro-dash .nav a {
-    flex: 1 0 76px;
-    flex-direction: column;
-    gap: 3px;
-    padding: 8px 4px;
-    min-height: 48px;
-    font-size: 11px;
-    text-align: center;
-    border-radius: 12px;
-    box-shadow: none !important;
-  }
-  .zyro-dash .nav a span { display: block !important; white-space: nowrap; }
-  .zyro-dash .nav a[aria-current] { background: rgba(143,179,204,.16); }
   .zyro-dash #zyroDashboardRoot { padding-bottom: 0; }
   .zyro-dash main { padding-bottom: calc(100px + env(safe-area-inset-bottom)); }
 }
 @media (max-width: 1000px), (hover: none) and (pointer: coarse) {
   /* Expensive to repaint while scrolling on phones/tablets. */
-  .zyro-dash .p,
-  .zyro-dash .rail {
+  .zyro-dash .p {
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
-  }
-  .zyro-dash .p {
     background: linear-gradient(160deg, rgba(255,255,255,.075), rgba(255,255,255,.02));
   }
-  .zyro-dash .rail { background: rgba(19,22,27,.92); }
 }
 @media (prefers-reduced-motion: reduce) {
   .zyro-dash * {

@@ -188,38 +188,9 @@
     var s = size || 19;
     return '<svg class="i" style="width:' + s + 'px;height:' + s + 'px"><use href="#zw-i-' + name + '"/></svg>';
   }
-  function navItem(page, iconName, label, current) {
-    return '<a href="#" data-zwpage="' + page + '"' + (page === 'admin' ? ' class="admin-only" style="display:none"' : '') + (current ? ' aria-current="page"' : '') + '>' +
-      icon(iconName) + '<span>' + esc(label) + '</span></a>';
-  }
-  function menuText(nav, key, tr, en) {
-    return nav[key] || (typeof currentLang !== 'undefined' && currentLang === 'tr' ? tr : en);
-  }
-
   function shell() {
     var s = S();
-    var nav = s.nav || {};
     return sprite() +
-      '<aside class="rail">' +
-        '<div class="brand"><svg width="30" height="30" viewBox="0 0 28 28"><path d="M4 4h20L13 12z" fill="#8fb3cc"/><path d="M24 4v6L9 24H4v-6z" fill="#dcc7a8"/><path d="M9 24h15v-6l-6 3z" fill="#8fb3cc" opacity=".55"/></svg>Zyro</div>' +
-        '<nav class="nav" aria-label="' + esc(s.navLabel || 'Menu') + '">' +
-          navItem('dashboard', 'grid', menuText(nav, 'dashboard', 'Ana Sayfa', 'Home'), false) +
-          navItem('workouts', 'dumb', menuText(nav, 'workouts', 'Antrenman', 'Workout'), true) +
-          navItem('posture', 'user', menuText(nav, 'posture', 'Postür', 'Posture'), false) +
-          navItem('diet', 'fork', menuText(nav, 'diet', 'Diyet & Beslenme', 'Diet & Nutrition'), false) +
-          navItem('progress', 'trend', menuText(nav, 'progress', 'İlerleme', 'Progress'), false) +
-          navItem('updates', 'trend', menuText(nav, 'updates', 'Güncellemeler', 'Updates'), false) +
-          navItem('notes', 'note', menuText(nav, 'notes', 'Notlar', 'Notes'), false) +
-          navItem('comments', 'note', menuText(nav, 'comments', 'Yorumlar', 'Comments'), false) +
-          navItem('calculators', 'calc', menuText(nav, 'calculators', 'Hesaplayıcılar', 'Calculators'), false) +
-          navItem('beforeafter', 'grid', menuText(nav, 'beforeafter', 'Gelişim', 'Transformation'), false) +
-          navItem('achievements', 'cup', menuText(nav, 'achievements', 'Başarımlar', 'Achievements'), false) +
-          navItem('leaderboard', 'cup', menuText(nav, 'leaderboard', 'Liderlik Tablosu', 'Leaderboard'), false) +
-          navItem('profile', 'user', menuText(nav, 'profile', 'Profil', 'Profile'), false) +
-          navItem('admin', 'cup', menuText(nav, 'admin', 'ADMIN MERKEZİ', 'ADMIN CENTER'), false) +
-        '</nav>' +
-        '<div class="lvl" id="zwLevel"></div>' +
-      '</aside>' +
       '<main>' +
         '<header>' +
           '<div><h1>' + esc(s.title1 || 'Workout') + ' <b>' + esc(s.title2 || 'program') + '</b></h1><p class="sub">' + esc(s.subtitle || '') + '</p></div>' +
