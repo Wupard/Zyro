@@ -10336,20 +10336,6 @@ function showOneRMResult(weight, reps) {
       const elOv = $('#ov');
       if (e.key === 'Escape' && elOv && elOv.classList.contains('show')) closeD();
     });
-
-    const elDemo = $('#demo');
-    if (elDemo) {
-      elDemo.onclick = () => {
-        demo = !demo;
-        users = [];
-        cat = 'all';
-        exf = 'all';
-        if (demo) loadDemo();
-        else loadData();
-        elDemo.textContent = demo ? 'Örnek veriyi temizle' : 'Örnek veriyi yükle';
-        lb();
-      };
-    }
   }
 
   window.renderLeaderboard = function(forceRefresh) {
@@ -10922,44 +10908,6 @@ window.showWeeklyMusclePopup = function(muscleGroup, exCount, sets) {
       } catch (err) {
         toast('Analiz başarısız', 'Lütfen tekrar dene');
       }
-    };
-
-    let demo = false;
-    const elDemo = $('#demo');
-    if (elDemo) elDemo.onclick = () => {
-      demo = !demo;
-      if (demo) {
-        const A = (d, n, t, k, p, c, f) => {
-          const dk = ago(d);
-          const m = { id: Date.now() + Math.random(), name: n, tag: t, k, p, c, f, calories: k, protein: p, carbs: c, fat: f, timestamp: Date.now() };
-          if (typeof appData !== 'undefined' && appData) {
-            if (!appData.dietLogs) appData.dietLogs = {};
-            if (!appData.dietLogs[dk]) appData.dietLogs[dk] = [];
-            appData.dietLogs[dk].push(m);
-          } else {
-            (meals[dk] = meals[dk] || []).push(m);
-          }
-        };
-        A(0, 'Yulaf ezmesi', 'Kahvaltı', 380, 14, 62, 8);
-        A(0, 'Tavuklu pilav', 'Öğle', 640, 46, 70, 16);
-        A(1, 'Yumurta ve peynir', 'Kahvaltı', 420, 28, 6, 30);
-        A(1, 'Izgara tavuk', 'Akşam', 560, 52, 20, 28);
-        A(2, 'Lor peyniri', 'Ara öğün', 220, 24, 6, 10);
-        A(2, 'Mercimek çorbası', 'Akşam', 310, 18, 44, 6);
-        A(3, 'Tavuk dürüm', 'Öğle', 690, 42, 64, 26);
-        if (typeof saveData === 'function') saveData();
-      } else {
-        if (typeof appData !== 'undefined' && appData && appData.dietLogs) {
-          for (let i = 0; i < 7; i++) {
-            delete appData.dietLogs[ago(i)];
-          }
-          if (typeof saveData === 'function') saveData();
-        } else {
-          meals = {};
-        }
-      }
-      elDemo.textContent = demo ? 'Örnek veriyi temizle' : 'Örnek veriyi yükle';
-      all();
     };
   }
 
