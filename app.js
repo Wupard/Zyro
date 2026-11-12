@@ -2000,7 +2000,7 @@ function navigateTo(page, opts){
   else if(page==='leaderboard') { if (typeof renderLeaderboard === 'function') renderLeaderboard(true); }
   else if(page==='diet')renderDiet();
 
-  if(window.innerWidth<=768){
+  if (window.innerWidth <= 1000 || (document.getElementById('sidebar') && document.getElementById('sidebar').classList.contains('open'))) {
     const sidebar = document.getElementById('sidebar');
     if (sidebar) sidebar.classList.remove('open');
     const bd = document.getElementById('sidebarBackdrop');
@@ -2396,7 +2396,7 @@ function initNav(){
         sidebarBackdrop.classList.add('show');
         sidebarBackdrop.setAttribute('aria-hidden', 'false');
       }
-      if (window.innerWidth <= 900) document.body.style.overflow = 'hidden';
+      if (window.innerWidth <= 1000) document.body.style.overflow = 'hidden';
 
       // Save previous focus and move focus into the sidebar
       try { _prevFocus = document.activeElement; } catch (e) { _prevFocus = null; }
@@ -2438,6 +2438,19 @@ function initNav(){
       if (sidebarEl.classList.contains('open')) closeSidebar(); else openSidebar();
     });
 
+    window.closeSidebar = closeSidebar;
+    window.openSidebar = openSidebar;
+
+    const collapseBtn = document.getElementById('sidebarCollapseBtn');
+    if (collapseBtn) {
+      collapseBtn.addEventListener('click', (e) => {
+        if (window.innerWidth <= 1000) {
+          e.stopPropagation();
+          closeSidebar();
+        }
+      });
+    }
+
     // expose closeSidebar to other handlers below via closure
     // attach to elements handled further down (backdrop, outside click, ESC)
     // we'll reference closeSidebar inside those listeners
@@ -2461,7 +2474,7 @@ function initNav(){
 
   // Click outside to close on mobile (keeps existing behaviour but more robust)
   document.addEventListener('click', e => {
-    if (window.innerWidth <= 768) {
+    if (window.innerWidth <= 1000) {
       const tg = document.getElementById('menuToggle');
       if (sidebarEl && !sidebarEl.contains(e.target) && tg && !tg.contains(e.target) && sidebarEl.classList.contains('open')) {
         if (typeof closeSidebar === 'function') { closeSidebar(); return; }
@@ -2527,7 +2540,7 @@ function initGestures() {
     if (dy > maxVerticalDistance) return;
 
     const sidebar = document.getElementById('sidebar');
-    if (window.innerWidth <= 768) {
+    if (window.innerWidth <= 1000) {
       if (sidebar.classList.contains('open')) {
         if (dx < -minDistance) {
           sidebar.classList.remove('open');
