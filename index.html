@@ -65,7 +65,7 @@
   <aside class="sidebar rail" id="sidebar">
     <div class="top">
       <div class="brand">
-        <img src="assets/logo-white.png" alt="Zyro Logo" class="sidebar-logo zyro-logo-adaptive">
+        <svg class="lg sidebar-logo" viewBox="0 0 100 100" aria-hidden="true"><use href="#logo"/></svg>
         <span class="brand-text t">Zyro</span>
       </div>
       <button class="cbtn sidebar-collapse-btn" id="sidebarCollapseBtn" aria-label="Menüyü daralt">
@@ -75,6 +75,7 @@
 
     <!-- Shared menu icon set -->
     <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>
+      <symbol id="logo" viewBox="0 0 100 100"><path d="M56.7 9.96 L53.64 9.1 L17.53 9.29 L14.46 11.49 L3.93 29.69 L3.16 31.99 L3.45 34.48 L4.31 36.11 L6.32 37.84 L8.05 38.31 L32.18 38.31 L34.58 39.37 L36.02 41.95 L35.92 43.68 L9.67 89.27 L9.29 91.09 L9.67 93.49 L12.16 96.46 L16.09 97.13 L18.1 96.36 L19.83 94.73 L61.11 23.28 L62.16 19.83 L61.97 16.57 L60.06 12.64Z M88.12 3.83 L84.2 3.16 L82.18 3.93 L80.46 5.56 L39.18 77.01 L38.12 80.46 L38.31 83.72 L40.23 87.64 L43.58 90.33 L46.65 91.19 L82.76 91.0 L85.82 88.79 L96.36 70.59 L97.13 68.3 L96.84 65.8 L95.98 64.18 L93.97 62.45 L92.24 61.97 L68.1 61.97 L65.71 60.92 L64.27 58.33 L64.37 56.61 L90.61 11.02 L91.0 9.2 L90.61 6.8Z" fill="currentColor" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></symbol>
       <symbol id="zr-i-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/></symbol>
       <symbol id="zr-i-dumb" viewBox="0 0 24 24"><path d="M6 7v10M18 7v10M3 10v4M21 10v4M6 12h12"/></symbol>
       <symbol id="zr-i-post" viewBox="0 0 24 24"><circle cx="12" cy="5" r="2"/><path d="M12 8v6M7 10h10M9 21l3-7 3 7"/></symbol>
@@ -93,6 +94,32 @@
       <symbol id="zr-i-left" viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></symbol>
       <symbol id="zr-i-right" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></symbol>
       <symbol id="zr-i-out" viewBox="0 0 24 24"><path d="M10 4H5v16h5M15 8l4 4-4 4M19 12H9"/></symbol>
+      <symbol id="zr-i-image" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="9" cy="10" r="1.5"/><path d="M4 18l5-5 4 4 3-3 4 4"/></symbol>
+      <symbol id="zr-i-spark" viewBox="0 0 24 24"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/></symbol>
+      <symbol id="zr-i-pulse" viewBox="0 0 24 24"><path d="M3 12h4l2-6 4 12 2-6h6"/></symbol>
+      <symbol id="zr-i-trash" viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13M10 11v6M14 11v6"/></symbol>
+      <symbol id="zr-i-edit" viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16zM13 7l4 4"/></symbol>
+      <symbol id="zr-i-flag" viewBox="0 0 24 24"><path d="M5 21V4M5 4h12l-2 4 2 4H5"/></symbol>
+      <symbol id="zr-i-up" viewBox="0 0 24 24"><path d="M6 15l6-6 6 6"/></symbol>
+      <symbol id="zr-i-down" viewBox="0 0 24 24"><path d="M6 9l6 6-6 6"/></symbol>
+      <symbol id="zr-i-send" viewBox="0 0 24 24"><path d="M4 12L20 4l-6 16-3-7z"/></symbol>
+      <symbol id="zr-i-reply" viewBox="0 0 24 24"><path d="M10 8L4 13l6 5M4 13h9a7 7 0 017 7"/></symbol>
+      <symbol id="zr-i-upl" viewBox="0 0 24 24"><path d="M12 16V5M7 9l5-5 5 5M4 19h16"/></symbol>
+      <symbol id="zr-i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+      <symbol id="zr-i-bell" viewBox="0 0 24 24"><path d="M6 9a6 6 0 0112 0c0 5 2 6 2 7H4c0-1 2-2 2-7zM10 20a2 2 0 004 0"/></symbol>
+      <symbol id="zr-i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" stroke-width="2.4"/></symbol>
+      <symbol id="i-image" viewBox="0 0 24 24"><use href="#zr-i-image"/></symbol>
+      <symbol id="i-spark" viewBox="0 0 24 24"><use href="#zr-i-spark"/></symbol>
+      <symbol id="i-pulse" viewBox="0 0 24 24"><use href="#zr-i-pulse"/></symbol>
+      <symbol id="i-trash" viewBox="0 0 24 24"><use href="#zr-i-trash"/></symbol>
+      <symbol id="i-edit" viewBox="0 0 24 24"><use href="#zr-i-edit"/></symbol>
+      <symbol id="i-flag" viewBox="0 0 24 24"><use href="#zr-i-flag"/></symbol>
+      <symbol id="i-up" viewBox="0 0 24 24"><use href="#zr-i-up"/></symbol>
+      <symbol id="i-down" viewBox="0 0 24 24"><use href="#zr-i-down"/></symbol>
+      <symbol id="i-send" viewBox="0 0 24 24"><use href="#zr-i-send"/></symbol>
+      <symbol id="i-reply" viewBox="0 0 24 24"><use href="#zr-i-reply"/></symbol>
+      <symbol id="i-upl" viewBox="0 0 24 24"><use href="#zr-i-upl"/></symbol>
+      <symbol id="i-plus" viewBox="0 0 24 24"><use href="#zr-i-plus"/></symbol>
     </defs></svg>
 
     <nav class="nav sidebar-nav" aria-label="Ana menü">
@@ -623,58 +650,77 @@
     </div>
 
   <div class="page" data-page="comments" id="pageComments">
-      <!-- Premium Page Banner -->
-      <div class="page-banner page-banner--blue" style="margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; padding: 20px; background: linear-gradient(135deg, rgba(92,138,222,0.08) 0%, rgba(92,138,222,0.01) 100%); border-radius: 16px; border: 1px solid rgba(92,138,222,0.15);">
+      <section class="hero2">
         <div>
-          <h1 style="font-size: 1.6rem; font-weight: 800; margin: 0 0 4px 0; color: var(--text-primary); letter-spacing: -0.5px;">Yorumlar</h1>
-          <p style="margin: 0; font-size: 0.85rem; color: var(--text-muted); font-weight: 500;">Toplulukla etkileşime geç, geri bildirim bırak</p>
+          <h1><b data-i18n="navComments">Yorumlar</b></h1>
+          <p data-i18n="commentsSubtitle">Toplulukla etkileşime geç, geri bildirim bırak</p>
         </div>
-        <div style="width: 48px; height: 48px; border-radius: 14px; background: rgba(92,138,222,0.12); display: flex; align-items: center; justify-content: center; color: #5c8ade; flex-shrink: 0;">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+        <div class="ibox">
+          <svg class="i"><use href="#zr-i-chat"/></svg>
         </div>
-      </div>
-      <section class="card">
-        <div class="card-header">
-          <h3 class="card-title">Geri Bildirim / Yorum Bırak</h3>
-        </div>
-        <div class="comment-form-wrap">
-          <div class="comment-field" style="margin-bottom: 16px;">
-            <label
-              style="font-size: 0.72rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.04em; font-weight: 700; display: block; margin-bottom: 8px;">Gönderme
-              Türü</label>
-            <div class="comment-type-selector" style="display: flex; gap: 20px;">
-              <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.85rem;">
-                <input type="radio" name="commentType" value="normal" checked
-                  style="accent-color: var(--accent-primary);"> Normal
-              </label>
-              <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.85rem;">
-                <input type="radio" name="commentType" value="anonymous" style="accent-color: var(--accent-primary);">
-                Anonim
-              </label>
+      </section>
+
+      <div class="stk">
+        <section class="pn">
+          <div class="lab"><b data-i18n="leaveComment">Geri bildirim / yorum bırak</b></div>
+          <form id="fc" novalidate>
+            <p class="sl" data-i18n="commentTypeLabel">Gönderme türü</p>
+            <div class="seg2" role="radiogroup" aria-label="Gönderme türü">
+              <input type="radio" name="k" id="k1" value="normal" checked>
+              <label for="k1" data-i18n="commentTypeNormal">Normal</label>
+              <input type="radio" name="k" id="k2" value="anon">
+              <label for="k2" data-i18n="commentTypeAnon">Anonim</label>
+            </div>
+            <textarea class="in" id="ct" maxlength="1000" placeholder="Fikirlerini bizimle paylaş…" aria-label="Yorum" style="margin-top:14px" data-i18n-placeholder="commentPlaceholder"></textarea>
+            <div class="cb">
+              <button class="btn" id="cs"><svg class="i"><use href="#zr-i-send"/></svg><span data-i18n="btnSend">Gönder</span></button>
+              <span class="err" id="ce" role="alert" style="margin:0"></span>
+              <span class="cnt" id="cc">0/1000</span>
+            </div>
+          </form>
+        </section>
+
+        <section class="pn">
+          <div class="lab">
+            <b><span data-i18n="recentComments">Son yorumlar</span> <span class="tag" id="cn">0</span></b>
+            <div class="chips" id="so" role="group" aria-label="Sırala">
+              <button data-s="new" aria-pressed="true" data-i18n="sortNewest">En yeni</button>
+              <button data-s="top" aria-pressed="false" data-i18n="sortPopular">Popüler</button>
             </div>
           </div>
-          <textarea class="note-input" id="commentInput" rows="4"
-            placeholder="Fikirlerini bizimle paylaş..."></textarea>
-          <button class="btn-primary" id="sendCommentBtn" style="margin-top: 16px;">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <line x1="22" y1="2" x2="11" y2="13" />
-              <polygon points="22 2 15 22 11 13 2 9 22 2" />
-            </svg>
-            <span>Gönder</span>
-          </button>
-        </div>
-      </section>
+          <div id="list" aria-live="polite">
+            <div class="empty" data-i18n="loading">Yükleniyor…</div>
+          </div>
+        </section>
+      </div>
 
-      <!-- Admin Notification Panel Moved to Drawer -->
-
-      <section class="card" id="publicCommentsCard">
-        <div class="card-header">
-          <h3 class="card-title">Son Yorumlar</h3>
-        </div>
-        <div id="commentsList" class="comments-list">
-          <!-- Comments will be rendered here -->
-        </div>
-      </section>
+      <dialog id="dlgR">
+        <form id="fr" novalidate>
+          <div class="dh2">
+            <b data-i18n="reportCommentTitle">Yorumu raporla</b>
+            <button type="button" class="x" data-close aria-label="Kapat">✕</button>
+          </div>
+          <div class="db">
+            <div class="fld">
+              <label for="rr" data-i18n="reportReason">Sebep</label>
+              <select class="in" id="rr">
+                <option data-i18n="reportReasonSpam">Spam</option>
+                <option data-i18n="reportReasonInappropriate">Hakaret / uygunsuz içerik</option>
+                <option data-i18n="reportReasonFalseInfo">Yanlış bilgi</option>
+                <option data-i18n="reportReasonOther">Diğer</option>
+              </select>
+            </div>
+            <div class="fld">
+              <label for="rn" data-i18n="reportNoteOptional">Not (isteğe bağlı)</label>
+              <textarea class="in" id="rn" maxlength="300" style="min-height:80px"></textarea>
+            </div>
+            <div class="da">
+              <button type="button" class="ghost" data-close data-i18n="btnCancel">Vazgeç</button>
+              <button class="btn" data-i18n="btnSend">Gönder</button>
+            </div>
+          </div>
+        </form>
+      </dialog>
     </div>
 
     <!-- ============ PAGE: CALCULATORS ============ -->
@@ -832,132 +878,110 @@
 
     <!-- ===== PAGE: BEFORE/AFTER ===== -->
     <div class="page" data-page="beforeafter" id="pageBeforeafter">
-      <!-- Premium Page Banner -->
-      <div class="page-banner page-banner--pink" style="margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; padding: 20px; background: linear-gradient(135deg, rgba(236,72,153,0.08) 0%, rgba(236,72,153,0.01) 100%); border-radius: 16px; border: 1px solid rgba(236,72,153,0.15);">
+      <section class="hero2">
         <div>
-          <h1 style="font-size: 1.6rem; font-weight: 800; margin: 0 0 4px 0; color: var(--text-primary); letter-spacing: -0.5px;">Gelişim Fotoğrafları</h1>
-          <p style="margin: 0; font-size: 0.85rem; color: var(--text-muted); font-weight: 500;">Bedenindeki değişimi gözlemle ve belgele</p>
+          <h1><span data-i18n="beforeAfterTitleMain">Gelişim</span> <b data-i18n="beforeAfterTitleBold">fotoğrafları</b></h1>
+          <p data-i18n="beforeAfterSubtitle">Bedenindeki değişimi gözlemle ve belgele</p>
         </div>
-        <div style="width: 48px; height: 48px; border-radius: 14px; background: rgba(236,72,153,0.12); display: flex; align-items: center; justify-content: center; color: #ec4899; flex-shrink: 0;">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="9" height="18" rx="1"/><rect x="13" y="3" width="9" height="18" rx="1"/></svg>
+        <div class="ibox">
+          <svg class="i"><use href="#zr-i-ba"/></svg>
         </div>
+      </section>
+
+      <div class="stk">
+        <section class="pn" id="photos">
+          <div class="lab">
+            <b class="tt"><svg class="i"><use href="#zr-i-image"/></svg><span data-i18n="photosTitle">Fotoğraflar</span></b>
+            <div class="acts">
+              <button class="ghost" id="bcmp" aria-pressed="false" data-i18n="btnCompare">Karşılaştır</button>
+              <button class="pill st" id="bai"><svg class="i"><use href="#zr-i-spark"/></svg><span data-i18n="aiAnalyze">AI Analiz Et</span></button>
+              <button class="btn" id="badd"><svg class="i"><use href="#zr-i-plus"/></svg><span data-i18n="btnNewPhoto">Yeni Fotoğraf</span></button>
+            </div>
+          </div>
+          <div class="chips" id="pchips" role="group" aria-label="Poz filtresi"></div>
+          <div id="cmp" hidden></div>
+          <div id="ai" hidden></div>
+          <div class="pg" id="pgrid" aria-live="polite"></div>
+        </section>
+
+        <section class="pn" id="meas">
+          <div class="lab">
+            <b class="tt"><svg class="i"><use href="#zr-i-pulse"/></svg><span data-i18n="bodyMeasurementsTitle">Vücut Ölçüleri</span> <span class="tag" id="mcnt">0</span></b>
+            <button class="btn" id="madd"><svg class="i"><use href="#zr-i-plus"/></svg><span data-i18n="btnAddMeasurement">Ölçü Ekle</span></button>
+          </div>
+          <div id="mbody"></div>
+        </section>
       </div>
-      <section class="card" id="progressPhotosCardMain">
-        <div class="card-header">
-          <h3 class="card-title">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-              style="vertical-align:middle;margin-right:6px;">
-              <rect x="3" y="3" width="18" height="18" rx="2" />
-              <circle cx="8.5" cy="8.5" r="1.5" />
-              <polyline points="21 15 16 10 5 21" />
-            </svg>
-            Fotoğraflar
-          </h3>
-          <div class="header-actions">
-            <button class="btn-small" id="comparePhotosBtnMain" onclick="toggleCompareMode()"
-              style="background:rgba(139,124,247,0.15);color:var(--accent-primary);border:1px solid rgba(139,124,247,0.3);">Karşılaştır</button>
-            <button class="ai-analyze-btn" id="aiAnalyzePhotosBtn" onclick="openBeforeAfterAnalysis()">
-              <svg class="ai-sparkle-btn-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C12 2 12.5 7.5 14.5 9.5C16.5 11.5 22 12 22 12C22 12 16.5 12.5 14.5 14.5C12.5 16.5 12 22 12 22C12 22 11.5 16.5 9.5 14.5C7.5 12.5 2 12 2 12C2 12 7.5 11.5 9.5 9.5C11.5 7.5 12 2 12 2Z" fill="url(#ai-sparkle-gradient-btn)"/></svg>
-              AI Analiz Et
-            </button>
-            <button class="btn-small" onclick="document.getElementById('progressPhotoInputMain').click()">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                <line x1="12" y1="5" x2="12" y2="19" />
-                <line x1="5" y1="12" x2="19" y2="12" />
-              </svg>
-              Yeni Fotoğraf
-            </button>
-          </div>
-        </div>
-        <input type="file" id="progressPhotoInputMain" accept="image/*" style="display:none"
-          onchange="handleProgressPhoto(event)">
-        <div id="progressPhotoForm"
-          style="display:none;padding:16px;background:var(--bg-input);border-radius:12px;margin-bottom:16px;border:1px solid var(--border-card);">
-          <div class="log-row">
-            <div class="log-field">
-              <label>Tarih</label>
-              <input type="date" id="photoDate" class="log-input">
-            </div>
-            <div class="log-field">
-              <label>Boy (cm)</label>
-              <input type="number" id="photoHeight" class="log-input" placeholder="örn: 180">
-            </div>
-            <div class="log-field">
-              <label>Kilo (kg)</label>
-              <input type="number" id="photoWeight" class="log-input" placeholder="örn: 80">
-            </div>
-          </div>
-          <div class="log-row">
-            <div class="log-field">
-              <label>Yağ Oranı (%)</label>
-              <input type="number" id="photoFat" class="log-input" placeholder="örn: 15">
-            </div>
-            <div class="log-field">
-              <label>Vücut Ölçüleri (Not)</label>
-              <input type="text" id="photoNote" class="log-input" placeholder="Kol: 38cm, Bel: 85cm...">
-            </div>
-          </div>
-          <div style="display:flex;gap:8px;margin-top:12px;">
-            <button class="btn-primary" style="flex:1;" onclick="saveProgressPhoto()">Kaydet</button>
-            <button class="btn-small"
-              style="background:var(--bg-card);color:var(--text-primary);border:1px solid var(--border-subtle);"
-              onclick="cancelProgressPhoto()">İptal</button>
-          </div>
-        </div>
-        <div id="compareView" class="compare-view" style="display:none;"></div>
-        <div class="progress-photos-grid" id="progressPhotosGrid">
-          <div class="logged-empty" style="grid-column:1/-1;">Henüz fotoğraf eklenmedi.</div>
-        </div>
-      </section>
 
+      <dialog id="dlgP">
+        <form id="fP" novalidate>
+          <div class="dh2">
+            <b data-i18n="newPhotoDialogTitle">Yeni fotoğraf</b>
+            <button type="button" class="x" data-close aria-label="Kapat">✕</button>
+          </div>
+          <div class="db">
+            <label class="drop" id="drop">
+              <input type="file" id="pf" accept="image/*" hidden>
+              <span id="prev"><svg class="i" style="width:28px;height:28px"><use href="#zr-i-upl"/></svg><br><span data-i18n="dropPhotoText">Fotoğraf seç veya buraya bırak</span></span>
+            </label>
+            <div class="r2">
+              <div class="fld">
+                <label for="pdt" data-i18n="lblDate">Tarih</label>
+                <input class="in" type="date" id="pdt">
+              </div>
+              <div class="fld">
+                <label for="ppose" data-i18n="lblPose">Poz</label>
+                <select class="in" id="ppose">
+                  <option value="front" data-i18n="poseFront">Ön</option>
+                  <option value="side" data-i18n="poseSide">Yan</option>
+                  <option value="back" data-i18n="poseBack">Arka</option>
+                </select>
+              </div>
+            </div>
+            <div class="r2">
+              <div class="fld">
+                <label for="pkg" data-i18n="lblWeightOptional">Kilo (kg, isteğe bağlı)</label>
+                <input class="in" id="pkg" inputmode="decimal" placeholder="78,2">
+              </div>
+              <div class="fld">
+                <label for="pnote" data-i18n="lblNoteOptional">Not (isteğe bağlı)</label>
+                <input class="in" id="pnote" maxlength="140">
+              </div>
+            </div>
+            <div class="err" id="perr" role="alert"></div>
+            <div class="da">
+              <button type="button" class="ghost" data-close data-i18n="btnCancel">Vazgeç</button>
+              <button class="btn" id="psave" data-i18n="btnSave">Kaydet</button>
+            </div>
+          </div>
+        </form>
+      </dialog>
 
-      <!-- Body Measurements Tracker -->
-      <section class="card">
-        <div class="card-header">
-          <h3 class="card-title">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-              style="vertical-align:middle;margin-right:6px;">
-              <path d="M2 12h5l2 9 4-18 2 9h5" />
-            </svg>
-            Vücut Ölçüleri
-          </h3>
-          <button class="btn-small"
-            onclick="document.getElementById('bodyMeasForm').style.display = document.getElementById('bodyMeasForm').style.display === 'none' ? 'block' : 'none'">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-              <line x1="12" y1="5" x2="12" y2="19" />
-              <line x1="5" y1="12" x2="19" y2="12" />
-            </svg>
-            Ölçü Ekle
-          </button>
-        </div>
-        <div id="bodyMeasForm"
-          style="display:none; padding:16px; background:var(--bg-input); border-radius:12px; margin-bottom:16px; border:1px solid var(--border-card);">
-          <div class="log-row">
-            <div class="log-field"><label>Tarih</label><input type="date" id="measFormDate" class="log-input"></div>
-            <div class="log-field"><label>Kilo (kg)</label><input type="number" id="measFormWeight" class="log-input"
-                placeholder="80" step="0.1"></div>
-            <div class="log-field"><label>Yağ Oranı (%)</label><input type="number" id="measFormFat" class="log-input"
-                placeholder="15" step="0.1"></div>
+      <dialog id="dlgM">
+        <form id="fM" novalidate>
+          <div class="dh2">
+            <b data-i18n="addMeasurementDialogTitle">Ölçü ekle</b>
+            <button type="button" class="x" data-close aria-label="Kapat">✕</button>
           </div>
-          <div class="log-row">
-            <div class="log-field"><label>Kol (cm)</label><input type="number" id="measFormArm" class="log-input"
-                placeholder="38" step="0.1"></div>
-            <div class="log-field"><label>Göğüs (cm)</label><input type="number" id="measFormChest" class="log-input"
-                placeholder="100" step="0.1"></div>
-            <div class="log-field"><label>Bel (cm)</label><input type="number" id="measFormWaist" class="log-input"
-                placeholder="85" step="0.1"></div>
+          <div class="db">
+            <div class="fld">
+              <label for="mdt" data-i18n="lblDate">Tarih</label>
+              <input class="in" type="date" id="mdt">
+            </div>
+            <div class="r2" id="mfs"></div>
+            <div class="err" id="merr" role="alert"></div>
+            <div class="da">
+              <button type="button" class="ghost" data-close data-i18n="btnCancel">Vazgeç</button>
+              <button class="btn" id="msave" data-i18n="btnSave">Kaydet</button>
+            </div>
           </div>
-          <div style="display:flex;gap:8px;margin-top:12px;">
-            <button class="btn-primary" style="flex:1;" onclick="saveBodyMeasurement()">Kaydet</button>
-            <button class="btn-small"
-              style="background:var(--bg-card);color:var(--text-primary);border:1px solid var(--border-subtle);"
-              onclick="document.getElementById('bodyMeasForm').style.display='none'">İptal</button>
-          </div>
-        </div>
-        <div class="measurements-history" id="bodyMeasHistory">
-          <div class="logged-empty">Henüz ölçü eklenmedi.</div>
-        </div>
-      </section>
+        </form>
+      </dialog>
+
+      <dialog id="dlgV" class="lb">
+        <img id="vimg" alt="">
+        <div class="cap"><span id="vcap"></span><button class="ghost" data-close data-i18n="btnClose">Kapat</button></div>
+      </dialog>
     </div>
 
     <!-- ============ PAGE: UPDATES ============ -->
@@ -1709,6 +1733,18 @@
       </div>
     </div>
 
+    <dialog id="dlgC">
+      <form method="dialog">
+        <div class="dh2"><b id="cT"></b></div>
+        <div class="db">
+          <p id="cS" style="color:var(--mute)"></p>
+          <div class="da">
+            <button value="cancel" class="ghost" data-i18n="btnCancel">Vazgeç</button>
+            <button value="ok" class="btn dng" data-i18n="btnDelete">Sil</button>
+          </div>
+        </div>
+      </form>
+    </dialog>
   </main>
 
   <!-- Firebase Scripts -->

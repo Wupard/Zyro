@@ -94,6 +94,43 @@ const I18N = {
     achievementsSubtitle: 'Rewards and goals you unlocked',
     beforeAfterTitle: 'Progress Photos',
     beforeAfterSubtitle: 'Observe and document changes in your body',
+    beforeAfterTitleMain: 'Progress',
+    beforeAfterTitleBold: 'photos',
+    photosTitle: 'Photos',
+    btnCompare: 'Compare',
+    btnNewPhoto: 'New Photo',
+    bodyMeasurementsTitle: 'Body Measurements',
+    btnAddMeasurement: 'Add Measurement',
+    newPhotoDialogTitle: 'New photo',
+    dropPhotoText: 'Select photo or drag here',
+    lblDate: 'Date',
+    lblPose: 'Pose',
+    poseFront: 'Front',
+    poseSide: 'Side',
+    poseBack: 'Back',
+    lblWeightOptional: 'Weight (kg, optional)',
+    lblNoteOptional: 'Note (optional)',
+    btnCancel: 'Cancel',
+    btnSave: 'Save',
+    btnDelete: 'Delete',
+    btnClose: 'Close',
+    addMeasurementDialogTitle: 'Add measurement',
+    leaveComment: 'Leave feedback / comment',
+    commentTypeLabel: 'Submission type',
+    commentTypeNormal: 'Normal',
+    commentTypeAnon: 'Anonymous',
+    commentPlaceholder: 'Share your thoughts with us…',
+    btnSend: 'Send',
+    recentComments: 'Recent comments',
+    sortNewest: 'Newest',
+    sortPopular: 'Popular',
+    reportCommentTitle: 'Report comment',
+    reportReason: 'Reason',
+    reportReasonSpam: 'Spam',
+    reportReasonInappropriate: 'Insult / inappropriate content',
+    reportReasonFalseInfo: 'False information',
+    reportReasonOther: 'Other',
+    reportNoteOptional: 'Note (optional)',
     lbSubtitle: 'Compete with the best in the community',
     lbFilterLevel: 'Level (XP)',
     lbFilterPR: 'Highest PR',
@@ -426,6 +463,43 @@ const I18N = {
     achievementsSubtitle: 'Kilidini açtığınız ödüller ve hedefler',
     beforeAfterTitle: 'Gelişim Fotoğrafları',
     beforeAfterSubtitle: 'Bedenindeki değişimi gözlemle ve belgele',
+    beforeAfterTitleMain: 'Gelişim',
+    beforeAfterTitleBold: 'fotoğrafları',
+    photosTitle: 'Fotoğraflar',
+    btnCompare: 'Karşılaştır',
+    btnNewPhoto: 'Yeni Fotoğraf',
+    bodyMeasurementsTitle: 'Vücut Ölçüleri',
+    btnAddMeasurement: 'Ölçü Ekle',
+    newPhotoDialogTitle: 'Yeni fotoğraf',
+    dropPhotoText: 'Fotoğraf seç veya buraya bırak',
+    lblDate: 'Tarih',
+    lblPose: 'Poz',
+    poseFront: 'Ön',
+    poseSide: 'Yan',
+    poseBack: 'Arka',
+    lblWeightOptional: 'Kilo (kg, isteğe bağlı)',
+    lblNoteOptional: 'Not (isteğe bağlı)',
+    btnCancel: 'Vazgeç',
+    btnSave: 'Kaydet',
+    btnDelete: 'Sil',
+    btnClose: 'Kapat',
+    addMeasurementDialogTitle: 'Ölçü ekle',
+    leaveComment: 'Geri bildirim / yorum bırak',
+    commentTypeLabel: 'Gönderme türü',
+    commentTypeNormal: 'Normal',
+    commentTypeAnon: 'Anonim',
+    commentPlaceholder: 'Fikirlerini bizimle paylaş…',
+    btnSend: 'Gönder',
+    recentComments: 'Son yorumlar',
+    sortNewest: 'En yeni',
+    sortPopular: 'Popüler',
+    reportCommentTitle: 'Yorumu raporla',
+    reportReason: 'Sebep',
+    reportReasonSpam: 'Spam',
+    reportReasonInappropriate: 'Hakaret / uygunsuz içerik',
+    reportReasonFalseInfo: 'Yanlış bilgi',
+    reportReasonOther: 'Diğer',
+    reportNoteOptional: 'Not (isteğe bağlı)',
     lbSubtitle: 'Topluluğun en iyileriyle yarışın',
     lbFilterLevel: 'Seviye (XP)',
     lbFilterPR: 'En Yüksek PR',
@@ -5428,230 +5502,706 @@ function initProgressPhotos() {
   if (ph) ph.value = todayStr();
 }
 
-window.handleProgressPhoto = function(event) {
-  const file = event.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = (e) => {
-    // Compress via canvas
+// ============================================================
+// ZYRO GELİŞİM (BEFORE/AFTER & MEASUREMENTS) — Zyro Panel v3
+// Connected directly to appData.progressImages & appData.bodyMeasurements
+// ============================================================
+const POSE_NAMES = {
+  tr: { front: 'Ön', side: 'Yan', back: 'Arka' },
+  en: { front: 'Front', side: 'Side', back: 'Back' }
+};
+
+const MEASUREMENT_FIELDS = [
+  ['chest', 'Göğüs', 'Chest'],
+  ['shoulder', 'Omuz', 'Shoulder'],
+  ['waist', 'Bel', 'Waist'],
+  ['hip', 'Kalça', 'Hip'],
+  ['armR', 'Sağ kol', 'Right arm'],
+  ['armL', 'Sol kol', 'Left arm'],
+  ['thighR', 'Sağ bacak', 'Right leg'],
+  ['thighL', 'Sol bacak', 'Left leg'],
+  ['neck', 'Boyun', 'Neck']
+];
+
+let _baPoseFilter = 'all';
+let _baCompareMode = false;
+let _baSelectedPhotos = [];
+let _baActiveMeasureField = 'chest';
+let _baDraftImage = null;
+let _baEventsInitialized = false;
+
+function _formatDateDisplay(dateStr) {
+  if (!dateStr) return '';
+  const parts = dateStr.split('-');
+  if (parts.length !== 3) return dateStr;
+  const d = new Date(+parts[0], +parts[1] - 1, +parts[2]);
+  const monthsTr = ['Oca','Şub','Mar','Nis','May','Haz','Tem','Ağu','Eyl','Eki','Kas','Ara'];
+  const monthsEn = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const m = currentLang === 'tr' ? monthsTr : monthsEn;
+  return d.getDate() + ' ' + (m[d.getMonth()] || '') + ' ' + d.getFullYear();
+}
+
+function _formatWeightNum(n) {
+  if (n == null || isNaN(n)) return '';
+  return String(+n.toFixed(1)).replace('.', currentLang === 'tr' ? ',' : '.');
+}
+
+function _shrinkPhotoFile(file, max = 1100) {
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file);
     const img = new Image();
     img.onload = () => {
-      const max = 512;
+      const ratio = Math.min(1, max / Math.max(img.width, img.height));
       const canvas = document.createElement('canvas');
-      const ratio = Math.min(max / img.width, max / img.height);
-      canvas.width = img.width * ratio;
-      canvas.height = img.height * ratio;
-      canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
-      _pendingPhotoBase64 = canvas.toDataURL('image/jpeg', 0.7);
-      document.getElementById('progressPhotoForm').style.display = 'block';
-      document.getElementById('photoDate').value = todayStr();
+      canvas.width = Math.round(img.width * ratio);
+      canvas.height = Math.round(img.height * ratio);
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      URL.revokeObjectURL(url);
+      resolve(canvas.toDataURL('image/jpeg', 0.82));
     };
-    img.src = e.target.result;
-  };
-  reader.readAsDataURL(file);
-  event.target.value = '';
-};
+    img.onerror = () => {
+      URL.revokeObjectURL(url);
+      reject(new Error('IMG_ERROR'));
+    };
+    img.src = url;
+  });
+}
 
-window.cancelProgressPhoto = function() {
-  _pendingPhotoBase64 = null;
-  document.getElementById('progressPhotoForm').style.display = 'none';
-  document.getElementById('photoDate').value = '';
-  document.getElementById('photoWeight').value = '';
-  document.getElementById('photoHeight').value = '';
-  document.getElementById('photoFat').value = '';
-  document.getElementById('photoNote').value = '';
-};
-
-window.saveProgressPhoto = function() {
-  if (!_pendingPhotoBase64) return;
-  const date = document.getElementById('photoDate').value || todayStr();
-  const weight = parseFloat(document.getElementById('photoWeight').value) || 0;
-  const height = parseFloat(document.getElementById('photoHeight').value) || 0;
-  const fat = parseFloat(document.getElementById('photoFat').value) || 0;
-  const note = document.getElementById('photoNote').value.trim().slice(0, 280);
-  
-  if (!appData.progressImages) appData.progressImages = [];
-  appData.progressImages.push({ date, weight, height, fat, note, image: _pendingPhotoBase64, id: Date.now() });
-  
-  _pendingPhotoBase64 = null;
-  document.getElementById('progressPhotoForm').style.display = 'none';
-  document.getElementById('photoNote').value = '';
-  document.getElementById('photoWeight').value = '';
-  document.getElementById('photoHeight').value = '';
-  document.getElementById('photoFat').value = '';
-  
-  saveData();
-  renderProgressPhotos();
-  showToast(currentLang === 'tr' ? 'Fotoğraf kaydedildi! g���' : 'Photo saved! g���', 'success');
-};
-
-window.toggleCompareMode = function() {
-  _compareMode = !_compareMode;
-  const btn = document.getElementById('comparePhotosBtnMain');
-  const compareView = document.getElementById('compareView');
-  const photosGrid = document.getElementById('progressPhotosGrid');
-  if (_compareMode) {
-    btn.textContent = currentLang === 'tr' ? 'Kapat' : 'Close';
-    compareView.style.display = 'grid';
-    photosGrid.style.display = 'none';
-    renderCompareView();
-  } else {
-    btn.textContent = currentLang === 'tr' ? 'Karşılaştır' : 'Compare';
-    compareView.style.display = 'none';
-    photosGrid.style.display = 'grid';
+function _drawSvgLineChart(el, pts, h, anim) {
+  if (!el) return;
+  const W = Math.max(el.clientWidth, 260), pl = 42, pr = 14, pt = 14, pb = 28;
+  const t0 = pts[0].t, t1 = pts[pts.length - 1].t, ys = pts.map(p => p.y);
+  let mn = Math.min(...ys), mx = Math.max(...ys);
+  const pad = (mx - mn || 1) * 0.25;
+  mn -= pad; mx += pad;
+  const X = t => pl + (t - t0) / (t1 - t0 || 1) * (W - pl - pr);
+  const Y = v => pt + (1 - (v - mn) / (mx - mn)) * (h - pt - pb);
+  const P = pts.map(p => [X(p.t), Y(p.y)]);
+  let d = `M${P[0][0]},${P[0][1]}`;
+  for (let i = 1; i < P.length; i++) {
+    const m = (P[i - 1][0] + P[i][0]) / 2;
+    d += ` C${m},${P[i - 1][1]} ${m},${P[i][1]} ${P[i][0]},${P[i][1]}`;
   }
+  let g = '';
+  for (let i = 0; i < 4; i++) {
+    const v = mn + (mx - mn) * i / 3, y = Y(v);
+    g += `<line x1="${pl}" x2="${W - pr}" y1="${y}" y2="${y}" stroke="rgba(255,255,255,.06)"/><text class="ax" x="${pl - 8}" y="${y + 4}" text-anchor="end">${_formatWeightNum(v)}</text>`;
+  }
+  const L = P[P.length - 1];
+  const dots = (P.length <= 14 ? P : [L]).map(p => `<circle class="dot" cx="${p[0]}" cy="${p[1]}" r="3.5"/>`).join('');
+  el.innerHTML = `<svg class="ch${anim ? ' wipe' : ''}" width="${W}" height="${h}" viewBox="0 0 ${W} ${h}" role="img" aria-label="Zaman grafiği"><defs><linearGradient id="ga${h}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8fb3cc" stop-opacity=".32"/><stop offset="1" stop-color="#8fb3cc" stop-opacity="0"/></linearGradient></defs>${g}
+  <path d="${d} L${L[0]},${h - pb} L${P[0][0]},${h - pb}Z" fill="url(#ga${h})"/><path class="line" d="${d}"/>${dots}
+  <text class="ax" x="${pl}" y="${h - 6}">${pts[0].label}</text><text class="ax" x="${W - pr}" y="${h - 6}" text-anchor="end">${pts[pts.length - 1].label}</text></svg>`;
+}
+
+// Confirmation helper for modals
+window.askConfirm = function(t, s) {
+  return new Promise(r => {
+    const d = document.getElementById('dlgC');
+    if (!d || typeof d.showModal !== 'function') {
+      r(confirm(t + (s ? '\n\n' + s : '')));
+      return;
+    }
+    const cT = document.getElementById('cT');
+    const cS = document.getElementById('cS');
+    if (cT) cT.textContent = t;
+    if (cS) cS.textContent = s || '';
+    d.returnValue = '';
+    d.onclose = () => r(d.returnValue === 'ok');
+    d.showModal();
+  });
 };
 
-function renderCompareView() {
-  const container = document.getElementById('compareView');
-  if (!container) return;
-  const photos = (appData.progressImages || []).sort((a, b) => a.date.localeCompare(b.date));
-  if (photos.length < 2) {
-    container.innerHTML = `<div class="logged-empty" style="grid-column:1/-1;">${currentLang === 'tr' ? 'Karşılaştırmak için en az 2 fotoğraf gerekli.' : 'Need at least 2 photos to compare.'}</div>`;
-    return;
+document.addEventListener('click', e => {
+  const c = e.target.closest('[data-close]');
+  if (c) {
+    const dlg = c.closest('dialog');
+    if (dlg) dlg.close();
   }
-  const first = photos[0];
-  const last = photos[photos.length - 1];
-  container.innerHTML = [
-    {label: currentLang === 'tr' ? 'Başlangıç' : 'Start', photo: first},
-    {label: currentLang === 'tr' ? 'Son' : 'End', photo: last}
-  ].map(({label, photo}) => `
-    <div class="compare-photo-wrap">
-      <img src="${photo.image}" alt="${label}">
-      <div class="compare-photo-overlay">${label} • ${photo.date} • ${photo.weight ? photo.weight + 'kg' : ''}${photo.fat ? ' • %' + photo.fat + ' Yağ' : ''}</div>
-    </div>
-  `).join('');
+  if (e.target.tagName === 'DIALOG') {
+    e.target.close();
+  }
+});
+
+function initBeforeAfter() {
+  if (_baEventsInitialized) return;
+  _baEventsInitialized = true;
+
+  const bcmp = document.getElementById('bcmp');
+  const bai = document.getElementById('bai');
+  const badd = document.getElementById('badd');
+  const pf = document.getElementById('pf');
+  const dr = document.getElementById('drop');
+  const fP = document.getElementById('fP');
+  const madd = document.getElementById('madd');
+  const fM = document.getElementById('fM');
+
+  if (bcmp) {
+    bcmp.addEventListener('click', () => {
+      _baCompareMode = !_baCompareMode;
+      if (!_baCompareMode) _baSelectedPhotos = [];
+      renderProgressPhotos();
+    });
+  }
+
+  if (bai) {
+    bai.addEventListener('click', async () => {
+      const photos = (appData.progressImages || []).slice().sort((a, b) => (a.date || a.d || '').localeCompare(b.date || b.d || ''));
+      if (!photos.length) {
+        showToast(currentLang === 'tr' ? 'Önce fotoğraf ekle' : 'Add photo first', 'error');
+        return;
+      }
+      const box = document.getElementById('ai');
+      if (!box) return;
+
+      let list = [];
+      if (_baSelectedPhotos.length === 2) {
+        list = _baSelectedPhotos.map(id => photos.find(p => String(p.id) === id)).filter(Boolean);
+      } else if (photos.length > 1) {
+        list = [photos[0], photos[photos.length - 1]];
+      } else {
+        list = [photos[0]];
+      }
+
+      box.hidden = false;
+      box.className = 'panel2';
+      box.innerHTML = `<span class="spin"></span>${currentLang === 'tr' ? 'Fotoğrafların analiz ediliyor…' : 'Analyzing photos…'}`;
+      bai.disabled = true;
+
+      try {
+        const imagesBase64 = list.map(p => p.image || p.src).filter(Boolean);
+        if (typeof window.geminiAnalyzeImages === 'function' && imagesBase64.length) {
+          const res = await window.geminiAnalyzeImages(imagesBase64);
+          let summary = '';
+          let points = [];
+          if (typeof res === 'object' && res !== null) {
+            summary = res.comparison_and_suggestions || res.summary || '';
+            if (res.photo1_analysis) points.push((currentLang === 'tr' ? '1. Fotoğraf: ' : 'Photo 1: ') + res.photo1_analysis);
+            if (res.photo2_analysis) points.push((currentLang === 'tr' ? '2. Fotoğraf: ' : 'Photo 2: ') + res.photo2_analysis);
+          } else {
+            summary = String(res || '');
+          }
+          box.innerHTML = `<b style="font:500 18px var(--d)">${currentLang === 'tr' ? 'AI analizi' : 'AI analysis'}</b>
+            <p style="color:var(--text);margin-top:8px">${escapeHtml(summary)}</p>
+            ${points.length ? `<ul>${points.map(x => `<li>${escapeHtml(x)}</li>`).join('')}</ul>` : ''}
+            <small>${currentLang === 'tr' ? 'AI analizi bilgilendirme amaçlıdır, tıbbi tavsiye değildir.' : 'AI analysis is for informational purposes, not medical advice.'}</small>`;
+        } else {
+          box.innerHTML = currentLang === 'tr' ? 'AI analiz servisi bu önizlemede bağlı değil.' : 'AI analysis service is not connected in this preview.';
+        }
+      } catch (e) {
+        console.warn('AI analysis error:', e);
+        box.innerHTML = currentLang === 'tr' ? 'Analiz şu an yapılamadı, biraz sonra tekrar dene.' : 'Analysis could not be performed right now, please try again.';
+      } finally {
+        bai.disabled = false;
+      }
+    });
+  }
+
+  if (badd) {
+    badd.addEventListener('click', () => {
+      _baDraftImage = null;
+      if (fP) fP.reset();
+      const pdt = document.getElementById('pdt');
+      const perr = document.getElementById('perr');
+      const prev = document.getElementById('prev');
+      if (pdt) { pdt.value = todayStr(); pdt.max = todayStr(); }
+      if (perr) perr.textContent = '';
+      if (prev) prev.innerHTML = `<svg class="i" style="width:28px;height:28px"><use href="#zr-i-upl"/></svg><br>${currentLang === 'tr' ? 'Fotoğraf seç veya buraya bırak' : 'Select photo or drag here'}`;
+      const dlgP = document.getElementById('dlgP');
+      if (dlgP && typeof dlgP.showModal === 'function') dlgP.showModal();
+    });
+  }
+
+  async function handleFilePick(f) {
+    const perr = document.getElementById('perr');
+    const prev = document.getElementById('prev');
+    if (!f || !f.type.startsWith('image/')) {
+      if (perr) perr.textContent = currentLang === 'tr' ? 'Lütfen bir görsel dosyası seç.' : 'Please select an image file.';
+      return;
+    }
+    try {
+      _baDraftImage = await _shrinkPhotoFile(f);
+      if (prev) prev.innerHTML = `<img src="${_baDraftImage}" alt="Önizleme">`;
+      if (perr) perr.textContent = '';
+    } catch (e) {
+      if (perr) perr.textContent = currentLang === 'tr' ? 'Görsel okunamadı, başka bir dosya dene.' : 'Could not read image, try another file.';
+    }
+  }
+
+  if (pf) pf.addEventListener('change', e => handleFilePick(e.target.files[0]));
+  if (dr) {
+    dr.addEventListener('dragover', e => { e.preventDefault(); dr.classList.add('on'); });
+    dr.addEventListener('dragleave', () => dr.classList.remove('on'));
+    dr.addEventListener('drop', e => { e.preventDefault(); dr.classList.remove('on'); handleFilePick(e.dataTransfer.files[0]); });
+  }
+
+  if (fP) {
+    fP.addEventListener('submit', async e => {
+      e.preventDefault();
+      const pdt = document.getElementById('pdt');
+      const ppose = document.getElementById('ppose');
+      const pkg = document.getElementById('pkg');
+      const pnote = document.getElementById('pnote');
+      const perr = document.getElementById('perr');
+      const psave = document.getElementById('psave');
+
+      const kgVal = pkg && pkg.value.trim() ? parseFloat(pkg.value.replace(',', '.')) : null;
+      if (!_baDraftImage) {
+        if (perr) perr.textContent = currentLang === 'tr' ? 'Önce bir fotoğraf seç.' : 'Select a photo first.';
+        return;
+      }
+      if (!pdt || !pdt.value || pdt.value > todayStr()) {
+        if (perr) perr.textContent = currentLang === 'tr' ? 'Geçerli bir tarih seç.' : 'Select a valid date.';
+        return;
+      }
+      if (kgVal !== null && !(kgVal > 20 && kgVal < 400)) {
+        if (perr) perr.textContent = currentLang === 'tr' ? 'Kiloyu 20–400 kg arasında gir.' : 'Enter weight between 20-400 kg.';
+        return;
+      }
+
+      if (psave) psave.disabled = true;
+      try {
+        if (!appData.progressImages) appData.progressImages = [];
+        const newPhoto = {
+          id: Date.now(),
+          src: _baDraftImage,
+          image: _baDraftImage,
+          d: pdt.value,
+          date: pdt.value,
+          pose: ppose ? ppose.value : 'front',
+          kg: kgVal,
+          weight: kgVal,
+          note: pnote ? pnote.value.trim() : ''
+        };
+        appData.progressImages.push(newPhoto);
+        saveData();
+        const dlgP = document.getElementById('dlgP');
+        if (dlgP) dlgP.close();
+        renderProgressPhotos();
+        showToast(currentLang === 'tr' ? 'Fotoğraf eklendi' : 'Photo added', 'success');
+      } catch (x) {
+        if (perr) perr.textContent = currentLang === 'tr' ? 'Kaydedilemedi, tekrar dene.' : 'Could not save, try again.';
+      } finally {
+        if (psave) psave.disabled = false;
+      }
+    });
+  }
+
+  // Measurements fields setup
+  const mfs = document.getElementById('mfs');
+  if (mfs && !mfs.children.length) {
+    mfs.innerHTML = MEASUREMENT_FIELDS.map(([k, trLabel, enLabel]) => {
+      const label = currentLang === 'tr' ? trLabel : enLabel;
+      return `<div class="fld"><label for="m-${k}">${label} (cm)</label><input class="in" id="m-${k}" data-f="${k}" inputmode="decimal" placeholder="—"></div>`;
+    }).join('');
+  }
+
+  if (madd) {
+    madd.addEventListener('click', () => {
+      if (fM) fM.reset();
+      const mdt = document.getElementById('mdt');
+      const merr = document.getElementById('merr');
+      if (mdt) { mdt.value = todayStr(); mdt.max = todayStr(); }
+      if (merr) merr.textContent = '';
+      const dlgM = document.getElementById('dlgM');
+      if (dlgM && typeof dlgM.showModal === 'function') dlgM.showModal();
+    });
+  }
+
+  if (fM) {
+    fM.addEventListener('submit', async e => {
+      e.preventDefault();
+      const mdt = document.getElementById('mdt');
+      const merr = document.getElementById('merr');
+      const msave = document.getElementById('msave');
+      const v = {};
+      let bad = false;
+
+      document.querySelectorAll('#mfs [data-f]').forEach(i => {
+        if (!i.value.trim()) return;
+        const n = parseFloat(i.value.replace(',', '.'));
+        if (n > 5 && n < 300) v[i.dataset.f] = n;
+        else bad = true;
+      });
+
+      if (bad) {
+        if (merr) merr.textContent = currentLang === 'tr' ? 'Ölçüleri 5–300 cm arasında gir.' : 'Enter measurements between 5-300 cm.';
+        return;
+      }
+      if (!Object.keys(v).length) {
+        if (merr) merr.textContent = currentLang === 'tr' ? 'En az bir ölçü gir.' : 'Enter at least one measurement.';
+        return;
+      }
+      if (!mdt || !mdt.value || mdt.value > todayStr()) {
+        if (merr) merr.textContent = currentLang === 'tr' ? 'Geçerli bir tarih seç.' : 'Select a valid date.';
+        return;
+      }
+
+      if (msave) msave.disabled = true;
+      try {
+        if (!appData.bodyMeasurements) appData.bodyMeasurements = [];
+        const entry = {
+          id: Date.now(),
+          date: mdt.value,
+          d: mdt.value,
+          v,
+          chest: v.chest || 0,
+          shoulder: v.shoulder || 0,
+          waist: v.waist || 0,
+          hip: v.hip || 0,
+          arm: v.armR || v.armL || 0,
+          leg: v.thighR || v.thighL || 0,
+          neck: v.neck || 0
+        };
+        appData.bodyMeasurements.push(entry);
+        saveData();
+        const dlgM = document.getElementById('dlgM');
+        if (dlgM) dlgM.close();
+        renderBodyMeasurements();
+        showToast(currentLang === 'tr' ? 'Ölçü eklendi' : 'Measurement added', 'success');
+      } catch (x) {
+        if (merr) merr.textContent = currentLang === 'tr' ? 'Kaydedilemedi, tekrar dene.' : 'Could not save, try again.';
+      } finally {
+        if (msave) msave.disabled = false;
+      }
+    });
+  }
+
+  // Delegated clicks for photo grid & measurements body
+  const pgrid = document.getElementById('pgrid');
+  if (pgrid) {
+    pgrid.addEventListener('click', async e => {
+      const delBtn = e.target.closest('[data-del]');
+      if (delBtn) {
+        e.stopPropagation();
+        const id = delBtn.dataset.del;
+        const ok = await window.askConfirm(
+          currentLang === 'tr' ? 'Fotoğraf silinsin mi?' : 'Delete photo?',
+          currentLang === 'tr' ? 'Bu işlem geri alınamaz.' : 'This cannot be undone.'
+        );
+        if (ok) {
+          appData.progressImages = (appData.progressImages || []).filter(p => String(p.id) !== id);
+          _baSelectedPhotos = _baSelectedPhotos.filter(x => x !== id);
+          saveData();
+          renderProgressPhotos();
+          showToast(currentLang === 'tr' ? 'Fotoğraf silindi' : 'Photo deleted', 'success');
+        }
+        return;
+      }
+
+      const card = e.target.closest('.ph');
+      if (!card) return;
+      const id = card.dataset.id;
+      const photo = (appData.progressImages || []).find(p => String(p.id) === id);
+      if (!photo) return;
+
+      if (_baCompareMode) {
+        const idx = _baSelectedPhotos.indexOf(id);
+        if (idx > -1) {
+          _baSelectedPhotos.splice(idx, 1);
+        } else {
+          if (_baSelectedPhotos.length >= 2) _baSelectedPhotos.shift();
+          _baSelectedPhotos.push(id);
+        }
+        renderProgressPhotos();
+      } else {
+        // Lightbox
+        const dlgV = document.getElementById('dlgV');
+        const vimg = document.getElementById('vimg');
+        const vcap = document.getElementById('vcap');
+        if (dlgV && vimg) {
+          vimg.src = photo.image || photo.src || '';
+          const poseLabels = POSE_NAMES[currentLang] || POSE_NAMES.tr;
+          const poseStr = poseLabels[photo.pose] ? poseLabels[photo.pose] + ' · ' : '';
+          const weightNum = photo.kg || photo.weight;
+          const weightStr = weightNum ? _formatWeightNum(weightNum) + ' kg' : '';
+          const noteStr = photo.note ? ' · ' + photo.note : '';
+          if (vcap) vcap.textContent = poseStr + _formatDateDisplay(photo.date || photo.d) + (weightStr ? ' · ' + weightStr : '') + noteStr;
+          if (typeof dlgV.showModal === 'function') dlgV.showModal();
+        }
+      }
+    });
+  }
+
+  const pchips = document.getElementById('pchips');
+  if (pchips) {
+    pchips.addEventListener('click', e => {
+      const btn = e.target.closest('[data-p]');
+      if (btn) {
+        _baPoseFilter = btn.dataset.p;
+        renderProgressPhotos();
+      }
+    });
+  }
+
+  const mbody = document.getElementById('mbody');
+  if (mbody) {
+    mbody.addEventListener('click', async e => {
+      const chip = e.target.closest('[data-m]');
+      if (chip) {
+        _baActiveMeasureField = chip.dataset.m;
+        renderBodyMeasurements();
+        return;
+      }
+      const delBtn = e.target.closest('[data-md]');
+      if (delBtn) {
+        const id = delBtn.dataset.md;
+        const ok = await window.askConfirm(
+          currentLang === 'tr' ? 'Ölçüm silinsin mi?' : 'Delete measurement?',
+          currentLang === 'tr' ? 'Bu işlem geri alınamaz.' : 'This cannot be undone.'
+        );
+        if (ok) {
+          appData.bodyMeasurements = (appData.bodyMeasurements || []).filter(m => String(m.id) !== id);
+          saveData();
+          renderBodyMeasurements();
+          showToast(currentLang === 'tr' ? 'Ölçüm silindi' : 'Measurement deleted', 'success');
+        }
+      }
+    });
+  }
+
+  let rz;
+  window.addEventListener('resize', () => {
+    clearTimeout(rz);
+    rz = setTimeout(() => {
+      if (currentPage === 'beforeafter') renderBodyMeasurements();
+    }, 160);
+  });
 }
 
 function renderProgressPhotos() {
-  const grid = document.getElementById('progressPhotosGrid');
-  if (!grid) return;
-  const photos = (appData.progressImages || []).sort((a, b) => b.date.localeCompare(a.date));
-  if (photos.length === 0) {
-    grid.innerHTML = `<div class="logged-empty" style="grid-column:1/-1;">${currentLang === 'tr' ? 'Henüz fotoğraf eklenmedi.' : 'No photos added yet.'}</div>`;
-    return;
-  }
-  grid.innerHTML = photos.map(p => `
-    <div class="progress-photo-item">
-      <img src="${p.image}" alt="Progress ${p.date}" loading="lazy">
-      <div class="progress-photo-meta">
-        <strong>${p.date}</strong>
-        <div style="font-size: 0.75rem; margin-top: 4px; color: var(--text-secondary);">
-          ${p.height ? p.height + ' cm • ' : ''}${p.weight ? p.weight + ' kg' : ''}${p.fat ? ' • %' + p.fat + ' Yağ' : ''}
-        </div>
-        ${p.note ? `<div style="font-size: 0.75rem; margin-top: 2px; color: var(--text-tertiary);">${p.note}</div>` : ''}
-        <button onclick="deleteProgressPhoto(${p.id})" style="display:block;margin-top:6px;background:rgba(224,84,84,0.15);border:1px solid rgba(224,84,84,0.3);color:#e05454;border-radius:6px;padding:3px 8px;font-size:0.7rem;cursor:pointer;">${currentLang === 'tr' ? 'Sil' : 'Delete'}</button>
-      </div>
-    </div>
-  `).join('');
-}
+  initBeforeAfter();
+  const photosCard = document.getElementById('photos');
+  const bcmp = document.getElementById('bcmp');
+  const pchips = document.getElementById('pchips');
+  const cmpBox = document.getElementById('cmp');
+  const pgrid = document.getElementById('pgrid');
 
-window.deleteProgressPhoto = function(id) {
-  if (!confirm(currentLang === 'tr' ? 'Bu fotoğrafı silmek istediğine emin misin?' : 'Are you sure you want to delete this photo?')) return;
-  appData.progressImages = (appData.progressImages || []).filter(p => p.id !== id);
-  saveData();
-  renderProgressPhotos();
-  showToast(currentLang === 'tr' ? 'Fotoğraf silindi.' : 'Photo deleted.', 'success');
-};
+  if (!photosCard || !pgrid) return;
 
-// =============================================
-// BODY MEASUREMENTS TRACKER (task 8)
-// =============================================
-window.saveBodyMeasurement = function() {
-  const date = document.getElementById('measFormDate').value || todayStr();
-  const entry = {
-    id: Date.now(),
-    date,
-    weight:   parseFloat(document.getElementById('measFormWeight').value)   || 0,
-    fat:      parseFloat(document.getElementById('measFormFat').value)      || 0,
-    arm:      parseFloat(document.getElementById('measFormArm').value)      || 0,
-    chest:    parseFloat(document.getElementById('measFormChest').value)    || 0,
-    waist:    parseFloat(document.getElementById('measFormWaist').value)    || 0,
-    hip:      parseFloat(document.getElementById('measFormHip').value)      || 0,
-    leg:      parseFloat(document.getElementById('measFormLeg').value)      || 0,
-    shoulder: parseFloat(document.getElementById('measFormShoulder').value) || 0,
-  };
-  if (!appData.bodyMeasurements) appData.bodyMeasurements = [];
-  appData.bodyMeasurements.push(entry);
-  saveData();
-  document.getElementById('bodyMeasForm').style.display = 'none';
-  ['measFormDate','measFormWeight','measFormFat','measFormArm','measFormChest','measFormWaist','measFormHip','measFormLeg','measFormShoulder']
-    .forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
-  renderBodyMeasurements();
-  showToast(currentLang === 'tr' ? 'Ölçüler kaydedildi!' : 'Measurements saved!', 'success');
-};
-
-window.deleteBodyMeasurement = function(id) {
-  if (!confirm(currentLang === 'tr' ? 'Bu ölçümü silmek istediğine emin misin?' : 'Delete this entry?')) return;
-  appData.bodyMeasurements = (appData.bodyMeasurements || []).filter(e => e.id !== id);
-  saveData();
-  renderBodyMeasurements();
-};
-
-function renderBodyMeasurements() {
-  const container = document.getElementById('bodyMeasHistory');
-  const compareEl  = document.getElementById('bodyMeasCompare');
-  if (!container) return;
-  const entries = (appData.bodyMeasurements || []).sort((a,b) => b.date.localeCompare(a.date));
-
-  if (entries.length === 0) {
-    container.innerHTML = `<div class="logged-empty">${currentLang==='tr' ? 'Henüz ölçüm eklenmedi.' : 'No measurements yet.'}</div>`;
-    if(compareEl) compareEl.style.display = 'none';
-    return;
-  }
-
-  const FIELDS = [
-    {k:'weight',   label: currentLang==='tr'?'Kilo':'Weight',   unit:'kg'},
-    {k:'fat',      label: currentLang==='tr'?'Yağ Oranı':'Body Fat', unit:'%'},
-    {k:'arm',      label: currentLang==='tr'?'Kol':'Arm',       unit:'cm'},
-    {k:'chest',    label: currentLang==='tr'?'Göğüs':'Chest',   unit:'cm'},
-    {k:'waist',    label: currentLang==='tr'?'Bel':'Waist',     unit:'cm'},
-    {k:'hip',      label: currentLang==='tr'?'Kalça':'Hip',     unit:'cm'},
-    {k:'leg',      label: currentLang==='tr'?'Bacak':'Leg',     unit:'cm'},
-    {k:'shoulder', label: currentLang==='tr'?'Omuz':'Shoulder', unit:'cm'},
+  const photos = (appData.progressImages || []).slice();
+  const poseLabels = POSE_NAMES[currentLang] || POSE_NAMES.tr;
+  const chipList = [
+    ['all', currentLang === 'tr' ? 'Tümü' : 'All'],
+    ['front', poseLabels.front],
+    ['side', poseLabels.side],
+    ['back', poseLabels.back]
   ];
 
-  // Comparison between oldest and newest
-  if (entries.length >= 2 && compareEl) {
-    const newest = entries[0];
-    const oldest = entries[entries.length - 1];
-    compareEl.style.display = 'block';
-    compareEl.innerHTML = `
-      <div style="background:var(--bg-card-alt);border:1px solid var(--border-subtle);border-radius:14px;padding:16px;margin-bottom:4px;">
-        <div style="font-size:0.75rem;color:var(--accent-primary);font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px;">
-          ${currentLang==='tr'?'Karşılaştırma':'Comparison'}: ${oldest.date} → ${newest.date}
-        </div>
-        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px;">
-          ${FIELDS.filter(f=>oldest[f.k]||newest[f.k]).map(f=>{
-            const diff = (newest[f.k]||0) - (oldest[f.k]||0);
-            const color = diff>0?'#4ecb8d':diff<0?'#f43f5e':'var(--text-muted)';
-            const sign  = diff>0?'+':'';
-            return `<div style="background:var(--bg-main);border-radius:10px;padding:10px;text-align:center;">
-              <div style="font-size:0.65rem;color:var(--text-tertiary);text-transform:uppercase;margin-bottom:4px;">${f.label}</div>
-              <div style="font-size:1rem;font-weight:700;color:var(--text-primary);">${newest[f.k]||'—'} <span style="font-size:.7rem;opacity:.6;">${f.unit}</span></div>
-              ${diff!==0?`<div style="font-size:0.7rem;color:${color};margin-top:2px;">${sign}${diff.toFixed(1)} ${f.unit}</div>`:''}
-            </div>`;
-          }).join('')}
-        </div>
-      </div>`;
+  if (pchips) {
+    pchips.innerHTML = chipList.map(([k, v]) =>
+      `<button type="button" data-p="${k}" aria-pressed="${k === _baPoseFilter}">${v}</button>`
+    ).join('');
   }
 
-  container.innerHTML = entries.map(e => `
-    <div style="padding:14px;background:var(--bg-card-alt);border:1px solid var(--border-subtle);border-radius:12px;margin-bottom:10px;">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-        <strong style="color:var(--text-primary);">${e.date}</strong>
-        <button onclick="deleteBodyMeasurement(${e.id})" style="background:rgba(224,84,84,0.1);border:1px solid rgba(224,84,84,0.25);color:#e05454;border-radius:6px;padding:4px 8px;font-size:0.7rem;cursor:pointer;">Sil</button>
-      </div>
-      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:8px;">
-        ${FIELDS.filter(f=>e[f.k]).map(f=>`
-          <div style="background:var(--bg-main);border-radius:8px;padding:8px;text-align:center;">
-            <div style="font-size:.6rem;color:var(--text-tertiary);text-transform:uppercase;">${f.label}</div>
-            <div style="font-size:.95rem;font-weight:700;color:var(--accent-primary);">${e[f.k]} <span style="font-size:.65rem;opacity:.7;">${f.unit}</span></div>
-          </div>`).join('')}
-      </div>
-    </div>`).join('');
+  photosCard.classList.toggle('cmpm', _baCompareMode);
+  if (bcmp) bcmp.setAttribute('aria-pressed', _baCompareMode);
+
+  const filtered = photos.filter(p => _baPoseFilter === 'all' || p.pose === _baPoseFilter)
+                         .sort((a, b) => (b.date || b.d || '').localeCompare(a.date || a.d || ''));
+
+  if (!photos.length) {
+    pgrid.innerHTML = `<div class="empty" style="grid-column:1/-1">${currentLang === 'tr' ? 'Henüz fotoğraf eklenmedi.' : 'No photos added yet.'}</div>`;
+  } else if (!filtered.length) {
+    pgrid.innerHTML = `<div class="empty" style="grid-column:1/-1">${currentLang === 'tr' ? 'Bu pozda fotoğraf yok.' : 'No photos in this pose.'}</div>`;
+  } else {
+    pgrid.innerHTML = filtered.map(p => {
+      const pid = String(p.id);
+      const isSel = _baSelectedPhotos.indexOf(pid);
+      const poseName = poseLabels[p.pose] || '';
+      const dateText = _formatDateDisplay(p.date || p.d);
+      const weightNum = p.kg || p.weight;
+      const weightText = weightNum ? _formatWeightNum(weightNum) + ' kg' : '';
+      const noteText = p.note ? (weightText ? ' · ' : '') + escapeHtml(p.note) : '';
+      const imgSrc = p.image || p.src || '';
+
+      return `<div class="ph${isSel > -1 ? ' sel' : ''}" data-id="${pid}" tabindex="0" role="button" aria-label="${escapeHtml(dateText)}">
+        <img src="${imgSrc}" alt="${escapeHtml(poseName)} ${escapeHtml(dateText)}" loading="lazy">
+        ${poseName ? `<span class="tag tg">${escapeHtml(poseName)}</span>` : ''}
+        ${_baCompareMode ?
+          `<i class="pk">${isSel > -1 ? (isSel + 1) : ''}</i>` :
+          `<button type="button" class="x" data-del="${pid}" aria-label="Fotoğrafı sil"><svg class="i" style="width:15px;height:15px"><use href="#zr-i-trash"/></svg></button>`
+        }
+        <div class="pv">
+          <b>${escapeHtml(dateText)}</b>
+          <span>${weightText}${noteText}</span>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  // Compare mode rendering
+  if (cmpBox) {
+    cmpBox.hidden = !_baCompareMode;
+    if (_baCompareMode) {
+      _baSelectedPhotos = _baSelectedPhotos.filter(id => photos.some(p => String(p.id) === id));
+      if (_baSelectedPhotos.length < 2) {
+        const needed = 2 - _baSelectedPhotos.length;
+        cmpBox.innerHTML = `<div class="empty" style="margin-top:16px">${currentLang === 'tr' ? `Karşılaştırmak için ${needed} fotoğraf daha seç.` : `Select ${needed} more photo(s) to compare.`}</div>`;
+      } else {
+        const [a, c] = _baSelectedPhotos.map(id => photos.find(p => String(p.id) === id))
+                                        .sort((x, y) => (x.date || x.d || '').localeCompare(y.date || y.d || ''));
+        const dateA = new Date(a.date || a.d);
+        const dateC = new Date(c.date || c.d);
+        const days = Math.round(Math.abs(dateC - dateA) / 864e5);
+        const kgA = a.kg || a.weight;
+        const kgC = c.kg || c.weight;
+        const dKg = (kgA && kgC) ? (kgC - kgA) : null;
+        const dKgSign = dKg > 0 ? '+' : dKg < 0 ? '−' : '';
+        const dKgText = dKg !== null ? dKgSign + _formatWeightNum(Math.abs(dKg)) + ' kg' : (currentLang === 'tr' ? 'aradaki süre' : 'elapsed time');
+
+        cmpBox.innerHTML = `<div style="margin-top:16px">
+          <div class="cw" id="cw" style="--p:50%">
+            <img src="${a.image || a.src}" alt="Önce">
+            <img class="top" src="${c.image || c.src}" alt="Sonra">
+            <span class="hnd"></span>
+            <span class="lt l">${currentLang === 'tr' ? 'Önce' : 'Before'}</span>
+            <span class="lt r">${currentLang === 'tr' ? 'Sonra' : 'After'}</span>
+          </div>
+          <input class="rng" id="rng" type="range" min="0" max="100" value="50" aria-label="Karşılaştırma kaydırıcısı">
+          <div class="cmeta">
+            <div>
+              <b>${_formatDateDisplay(a.date || a.d)}</b>
+              <span>${currentLang === 'tr' ? 'Önce' : 'Before'}${kgA ? ' · ' + _formatWeightNum(kgA) + ' kg' : ''}</span>
+            </div>
+            <div>
+              <b>${days} ${currentLang === 'tr' ? 'gün' : 'days'}</b>
+              <span>${dKgText}</span>
+            </div>
+            <div>
+              <b>${_formatDateDisplay(c.date || c.d)}</b>
+              <span>${currentLang === 'tr' ? 'Sonra' : 'After'}${kgC ? ' · ' + _formatWeightNum(kgC) + ' kg' : ''}</span>
+            </div>
+          </div>
+        </div>`;
+
+        const cw = document.getElementById('cw');
+        const rng = document.getElementById('rng');
+        if (cw && rng) {
+          const setPos = v => {
+            v = Math.max(0, Math.min(100, v));
+            cw.style.setProperty('--p', v + '%');
+            rng.value = v;
+          };
+          rng.oninput = () => setPos(+rng.value);
+          const handleMove = e => {
+            const rect = cw.getBoundingClientRect();
+            setPos((e.clientX - rect.left) / rect.width * 100);
+          };
+          cw.onpointerdown = e => {
+            cw.setPointerCapture(e.pointerId);
+            handleMove(e);
+            cw.onpointermove = handleMove;
+          };
+          cw.onpointerup = e => {
+            try { cw.releasePointerCapture(e.pointerId); } catch(err) {}
+            cw.onpointermove = null;
+          };
+        }
+      }
+    }
+  }
 }
 
+function renderBodyMeasurements() {
+  initBeforeAfter();
+  const box = document.getElementById('mbody');
+  const mcnt = document.getElementById('mcnt');
+  if (!box) return;
+
+  const rawEntries = (appData.bodyMeasurements || []).slice();
+  const entries = rawEntries.map(m => {
+    const d = m.date || m.d;
+    const v = m.v || {
+      chest: m.chest || null,
+      shoulder: m.shoulder || null,
+      waist: m.waist || null,
+      hip: m.hip || null,
+      armR: m.armR || m.arm || null,
+      armL: m.armL || m.arm || null,
+      thighR: m.thighR || m.leg || null,
+      thighL: m.thighL || m.leg || null,
+      neck: m.neck || null
+    };
+    return { id: m.id, d, v };
+  }).sort((a, b) => (a.d || '').localeCompare(b.d || ''));
+
+  if (mcnt) mcnt.textContent = entries.length;
+
+  if (!entries.length) {
+    box.innerHTML = `<div class="empty" style="margin-top:16px">${currentLang === 'tr' ? 'Henüz ölçüm eklenmedi.' : 'No measurements added yet.'}</div>`;
+    return;
+  }
+
+  const mf = _baActiveMeasureField;
+  const pts = entries.filter(m => m.v && m.v[mf] != null && !isNaN(m.v[mf])).map(m => {
+    const parts = (m.d || '').split('-');
+    const t = parts.length === 3 ? new Date(+parts[0], +parts[1] - 1, +parts[2]).getTime() : Date.now();
+    return {
+      t,
+      y: +m.v[mf],
+      label: _formatDateDisplay(m.d).replace(/\s\d{4}$/, '')
+    };
+  });
+
+  const L = pts[pts.length - 1];
+  const diff = pts.length > 1 ? L.y - pts[0].y : null;
+  const diffSign = diff > 0 ? '+' : diff < 0 ? '−' : '';
+  const diffFormatted = diff === null ? '—' : diffSign + _formatWeightNum(Math.abs(diff));
+
+  const chipsHtml = `<div class="chips" id="mchips" role="group" aria-label="Ölçü seç">
+    ${MEASUREMENT_FIELDS.map(([k, trLabel, enLabel]) => {
+      const label = currentLang === 'tr' ? trLabel : enLabel;
+      return `<button type="button" data-m="${k}" aria-pressed="${k === mf}">${label}</button>`;
+    }).join('')}
+  </div>`;
+
+  const kpisHtml = `<div class="kpis" style="margin-top:6px">
+    <div>
+      <b>${L ? _formatWeightNum(L.y) : '—'}<small>cm</small></b>
+      <span>${currentLang === 'tr' ? 'güncel' : 'latest'}</span>
+    </div>
+    <div>
+      <b>${diffFormatted}<small>cm</small></b>
+      <span>${currentLang === 'tr' ? 'ilk kayda göre' : 'vs initial'}</span>
+    </div>
+    <div>
+      <b>${pts.length}</b>
+      <span>${currentLang === 'tr' ? 'kayıt' : 'entries'}</span>
+    </div>
+  </div>`;
+
+  const chartHtml = `<div id="mchart">${pts.length > 1 ? '' : `<div class="empty">${currentLang === 'tr' ? 'Grafik için bu ölçüden en az iki kayıt gerekli.' : 'Need at least two records of this measurement for chart.'}</div>`}</div>`;
+
+  const entsHtml = `<div class="ents">
+    ${entries.slice().reverse().map(m => {
+      const fieldList = MEASUREMENT_FIELDS.filter(([k]) => m.v && m.v[k] != null && !isNaN(m.v[k]))
+                                         .map(([k, trLabel, enLabel]) => `${currentLang === 'tr' ? trLabel : enLabel} ${_formatWeightNum(m.v[k])}`)
+                                         .join(' · ');
+      return `<div class="en">
+        <div>
+          <b>${_formatDateDisplay(m.d)}</b>
+          <span>${fieldList}</span>
+        </div>
+        <button type="button" class="x" data-md="${m.id}" aria-label="Ölçümü sil">✕</button>
+      </div>`;
+    }).join('')}
+  </div>`;
+
+  box.innerHTML = `${chipsHtml}
+  <div class="mg">
+    <div>
+      ${kpisHtml}
+      ${chartHtml}
+    </div>
+    ${entsHtml}
+  </div>`;
+
+  if (pts.length > 1) {
+    _drawSvgLineChart(document.getElementById('mchart'), pts, 220, false);
+  }
+}
 
 // =============================================
 // STRENGTH PROGRESS DATA RESET (2.3)
@@ -5820,589 +6370,575 @@ async function checkUserMute(uid) {
   return false;
 }
 
+// ============================================================
+// ZYRO YORUMLAR (COMMENTS) — Zyro Panel v3 Redesign
+// Direct Firestore listener & local fallback, real user authentication
+// ============================================================
+let _commentsData = [];
+let _commentsSort = 'new';
+let _commentsReplyState = null;
+let _commentsEditState = null;
+let _commentsInputText = '';
+let _commentsReportTargetId = null;
+let _commentsInitialized = false;
+
+const ROLE_BADGES = {
+  founder: ['KURUCU', 'k'],
+  mod: ['MOD', 'm'],
+  admin: ['ADMIN', 'k'],
+  kurucu: ['KURUCU', 'k']
+};
+
+function _commentScore(c) {
+  const up = Array.isArray(c.up) ? c.up.length : (c.upvotes || 0);
+  const dn = Array.isArray(c.down) ? c.down.length : (c.downvotes || 0);
+  return up - dn;
+}
+
+function _formatCommentDate(ts) {
+  if (!ts) return '';
+  return new Date(ts).toLocaleDateString(currentLang === 'tr' ? 'tr-TR' : 'en-US');
+}
+
 function initComments() {
-  const sendBtn = document.getElementById('sendCommentBtn');
-  if (!sendBtn) return;
-  
-  sendBtn.addEventListener('click', async () => {
-    const text = document.getElementById('commentInput').value.trim();
-    if (!text) return;
-    
-    if (currentUser) {
-      const isMuted = await checkUserMute(currentUser.uid);
-      if (isMuted) {
-        showToast('Yorum yapma yetkiniz geçici veya kalıcı olarak kısıtlanmıştır!', 'error');
+  if (_commentsInitialized) return;
+  _commentsInitialized = true;
+
+  const fc = document.getElementById('fc');
+  const ct = document.getElementById('ct');
+  const cc = document.getElementById('cc');
+  const so = document.getElementById('so');
+  const list = document.getElementById('list');
+  const fr = document.getElementById('fr');
+
+  if (ct && cc) {
+    ct.addEventListener('input', e => {
+      cc.textContent = e.target.value.length + '/1000';
+    });
+  }
+
+  if (fc) {
+    fc.addEventListener('submit', async e => {
+      e.preventDefault();
+      const text = ct ? ct.value.trim() : '';
+      const ce = document.getElementById('ce');
+      const cs = document.getElementById('cs');
+
+      if (text.length < 2) {
+        if (ce) ce.textContent = currentLang === 'tr' ? 'Yorum en az 2 karakter olmalı.' : 'Comment must be at least 2 characters.';
         return;
       }
-    }
+      if (ce) ce.textContent = '';
 
-    
-    const typeRadio = document.querySelector('input[name="commentType"]:checked');
-    const type = typeRadio ? typeRadio.value : 'normal';
-    const isAnonymous = type === 'anonymous';
-    
-    const comment = {
-      text,
-      isAnonymous,
-      userId: currentUser ? currentUser.uid : 'local',
-      userName: isAnonymous ? 'Anonim' : (currentUser ? currentUser.displayName : 'Local User'),
-      userEmail: isAnonymous ? null : (currentUser ? currentUser.email : null),
-      userPhoto: isAnonymous ? null : (appData.profile && appData.profile.photoURL ? appData.profile.photoURL : (currentUser ? currentUser.photoURL : null)),
-      timestamp: Date.now(),
-      date: todayStr(),
-      upvotes: 0,
-      upvotedBy: [],
-      rank: commentAuthorRankKey()
-    };
-    
-    if (isFirebaseConfigured && db) {
+      if (currentUser) {
+        const isMuted = await checkUserMute(currentUser.uid);
+        if (isMuted) {
+          showToast(currentLang === 'tr' ? 'Yorum yapma yetkiniz kısıtlanmıştır!' : 'Your commenting privilege is restricted!', 'error');
+          return;
+        }
+      }
+
+      if (cs) cs.disabled = true;
+      const isAnon = document.getElementById('k2') && document.getElementById('k2').checked;
+      const myId = currentUser ? currentUser.uid : 'u_' + (appData.profile && appData.profile.displayName || 'guest');
+      const myName = isAnon ? (currentLang === 'tr' ? 'Anonim' : 'Anonymous') : (currentUser ? currentUser.displayName : (appData.profile && appData.profile.displayName || 'Kullanıcı'));
+      const myRole = isAnon ? null : (currentUser && currentUser.email === 'wupard@gmail.com' ? 'founder' : (appData.profile && appData.profile.role || null));
+      const myAvatar = isAnon ? null : (currentUser && currentUser.photoURL || null);
+
+      const newComment = {
+        id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+        parentId: null,
+        uid: myId,
+        userId: myId,
+        name: myName,
+        userName: myName,
+        role: myRole,
+        avatar: myAvatar,
+        userPhoto: myAvatar,
+        anon: isAnon,
+        isAnonymous: isAnon,
+        text,
+        ts: Date.now(),
+        timestamp: Date.now(),
+        up: [],
+        down: [],
+        upvotedBy: [],
+        downvotedBy: [],
+        upvotes: 0,
+        downvotes: 0
+      };
+
       try {
-        await db.collection('public_comments').add(comment);
-        showToast(currentLang === 'tr' ? 'Yorum gonderildi!' : 'Comment sent!', 'success');
-        document.getElementById('commentInput').value = '';
-        renderComments();
-        
-        // Notification
-        sendCommentEmailNotification(text, comment.userName);
-      } catch (e) {
-        console.error('Comment Error:', e);
-        if (e.message && e.message.includes('permissions')) {
-          showToast('Hata: Firebase izni yok!', 'error');
+        if (isFirebaseConfigured && db) {
+          await db.collection('public_comments').add(newComment);
         } else {
-          showToast('Yorum gonderilemedi!', 'error');
+          let local = JSON.parse(localStorage.getItem('zyro_local_comments') || '[]');
+          local.unshift(newComment);
+          localStorage.setItem('zyro_local_comments', JSON.stringify(local));
+          _commentsData.unshift(newComment);
+          drawComments();
         }
+        if (ct) ct.value = '';
+        if (cc) cc.textContent = '0/1000';
+        showToast(currentLang === 'tr' ? 'Yorumun gönderildi' : 'Comment sent', 'success');
+        sendCommentEmailNotification(text, myName);
+      } catch (err) {
+        console.error('Comment send error:', err);
+        showToast(currentLang === 'tr' ? 'Bir sorun oluştu' : 'An error occurred', 'error');
+      } finally {
+        if (cs) cs.disabled = false;
       }
-    } else {
-      // Local mode
-      let localComments = JSON.parse(localStorage.getItem('zyro_local_comments') || '[]');
-      localComments.unshift(comment);
-      localStorage.setItem('zyro_local_comments', JSON.stringify(localComments));
-      showToast('Yorum yerel olarak kaydedildi.', 'success');
-      document.getElementById('commentInput').value = '';
-      renderComments();
-    }
-  });
+    });
+  }
 
-  // @mention support for main comment input
-  const commentInput = document.getElementById('commentInput');
-  if (commentInput) {
-    // Create a mention dropdown for the main input
-    let mainMentionDropdown = document.getElementById('mainMentionDropdown');
-    if (!mainMentionDropdown) {
-      mainMentionDropdown = document.createElement('div');
-      mainMentionDropdown.id = 'mainMentionDropdown';
-      mainMentionDropdown.style.cssText = 'display:none;position:absolute;left:0;right:0;background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:10px;z-index:100;max-height:140px;overflow-y:auto;box-shadow:0 8px 24px rgba(0,0,0,0.3);';
-      commentInput.parentElement.style.position = 'relative';
-      commentInput.insertAdjacentElement('afterend', mainMentionDropdown);
-    }
-    commentInput.addEventListener('input', function() {
-      const val = commentInput.value;
-      const cursor = commentInput.selectionStart;
-      const before = val.substring(0, cursor);
-      const match = before.match(/@([\w\u00C0-\u017E]*)$/);
-      if (match) {
-        const query = match[1].toLowerCase();
-        const allNames = [];
-        document.querySelectorAll('#commentsList .comment-item [data-commenter]').forEach(el => allNames.push(el.dataset.commenter));
-        const unique = [...new Set(allNames)];
-        const filtered = query ? unique.filter(n => n.toLowerCase().startsWith(query)) : unique;
-        if (filtered.length > 0) {
-          mainMentionDropdown.style.display = 'block';
-          mainMentionDropdown.innerHTML = filtered.map(name => `
-            <div onclick="_insertMainMention('${name.replace(/'/g, "\\'")}')"
-              style="padding:8px 14px;cursor:pointer;font-size:0.85rem;display:flex;align-items:center;gap:8px;"
-              onmouseenter="this.style.background='rgba(139,124,247,0.12)'"
-              onmouseleave="this.style.background='transparent'">
-              <span style="color:var(--accent-primary);font-weight:600;">@${name}</span>
-            </div>
-          `).join('');
-        } else {
-          mainMentionDropdown.style.display = 'none';
+  if (so) {
+    so.addEventListener('click', e => {
+      const btn = e.target.closest('[data-s]');
+      if (btn) {
+        _commentsSort = btn.dataset.s;
+        drawComments();
+      }
+    });
+  }
+
+  if (list) {
+    list.addEventListener('input', e => {
+      if (e.target.matches('[data-ta]')) {
+        _commentsInputText = e.target.value;
+      }
+    });
+
+    list.addEventListener('click', async e => {
+      const btn = e.target.closest('[data-a]');
+      if (!btn) return;
+      const wrap = btn.closest('[data-id]');
+      if (!wrap) return;
+      const id = wrap.dataset.id;
+      const c = _commentsData.find(x => x.id === id);
+      if (!c) return;
+      const action = btn.dataset.a;
+      const myId = currentUser ? currentUser.uid : 'u_' + (appData.profile && appData.profile.displayName || 'guest');
+
+      // Upvote / Downvote
+      if (action === 'up' || action === 'dn') {
+        if (!currentUser) {
+          showToast(currentLang === 'tr' ? 'Oy vermek için giriş yapmalısın!' : 'Must be logged in to vote!', 'error');
+          return;
         }
-      } else {
-        mainMentionDropdown.style.display = 'none';
-      }
-    });
-    document.addEventListener('click', function(e) {
-      if (!commentInput.contains(e.target) && !mainMentionDropdown.contains(e.target)) {
-        mainMentionDropdown.style.display = 'none';
-      }
-    });
-  }
-}
-
-window._insertMainMention = function(name) {
-  const ta = document.getElementById('commentInput');
-  const dd = document.getElementById('mainMentionDropdown');
-  if (!ta) return;
-  const cursor = ta.selectionStart;
-  const before = ta.value.substring(0, cursor);
-  const after = ta.value.substring(cursor);
-  const newBefore = before.replace(/@[\w\u00C0-\u017E]*$/, `@${name} `);
-  ta.value = newBefore + after;
-  ta.focus();
-  ta.selectionStart = ta.selectionEnd = newBefore.length;
-  if (dd) dd.style.display = 'none';
-};
-
-function renderComments() {
-  const list = document.getElementById('commentsList');
-  if (!list) return;
-  
-  if (isFirebaseConfigured && db) {
-    if (commentsListenerUnsub) {
-      if (cachedComments) {
-        displayComments(cachedComments);
-      }
-      return;
-    }
-    const q = db.collection('public_comments').orderBy('timestamp', 'desc').limit(40);
-    commentsListenerUnsub = q.onSnapshot(snap => {
-      const comments = [];
-      snap.forEach(doc => comments.push({ id: doc.id, ...doc.data() }));
-      cachedComments = comments;
-      displayComments(comments);
-    }, error => {
-      console.error('Comments Listener Error:', error);
-      const local = JSON.parse(localStorage.getItem('zyro_local_comments') || '[]');
-      if (local.length > 0) {
-        displayComments(local);
-      } else {
-        document.getElementById('commentsList').innerHTML = `<div class="logged-empty" style="color:#ef4444;">Yorumlar yüklenirken bir hata oluştu veya bağlantı kurulamıyor.</div>`;
-      }
-    });
-  } else {
-    const local = JSON.parse(localStorage.getItem('zyro_local_comments') || '[]');
-    displayComments(local);
-  }
-}
-
-function displayComments(comments) {
-  if (window._isVoting) {
-    return; // Prevent flicker during optimistic UI updates
-  }
-  const list = document.getElementById('commentsList');
-  if (comments.length === 0) {
-    list.innerHTML = `<div class="logged-empty">${currentLang === 'tr' ? 'Henüz yorum yok.' : 'No comments yet.'}</div>`;
-    return;
-  }
-
-  // Preserve open reply forms, input text, and focus/selection
-  const openForms = {};
-  list.querySelectorAll('[id^="replyForm_"]').forEach(form => {
-    if (form.style.display === 'block') {
-      const id = form.id.replace('replyForm_', '');
-      const input = document.getElementById(`replyInput_${id}`);
-      openForms[id] = input ? input.value : '';
-    }
-  });
-
-  const activeId = document.activeElement && document.activeElement.id && document.activeElement.id.startsWith('replyInput_')
-    ? document.activeElement.id
-    : null;
-  const cursorStart = activeId ? document.getElementById(activeId).selectionStart : null;
-  const cursorEnd = activeId ? document.getElementById(activeId).selectionEnd : null;
-  
-  try {
-    // Separate top-level comments and replies
-    const topLevel = comments.filter(c => !c.parentId);
-    const replies = comments.filter(c => c.parentId);
-
-    // Extract unique commenter names
-    const knownNames = comments.map(c => c.userName).filter(Boolean);
-    if (currentUser && currentUser.displayName) knownNames.push(currentUser.displayName);
-    const uniqueKnownNames = [...new Set(knownNames)];
-
-    list.innerHTML = topLevel.map((c, i) => {
-      const showPhoto = !c.isAnonymous && c.userPhoto;
-      
-      // Upvote/Downvote logic
-      const upvotes = c.upvotes || 0;
-      const upvotedBy = c.upvotedBy || [];
-      const hasUpvoted = currentUser && upvotedBy.includes(currentUser.uid);
-
-      const downvotes = c.downvotes || 0;
-      const downvotedBy = c.downvotedBy || [];
-      const hasDownvoted = currentUser && downvotedBy.includes(currentUser.uid);
-
-      // Get replies for this comment
-      const commentReplies = replies.filter(r => r.parentId === c.id).sort((a,b) => a.timestamp - b.timestamp);
-      
-      const isOwnComment = currentUser && c.userId === currentUser.uid;
-      const isAdminUser = currentUser && (
-        currentUser.email === 'wupard@gmail.com' ||
-        appData.firestoreAdmin === true ||
-        appData.userRank === 'admin' ||
-        appData.userRank === 'mod'
-      );
-      const canDelete = isOwnComment || isAdminUser;
-      
-      // Rank badge for comment author
-      const commentRankKey = c.rank && RANKS[c.rank] ? c.rank : ((c.userEmail === 'wupard@gmail.com') ? 'kurucu' : null);
-      const commentRankInfo = commentRankKey ? RANKS[commentRankKey] : null;
-      const commentRankBadge = commentRankInfo
-        ? `<span style="background:${commentRankInfo.bg}; color:${commentRankInfo.color}; font-size:0.6rem; padding:2px 6px; border-radius:4px; font-weight:800; letter-spacing:0.05em; text-transform:uppercase; border: 1px solid ${commentRankInfo.color}40;">${commentRankInfo.label}</span>`
-        : '';
-      
-      const upvoteAttr = isOwnComment ? '' : `onclick="upvoteComment('${c.id}')"`;
-      const upvoteClass = 'vote-btn upvote-btn' + (hasUpvoted ? ' active' : '') + (isOwnComment ? ' disabled' : '');
-      
-      const downvoteAttr = isOwnComment ? '' : `onclick="downvoteComment('${c.id}')"`;
-      const downvoteClass = 'vote-btn downvote-btn' + (hasDownvoted ? ' active' : '') + (isOwnComment ? ' disabled' : '');
-
-      return `
-        <div class="comment-item" id="comment_${c.id}" style="padding: 16px; border-bottom: 1px solid var(--border-subtle); background: var(--bg-card-alt); border-radius: 12px; margin-bottom: 12px; position: relative;">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-            <div style="display: flex; align-items: center; gap: 10px;">
-              ${showPhoto ? 
-                `<img src="${c.userPhoto}" style="width: 24px; height: 24px; border-radius: 50%; border: 1px solid var(--accent-primary);" referrerpolicy="no-referrer">` : 
-                `<div style="width: 24px; height: 24px; border-radius: 50%; background: var(--bg-primary); display: flex; align-items: center; justify-content: center; font-size: 0.7rem; color: var(--text-tertiary); border: 1px solid var(--border-subtle);">?</div>`
-              }
-              <div style="display: flex; align-items: center; gap: 6px;">
-                <span style="font-weight: 600; font-size: 0.9rem; color: var(--accent-primary);" data-commenter="${c.userName}">${c.userName}</span>
-                ${commentRankBadge}
-              </div>
-            </div>
-            <div style="display: flex; align-items: center; gap: 8px;">
-              <span style="font-size: 0.75rem; color: var(--text-muted);">${new Date(c.timestamp).toLocaleDateString()}</span>
-              ${isOwnComment ? `
-                <button onclick="toggleEditComment('${c.id}', \`${(c.text || '').replace(/`/g, '\\`').replace(/\$/g, '\\$')}\`)" style="background:none; border:none; color:var(--text-muted); cursor:pointer; padding:4px;" title="Düzenle">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
-                </button>
-              ` : ''}
-              ${canDelete ? `<button onclick="deletePublicComment('${c.id}')" style="background:none; border:none; color:#ef4444; cursor:pointer; padding:4px;" title="Sil"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button>` : ''}
-            </div>
-          </div>
-          <p id="commentText_${c.id}" style="margin: 0; font-size: 0.9rem; line-height: 1.5; color: var(--text-primary); padding-left: 34px;">
-            ${_highlightMentions(c.text, uniqueKnownNames)}
-            ${c.edited ? `<span style="font-size:0.75rem; color:var(--text-muted); font-style:italic; margin-left:6px;">(düzenlendi)</span>` : ''}
-          </p>
-          <div id="editForm_${c.id}" style="display:none; margin-top:12px; padding-left:34px;">
-            <textarea id="editInput_${c.id}" class="note-input" rows="2" style="margin-bottom:8px; font-size:0.85rem; width:100%;"></textarea>
-            <div style="display:flex; gap:8px;">
-              <button class="btn-primary" style="padding:6px 16px; font-size:0.8rem;" onclick="submitEditComment('${c.id}')">Kaydet</button>
-              <button class="btn-small" onclick="toggleEditComment('${c.id}')">İptal</button>
-            </div>
-          </div>
-          
-          <div style="margin-top: 12px; display: flex; gap: 16px; padding-left: 34px;">
-            <div style="display: flex; gap: 8px;">
-              <button class="${upvoteClass}" ${upvoteAttr} title="Beğen">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
-                <span>${upvotes}</span>
-              </button>
-              <button class="${downvoteClass}" ${downvoteAttr} title="Beğenme">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
-                <span>${downvotes}</span>
-              </button>
-            </div>
-            <button onclick="showReplyForm('${c.id}', '${(c.userName||'').replace(/'/g,"\\'")}')"
-              style="background:transparent; border:none; color:var(--text-muted); font-size:0.8rem; cursor:pointer; display:flex; align-items:center; gap:4px;">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-              <span>Cevapla</span>
-            </button>
-            ${!isOwnComment ? `
-            <button onclick="openReportModal('${c.id}','${(c.userId||'').replace(/'/g,"\\'")}','${(c.userName||'').replace(/'/g,"\\'")}','${(c.text||'').substring(0,120).replace(/'/g,"\\'").replace(/\n/g,' ')}')"
-              style="background:transparent; border:none; color:var(--text-muted); font-size:0.8rem; cursor:pointer; display:flex; align-items:center; gap:4px;" title="Raporla">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
-              <span>Raporla</span>
-            </button>
-            ` : ''}
-          </div>
-
-          <div id="replyForm_${c.id}" style="display:none; margin-top:12px; padding-left:34px; position:relative;">
-            <textarea id="replyInput_${c.id}" class="note-input" rows="2" placeholder="@KullanıcıAdı ile başlayabilirsin..." style="margin-bottom:8px; font-size:0.85rem;" oninput="_handleMentionInput(event,'${c.id}')"></textarea>
-            <div id="mentionDropdown_${c.id}" style="display:none; position:absolute; top:auto; left:0; right:0; background:#151421; border:1px solid rgba(139,124,247,0.4); border-radius:10px; z-index:1000; max-height:140px; overflow-y:auto; box-shadow:0 10px 30px rgba(0,0,0,0.7); margin-top:-8px;"></div>
-            <div style="display:flex; gap:8px;">
-              <button class="btn-primary" style="padding:6px 16px; font-size:0.8rem;" onclick="submitReply('${c.id}')">Gönder</button>
-              <button class="btn-small" onclick="showReplyForm('${c.id}')">İptal</button>
-            </div>
-          </div>
-
-          ${commentReplies.length > 0 ? `
-            <div class="comment-replies" style="margin-top:12px; margin-left:11px; padding-left:23px; border-left: 2.5px solid rgba(139,124,247,0.4);">
-              ${commentReplies.map(r => {
-                const isOwnReply = currentUser && r.userId === currentUser.uid;
-                const canDeleteReply = isOwnReply || isAdminUser;
-                const replyRankKey = r.rank && RANKS[r.rank] ? r.rank : ((r.userEmail === 'wupard@gmail.com') ? 'kurucu' : null);
-                const replyRankInfo = replyRankKey ? RANKS[replyRankKey] : null;
-                const replyRankBadge = replyRankInfo
-                  ? `<span style="background:${replyRankInfo.bg}; color:${replyRankInfo.color}; font-size:0.55rem; padding:2px 5px; border-radius:4px; font-weight:800; letter-spacing:0.05em; text-transform:uppercase; border: 1px solid ${replyRankInfo.color}40;">${replyRankInfo.label}</span>`
-                  : '';
-                return `
-                <div id="comment_${r.id}" style="margin-top:12px; padding:10px; background:rgba(255,255,255,0.02); border-radius:8px; position:relative;">
-                  <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
-                    <div style="display:flex; align-items:center; gap:8px;">
-                      ${r.userPhoto ? `<img src="${r.userPhoto}" style="width:18px; height:18px; border-radius:50%;" referrerpolicy="no-referrer">` : `<div style="width:18px; height:18px; border-radius:50%; background:var(--bg-primary); display:flex; align-items:center; justify-content:center; font-size:0.6rem;">?</div>`}
-                      <span style="font-weight:600; font-size:0.8rem; color:var(--accent-primary);">${r.userName}</span>
-                      ${replyRankBadge}
-                    </div>
-                    <div style="display:flex; align-items:center; gap:6px;">
-                      <span style="font-size:0.65rem; color:var(--text-muted);">${new Date(r.timestamp).toLocaleDateString()}</span>
-                      ${isOwnReply ? `
-                        <button onclick="toggleEditComment('${r.id}', \`${(r.text || '').replace(/`/g, '\\`').replace(/\$/g, '\\$')}\`)" style="background:none; border:none; color:var(--text-muted); cursor:pointer; padding:2px;" title="Düzenle">
-                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
-                        </button>
-                      ` : ''}
-                      ${canDeleteReply ? `<button onclick="deletePublicComment('${r.id}')" style="background:none; border:none; color:#ef4444; cursor:pointer; padding:2px;" title="Sil"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button>` : ''}
-                    </div>
-                  </div>
-                  <p id="commentText_${r.id}" style="margin:0; font-size:0.85rem; color:var(--text-primary);">
-                    ${_highlightMentions(r.text, uniqueKnownNames)}
-                    ${r.edited ? `<span style="font-size:0.7rem; color:var(--text-muted); font-style:italic; margin-left:6px;">(düzenlendi)</span>` : ''}
-                  </p>
-                  <div id="editForm_${r.id}" style="display:none; margin-top:8px;">
-                    <textarea id="editInput_${r.id}" class="note-input" rows="2" style="margin-bottom:6px; font-size:0.8rem; width:100%;"></textarea>
-                    <div style="display:flex; gap:6px;">
-                      <button class="btn-primary" style="padding:4px 12px; font-size:0.75rem;" onclick="submitEditComment('${r.id}')">Kaydet</button>
-                      <button class="btn-small" style="padding:4px 10px; font-size:0.75rem;" onclick="toggleEditComment('${r.id}')">İptal</button>
-                    </div>
-                  </div>
-                </div>
-              `}).join('')}
-            </div>
-          ` : ''}
-        </div>
-      `;
-    }).join('');
-
-    // Restore open reply forms, input text, and focus/selection
-    Object.keys(openForms).forEach(id => {
-      const form = document.getElementById(`replyForm_${id}`);
-      const input = document.getElementById(`replyInput_${id}`);
-      if (form) form.style.display = 'block';
-      if (input) input.value = openForms[id];
-    });
-
-    if (activeId) {
-      const activeEl = document.getElementById(activeId);
-      if (activeEl) {
-        activeEl.focus();
-        if (cursorStart !== null && cursorEnd !== null) {
-          activeEl.setSelectionRange(cursorStart, cursorEnd);
+        if (c.uid === myId || c.userId === myId) {
+          showToast(currentLang === 'tr' ? 'Kendi yorumunu oylayamazsın!' : 'Cannot vote on your own comment!', 'error');
+          return;
         }
+        const dir = action === 'up' ? 1 : -1;
+        await _voteCommentItem(c, dir);
+        return;
       }
-    }
 
-    // Highlight and scroll to target comment from notification click
-    if (window.pendingCommentHighlightId) {
-      const targetId = window.pendingCommentHighlightId;
-      setTimeout(() => {
-        const el = document.getElementById(`comment_${targetId}`);
-        if (el) {
-          el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          el.classList.add('comment-highlight');
-          setTimeout(() => el.classList.remove('comment-highlight'), 3000);
-          
-          // Also highlight the parent comment if it exists
-          const parentComment = el.closest('.comment-item');
-          if (parentComment && parentComment !== el) {
-            parentComment.classList.add('parent-comment-highlight');
-            setTimeout(() => parentComment.classList.remove('parent-comment-highlight'), 3000);
+      // Reply
+      if (action === 'reply') {
+        _commentsReplyState = { id, top: c.parentId || id, mention: (c.anon || c.isAnonymous) ? null : (c.name || c.userName) };
+        _commentsEditState = null;
+        _commentsInputText = '';
+        drawComments();
+        return;
+      }
+
+      // Cancel reply or edit
+      if (action === 'rcancel' || action === 'ecancel') {
+        _commentsReplyState = null;
+        _commentsEditState = null;
+        _commentsInputText = '';
+        drawComments();
+        return;
+      }
+
+      // Send reply
+      if (action === 'rsend') {
+        const text = _commentsInputText.trim();
+        if (!text) {
+          showToast(currentLang === 'tr' ? 'Cevap boş olamaz' : 'Reply cannot be empty', 'error');
+          return;
+        }
+        const rState = _commentsReplyState;
+        _commentsReplyState = null;
+        _commentsInputText = '';
+
+        const replyComment = {
+          id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+          parentId: rState.top,
+          mention: rState.mention,
+          replyTo: rState.mention,
+          uid: myId,
+          userId: myId,
+          name: currentUser ? currentUser.displayName : (appData.profile && appData.profile.displayName || 'Kullanıcı'),
+          userName: currentUser ? currentUser.displayName : (appData.profile && appData.profile.displayName || 'Kullanıcı'),
+          role: currentUser && currentUser.email === 'wupard@gmail.com' ? 'founder' : null,
+          avatar: currentUser && currentUser.photoURL || null,
+          userPhoto: currentUser && currentUser.photoURL || null,
+          anon: false,
+          isAnonymous: false,
+          text,
+          ts: Date.now(),
+          timestamp: Date.now(),
+          up: [],
+          down: [],
+          upvotedBy: [],
+          downvotedBy: [],
+          upvotes: 0,
+          downvotes: 0
+        };
+
+        try {
+          if (isFirebaseConfigured && db) {
+            await db.collection('public_comments').add(replyComment);
+          } else {
+            let local = JSON.parse(localStorage.getItem('zyro_local_comments') || '[]');
+            local.push(replyComment);
+            localStorage.setItem('zyro_local_comments', JSON.stringify(local));
+            _commentsData.push(replyComment);
+            drawComments();
           }
-          
-          window.pendingCommentHighlightId = null; // clear after scroll
+          showToast(currentLang === 'tr' ? 'Cevabın gönderildi' : 'Reply sent', 'success');
+          sendCommentEmailNotification(text, replyComment.userName, true);
+        } catch (err) {
+          console.error('Reply send error:', err);
         }
-      }, 600); // 600ms ensures page transition is fully completed
-    }
+        return;
+      }
 
-  } catch (e) {
-    console.error('Error rendering comments:', e);
-    list.innerHTML = `<div class="logged-empty" style="color:#ef4444;">Yorumları oluştururken bir hata oluştu: ${e.message}</div>`;
-  }
-}
+      // Edit
+      if (action === 'edit') {
+        _commentsEditState = id;
+        _commentsReplyState = null;
+        _commentsInputText = c.text;
+        drawComments();
+        return;
+      }
 
-// Highlight @mentions in text (supports space-containing names and matches fallback name patterns)
-function _highlightMentions(text, knownNames = []) {
-  if (!text) return '';
-  // Escape HTML first
-  const safe = text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-  
-  const sortedNames = [...knownNames].filter(Boolean).sort((a, b) => b.length - a.length);
-  const namePattern = sortedNames.map(name => name.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')).join('|');
-  
-  const regexPattern = namePattern 
-    ? '@(' + namePattern + '|[\\w\\u00C0-\\u017E]+)'
-    : '@([\\w\\u00C0-\\u017E]+)';
-  
-  const regex = new RegExp(regexPattern, 'gi');
-  return safe.replace(regex, '<span style="color:#a855f7; background:rgba(168,85,247,0.08); border:1px solid rgba(168,85,247,0.18); padding:1px 6px; border-radius:6px; font-weight:700; display:inline-block; font-size:0.92em; margin:0 2px; vertical-align:middle; transition: all 0.2s;">$&</span>');
-}
+      // Save edit
+      if (action === 'esave') {
+        const text = _commentsInputText.trim();
+        if (!text) {
+          showToast(currentLang === 'tr' ? 'Yorum boş olamaz' : 'Comment cannot be empty', 'error');
+          return;
+        }
+        _commentsEditState = null;
+        _commentsInputText = '';
 
-// Collect recent commenters for mention suggestions
-function _getRecentCommenters() {
-  const list = document.getElementById('commentsList');
-  if (!list) return [];
-  const names = new Set();
-  list.querySelectorAll('[data-commenter]').forEach(el => names.add(el.dataset.commenter));
-  return Array.from(names).slice(0, 8);
-}
+        try {
+          if (isFirebaseConfigured && db) {
+            await db.collection('public_comments').doc(id).update({
+              text,
+              edited: true,
+              editedAt: Date.now()
+            });
+          } else {
+            let local = JSON.parse(localStorage.getItem('zyro_local_comments') || '[]');
+            const idx = local.findIndex(x => x.id === id);
+            if (idx !== -1) {
+              local[idx].text = text;
+              local[idx].edited = true;
+              localStorage.setItem('zyro_local_comments', JSON.stringify(local));
+            }
+          }
+          c.text = text;
+          c.edited = true;
+          drawComments();
+          showToast(currentLang === 'tr' ? 'Yorum güncellendi' : 'Comment updated', 'success');
+        } catch (err) {
+          console.error('Edit error:', err);
+        }
+        return;
+      }
 
-// Handle @ input in reply textarea
-window._handleMentionInput = function(evt, commentId) {
-  const ta = evt.target;
-  const val = ta.value;
-  const dropdown = document.getElementById(`mentionDropdown_${commentId}`);
-  if (!dropdown) return;
-  
-  // Find @ trigger
-  const cursor = ta.selectionStart;
-  const before = val.substring(0, cursor);
-  const match = before.match(/@([\w\u00C0-\u017E]*)$/);
-  
-  if (match) {
-    const query = match[1].toLowerCase();
-    // Get all commenter names from DOM
-    const allNames = [];
-    document.querySelectorAll('#commentsList .comment-item').forEach(item => {
-      const nameEl = item.querySelector('[data-commenter]');
-      if (nameEl) allNames.push(nameEl.dataset.commenter);
+      // Delete
+      if (action === 'del') {
+        const ok = await window.askConfirm(
+          currentLang === 'tr' ? 'Yorum silinsin mi?' : 'Delete comment?',
+          c.parentId ?
+            (currentLang === 'tr' ? 'Bu işlem geri alınamaz.' : 'This cannot be undone.') :
+            (currentLang === 'tr' ? 'Yorum ve altındaki tüm cevaplar silinir. Bu işlem geri alınamaz.' : 'Comment and all replies under it will be deleted. This cannot be undone.')
+        );
+        if (ok) {
+          try {
+            if (isFirebaseConfigured && db) {
+              await db.collection('public_comments').doc(id).delete();
+              // also delete replies
+              const replies = _commentsData.filter(r => r.parentId === id);
+              for (const r of replies) {
+                await db.collection('public_comments').doc(r.id).delete().catch(() => {});
+              }
+            } else {
+              let local = JSON.parse(localStorage.getItem('zyro_local_comments') || '[]');
+              local = local.filter(x => x.id !== id && x.parentId !== id);
+              localStorage.setItem('zyro_local_comments', JSON.stringify(local));
+              _commentsData = _commentsData.filter(x => x.id !== id && x.parentId !== id);
+              drawComments();
+            }
+            showToast(currentLang === 'tr' ? 'Yorum silindi' : 'Comment deleted', 'success');
+          } catch (err) {
+            console.error('Delete error:', err);
+          }
+        }
+        return;
+      }
+
+      // Report
+      if (action === 'rep') {
+        _commentsReportTargetId = id;
+        const dlgR = document.getElementById('dlgR');
+        if (fr) fr.reset();
+        if (dlgR && typeof dlgR.showModal === 'function') dlgR.showModal();
+      }
     });
-    const unique = [...new Set(allNames)];
-    const filtered = query ? unique.filter(n => n.toLowerCase().startsWith(query)) : unique;
-    
-    if (filtered.length > 0) {
-      dropdown.style.display = 'block';
-      dropdown.innerHTML = filtered.map(name => `
-        <div onclick="_insertMention('${commentId}','${name.replace(/'/g, "\\'")}')"
-          style="padding:8px 14px;cursor:pointer;font-size:0.85rem;display:flex;align-items:center;gap:8px;"
-          onmouseenter="this.style.background='rgba(139,124,247,0.12)'"
-          onmouseleave="this.style.background='transparent'">
-          <span style="color:var(--accent-primary);font-weight:600;">@${name}</span>
-        </div>
-      `).join('');
-    } else {
-      dropdown.style.display = 'none';
-    }
-  } else {
-    dropdown.style.display = 'none';
-  }
-};
-
-window._insertMention = function(commentId, name) {
-  const ta = document.getElementById(`replyInput_${commentId}`);
-  const dropdown = document.getElementById(`mentionDropdown_${commentId}`);
-  if (!ta) return;
-  const cursor = ta.selectionStart;
-  const val = ta.value;
-  const before = val.substring(0, cursor);
-  const after = val.substring(cursor);
-  // Replace the @partial with @fullname
-  const newBefore = before.replace(/@[\w\u00C0-\u017E]*$/, `@${name} `);
-  ta.value = newBefore + after;
-  ta.focus();
-  ta.selectionStart = ta.selectionEnd = newBefore.length;
-  if (dropdown) dropdown.style.display = 'none';
-};
-
-window.showReplyForm = function(commentId, authorName) {
-  const form = document.getElementById(`replyForm_${commentId}`);
-  if (!form) return;
-  const isHidden = form.style.display === 'none' || form.style.display === '';
-  form.style.display = isHidden ? 'block' : 'none';
-  if (isHidden && authorName) {
-    const ta = document.getElementById(`replyInput_${commentId}`);
-    if (ta && !ta.value) {
-      ta.value = `@${authorName} `;
-      ta.focus();
-      ta.selectionStart = ta.selectionEnd = ta.value.length;
-    } else if (ta) {
-      ta.focus();
-    }
-  }
-};
-
-window.submitReply = async function(parentId) {
-  const input = document.getElementById(`replyInput_${parentId}`);
-  const text = input.value.trim();
-  if (!text) return;
-
-  if (!currentUser) {
-    showToast('Cevap yazmak için giriş yapmalısın!', 'error');
-    return;
   }
 
-  const isMuted = await checkUserMute(currentUser.uid);
-  if (isMuted) {
-    showToast('Yorum yapma yetkiniz geçici veya kalıcı olarak kısıtlanmıştır!', 'error');
-    return;
-  }
+  if (fr) {
+    fr.addEventListener('submit', async e => {
+      e.preventDefault();
+      const dlgR = document.getElementById('dlgR');
+      if (dlgR) dlgR.close();
+      const rr = document.getElementById('rr');
+      const rn = document.getElementById('rn');
+      const reason = rr ? rr.value : 'Spam';
+      const note = rn ? rn.value.trim() : '';
 
-  const reply = {
-    text,
-    parentId,
-    userId: currentUser.uid,
-    userName: currentUser.displayName || 'User',
-    userEmail: currentUser.email,
-    userPhoto: (appData.profile && appData.profile.photoURL) ? appData.profile.photoURL : (currentUser.photoURL || null),
-    timestamp: Date.now(),
-    date: todayStr(),
-    upvotes: 0,
-    upvotedBy: [],
-    rank: commentAuthorRankKey()
-  };
+      if (isFirebaseConfigured && db && _commentsReportTargetId) {
+        try {
+          await db.collection('reports').add({
+            commentId: _commentsReportTargetId,
+            reason,
+            note,
+            reporterId: currentUser ? currentUser.uid : 'guest',
+            reporterName: currentUser ? currentUser.displayName : 'Guest',
+            timestamp: Date.now(),
+            status: 'pending'
+          });
+        } catch (err) {
+          console.warn('Report write error:', err);
+        }
+      }
+      showToast(currentLang === 'tr' ? 'Bildirimin alındı' : 'Report received', 'success');
+    });
+  }
+}
+
+async function _voteCommentItem(c, dir) {
+  const myId = currentUser ? currentUser.uid : 'guest';
+  const upList = Array.isArray(c.up) ? c.up : (Array.isArray(c.upvotedBy) ? c.upvotedBy : []);
+  const dnList = Array.isArray(c.down) ? c.down : (Array.isArray(c.downvotedBy) ? c.downvotedBy : []);
+
+  const hasUp = upList.includes(myId);
+  const hasDn = dnList.includes(myId);
+
+  let newUp = upList.filter(x => x !== myId);
+  let newDn = dnList.filter(x => x !== myId);
+
+  if (dir === 1 && !hasUp) newUp.push(myId);
+  if (dir === -1 && !hasDn) newDn.push(myId);
+
+  c.up = newUp;
+  c.upvotedBy = newUp;
+  c.upvotes = newUp.length;
+  c.down = newDn;
+  c.downvotedBy = newDn;
+  c.downvotes = newDn.length;
+
+  drawComments();
 
   if (isFirebaseConfigured && db) {
     try {
-      const replyRef = await db.collection('public_comments').add(reply);
-      
-      // Fetch parent comment to notify the author
-      const parentDoc = await db.collection('public_comments').doc(parentId).get();
-      if (parentDoc.exists) {
-        const parentData = parentDoc.data();
-        if (parentData.userId && parentData.userId !== currentUser.uid && parentData.userId !== 'local') {
-          await db.collection(`users/${parentData.userId}/notifications`).add({
-            title: 'Yorumuna Cevap Geldi!',
-            message: `${currentUser.displayName || 'Birisi'} yorumunu yanıtladı: "${text.length > 30 ? text.substring(0,30) + '...' : text}"`,
-            body: `${currentUser.displayName || 'Birisi'} yorumunu yanıtladı: "${text.length > 120 ? text.substring(0,120) + '...' : text}"`,
-            type: 'reply',
-            link: 'comments',
-            targetCommentId: replyRef.id,
-            timestamp: Date.now(),
-            createdAt: new Date(),
-            read: false
-          });
-        }
-      }
-
-      showToast('Cevabın gönderildi!', 'success');
-      input.value = '';
-      document.getElementById(`replyForm_${parentId}`).style.display = 'none';
-      renderComments();
-      
-      // Notification
-      sendCommentEmailNotification(text, currentUser.displayName || currentUser.email, true);
+      const docRef = db.collection('public_comments').doc(c.id);
+      await docRef.update({
+        up: newUp,
+        upvotedBy: newUp,
+        upvotes: newUp.length,
+        down: newDn,
+        downvotedBy: newDn,
+        downvotes: newDn.length
+      });
     } catch (e) {
-      showToast('Hata: ' + e.message, 'error');
+      console.error('Vote update failed:', e);
+    }
+  } else {
+    let local = JSON.parse(localStorage.getItem('zyro_local_comments') || '[]');
+    const idx = local.findIndex(x => x.id === c.id);
+    if (idx !== -1) {
+      local[idx].up = newUp;
+      local[idx].down = newDn;
+      localStorage.setItem('zyro_local_comments', JSON.stringify(local));
     }
   }
-};
+}
 
-function sendCommentEmailNotification(text, userName, isReply = false) {
-  if (db) {
-    db.collection('admin_notifications').add({
-      type: isReply ? 'reply' : 'comment',
-      text: text,
-      from: userName,
-      timestamp: Date.now(),
-      target: 'wupard@gmail.com'
-    }).catch(e => console.error('Admin notification failed:', e));
+function _renderCommentItemHtml(c, isReply) {
+  const myId = currentUser ? currentUser.uid : 'u_' + (appData.profile && appData.profile.displayName || 'guest');
+  const isMine = (c.uid === myId || c.userId === myId);
+  const isModerator = (currentUser && currentUser.email === 'wupard@gmail.com') || (appData.profile && ['founder', 'mod', 'admin'].includes(appData.profile.role));
+  const canDelete = isMine || isModerator;
+
+  const roleKey = c.role || (c.userId && c.userId.includes('wupard') ? 'founder' : null);
+  const badge = roleKey ? ROLE_BADGES[roleKey] : null;
+
+  const avLetter = escapeHtml(((c.name || c.userName || '?')[0] || '?').toUpperCase());
+  const avatarHtml = (c.avatar || c.userPhoto) ?
+    `<img src="${escapeHtml(c.avatar || c.userPhoto)}" alt="">` :
+    avLetter;
+
+  const upList = Array.isArray(c.up) ? c.up : (Array.isArray(c.upvotedBy) ? c.upvotedBy : []);
+  const dnList = Array.isArray(c.down) ? c.down : (Array.isArray(c.downvotedBy) ? c.downvotedBy : []);
+  const isUpvoted = upList.includes(myId);
+  const isDownvoted = dnList.includes(myId);
+
+  const isEditing = _commentsEditState === c.id;
+  const isReplying = _commentsReplyState && _commentsReplyState.id === c.id;
+  const isAnon = c.anon || c.isAnonymous;
+  const authorName = isAnon ? (currentLang === 'tr' ? 'Anonim' : 'Anonymous') : (c.name || c.userName || 'Kullanıcı');
+
+  const ico = name => `<svg class="i"><use href="#zr-i-${name}"/></svg>`;
+
+  return `<${isReply ? 'div class="rp"' : 'article class="cm"'} data-id="${escapeHtml(c.id)}">
+    <div class="hd2">
+      <div class="av">${avatarHtml}</div>
+      <span class="nmx${isAnon ? ' an' : ''}">${escapeHtml(authorName)}</span>
+      ${badge ? `<span class="bd ${badge[1]}">${badge[0]}</span>` : ''}
+      <div class="dt">
+        ${c.edited ? `<span class="ed">${currentLang === 'tr' ? 'düzenlendi · ' : 'edited · '}</span>` : ''}
+        ${_formatCommentDate(c.ts || c.timestamp)}
+        ${isMine ? `<button type="button" class="ib" data-a="edit" aria-label="Düzenle">${ico('edit')}</button>` : ''}
+        ${canDelete ? `<button type="button" class="ib dg" data-a="del" aria-label="Sil">${ico('trash')}</button>` : ''}
+      </div>
+    </div>
+    ${isEditing ? `
+      <div class="rc">
+        <textarea class="in" maxlength="1000" data-ta aria-label="Yorumu düzenle">${escapeHtml(_commentsInputText)}</textarea>
+        <div class="da">
+          <button type="button" class="ghost" data-a="ecancel">${currentLang === 'tr' ? 'İptal' : 'Cancel'}</button>
+          <button type="button" class="btn" data-a="esave">${currentLang === 'tr' ? 'Kaydet' : 'Save'}</button>
+        </div>
+      </div>
+    ` : `
+      <div class="tx">${c.mention ? `<span class="mn">@${escapeHtml(c.mention)}</span>` : ''}${escapeHtml(c.text)}</div>
+      <div class="ac">
+        <button type="button" class="vt" data-a="up" aria-pressed="${isUpvoted}" ${isMine ? 'disabled' : ''} aria-label="Beğen">
+          ${ico('up')}${upList.length}
+        </button>
+        <button type="button" class="vt dn" data-a="dn" aria-pressed="${isDownvoted}" ${isMine ? 'disabled' : ''} aria-label="Beğenme">
+          ${ico('down')}${dnList.length}
+        </button>
+        <button type="button" class="lk" data-a="reply">
+          ${ico('reply')}${currentLang === 'tr' ? 'Cevapla' : 'Reply'}
+        </button>
+        ${isMine ? '' : `<button type="button" class="lk" data-a="rep">${ico('flag')}${currentLang === 'tr' ? 'Raporla' : 'Report'}</button>`}
+      </div>
+    `}
+    ${isReplying ? `
+      <div class="rc">
+        <textarea class="in" maxlength="1000" data-ta placeholder="${currentLang === 'tr' ? 'Cevabını yaz…' : 'Write your reply…'}" aria-label="Cevap">${escapeHtml(_commentsInputText)}</textarea>
+        <div class="da">
+          <button type="button" class="ghost" data-a="rcancel">${currentLang === 'tr' ? 'İptal' : 'Cancel'}</button>
+          <button type="button" class="btn" data-a="rsend">${ico('send')}${currentLang === 'tr' ? 'Cevapla' : 'Reply'}</button>
+        </div>
+      </div>
+    ` : ''}
+  </${isReply ? 'div' : 'article'}>`;
+}
+
+function drawComments() {
+  initComments();
+  const cn = document.getElementById('cn');
+  const so = document.getElementById('so');
+  const list = document.getElementById('list');
+  if (!list) return;
+
+  const cs = _commentsData;
+  if (cn) cn.textContent = cs.length;
+
+  if (so) {
+    so.innerHTML = [
+      ['new', currentLang === 'tr' ? 'En yeni' : 'Newest'],
+      ['top', currentLang === 'tr' ? 'Popüler' : 'Popular']
+    ].map(([k, v]) => `<button type="button" data-s="${k}" aria-pressed="${k === _commentsSort}">${v}</button>`).join('');
   }
 
-  // Send email via FormSubmit API to wupard@gmail.com
-  fetch('https://formsubmit.co/ajax/wupard@gmail.com', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json'
-    },
-    body: JSON.stringify({
-      _subject: isReply ? 'Zyro - Yeni Yorum Yanıtı' : 'Zyro - Yeni Yorum',
-      Gonderen: userName,
-      Mesaj: text,
-      Tip: isReply ? 'Yanıt' : 'Ana Yorum'
-    })
-  }).catch(e => console.error('Email send failed:', e));
+  const topLevel = cs.filter(c => !c.parentId);
+  topLevel.sort((a, b) => {
+    if (_commentsSort === 'top') {
+      return _commentScore(b) - _commentScore(a) || (b.ts || b.timestamp || 0) - (a.ts || a.timestamp || 0);
+    }
+    return (b.ts || b.timestamp || 0) - (a.ts || a.timestamp || 0);
+  });
+
+  if (!topLevel.length) {
+    list.innerHTML = `<div class="empty">${currentLang === 'tr' ? 'Henüz yorum yok. İlk yorumu sen yaz.' : 'No comments yet. Be the first to comment.'}</div>`;
+    return;
+  }
+
+  list.innerHTML = topLevel.map(c => {
+    const replies = cs.filter(r => r.parentId === c.id).sort((a, b) => (a.ts || a.timestamp || 0) - (b.ts || b.timestamp || 0));
+    const mainHtml = _renderCommentItemHtml(c, false);
+    if (!replies.length) return mainHtml;
+    const closeIdx = mainHtml.lastIndexOf('</article>');
+    const repliesHtml = `<div class="rps">${replies.map(r => _renderCommentItemHtml(r, true)).join('')}</div>`;
+    return mainHtml.slice(0, closeIdx) + repliesHtml + '</article>';
+  }).join('');
+
+  const activeTa = list.querySelector('[data-ta]');
+  if (activeTa && document.activeElement === document.body) {
+    activeTa.focus();
+  }
+}
+
+function renderComments() {
+  initComments();
+  if (isFirebaseConfigured && db) {
+    if (!commentsListenerUnsub) {
+      const q = db.collection('public_comments').orderBy('timestamp', 'desc').limit(60);
+      commentsListenerUnsub = q.onSnapshot(snap => {
+        const comments = [];
+        snap.forEach(doc => {
+          const d = doc.data();
+          comments.push({
+            id: doc.id,
+            parentId: d.parentId || null,
+            uid: d.userId || d.uid,
+            userId: d.userId || d.uid,
+            name: d.userName || d.name,
+            userName: d.userName || d.name,
+            role: d.userRole || d.role,
+            avatar: d.userPhoto || d.avatar,
+            userPhoto: d.userPhoto || d.avatar,
+            anon: !!(d.isAnonymous || d.anon),
+            isAnonymous: !!(d.isAnonymous || d.anon),
+            mention: d.replyTo || d.mention,
+            text: d.text || '',
+            ts: d.timestamp || d.ts || Date.now(),
+            timestamp: d.timestamp || d.ts || Date.now(),
+            edited: !!d.edited,
+            up: Array.isArray(d.up) ? d.up : (Array.isArray(d.upvotedBy) ? d.upvotedBy : []),
+            upvotedBy: Array.isArray(d.up) ? d.up : (Array.isArray(d.upvotedBy) ? d.upvotedBy : []),
+            upvotes: d.upvotes || 0,
+            down: Array.isArray(d.down) ? d.down : (Array.isArray(d.downvotedBy) ? d.downvotedBy : []),
+            downvotedBy: Array.isArray(d.down) ? d.down : (Array.isArray(d.downvotedBy) ? d.downvotedBy : []),
+            downvotes: d.downvotes || 0
+          });
+        });
+        _commentsData = comments;
+        drawComments();
+      }, err => {
+        console.warn('Comments listener error:', err);
+        const local = JSON.parse(localStorage.getItem('zyro_local_comments') || '[]');
+        _commentsData = local;
+        drawComments();
+      });
+    } else {
+      drawComments();
+    }
+  } else {
+    const local = JSON.parse(localStorage.getItem('zyro_local_comments') || '[]');
+    _commentsData = local;
+    drawComments();
+  }
 }
 
 window.adminDeleteComment = async function(commentId) {
