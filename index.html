@@ -1260,24 +1260,25 @@
 
     <!-- ===== PAGE: LEADERBOARD ===== -->
     <div class="page" data-page="leaderboard" id="pageLeaderboard">
-      <div class="lb-header-section">
-        <div class="lb-header-icon">👑</div>
-        <h1 class="lb-header-title">Liderlik Tablosu</h1>
-        <p class="lb-header-subtitle">Topluluğun en iyileriyle yarışın</p>
-      </div>
-      
-      <div class="lb-filters">
-        <button class="lb-filter-btn active" onclick="setLeaderboardFilter('level')" id="lbFilterLevel">Seviye (XP)</button>
-        <button class="lb-filter-btn" onclick="setLeaderboardFilter('pr')" id="lbFilterPR">En Yüksek PR</button>
-      </div>
+      <svg width="0" height="0" style="position:absolute"><defs>
+        <symbol id="i-crown" viewBox="0 0 24 24"><path d="M3 8l4.5 4L12 5l4.5 7L21 8l-2 11H5z"/></symbol>
+        <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+        <symbol id="i-right" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></symbol>
+      </defs></svg>
 
-      <div id="leaderboardList" class="lb-list">
-        <!-- Leaderboard items injected here -->
-        <div style="text-align:center; padding:40px; color:var(--text-muted);">
-          <div class="loader-mini" style="margin:0 auto 12px;"></div>
-          Yükleniyor...
-        </div>
+      <div class="lbw">
+        <header class="hd">
+          <div><h1>Liderlik <b>tablosu</b></h1><p>Topluluğun en iyileriyle yarış</p></div>
+          <div class="hb"><button class="pill" id="demo" title="Sadece tasarım önizlemesi için">Örnek veriyi yükle</button></div>
+        </header>
+        <div class="tabs2" role="tablist" id="tabs" aria-label="Sıralama türü"><button role="tab" data-t="xp" aria-selected="true">Seviye (XP)</button><button role="tab" data-t="pr" aria-selected="false">En yüksek PR</button></div>
+        <div id="flt" hidden><div class="chips" id="cats" role="group" aria-label="Kategori"></div><div class="chips" id="exs" role="group" aria-label="Hareket"></div></div>
+        <div id="me"></div>
+        <div id="pod"></div>
+        <div id="rows"></div>
       </div>
+      <div class="ov" id="ov" aria-hidden="true"></div>
+      <div class="toast" id="toast" role="status" aria-live="polite"></div>
     </div>
 
     <!-- ===== PAGE: BEFORE/AFTER ===== -->

@@ -10091,264 +10091,283 @@ function showOneRMResult(weight, reps) {
 }
 
 // =============================================
-// LEADERBOARD & PUBLIC PROFILE
+// LEADERBOARD & PUBLIC PROFILE (reference: zyro-leaderboard.html)
 // =============================================
-let currentLeaderboardFilter = 'level';
-window.setLeaderboardFilter = function(filter) {
-  currentLeaderboardFilter = filter;
-  document.getElementById('lbFilterLevel').classList.toggle('active', filter === 'level');
-  document.getElementById('lbFilterPR').classList.toggle('active', filter === 'pr');
-  renderLeaderboard();
-};
+(function initLeaderboardModule() {
+  const MONL = ['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran','Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'];
+  const MON = ['Oca','Şub','Mar','Nis','May','Haz','Tem','Ağu','Eyl','Eki','Kas','Ara'];
+  const iso = d => d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+  const pd = s => { const [y,m,d] = String(s).split('-'); return new Date(+y, m-1, +d); };
+  const ago = n => { const d = new Date(); d.setDate(d.getDate() - n); return iso(d); };
+  const $ = s => document.querySelector('#pageLeaderboard ' + s);
+  const esc = s => String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const fn = n => Math.round(n || 0).toLocaleString('tr-TR');
+  const fw = n => String(+(Number(n || 0).toFixed(1))).replace('.', ',');
+  const fy = s => { const d = pd(s); return d.getDate() + ' ' + MON[d.getMonth()] + ' ' + d.getFullYear(); };
 
-let leaderboardDataCache = null;
-let leaderboardLastFetch = 0;
+  const CATS = { all: 'Tümü', chest: 'Göğüs', back: 'Sırt', shoulders: 'Omuz', arms: 'Kol', legs: 'Bacak', core: 'Core' };
+  const AC = ['#8fb3cc','#dcc7a8','#c99a9a','#a9c7da','#b8c4a9','#c4b5a0'];
+  let users = [], tab = 'xp', cat = 'all', exf = 'all', demo = false, lastF = null;
 
-window.renderLeaderboard = async function(forceRefresh = false) {
-  const list = document.getElementById('leaderboardList');
-  if (!list) return;
-  
-  if (!isFirebaseConfigured || !db) {
-    list.innerHTML = '<div style="text-align:center; padding:40px; color:var(--text-muted);">Liderlik tablosu internet bağlantısı gerektirir.</div>';
-    return;
+  const hue = s => AC[[...String(s || 'User')].reduce((a, c) => a + c.charCodeAt(0), 0) % AC.length];
+  const av = (u, c) => '<div class="avw ' + (c || '') + '" style="--ac:' + hue(u.name) + '">' +
+    (u.img ? '<img src="' + esc(u.img) + '" alt="" loading="lazy">' : esc((u.name.trim()[0] || '?').toUpperCase())) + '</div>';
+  const better = (a, b) => !b || a.w > b.w || (a.w === b.w && (a.r > b.r || (a.r === b.r && a.d < b.d)));
+  const bestOf = a => (a || []).reduce((b, x) => better(x, b) ? x : b, null);
+
+  function prEntries() {
+    const sc = p => (cat === 'all' || p.cat === cat) && (exf === 'all' || p.ex === exf);
+    const out = [], none = [];
+    users.forEach(u => {
+      const b = bestOf((u.prs || []).filter(sc));
+      if (b) out.push({ u, raw: b.w, val: fw(b.w), unit: 'kg', sub: exf === 'all' ? b.ex : b.r + ' tekrar × ' + b.s + ' set', pr: b });
+      else none.push(u);
+    });
+    out.sort((x, y) => y.raw - x.raw || (y.pr && x.pr ? y.pr.r - x.pr.r : 0));
+    if (cat === 'all' && exf === 'all') none.forEach(u => out.push({ u, raw: -1, val: '—', unit: '', sub: 'Henüz kayıt yok' }));
+    return out;
   }
-  
-  if (!leaderboardDataCache || forceRefresh || Date.now() - leaderboardLastFetch > 60000) {
-    list.innerHTML = '<div style="text-align:center; padding:40px; color:var(--text-muted);"><div class="loader-mini" style="margin:0 auto 12px;"></div>Yükleniyor...</div>';
-    try {
-      const snap = await db.collection('public_stats').get();
-      leaderboardDataCache = [];
-      snap.forEach(doc => { leaderboardDataCache.push(doc.data()); });
-      leaderboardLastFetch = Date.now();
-    } catch (err) {
-      console.error('Leaderboard error:', err);
-      list.innerHTML = '<div style="text-align:center; padding:40px; color:var(--red-vivid);">Liderlik tablosu yüklenemedi.</div>';
-      return;
+
+  function entries() {
+    return tab === 'xp'
+      ? [...users].sort((a, b) => (b.xp || 0) - (a.xp || 0)).map(u => ({ u, raw: u.xp || 0, val: fn(u.xp || 0), unit: 'XP', sub: 'Lv.' + (u.lvl || 1) }))
+      : prEntries();
+  }
+
+  function meStrip(en) {
+    const i = en.findIndex(e => e.u.me);
+    if (i < 0) return tab === 'pr' ? '<div class="ms"><div><small>Senin sıran</small><b>—</b></div><span>Bu seçimde henüz kaydın yok.</span></div>' : '';
+    const e = en[i];
+    let msg;
+    if (e.raw < 0) msg = 'Henüz kaydın yok.';
+    else if (i === 0) msg = 'Zirvedesin. Tebrikler!';
+    else {
+      const d = en[i - 1].raw - e.raw;
+      msg = d > 0 ? 'Bir üst sıraya ' + (tab === 'xp' ? fn(d) + ' XP' : fw(d) + ' kg') + ' kaldı.' : 'Bir üst sırayla aynı değerdesin.';
+    }
+    return '<div class="ms"><div><small>Senin sıran</small><b>' + (e.raw < 0 ? '—' : '#' + (i + 1)) + '</b></div><span>' + msg + '</span></div>';
+  }
+
+  const tagMe = u => u.me ? '<i class="mtg" style="font-style:normal">SEN</i>' : '';
+
+  function podium(en) {
+    const top = en.slice(0, 3).filter(e => e.raw >= 0);
+    const order = [1, 0, 2].filter(i => i < top.length);
+    if (!top.length) return '';
+    return '<div class="pod">' + order.map(i => {
+      const e = top[i], c = tab === 'pr' && e.pr;
+      const inner = (i === 0 ? '<div class="bd"><svg class="i" style="width:26px;height:26px"><use href="#i-crown"/></svg></div>' : '<div class="bd">' + (i + 1) + '</div>') +
+        av(e.u) + '<b>' + esc(e.u.name) + '</b><div class="v">' + e.val + '<small>' + e.unit + '</small></div><span>' + esc(e.sub) + '</span>';
+      return '<' + (c ? 'button' : 'div') + ' class="pc r' + (i + 1) + (e.u.me ? ' me' : '') + '" style="--n:' + i + '"' + (c ? ' data-u="' + e.u.id + '"' : '') + '>' + inner + '</' + (c ? 'button' : 'div') + '>';
+    }).join('') + '</div>';
+  }
+
+  function rows(en) {
+    const rest = en.slice(top3(en));
+    return rest.map((e, k) => {
+      const n = top3(en) + k + 1, c = tab === 'pr' && e.pr, t = c ? 'button' : 'div';
+      return '<' + t + ' class="rw' + (e.u.me ? ' me' : '') + (e.raw < 0 ? ' nr' : '') + '" style="--n:' + k + '"' + (c ? ' data-u="' + e.u.id + '"' : '') + '>' +
+        '<div class="rn">' + (e.raw < 0 ? '–' : '#' + n) + '</div>' + av(e.u, 'sm') +
+        '<div class="nm"><b><span>' + esc(e.u.name) + '</span>' + tagMe(e.u) + '</b><small>' + esc(e.sub) + '</small></div>' +
+        '<div class="val">' + e.val + '<small>' + e.unit + '</small></div>' +
+        (c ? '<svg class="i go" style="width:16px;height:16px"><use href="#i-right"/></svg>' : '') + '</' + t + '>';
+    }).join('');
+  }
+
+  const top3 = en => Math.min(3, en.filter(e => e.raw >= 0).length);
+
+  function filters() {
+    const elCats = $('#cats'), elExs = $('#exs');
+    if (elCats) elCats.innerHTML = Object.entries(CATS).map(([k, v]) => '<button data-c="' + k + '" aria-pressed="' + (k === cat) + '">' + v + '</button>').join('');
+    if (!elExs) return;
+    if (cat === 'all') { elExs.hidden = true; return; }
+    const m = {};
+    users.forEach(u => (u.prs || []).forEach(p => { if (p.cat === cat) m[p.ex] = (m[p.ex] || 0) + 1; }));
+    const names = Object.keys(m).sort((a, b) => m[b] - m[a]);
+    elExs.hidden = false;
+    elExs.innerHTML = names.length
+      ? '<button data-e="all" aria-pressed="' + (exf === 'all') + '">Tüm hareketler</button>' + names.map(n => '<button data-e="' + esc(n) + '" aria-pressed="' + (exf === n) + '">' + esc(n) + '</button>').join('')
+      : '<span style="color:var(--mute);font-size:13.5px">Bu kategoride henüz kayıt yok.</span>';
+  }
+
+  function lb() {
+    document.querySelectorAll('#pageLeaderboard #tabs button').forEach(b => b.setAttribute('aria-selected', b.dataset.t === tab));
+    const flt = $('#flt');
+    if (flt) flt.hidden = (tab !== 'pr');
+    if (tab === 'pr') filters();
+    const en = entries();
+    const elMe = $('#me'), elPod = $('#pod'), elRows = $('#rows');
+    if (elMe) elMe.innerHTML = en.length ? meStrip(en) : '';
+    if (elPod) elPod.innerHTML = podium(en);
+    if (elRows) elRows.innerHTML = en.length ? rows(en) : '<div class="empty">Henüz sıralama yok.</div>';
+  }
+
+  function openD(id) {
+    const en = prEntries().find(e => String(e.u.id) === String(id));
+    if (!en || !en.pr) return;
+    const u = en.u, p = en.pr;
+    lastF = document.activeElement;
+    const pool = users.map(x => ({ x, b: bestOf((x.prs || []).filter(q => q.ex === p.ex)) }))
+      .filter(o => o.b).sort((a, b) => b.b.w - a.b.w || b.b.r - a.b.r);
+    const rk = pool.findIndex(o => String(o.x.id) === String(id)) + 1;
+    const ov = $('#ov');
+    if (!ov) return;
+    ov.innerHTML = '<div class="dlg" role="dialog" aria-modal="true" aria-labelledby="dn"><button class="dx" id="dc" aria-label="Kapat"><svg class="i" style="width:16px;height:16px"><use href="#i-x"/></svg></button>' +
+      '<div class="dh">' + av(u, 'big') + '<div><small>Kişisel rekor</small><b id="dn">' + esc(u.name) + '</b><span>En yüksek PR detayları</span></div></div>' +
+      '<div class="cap">Hareket</div><div class="mv">' + esc(p.ex) + '</div>' +
+      '<div class="st3"><div><b>' + fw(p.w) + '<small>kg</small></b><span>Ağırlık</span></div><div><b>' + (p.s || 1) + '</b><span>Set</span></div><div><b>' + (p.r || 1) + '</b><span>Tekrar</span></div></div>' +
+      '<div class="vl"><span>Toplam hacim</span><b>' + fn((p.w || 0) * (p.r || 1) * (p.s || 1)) + ' <small>kg</small></b></div>' +
+      '<div class="vl"><span>Bu harekette sıralama</span><b>#' + rk + ' <small>/ ' + pool.length + '</small></b></div>' +
+      '<div class="vl"><span>Tarih</span><b style="font-size:15px">' + fy(p.d || new Date().toISOString()) + '</b></div></div>';
+    ov.classList.add('show');
+    ov.setAttribute('aria-hidden', 'false');
+    const dc = $('#dc');
+    if (dc) dc.focus();
+  }
+
+  function closeD() {
+    const ov = $('#ov');
+    if (!ov) return;
+    ov.classList.remove('show');
+    ov.setAttribute('aria-hidden', 'true');
+    if (lastF) lastF.focus();
+  }
+
+  function loadDemo() {
+    let sd = 11;
+    const rnd = () => (sd = (sd * 9301 + 49297) % 233280) / 233280;
+    const EX = [
+      ['Barbell Bench Press', 'chest', 80],
+      ['Incline Dumbbell Press', 'chest', 30],
+      ['Lat Pulldown', 'back', 70],
+      ['Barbell Row', 'back', 65],
+      ['Seated Shoulder Press', 'shoulders', 28],
+      ['EZ Bar Curl', 'arms', 35],
+      ['Triceps Pushdown', 'arms', 40],
+      ['Squat', 'legs', 100],
+      ['Leg Press', 'legs', 180],
+      ['Cable Crunch', 'core', 45]
+    ];
+    users = ['Sen', 'Deniz K.', 'Mert A.', 'Elif S.', 'Burak T.', 'Selin Y.', 'Can D.', 'Ayşe B.', 'Kerem Ö.'].map((name, i) => {
+      const f = .55 + rnd() * .7, prs = [];
+      EX.forEach(([ex, c, b]) => {
+        if (i === 0 || rnd() < .75) {
+          prs.push({
+            ex,
+            cat: c,
+            w: Math.round(b * f * (.9 + rnd() * .2) / 2.5) * 2.5,
+            r: 3 + Math.floor(rnd() * 8),
+            s: 1 + Math.floor(rnd() * 4),
+            d: ago(Math.floor(rnd() * 40))
+          });
+        }
+      });
+      const xp = Math.round(rnd() * 6000);
+      return { id: 'u' + i, name, me: i === 0, xp, lvl: 1 + Math.floor(Math.sqrt(xp / 60)), prs };
+    });
+  }
+
+  async function loadData() {
+    if (demo) return;
+    let fetched = false;
+    if (typeof isFirebaseConfigured !== 'undefined' && isFirebaseConfigured && typeof db !== 'undefined' && db) {
+      try {
+        const snap = await db.collection('public_stats').get();
+        const list = [];
+        snap.forEach(doc => {
+          const d = doc.data();
+          const isMe = (typeof currentUser !== 'undefined' && currentUser && (d.uid === currentUser.uid));
+          const prs = [];
+          if (d.bestPR) {
+            prs.push({
+              ex: d.bestPRExercise || 'Bench Press',
+              cat: d.bestPRCategory || 'chest',
+              w: Number(d.bestPR) || 0,
+              r: Number(d.bestPRReps) || 1,
+              s: Number(d.bestPRSets) || 1,
+              d: d.bestPRDate || new Date().toISOString()
+            });
+          }
+          if (Array.isArray(d.prs)) {
+            d.prs.forEach(p => prs.push(p));
+          }
+          list.push({
+            id: d.uid || doc.id,
+            name: d.displayName || 'İsimsiz',
+            img: d.photoURL || '',
+            me: isMe,
+            xp: Number(d.xp) || 0,
+            lvl: Number(d.level) || (1 + Math.floor(Math.sqrt((d.xp || 0) / 60))),
+            prs
+          });
+        });
+        if (list.length > 0) {
+          users = list;
+          fetched = true;
+        }
+      } catch (err) {
+        console.warn('Leaderboard fetch error:', err);
+      }
+    }
+
+    if (!fetched && users.length === 0) {
+      loadDemo();
+    }
+    lb();
+  }
+
+  function bindEvents() {
+    const tabs = $('#tabs');
+    if (tabs) tabs.onclick = e => { const b = e.target.closest('[data-t]'); if (b) { tab = b.dataset.t; lb(); } };
+
+    const cats = $('#cats');
+    if (cats) cats.onclick = e => { const b = e.target.closest('[data-c]'); if (b) { cat = b.dataset.c; exf = 'all'; lb(); } };
+
+    const exs = $('#exs');
+    if (exs) exs.onclick = e => { const b = e.target.closest('[data-e]'); if (b) { exf = b.dataset.e; lb(); } };
+
+    const lbw = document.querySelector('#pageLeaderboard .lbw');
+    if (lbw) lbw.addEventListener('click', e => { const b = e.target.closest('[data-u]'); if (b) openD(b.dataset.u); });
+
+    const ov = $('#ov');
+    if (ov) ov.onclick = e => { if (e.target.id === 'ov' || e.target.closest('#dc')) closeD(); };
+
+    window.addEventListener('keydown', e => {
+      const elOv = $('#ov');
+      if (e.key === 'Escape' && elOv && elOv.classList.contains('show')) closeD();
+    });
+
+    const elDemo = $('#demo');
+    if (elDemo) {
+      elDemo.onclick = () => {
+        demo = !demo;
+        users = [];
+        cat = 'all';
+        exf = 'all';
+        if (demo) loadDemo();
+        else loadData();
+        elDemo.textContent = demo ? 'Örnek veriyi temizle' : 'Örnek veriyi yükle';
+        lb();
+      };
     }
   }
-  
-  let users = [...(leaderboardDataCache || [])];
-  
-  if (currentLeaderboardFilter === 'level') {
-    users.sort((a, b) => (b.xp || 0) - (a.xp || 0));
-  } else if (currentLeaderboardFilter === 'pr') {
-    users.sort((a, b) => (b.bestPR || 0) - (a.bestPR || 0));
+
+  window.renderLeaderboard = function(forceRefresh) {
+    if (forceRefresh) users = [];
+    loadData();
+  };
+
+  function setup() {
+    bindEvents();
+    loadData();
   }
-  
-  users = users.slice(0, 50);
-  
-  if (users.length === 0) {
-    list.innerHTML = '<div style="text-align:center; padding:40px; color:var(--text-muted);">Henüz kimse yok. İlk sen ol!</div>';
-    return;
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', setup);
+  } else {
+    setup();
   }
-  
-  list.innerHTML = users.map((u, index) => {
-    const isMe = currentUser && u.uid === currentUser.uid;
-    const prExercise = (currentLeaderboardFilter === 'pr' && u.bestPRExercise) 
-      ? `<div style="font-size:0.65rem; color:var(--text-muted); margin-top:2px; max-width:160px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${u.bestPRExercise}">💪 ${u.bestPRExercise}</div>` 
-      : '';
-    const valStr = currentLeaderboardFilter === 'level' 
-      ? `<span style="color:var(--accent-primary); font-weight:800;">Lv.${u.level || 1}</span> <span style="opacity:0.4; margin:0 4px;">•</span> ${(u.xp||0).toLocaleString('tr-TR')} XP` 
-      : `<span style="color:var(--accent-primary); font-weight:800;">${u.bestPR || 0}</span> <span style="font-size:0.75rem; opacity:0.7;">kg PR</span>`;
-    
-    let rankBadge = '';
-    let cardStyle = '';
-    
-    if (index === 0) {
-      rankBadge = `<div class="lb-rank lb-rank-1">👑</div>`;
-      cardStyle = 'lb-card-1';
-    } else if (index === 1) {
-      rankBadge = `<div class="lb-rank lb-rank-2">2</div>`;
-      cardStyle = 'lb-card-2';
-    } else if (index === 2) {
-      rankBadge = `<div class="lb-rank lb-rank-3">3</div>`;
-      cardStyle = 'lb-card-3';
-    } else {
-      rankBadge = `<div class="lb-rank lb-rank-other">#${index+1}</div>`;
-    }
-    
-    if (isMe) cardStyle += ' lb-card-me';
-    
-    const avatarHtml = u.photoURL 
-      ? `<img src="${u.photoURL}" class="lb-avatar">` 
-      : `<div class="lb-avatar lb-avatar-placeholder">👤</div>`;
-
-    const clickHandler = currentLeaderboardFilter === 'pr' && u.bestPR > 0
-      ? `onclick="showPRDetailPopup(${JSON.stringify(u).replace(/"/g, '&quot;')})"`
-      : '';
-      
-      return `
-      <div class="lb-card ${cardStyle}" ${clickHandler}>
-        <div class="lb-rank-wrap">${rankBadge}</div>
-        ${avatarHtml}
-        <div class="lb-info">
-          <div class="lb-name">${u.displayName || 'İsimsiz'}${isMe ? ' <span class="lb-me-badge">(Sen)</span>' : ''}</div>
-           <div class="lb-val">${valStr}</div>
-           ${prExercise}
-        </div>
-        ${currentLeaderboardFilter === 'pr' && u.bestPR > 0 ? '<div class="lb-arrow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg></div>' : ''}
-      </div>
-    `;
-  }).join('');
-};
-
-// =============================================
-// PR DETAIL POPUP
-// =============================================
-window.showPRDetailPopup = function(userData) {
-  // Remove any existing popup
-  const existing = document.getElementById('prDetailPopup');
-  if (existing) existing.remove();
-
-  const u = typeof userData === 'string' ? JSON.parse(userData) : userData;
-  const name = u.displayName || 'İsimsiz';
-  const exercise = u.bestPRExercise || 'Bilinmeyen Hareket';
-  const weight = u.bestPR || 0;
-  const sets = u.bestPRSets || 1;
-  const reps = u.bestPRReps || 0;
-  const avatarHtml = u.photoURL
-    ? `<img src="${u.photoURL}" style="width:64px;height:64px;border-radius:16px;object-fit:cover;border:2px solid rgba(139,124,247,0.4);" referrerpolicy="no-referrer">`
-    : `<div style="width:64px;height:64px;border-radius:16px;background:linear-gradient(135deg,var(--accent-deep),var(--accent-primary));display:flex;align-items:center;justify-content:center;font-size:1.8rem;border:2px solid rgba(139,124,247,0.4);">👤</div>`;
-
-  const overlay = document.createElement('div');
-  overlay.id = 'prDetailPopup';
-  overlay.style.cssText = `
-    position: fixed;
-    inset: 0;
-    z-index: 99999;
-    display: flex;
-    align-items: flex-end;
-    justify-content: center;
-    padding: 0 0 24px;
-    animation: prOverlayIn 0.25s ease both;
-  `;
-  overlay.innerHTML = `
-    <style>
-      @keyframes prOverlayIn { from { opacity:0; } to { opacity:1; } }
-      @keyframes prCardIn { from { opacity:0; transform: translateY(40px) scale(0.95); } to { opacity:1; transform: translateY(0) scale(1); } }
-      @keyframes prStatPop { from { opacity:0; transform: scale(0.7); } to { opacity:1; transform: scale(1); } }
-      .pr-popup-backdrop { position:fixed; inset:0; background:rgba(0,0,0,0.65); backdrop-filter:blur(8px); }
-      .pr-popup-card {
-        position: relative;
-        z-index: 1;
-        width: min(420px, calc(100vw - 32px));
-        background: linear-gradient(145deg, rgba(26,22,46,0.98), rgba(13,13,18,0.99));
-        border: 1px solid rgba(139,124,247,0.3);
-        border-radius: 28px;
-        padding: 28px 24px 24px;
-        box-shadow: 0 20px 60px rgba(0,0,0,0.6), 0 0 0 1px rgba(139,124,247,0.1), inset 0 1px 0 rgba(255,255,255,0.05);
-        animation: prCardIn 0.35s cubic-bezier(0.175,0.885,0.32,1.275) both;
-        animation-delay: 0.05s;
-      }
-      .pr-popup-close {
-        position: absolute;
-        top: 16px; right: 16px;
-        width: 32px; height: 32px;
-        background: rgba(255,255,255,0.06);
-        border: 1px solid rgba(255,255,255,0.08);
-        border-radius: 10px;
-        display: flex; align-items: center; justify-content: center;
-        cursor: pointer;
-        font-size: 1rem;
-        color: var(--text-muted);
-        transition: all 0.2s ease;
-      }
-      .pr-popup-close:hover { background: rgba(239,68,68,0.15); border-color: rgba(239,68,68,0.3); color: #ef4444; }
-      .pr-stat-box {
-        background: rgba(139,124,247,0.07);
-        border: 1px solid rgba(139,124,247,0.18);
-        border-radius: 16px;
-        padding: 16px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 4px;
-        animation: prStatPop 0.4s cubic-bezier(0.34,1.56,0.64,1) both;
-      }
-      .pr-stat-box:nth-child(1) { animation-delay: 0.18s; }
-      .pr-stat-box:nth-child(2) { animation-delay: 0.26s; }
-      .pr-stat-box:nth-child(3) { animation-delay: 0.34s; }
-      .pr-stat-val {
-        font-family: 'Space Grotesk', sans-serif;
-        font-size: 1.6rem;
-        font-weight: 900;
-        background: linear-gradient(135deg, #fff 0%, var(--accent-primary) 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-        line-height: 1;
-      }
-      .pr-stat-label {
-        font-size: 0.65rem;
-        font-weight: 700;
-        color: var(--text-muted);
-        text-transform: uppercase;
-        letter-spacing: 0.06em;
-      }
-      .pr-exercise-chip {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        background: rgba(139,124,247,0.12);
-        border: 1px solid rgba(139,124,247,0.25);
-        border-radius: 12px;
-        padding: 8px 14px;
-        font-size: 0.88rem;
-        font-weight: 700;
-        color: var(--accent-primary);
-        max-width: 100%;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-      }
-    </style>
-    <div class="pr-popup-backdrop" onclick="document.getElementById('prDetailPopup').remove()"></div>
-    <div class="pr-popup-card">
-      <div class="pr-popup-close" onclick="document.getElementById('prDetailPopup').remove()">✕</div>
-      
-      <!-- Header -->
-      <div style="display:flex; align-items:center; gap:14px; margin-bottom:20px;">
-        ${avatarHtml}
-        <div style="flex:1; min-width:0;">
-          <div style="font-size:0.65rem; font-weight:700; color:var(--accent-primary); text-transform:uppercase; letter-spacing:0.08em; margin-bottom:4px;">🏆 Kişisel Rekor</div>
-          <div style="font-family:'Space Grotesk',sans-serif; font-size:1.15rem; font-weight:900; color:var(--text-primary); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${name}</div>
-          <div style="font-size:0.75rem; color:var(--text-muted); margin-top:2px;">En yüksek PR detayları</div>
-        </div>
-      </div>
-
-      <!-- Exercise chip -->
-      <div style="margin-bottom:18px;">
-        <div style="font-size:0.65rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:8px;">Hareket</div>
-        <div class="pr-exercise-chip">💪 ${exercise}</div>
-      </div>
-
-      <!-- Stats grid -->
-      <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px;">
-        <div class="pr-stat-box">
-          <div class="pr-stat-val">${weight}<small style="font-size:0.6em;opacity:0.7;">kg</small></div>
-          <div class="pr-stat-label">Ağırlık</div>
-        </div>
-        <div class="pr-stat-box">
-          <div class="pr-stat-val">${sets}</div>
-          <div class="pr-stat-label">Set</div>
-        </div>
-        <div class="pr-stat-box">
-          <div class="pr-stat-val">${reps}</div>
-          <div class="pr-stat-label">Tekrar</div>
-        </div>
-      </div>
-
-      <!-- Volume indicator -->
-      ${sets > 0 && reps > 0 ? `
-      <div style="margin-top:16px; padding:12px 16px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:14px; display:flex; align-items:center; justify-content:space-between;">
-        <div style="font-size:0.75rem; color:var(--text-muted); font-weight:600;">Toplam Hacim</div>
-        <div style="font-family:'Space Grotesk',sans-serif; font-size:0.95rem; font-weight:800; color:var(--text-primary);">${(weight * sets * reps).toLocaleString('tr-TR')} <span style="font-size:0.7rem;opacity:0.6;">kg</span></div>
-      </div>` : ''}
-    </div>
-  `;
-
-  document.body.appendChild(overlay);
-};
+})();
 
 // =============================================
 // WEEKLY PR DETAIL POPUP
