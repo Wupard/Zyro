@@ -10651,478 +10651,341 @@ window.showWeeklyMusclePopup = function(muscleGroup, exCount, sets) {
   document.body.appendChild(overlay);
 };
 
-// Reset the entire manual food form
-window.resetManualFoodForm = function() {
-  document.getElementById('manualMealName').value = '';
-  document.getElementById('manualMealTag').value = 'Diğer';
-  document.getElementById('manualMealKcal').value = '';
-  document.getElementById('manualMealProtein').value = '';
-  document.getElementById('manualMealCarbs').value = '';
-  document.getElementById('manualMealFat').value = '';
-  const hint = document.getElementById('manualFoodTextHint');
-  if (hint) {
-    hint.textContent = 'Yemek adı ve miktarını gir.';
-    hint.style.color = '';
-  }
-};
+// =============================================
+// DIET SECTION (reference: zyro-diet.html)
+// =============================================
+(function initDietModule() {
+  const MONL = ['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran','Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'];
+  const MON = ['Oca','Şub','Mar','Nis','May','Haz','Tem','Ağu','Eyl','Eki','Kas','Ara'];
+  const DAY = ['Pazar','Pazartesi','Salı','Çarşamba','Perşembe','Cuma','Cumartesi'];
+  const DS = ['Paz','Pzt','Sal','Çar','Per','Cum','Cmt'];
+  const iso = d => d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+  const pd = s => { const [y,m,d] = s.split('-'); return new Date(+y, m-1, +d); };
+  const ago = n => { const d = new Date(); d.setDate(d.getDate() - n); return iso(d); };
+  const num = el => parseFloat(String(el?.value || 0).replace(',','.')) || 0;
+  const $ = s => document.querySelector('#pageDiet ' + s) || document.querySelector(s);
+  const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
-
-
-
-window.submitDietLog = function() {
-  const name = document.getElementById('manualMealName').value.trim();
-  const tag = document.getElementById('manualMealTag').value;
-  const kcal = parseInt(document.getElementById('manualMealKcal').value) || 0;
-  const protein = parseInt(document.getElementById('manualMealProtein').value) || 0;
-  const carbs = parseInt(document.getElementById('manualMealCarbs').value) || 0;
-  const fat = parseInt(document.getElementById('manualMealFat').value) || 0;
-
-  if (!name) {
-    showToast(currentLang === 'tr' ? 'Yemek adı boş olamaz!' : 'Meal name cannot be empty!', 'error');
-    return;
+  let tt;
+  function toast(t, s) {
+    const el = $('#toast') || document.getElementById('toast');
+    if (!el) return;
+    el.innerHTML = '<div class="ic"><svg class="i" style="width:22px;height:22px"><use href="#i-check"/></svg></div><div><b>' + t + '</b><span>' + s + '</span></div>';
+    el.classList.add('show');
+    clearTimeout(tt);
+    tt = setTimeout(() => el.classList.remove('show'), 3600);
   }
 
-  const meal = {
-    id: 'meal_' + Date.now(),
-    name,
-    tag: tag || 'Diğer',
-    calories: kcal,
-    protein,
-    carbs,
-    fat,
-    timestamp: Date.now()
+  const TAGS = ['Kahvaltı','Öğle','Akşam','Ara öğün','Diğer'];
+  const MC = { p: '#8fb3cc', c: '#dcc7a8', f: '#c99a9a' };
+  let goals = { k: 2000, p: 170, c: 110, f: 70 };
+  let meals = {}, sel = ago(0), tag = 'Diğer', photo = null;
+  const TODAY = ago(0);
+
+  function syncGoalsFromAppData() {
+    if (typeof appData !== 'undefined' && appData && appData.dietTargets) {
+      goals = {
+        k: Number(appData.dietTargets.kcal) || 2000,
+        p: Number(appData.dietTargets.protein) || 170,
+        c: Number(appData.dietTargets.carbs) || 110,
+        f: Number(appData.dietTargets.fat) || 70
+      };
+    }
+  }
+
+  const dm = d => {
+    if (typeof appData !== 'undefined' && appData && appData.dietLogs && appData.dietLogs[d]) {
+      return appData.dietLogs[d].map(m => ({
+        id: m.id,
+        name: m.name || '',
+        tag: m.tag || 'Diğer',
+        k: Number(m.k ?? m.calories ?? 0),
+        p: Number(m.p ?? m.protein ?? 0),
+        c: Number(m.c ?? m.carbs ?? 0),
+        f: Number(m.f ?? m.fat ?? 0)
+      }));
+    }
+    return meals[d] || [];
   };
 
-  const td = todayStr();
-  if (!appData.dietLogs) appData.dietLogs = {};
-  if (!appData.dietLogs[td]) appData.dietLogs[td] = [];
+  const sum = d => dm(d).reduce((a, m) => ({ k: a.k + m.k, p: a.p + m.p, c: a.c + m.c, f: a.f + m.f }), { k: 0, p: 0, c: 0, f: 0 });
+  const fm = n => String(Math.round(n * 10) / 10).replace('.', ',');
 
-  appData.dietLogs[td].push(meal);
-  saveData();
-  renderDiet();
-
-  window.resetManualFoodForm();
-
-  showToast(currentLang === 'tr' ? 'Öğün kaydedildi.' : 'Meal logged.', 'success');
-};
-
-window.deleteDietLog = function(mealId) {
-  if (!confirm(currentLang === 'tr' ? 'Bu öğünü silmek istediğinizden emin misiniz?' : 'Are you sure you want to delete this meal?')) return;
-  const dayKey = window.selectedDietDay || todayStr();
-  if (appData.dietLogs && appData.dietLogs[dayKey]) {
-    appData.dietLogs[dayKey] = appData.dietLogs[dayKey].filter(m => m.id !== mealId);
-    saveData();
-    renderDiet();
-    showToast(currentLang === 'tr' ? 'Öğün silindi.' : 'Meal deleted.', 'success');
-  }
-};
-
-window.openDietEditModal = function(mealId) {
-  const dayKey = window.selectedDietDay || todayStr();
-  const meals = (appData.dietLogs && appData.dietLogs[dayKey]) || [];
-  const meal = meals.find(m => m.id === mealId);
-  if (!meal) return;
-
-  document.getElementById('editMealId').value = mealId;
-  document.getElementById('editMealName').value = meal.name || '';
-  document.getElementById('editMealTag').value = meal.tag || 'Diğer';
-  document.getElementById('editMealKcal').value = meal.calories || '';
-  document.getElementById('editMealProtein').value = meal.protein || '';
-  document.getElementById('editMealCarbs').value = meal.carbs || '';
-  document.getElementById('editMealFat').value = meal.fat || '';
-
-  const modal = document.getElementById('dietEditModal');
-  modal.style.display = 'flex';
-  document.body.style.overflow = 'hidden';
-};
-
-window.closeDietEditModal = function() {
-  document.getElementById('dietEditModal').style.display = 'none';
-  document.body.style.overflow = '';
-};
-
-window.saveEditedMeal = function() {
-  const mealId = document.getElementById('editMealId').value;
-  const name = document.getElementById('editMealName').value.trim();
-  if (!name) {
-    showToast(currentLang === 'tr' ? 'Yemek adı boş olamaz!' : 'Meal name cannot be empty!', 'error');
-    return;
+  function week() {
+    const elRange = $('#range'), elWk7 = $('#wk7');
+    if (!elRange || !elWk7) return;
+    const r = [];
+    for (let i = 6; i >= 0; i--) r.push(ago(i));
+    elRange.textContent = pd(r[0]).getDate() + ' ' + MON[pd(r[0]).getMonth()] + ' – ' + pd(r[6]).getDate() + ' ' + MON[pd(r[6]).getMonth()];
+    elWk7.innerHTML = r.map(d => {
+      const D = pd(d), w = Math.min(100, Math.round(sum(d).k / (goals.k || 1) * 100));
+      return '<button class="dy' + (d === TODAY ? ' td' : '') + '" role="tab" aria-selected="' + (d === sel) + '" data-d="' + d + '"><small>' + (d === TODAY ? 'Bugün' : DS[D.getDay()]) + '</small><b>' + D.getDate() + '</b><i><u style="--w:' + w + '%"></u></i></button>';
+    }).join('');
   }
 
-  const dayKey = window.selectedDietDay || todayStr();
-  if (!appData.dietLogs || !appData.dietLogs[dayKey]) return;
-
-  const idx = appData.dietLogs[dayKey].findIndex(m => m.id === mealId);
-  if (idx === -1) return;
-
-  appData.dietLogs[dayKey][idx] = {
-    ...appData.dietLogs[dayKey][idx],
-    name,
-    tag: document.getElementById('editMealTag').value || 'Diğer',
-    calories: parseInt(document.getElementById('editMealKcal').value) || 0,
-    protein: parseInt(document.getElementById('editMealProtein').value) || 0,
-    carbs: parseInt(document.getElementById('editMealCarbs').value) || 0,
-    fat: parseInt(document.getElementById('editMealFat').value) || 0,
-  };
-
-  saveData();
-  renderDiet();
-  closeDietEditModal();
-  showToast(currentLang === 'tr' ? 'Öğün güncellendi.' : 'Meal updated.', 'success');
-};
-
-window.renderDiet = function() {
-  // Ensure objects exist
-  if (!appData.dietTargets) {
-    appData.dietTargets = { kcal: 2000, protein: 150, carbs: 200, fat: 70 };
-  }
-  if (!appData.dietLogs) {
-    appData.dietLogs = {};
+  function macros() {
+    const s = sum(sel), D = pd(sel);
+    const elMt = $('#mt'), elKc = $('#kc'), elKg = $('#kg'), elRv = $('#rv'), elBars = $('#bars');
+    if (!elMt || !elKc || !elKg || !elRv || !elBars) return;
+    elMt.textContent = sel === TODAY ? 'Bugünkü makro durumu' : D.getDate() + ' ' + MONL[D.getMonth()] + ' makro durumu';
+    elKc.textContent = Math.round(s.k).toLocaleString('tr-TR');
+    const left = goals.k - s.k;
+    elKg.textContent = '/ ' + goals.k + ' kcal · ' + (left >= 0 ? Math.round(left) + ' kalan' : Math.round(-left) + ' fazla');
+    elRv.classList.toggle('over', left < 0);
+    requestAnimationFrame(() => {
+      elRv.style.strokeDashoffset = 1 - Math.min(s.k / (goals.k || 1), 1);
+    });
+    elBars.innerHTML = [['p','Protein'],['c','Karbonhidrat'],['f','Yağ']].map(([k, n]) =>
+      '<div class="br"><div class="h"><span>' + n + '</span><b>' + fm(s[k]) + ' / ' + goals[k] + ' g</b></div><div class="tr"><i style="--c:' + MC[k] + '" data-w="' + Math.min(100, s[k] / (goals[k] || 1) * 100) + '"></i></div></div>'
+    ).join('');
+    requestAnimationFrame(() => {
+      document.querySelectorAll('#bars .tr i').forEach(i => i.style.width = i.dataset.w + '%');
+    });
   }
 
-  // AUTO-CLEAN: Sadece son 14 günün verilerini tut
-  const keepDays = 14;
-  const cutoffDate = new Date();
-  cutoffDate.setDate(cutoffDate.getDate() - keepDays);
-  const cutoffStr = dateStr(cutoffDate);
-  let needClean = false;
-  Object.keys(appData.dietLogs).forEach(day => {
-    if (day < cutoffStr) {
-      delete appData.dietLogs[day];
-      needClean = true;
-    }
-  });
-  if (needClean) saveData();
-
-  const td = todayStr();
-
-  // Initialize selected day if not set or invalid
-  if (!window.selectedDietDay || window.selectedDietDay > td) {
-    window.selectedDietDay = td;
+  function list() {
+    const a = dm(sel);
+    const elLt = $('#lt'), elLc = $('#lc'), elMl = $('#ml');
+    if (!elLt || !elLc || !elMl) return;
+    elLt.textContent = sel === TODAY ? 'Bugün yenilenler' : 'Bu gün yenilenler';
+    elLc.textContent = a.length + ' öğün';
+    elMl.innerHTML = a.length ? a.map(m =>
+      '<div class="ml"><div><b>' + esc(m.name) + '</b><span><i class="mt" style="font-style:normal">' + m.tag + '</i>P ' + fm(m.p) + ' · K ' + fm(m.c) + ' · Y ' + fm(m.f) + '</span></div><div class="k">' + Math.round(m.k) + ' <small style="font:400 12px var(--b);color:var(--mute)">kcal</small></div><button class="x" data-id="' + m.id + '" aria-label="Sil">✕</button></div>'
+    ).join('') : '<div class="empty">Henüz yemek eklenmedi.</div>';
   }
 
-  // Build 7-day tabs (Mon-Sun style)
-  const tabsContainer = document.getElementById('dietWeekDayTabs');
-  const weekRangeLabel = document.getElementById('dietWeekRangeLabel');
-  if (tabsContainer) {
-    const days = [];
-    const TR_DAYS = ['Paz', 'Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt'];
-    for (let i = 6; i >= 0; i--) {
-      const d = new Date();
-      d.setDate(d.getDate() - i);
-      const key = dateStr(d);
-      const dayName = TR_DAYS[d.getDay()];
-      const dayNum = d.getDate();
-      const hasData = appData.dietLogs[key] && appData.dietLogs[key].length > 0;
-      const isToday = key === td;
-      const isSelected = key === window.selectedDietDay;
-      days.push({ key, dayName, dayNum, hasData, isToday, isSelected });
-    }
-    // Week range label
-    if (weekRangeLabel && days.length > 0) {
-      const fmt = (d) => { const [,m,day] = d.split('-'); return `${parseInt(day)} ${['Oca','Şub','Mar','Nis','May','Haz','Tem','Ağu','Eyl','Eki','Kas','Ara'][parseInt(m)-1]}`; };
-      weekRangeLabel.textContent = `${fmt(days[0].key)} – ${fmt(days[6].key)}`;
-    }
-    tabsContainer.innerHTML = days.map(({ key, dayName, dayNum, hasData, isToday, isSelected }) => `
-      <button onclick="selectDietDay('${key}')" style="
-        flex: 1; min-width: 42px; display: flex; flex-direction: column; align-items: center; gap: 3px;
-        padding: 8px 4px; border-radius: 12px; border: 1.5px solid ${isSelected ? '#ff7043' : (hasData ? 'rgba(255,112,67,0.25)' : 'var(--border-subtle)')};
-        background: ${isSelected ? 'rgba(255,112,67,0.15)' : (hasData ? 'rgba(255,112,67,0.04)' : 'transparent')};
-        cursor: pointer; transition: all 0.2s; position: relative;
-      ">
-        <span style="font-size:0.6rem; font-weight:800; color:${isSelected ? '#ff7043' : (isToday ? 'var(--text-primary)' : 'var(--text-muted)')}; text-transform:uppercase; letter-spacing:0.04em;">${isToday ? 'Bugün' : dayName}</span>
-        <span style="font-size:1rem; font-weight:900; color:${isSelected ? '#ff7043' : 'var(--text-primary)'}; line-height:1;">${dayNum}</span>
-        ${hasData ? `<span style="width:5px; height:5px; border-radius:50%; background:${isSelected ? '#ff7043' : 'rgba(255,112,67,0.5)'};"></span>` : `<span style="width:5px; height:5px;"></span>`}
-      </button>
-    `).join('');
+  function all() {
+    syncGoalsFromAppData();
+    week();
+    macros();
+    list();
   }
 
-  // Determine which day's data to show
-  const viewDay = window.selectedDietDay || td;
-  const isViewingToday = viewDay === td;
-
-  // Update section labels
-  const macroLabel = document.getElementById('dietMacroDateLabel');
-  const mealLabel = document.getElementById('dietMealListDateLabel');
-  if (macroLabel) {
-    if (isViewingToday) {
-      macroLabel.textContent = 'Bugünkü';
-    } else {
-      const d = new Date(viewDay + 'T00:00:00');
-      const TR_DAYS_FULL = ['Pazar', 'Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi'];
-      macroLabel.textContent = TR_DAYS_FULL[d.getDay()] + ' (' + viewDay.split('-').slice(1).reverse().join('.') + ')';
-    }
-  }
-  if (mealLabel) {
-    mealLabel.textContent = isViewingToday ? 'Bugün' : new Date(viewDay + 'T00:00:00').toLocaleDateString('tr-TR', { day:'numeric', month:'long' });
+  function tags() {
+    const elTags = $('#tags');
+    if (!elTags) return;
+    elTags.innerHTML = TAGS.map(t => '<button data-g="' + t + '" aria-pressed="' + (t === tag) + '">' + t + '</button>').join('');
   }
 
-  // Show/hide add-meal forms (only for today)
-  const loggingSection = document.querySelector('#pageDiet section.card:nth-of-type(3)');
-  // Use a different approach: find sections by looking for the tab buttons
-  const aiTabBtn = document.getElementById('dietTabBtnAI');
-  if (aiTabBtn) {
-    const loggingCard = aiTabBtn.closest('section');
-    if (loggingCard) {
-      loggingCard.style.opacity = isViewingToday ? '1' : '0.45';
-      loggingCard.style.pointerEvents = isViewingToday ? '' : 'none';
-      loggingCard.title = isViewingToday ? '' : 'Geçmiş günlere yeni öğün eklenemez';
-    }
+  function tab(t) {
+    document.querySelectorAll('#tabs button').forEach(b => b.setAttribute('aria-pressed', b.dataset.t === t));
+    const elPm = $('#pm'), elPp = $('#pp');
+    if (elPm) elPm.hidden = (t !== 'm');
+    if (elPp) elPp.hidden = (t !== 'p');
   }
 
-  const targets = appData.dietTargets;
-  const logs = appData.dietLogs[viewDay] || [];
+  function clear() {
+    ['mn','mk','mp','mc','mf'].forEach(i => { const el = $('#' + i); if (el) el.value = ''; });
+    photo = null;
+    const file = $('#file'); if (file) file.value = '';
+    const dropc = $('#dropc'); if (dropc) dropc.innerHTML = '<svg class="i" style="width:28px;height:28px"><use href="#i-img"/></svg><div>Yemeğin fotoğrafını seç veya çek</div>';
+    const err = $('#err'); if (err) err.textContent = '';
+  }
 
-  // Calculate totals consumed today
-  let totalKcal = 0;
-  let totalProtein = 0;
-  let totalCarbs = 0;
-  let totalFat = 0;
+  function bindEvents() {
+    const elWk7 = $('#wk7');
+    if (elWk7) elWk7.onclick = e => { const b = e.target.closest('[data-d]'); if (b) { sel = b.dataset.d; all(); } };
 
-  logs.forEach(m => {
-    totalKcal += m.calories || 0;
-    totalProtein += m.protein || 0;
-    totalCarbs += m.carbs || 0;
-    totalFat += m.fat || 0;
-  });
+    const elTags = $('#tags');
+    if (elTags) elTags.onclick = e => { const b = e.target.closest('[data-g]'); if (b) { tag = b.dataset.g; tags(); } };
 
-  // Calculate remaining
-  const remKcal = Math.max(0, targets.kcal - totalKcal);
-  const remProtein = Math.max(0, targets.protein - totalProtein);
-  const remCarbs = Math.max(0, targets.carbs - totalCarbs);
-  const remFat = Math.max(0, targets.fat - totalFat);
+    const elTabs = $('#tabs');
+    if (elTabs) elTabs.onclick = e => { const b = e.target.closest('[data-t]'); if (b) tab(b.dataset.t); };
 
-  // Update UI values
-  document.getElementById('dietKcalVal').textContent = `${totalKcal} / ${targets.kcal}`;
-  document.getElementById('dietProteinVal').textContent = `${totalProtein}g / ${targets.protein}g`;
-  document.getElementById('dietCarbsVal').textContent = `${totalCarbs}g / ${targets.carbs}g`;
-  document.getElementById('dietFatVal').textContent = `${totalFat}g / ${targets.fat}g`;
+    const elClear = $('#clear');
+    if (elClear) elClear.onclick = clear;
 
-  // Status mapping for alerts and colors
-  const kcalStatus = totalKcal > targets.kcal ? 'exceeded' : (totalKcal === targets.kcal ? 'completed' : 'under');
-  const proteinStatus = totalProtein > targets.protein ? 'exceeded' : (totalProtein === targets.protein ? 'completed' : 'under');
-  const carbsStatus = totalCarbs > targets.carbs ? 'exceeded' : (totalCarbs === targets.carbs ? 'completed' : 'under');
-  const fatStatus = totalFat > targets.fat ? 'exceeded' : (totalFat === targets.fat ? 'completed' : 'under');
-
-  // Initialize notification state if not set
-  if (!window.dietState) {
-    window.dietState = {
-      date: '',
-      kcal: 'under',
-      protein: 'under',
-      carbs: 'under',
-      fat: 'under'
+    const elMsave = $('#msave');
+    if (elMsave) elMsave.onclick = () => {
+      const name = ($('#mn')?.value || '').trim(), k = num($('#mk'));
+      if (!name || k <= 0) { const err = $('#err'); if (err) err.textContent = 'Yemek adı ve kalori değerini gir.'; return; }
+      const newMeal = {
+        id: Date.now(),
+        name,
+        tag,
+        k,
+        p: num($('#mp')),
+        c: num($('#mc')),
+        f: num($('#mf')),
+        calories: k,
+        protein: num($('#mp')),
+        carbs: num($('#mc')),
+        fat: num($('#mf')),
+        timestamp: Date.now()
+      };
+      if (typeof appData !== 'undefined' && appData) {
+        if (!appData.dietLogs) appData.dietLogs = {};
+        if (!appData.dietLogs[sel]) appData.dietLogs[sel] = [];
+        appData.dietLogs[sel].push(newMeal);
+        if (typeof saveData === 'function') saveData();
+      } else {
+        (meals[sel] = meals[sel] || []).push(newMeal);
+      }
+      clear();
+      all();
+      toast('Öğün kaydedildi', esc(name) + ' · ' + Math.round(k) + ' kcal');
     };
-  }
 
-  const isFirstRun = (window.dietState.date === '');
-  if (window.dietState.date !== td) {
-    window.dietState = {
-      date: td,
-      kcal: kcalStatus,
-      protein: proteinStatus,
-      carbs: carbsStatus,
-      fat: fatStatus
-    };
-  }
-
-  if (!isFirstRun) {
-    const checkStatusChange = (catKey, catNameTr, catNameEn, newStatus) => {
-      const oldStatus = window.dietState[catKey];
-      if (oldStatus !== newStatus) {
-        if (newStatus === 'completed') {
-          const msg = currentLang === 'tr' 
-            ? `Tebrikler, ${catNameTr} hedefinize tam olarak ulaştınız!` 
-            : `Congratulations, you reached your ${catNameEn} target exactly!`;
-          showToast(msg, 'success');
-        } else if (newStatus === 'exceeded') {
-          const msg = currentLang === 'tr' 
-            ? `Dikkat, ${catNameTr} hedefinizi aştınız!` 
-            : `Warning, you exceeded your ${catNameEn} target!`;
-          showToast(msg, 'error');
+    const elMl = $('#ml');
+    if (elMl) elMl.onclick = e => {
+      const b = e.target.closest('[data-id]');
+      if (b) {
+        const id = b.dataset.id;
+        if (typeof appData !== 'undefined' && appData && appData.dietLogs && appData.dietLogs[sel]) {
+          appData.dietLogs[sel] = appData.dietLogs[sel].filter(m => String(m.id) !== String(id));
+          if (typeof saveData === 'function') saveData();
+        } else {
+          meals[sel] = dm(sel).filter(m => String(m.id) !== String(id));
         }
-        window.dietState[catKey] = newStatus;
+        all();
       }
     };
 
-    checkStatusChange('kcal', 'Kalori', 'Calories', kcalStatus);
-    checkStatusChange('protein', 'Protein', 'Protein', proteinStatus);
-    checkStatusChange('carbs', 'Karbonhidrat', 'Carbs', carbsStatus);
-    checkStatusChange('fat', 'Yağ', 'Fat', fatStatus);
-  } else {
-    window.dietState.kcal = kcalStatus;
-    window.dietState.protein = proteinStatus;
-    window.dietState.carbs = carbsStatus;
-    window.dietState.fat = fatStatus;
+    const elGedit = $('#gedit');
+    if (elGedit) elGedit.onclick = () => {
+      const g = $('#ged');
+      if (!g) return;
+      g.hidden = !g.hidden;
+      if (!g.hidden) {
+        if ($('#gk')) $('#gk').value = goals.k;
+        if ($('#gp')) $('#gp').value = goals.p;
+        if ($('#gc')) $('#gc').value = goals.c;
+        if ($('#gf')) $('#gf').value = goals.f;
+      }
+    };
+
+    const elGcancel = $('#gcancel');
+    if (elGcancel) elGcancel.onclick = () => { const g = $('#ged'); if (g) g.hidden = true; };
+
+    const elGsave = $('#gsave');
+    if (elGsave) elGsave.onclick = () => {
+      const g = { k: num($('#gk')), p: num($('#gp')), c: num($('#gc')), f: num($('#gf')) };
+      if (Object.values(g).some(v => !(v > 0))) {
+        toast('Hedefler kaydedilmedi', "Tüm değerler 0'dan büyük olmalı");
+        return;
+      }
+      goals = g;
+      if (typeof appData !== 'undefined' && appData) {
+        appData.dietTargets = { kcal: g.k, protein: g.p, carbs: g.c, fat: g.f };
+        if (typeof saveData === 'function') saveData();
+      }
+      const ged = $('#ged'); if (ged) ged.hidden = true;
+      all();
+      toast('Hedefler güncellendi', 'Yeni makro hedeflerin kaydedildi');
+    };
+
+    const elFile = $('#file');
+    if (elFile) elFile.onchange = e => {
+      const f = e.target.files[0];
+      if (!f) return;
+      photo = f;
+      const dropc = $('#dropc');
+      if (dropc) dropc.innerHTML = '<img alt="Seçilen yemek fotoğrafı" src="' + URL.createObjectURL(f) + '">';
+    };
+
+    const elAnalyze = $('#analyze');
+    if (elAnalyze) elAnalyze.onclick = async () => {
+      if (!photo) { const err = $('#err'); if (err) err.textContent = 'Önce bir fotoğraf seç.'; return; }
+      if (typeof window.analyzeMeal !== 'function') {
+        toast('AI analizi bağlı değil', 'Bu önizlemede analiz çalışmaz');
+        return;
+      }
+      try {
+        toast('Analiz ediliyor...', 'Lütfen bekleyin');
+        const r = await window.analyzeMeal(photo);
+        if ($('#mn')) $('#mn').value = r.name || '';
+        if ($('#mk')) $('#mk').value = r.k || '';
+        if ($('#mp')) $('#mp').value = r.p || '';
+        if ($('#mc')) $('#mc').value = r.c || '';
+        if ($('#mf')) $('#mf').value = r.f || '';
+        tab('m');
+        toast('Analiz tamamlandı', 'Değerleri kontrol edip kaydet');
+      } catch (err) {
+        toast('Analiz başarısız', 'Lütfen tekrar dene');
+      }
+    };
+
+    let demo = false;
+    const elDemo = $('#demo');
+    if (elDemo) elDemo.onclick = () => {
+      demo = !demo;
+      if (demo) {
+        const A = (d, n, t, k, p, c, f) => {
+          const dk = ago(d);
+          const m = { id: Date.now() + Math.random(), name: n, tag: t, k, p, c, f, calories: k, protein: p, carbs: c, fat: f, timestamp: Date.now() };
+          if (typeof appData !== 'undefined' && appData) {
+            if (!appData.dietLogs) appData.dietLogs = {};
+            if (!appData.dietLogs[dk]) appData.dietLogs[dk] = [];
+            appData.dietLogs[dk].push(m);
+          } else {
+            (meals[dk] = meals[dk] || []).push(m);
+          }
+        };
+        A(0, 'Yulaf ezmesi', 'Kahvaltı', 380, 14, 62, 8);
+        A(0, 'Tavuklu pilav', 'Öğle', 640, 46, 70, 16);
+        A(1, 'Yumurta ve peynir', 'Kahvaltı', 420, 28, 6, 30);
+        A(1, 'Izgara tavuk', 'Akşam', 560, 52, 20, 28);
+        A(2, 'Lor peyniri', 'Ara öğün', 220, 24, 6, 10);
+        A(2, 'Mercimek çorbası', 'Akşam', 310, 18, 44, 6);
+        A(3, 'Tavuk dürüm', 'Öğle', 690, 42, 64, 26);
+        if (typeof saveData === 'function') saveData();
+      } else {
+        if (typeof appData !== 'undefined' && appData && appData.dietLogs) {
+          for (let i = 0; i < 7; i++) {
+            delete appData.dietLogs[ago(i)];
+          }
+          if (typeof saveData === 'function') saveData();
+        } else {
+          meals = {};
+        }
+      }
+      elDemo.textContent = demo ? 'Örnek veriyi temizle' : 'Örnek veriyi yükle';
+      all();
+    };
   }
 
-  // Update remainder text and styles
-  const kcalRemEl = document.getElementById('dietKcalRem');
-  const kcalBarEl = document.getElementById('dietKcalBar');
-  if (kcalStatus === 'exceeded') {
-    const exceeded = totalKcal - targets.kcal;
-    kcalRemEl.textContent = currentLang === 'tr' ? `Aşıldı: ${exceeded} kcal` : `Exceeded: ${exceeded} kcal`;
-    kcalRemEl.style.color = '#f87171'; // red text
-    kcalBarEl.style.background = '#ef4444'; // red bar
-  } else if (kcalStatus === 'completed') {
-    kcalRemEl.textContent = currentLang === 'tr' ? `Kalan: 0 kcal` : `Remaining: 0 kcal`;
-    kcalRemEl.style.color = '#4ade80'; // green text
-    kcalBarEl.style.background = '#22c55e'; // green bar
-  } else {
-    kcalRemEl.textContent = currentLang === 'tr' ? `Kalan: ${remKcal} kcal` : `Remaining: ${remKcal} kcal`;
-    kcalRemEl.style.color = 'var(--text-muted)';
-    kcalBarEl.style.background = '#ff7043'; // default orange
-  }
-
-  const proteinRemEl = document.getElementById('dietProteinRem');
-  const proteinBarEl = document.getElementById('dietProteinBar');
-  if (proteinStatus === 'exceeded') {
-    const exceeded = totalProtein - targets.protein;
-    proteinRemEl.textContent = currentLang === 'tr' ? `Aşıldı: ${exceeded}g` : `Exceeded: ${exceeded}g`;
-    proteinRemEl.style.color = '#f87171';
-    proteinBarEl.style.background = '#ef4444';
-  } else if (proteinStatus === 'completed') {
-    proteinRemEl.textContent = currentLang === 'tr' ? `Kalan: 0g` : `Remaining: 0g`;
-    proteinRemEl.style.color = '#4ade80';
-    proteinBarEl.style.background = '#22c55e';
-  } else {
-    proteinRemEl.textContent = currentLang === 'tr' ? `Kalan: ${remProtein}g` : `Remaining: ${remProtein}g`;
-    proteinRemEl.style.color = 'var(--text-muted)';
-    proteinBarEl.style.background = '#60a5fa'; // default blue
-  }
-
-  const carbsRemEl = document.getElementById('dietCarbsRem');
-  const carbsBarEl = document.getElementById('dietCarbsBar');
-  if (carbsStatus === 'exceeded') {
-    const exceeded = totalCarbs - targets.carbs;
-    carbsRemEl.textContent = currentLang === 'tr' ? `Aşıldı: ${exceeded}g` : `Exceeded: ${exceeded}g`;
-    carbsRemEl.style.color = '#f87171';
-    carbsBarEl.style.background = '#ef4444';
-  } else if (carbsStatus === 'completed') {
-    carbsRemEl.textContent = currentLang === 'tr' ? `Kalan: 0g` : `Remaining: 0g`;
-    carbsRemEl.style.color = '#4ade80';
-    carbsBarEl.style.background = '#22c55e';
-  } else {
-    carbsRemEl.textContent = currentLang === 'tr' ? `Kalan: ${remCarbs}g` : `Remaining: ${remCarbs}g`;
-    carbsRemEl.style.color = 'var(--text-muted)';
-    carbsBarEl.style.background = '#f59e0b'; // default yellow
-  }
-
-  const fatRemEl = document.getElementById('dietFatRem');
-  const fatBarEl = document.getElementById('dietFatBar');
-  if (fatStatus === 'exceeded') {
-    const exceeded = totalFat - targets.fat;
-    fatRemEl.textContent = currentLang === 'tr' ? `Aşıldı: ${exceeded}g` : `Exceeded: ${exceeded}g`;
-    fatRemEl.style.color = '#f87171';
-    fatBarEl.style.background = '#ef4444';
-  } else if (fatStatus === 'completed') {
-    fatRemEl.textContent = currentLang === 'tr' ? `Kalan: 0g` : `Remaining: 0g`;
-    fatRemEl.style.color = '#4ade80';
-    fatBarEl.style.background = '#22c55e';
-  } else {
-    fatRemEl.textContent = currentLang === 'tr' ? `Kalan: ${remFat}g` : `Remaining: ${remFat}g`;
-    fatRemEl.style.color = 'var(--text-muted)';
-    fatBarEl.style.background = '#f43f5e'; // default rose
-  }
-
-  // Bar progress widths
-  const pctKcal = Math.min(100, Math.round((totalKcal / targets.kcal) * 100)) || 0;
-  const pctProtein = Math.min(100, Math.round((totalProtein / targets.protein) * 100)) || 0;
-  const pctCarbs = Math.min(100, Math.round((totalCarbs / targets.carbs) * 100)) || 0;
-  const pctFat = Math.min(100, Math.round((totalFat / targets.fat) * 100)) || 0;
-
-  kcalBarEl.style.width = pctKcal + '%';
-  proteinBarEl.style.width = pctProtein + '%';
-  carbsBarEl.style.width = pctCarbs + '%';
-  fatBarEl.style.width = pctFat + '%';
-
-  // Render log list
-  const list = document.getElementById('loggedMealsList');
-  if (logs.length === 0) {
-    list.innerHTML = `<div class="logged-empty">${currentLang === 'tr' ? 'Henüz yemek eklenmedi.' : 'No meals logged yet today.'}</div>`;
-    return;
-  }
-
-  // Tag → emoji mapping
-  const TAG_EMOJI = {
-    'Kahvaltı':      '🌅',
-    'Öğle Yemeği':   '☀️',
-    'Akşam Yemeği':  '🌙',
-    'Ara Öğün':      '🍎',
-    'Atıştırmalık':  '🍿',
-    'İçecek':        '🥤',
-    'Diğer':         '🍴',
+  window.analyzeMeal = async function(file) {
+    if (typeof window.geminiAnalyzeFoodImage === 'function') {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = async () => {
+          try {
+            const res = await window.geminiAnalyzeFoodImage(reader.result);
+            resolve({
+              name: res.meal_name || '',
+              k: res.calories || 0,
+              p: res.protein || 0,
+              c: res.carbs || 0,
+              f: res.fat || 0
+            });
+          } catch (e) {
+            reject(e);
+          }
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+    throw new Error('AI analizi bağlı değil');
   };
 
-  let html = '';
-  logs.forEach(m => {
-    const timeStr = new Date(m.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    const icon = TAG_EMOJI[m.tag] || '🍴';
-    const tagBadge = m.tag ? `<span style="font-size: 0.65rem; background: rgba(255,112,67,0.15); color: #ff7043; padding: 2px 7px; border-radius: 4px; font-weight: 800; text-transform: uppercase; letter-spacing:0.04em;">${m.tag}</span>` : '';
-    html += `
-      <div class="logged-row" style="padding: 12px 14px; border-bottom: 1px solid var(--border-subtle); display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.01); border-radius: 8px; gap: 12px;">
-        <div style="flex: 1; min-width: 0;">
-          <div style="font-weight: 700; font-size: 0.9rem; color: var(--text-primary); display: flex; align-items: center; flex-wrap: wrap; gap: 6px 8px;">
-            <span style="font-size:1.1rem;">${icon}</span>
-            <span>${m.name}</span>
-            ${tagBadge}
-            <span style="font-size: 0.72rem; color: var(--text-muted); font-weight: 500;">${timeStr}</span>
-          </div>
-          <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 6px; display: flex; flex-wrap: wrap; gap: 6px 12px;">
-            <span>🔥 <b>${m.calories}</b> kcal</span>
-            <span>🥩 P: <b>${m.protein}</b>g</span>
-            <span>🍞 C: <b>${m.carbs}</b>g</span>
-            <span>🥑 F: <b>${m.fat}</b>g</span>
-          </div>
-        </div>
-        <div style="display:flex; gap:6px; flex-shrink:0;">
-          <button class="edit-log" onclick="openDietEditModal('${m.id}')" title="Düzenle" style="background:rgba(96,165,250,0.1); border:1px solid rgba(96,165,250,0.2); color:#60a5fa; width:30px; height:30px; border-radius:7px; cursor:pointer; font-size:0.85rem; display:flex; align-items:center; justify-content:center; transition:background 0.15s;">✏️</button>
-          <button class="delete-log" onclick="deleteDietLog('${m.id}')" title="Sil">×</button>
-        </div>
-      </div>
-    `;
-  });
+  window.renderDiet = function() {
+    all();
+  };
 
-  // Günlük toplam özet
-  html += `
-    <div style="margin-top: 14px; padding: 14px 16px; background: linear-gradient(135deg, rgba(255,112,67,0.08) 0%, rgba(255,112,67,0.03) 100%); border: 1px solid rgba(255,112,67,0.2); border-radius: 12px;">
-      <div style="font-size: 0.7rem; font-weight: 800; color: #ff7043; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 10px;">
-        📊 ${isViewingToday ? (currentLang === 'tr' ? 'Bugünkü Toplam' : "Today's Total") : (currentLang === 'tr' ? 'Günlük Toplam' : 'Daily Total')}
-      </div>
-      <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; text-align: center;">
-        <div style="background: rgba(255,112,67,0.1); border-radius: 10px; padding: 10px 6px;">
-          <div style="font-size: 1.15rem; font-weight: 900; color: var(--text-primary); line-height:1;">${totalKcal}</div>
-          <div style="font-size: 0.62rem; color: #ff7043; font-weight: 700; margin-top: 3px; text-transform: uppercase;">🔥 kcal</div>
-        </div>
-        <div style="background: rgba(96,165,250,0.1); border-radius: 10px; padding: 10px 6px;">
-          <div style="font-size: 1.15rem; font-weight: 900; color: var(--text-primary); line-height:1;">${totalProtein}g</div>
-          <div style="font-size: 0.62rem; color: #60a5fa; font-weight: 700; margin-top: 3px; text-transform: uppercase;">🥩 Protein</div>
-        </div>
-        <div style="background: rgba(245,158,11,0.1); border-radius: 10px; padding: 10px 6px;">
-          <div style="font-size: 1.15rem; font-weight: 900; color: var(--text-primary); line-height:1;">${totalCarbs}g</div>
-          <div style="font-size: 0.62rem; color: #f59e0b; font-weight: 700; margin-top: 3px; text-transform: uppercase;">🍞 Karb</div>
-        </div>
-        <div style="background: rgba(244,63,94,0.1); border-radius: 10px; padding: 10px 6px;">
-          <div style="font-size: 1.15rem; font-weight: 900; color: var(--text-primary); line-height:1;">${totalFat}g</div>
-          <div style="font-size: 0.62rem; color: #f43f5e; font-weight: 700; margin-top: 3px; text-transform: uppercase;">🥑 Yağ</div>
-        </div>
-      </div>
-    </div>
-  `;
+  function setup() {
+    bindEvents();
+    tags();
+    tab('m');
+    all();
+  }
 
-  list.innerHTML = html;
-};
-
-// =============================================
-// DIET DAY SELECTOR
-// =============================================
-window.selectDietDay = function(dateKey) {
-  const td = todayStr();
-  // Don't allow future dates
-  if (dateKey > td) return;
-  window.selectedDietDay = dateKey;
-  renderDiet();
-};
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', setup);
+  } else {
+    setup();
+  }
+})();
 
 // =============================================
 // AUTO SYNC ACHIEVEMENTS FOR CURRENT USER
