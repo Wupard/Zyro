@@ -1,4 +1,4 @@
-@charset "UTF-8";
+﻿@charset "UTF-8";
 /* ===========================
    Zyro â€” Personal Development Dashboard
    V2: Vibrant colors, animations, polished UI
@@ -219,7 +219,7 @@ body.sidebar-collapsed .sidebar-logo {
 /* top: brand + collapse */
 .sidebar .top{display:flex;align-items:center;justify-content:space-between;padding:0 6px 0 10px;min-height:40px;flex:none}
 .sidebar .brand{display:flex;align-items:center;gap:12px;font:700 21px var(--d)}
-.sidebar .brand .sidebar-logo{width:30px;height:30px;filter:none}
+.sidebar .brand .sidebar-logo{width:30px;height:30px;background:none;border:none}
 .sidebar .brand-text{font-family:var(--d);font-weight:700;font-size:21px;letter-spacing:0;background:unset;-webkit-text-fill-color:unset;color:var(--text);white-space:nowrap}
 
 .sidebar .cbtn{width:32px;height:32px;border-radius:10px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03);color:var(--mute);display:grid;place-items:center;transition:.25s var(--ease);flex:none}
@@ -6288,4 +6288,21 @@ aşağıdakiler spesifik elementler için ---- */
   #pageLeaderboard .rw { padding: 10px 12px; gap: 10px; }
   #pageLeaderboard .rn { width: 28px; }
   #pageLeaderboard .val { font-size: 17px; }
+}
+
+/* ====================================================
+   ADAPTIVE LOGO — Koyu/Açık tema otomatik geçişi
+   .zyro-logo-adaptive sınıfı olan img'lerde:
+   - Koyu temada: beyaz logo (logo-white.png) zaten set
+   - Açık temada: siyah logo görünsün (CSS content override yerine filter)
+   ==================================================== */
+/* Açık tema: logo-white.png üzerine inverting ile siyah logoya çevir */
+@media (prefers-color-scheme: light) {
+  .zyro-logo-adaptive {
+    filter: invert(1);
+  }
+}
+/* Kullanıcı açık temayı body class ile seçtiyse */
+body.theme-light .zyro-logo-adaptive {
+  filter: invert(1);
 }

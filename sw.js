@@ -4,14 +4,21 @@
 // Bu dosya SADECE cache ve offline desteği içindir.
 // ============================================================
 
-const CACHE_NAME = 'zyro-v14';
+const CACHE_NAME = 'zyro-v15';
 const ASSETS = [
   '/',
   '/index.html',
   '/styles.css',
   '/app.js',
   '/favicon.svg',
-  '/manifest.json'
+  '/manifest.json',
+  '/assets/logo-white.png',
+  '/assets/logo-black.png',
+  '/assets/icon-192.png',
+  '/assets/icon-512.png',
+  '/assets/icon-512-maskable.png',
+  '/assets/apple-touch-icon.png',
+  '/assets/favicon-32.png'
 ];
 
 self.addEventListener('install', (event) => {

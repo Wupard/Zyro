@@ -1,1 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect x="8" y="8" width="16" height="16" transform="rotate(45 16 16)" fill="#8B7CF7" /></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <rect width="32" height="32" rx="4" fill="#ffffff"/>
+  <image href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAACXBIWXMAAAPoAAAD6AG1e1JrAAABVElEQVRYhe2UPY6CQBzF5wZIhxeQykQ3oTRG5QQudyBuaEmMsbOjlkISw1moCKHGQ0CHleHjbZiAiVuYHQJLsfOSf8N8vN/83zAEA4twAPAIBhbhAOARtFBZli/VfCuK4m8iKGvTn0BtRNqYV/V4PJ5VKU1T+L7PDEJYJjctPp9tKIqC1WqN+fwDnufhcrlA07QnZOcARW0eRREkScJoNKIlCAKu1yuWyyXCMHyZ2wvA7XbD8XiEZVmQZRm73Rf2+z0Mw6DjWZb92pwJoFHT3jiOsd5s4LouVFVFkiQv470BZPUJqxMfDgfouo7JZILT6QTTNGmHWGIgLObNpkEQ0Myr7Ks7IIoirfF43C9AWbd3u/2E4zj09k+nUywWC8xmM9i2zWTODNBAVP/7/X5/C9kbwLvXr81rSJhXAMjzvM2y7gC6FOl0Nw7QQgQDi3AA/PcIvgHrV5qgi/Mv1QAAAABJRU5ErkJggg==" width="32" height="32"/>
+</svg>
