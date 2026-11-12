@@ -38,7 +38,7 @@
     <div class="auth-bg-glow"></div>
     <div class="auth-card">
       <div class="auth-brand">
-        <img src="assets/logo-white.png" alt="Zyro Logo" class="auth-logo-img zyro-logo-adaptive">
+        <img src="assets/logo-white.png" alt="Zyro Logo" class="auth-logo-img">
         <span class="auth-strip"></span>
         <h1 class="auth-title">Zyro</h1>
         <p class="auth-subtitle" data-i18n="authSubtitle">Personal Development Dashboard</p>
@@ -578,85 +578,51 @@
       </div>
     </div>
     <!-- ============ PAGE: NOTES ============ -->
-    <div class="page" data-page="notes" id="pageNotes">
-      <!-- Premium Page Banner -->
-      <div class="page-banner page-banner--yellow" style="margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; padding: 20px; background: linear-gradient(135deg, rgba(251,191,36,0.08) 0%, rgba(251,191,36,0.01) 100%); border-radius: 16px; border: 1px solid rgba(251,191,36,0.15);">
+        <div class="page" data-page="notes" id="pageNotes">
+      <svg width="0" height="0" style="position:absolute"><symbol id="zr-i-tag-custom" viewBox="0 0 24 24"><path d="M3 12V4h8l10 10-8 8zM7.5 8.5h.01"/></symbol></svg>
+      <section class="hero2">
         <div>
-          <h1 style="font-size: 1.6rem; font-weight: 800; margin: 0 0 4px 0; color: var(--text-primary); letter-spacing: -0.5px;">Günlük Notlar</h1>
-          <p style="margin: 0; font-size: 0.85rem; color: var(--text-muted); font-weight: 500;">Düşüncelerini, planlarını ve fikirlerini kaydet</p>
+          <h1><span data-i18n="dailyNotesTitle">Günlük</span> <b data-i18n="navNotes">notlar</b></h1>
+          <p data-i18n="dailyNotesSub">Düşüncelerini, planlarını ve fikirlerini kaydet</p>
         </div>
-        <div style="width: 48px; height: 48px; border-radius: 14px; background: rgba(251,191,36,0.12); display: flex; align-items: center; justify-content: center; color: #fbbf24; flex-shrink: 0;">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        <div class="ibox">
+          <svg class="i"><use href="#zr-i-note"/></svg>
         </div>
-      </div>
-      <section class="card">
-        <div class="card-header">
-          <h3 class="card-title" data-i18n="todaysEntry">Today's Entry</h3>
-          <span class="card-badge" id="noteDateBadge" data-i18n="today">Today</span>
-        </div>
-        <div style="display:flex; gap:10px; margin-bottom:10px; align-items:center;">
-          <input type="text" id="noteTitleInput" class="log-input" placeholder="Başlık (Opsiyonel)" style="flex:1; font-weight:700;">
-          <div style="display:flex; gap:6px; background:var(--bg-input); padding:6px; border-radius:12px; border:1px solid var(--border-subtle);">
-            <div class="note-color-btn active" data-color="default" style="width:20px; height:20px; border-radius:50%; background:var(--bg-card-alt); border:2px solid var(--accent-primary); cursor:pointer;"></div>
-            <div class="note-color-btn" data-color="red" style="width:20px; height:20px; border-radius:50%; background:rgba(224,84,84,0.15); border:2px solid transparent; cursor:pointer;"></div>
-            <div class="note-color-btn" data-color="blue" style="width:20px; height:20px; border-radius:50%; background:rgba(92,138,222,0.15); border:2px solid transparent; cursor:pointer;"></div>
-            <div class="note-color-btn" data-color="green" style="width:20px; height:20px; border-radius:50%; background:rgba(78,203,141,0.15); border:2px solid transparent; cursor:pointer;"></div>
-            <div class="note-color-btn" data-color="orange" style="width:20px; height:20px; border-radius:50%; background:rgba(224,148,58,0.15); border:2px solid transparent; cursor:pointer;"></div>
+      </section>
+      <div class="stk">
+        <section class="pn">
+          <div class="lab"><b id="ft">Bugünkü giriş</b><span class="tag" id="bg">BUGÜN</span></div>
+          <form id="fn" novalidate>
+            <div class="top2">
+              <input class="in" id="nt" maxlength="80" placeholder="Başlık (opsiyonel)" aria-label="Başlık">
+              <div class="dots" id="dots" role="group" aria-label="Renk"></div>
+            </div>
+            <textarea class="in" id="nx" maxlength="5000" placeholder="Günün nasıldı? Ne öğrendin? Nasıl hissediyorsun?…" aria-label="Not"></textarea>
+            <div class="chips" id="tg" role="group" aria-label="Etiket" style="margin-top:14px"></div>
+            <div class="acts" style="margin-top:16px">
+              <button class="btn" id="sv">
+                <svg class="i" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                <span id="svt">Notu kaydet</span>
+              </button>
+              <button type="button" class="ghost" id="cx" hidden>İptal</button>
+              <span class="err" id="er" role="alert" style="margin:0;align-self:center"></span>
+            </div>
+          </form>
+        </section>
+        <section class="pn">
+          <div class="lab">
+            <b>Geçmiş girişler <span class="tag" id="cn">0</span></b>
+            <button class="ghost danger" id="ds" disabled>
+              <svg class="i" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+              <span id="dst">Seçilenleri sil</span>
+            </button>
           </div>
-        </div>
-        <textarea class="note-input" id="noteInput" rows="5" placeholder="Notunuzu yazın..."></textarea>
-        <div class="note-tags" style="margin-top:10px;">
-          <button class="tag-btn" data-tag="Daha sonra">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="12" cy="12" r="10" />
-              <path d="M12 6v6l4 2" />
-            </svg>
-            Daha Sonra
-          </button>
-          <button class="tag-btn" data-tag="Fikir">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path
-                d="M9 18h6M10 22h4M12 2a7 7 0 0 1 7 7 7 7 0 0 1-4 6.32V17H9v-1.69A7.004 7.004 0 0 1 5 9a7 7 0 0 1 7-7z" />
-            </svg>
-            Fikir
-          </button>
-          <button class="tag-btn" data-tag="GYM">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M6.5 6.5h11M6.5 17.5h11M12 2v4M12 18v4M4.5 8.5v7M19.5 8.5v7" />
-            </svg>
-            GYM
-          </button>
-        </div>
-        <button class="btn-primary" id="saveNoteBtn">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
-            <polyline points="17 21 17 13 7 13 7 21" />
-            <polyline points="7 3 7 8 15 8" />
-          </svg>
-          <span data-i18n="saveNote">Save Note</span>
-        </button>
-      </section>
-      <section class="card">
-        <div class="card-header">
-          <h3 class="card-title" data-i18n="pastEntries">Past Entries</h3>
-          <button class="btn-small" id="bulkDeleteNotesBtn"
-            style="display:none; background:rgba(239, 68, 68, 0.1); color:#ef4444; border:1px solid rgba(239, 68, 68, 0.2);"
-            onclick="bulkDeleteNotes()">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <polyline points="3 6 5 6 21 6" />
-              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-              <line x1="10" y1="11" x2="10" y2="17" />
-              <line x1="14" y1="11" x2="14" y2="17" />
-            </svg>
-            Seçilenleri Sil
-          </button>
-        </div>
-        <div class="notes-history" id="notesHistory"></div>
-      </section>
+          <div id="ls"></div>
+        </section>
+      </div>
     </div>
 
-    <!-- ============ PAGE: COMMENTS ============ -->
-    <div class="page" data-page="comments" id="pageComments">
+  <div class="page" data-page="comments" id="pageComments">
       <!-- Premium Page Banner -->
       <div class="page-banner page-banner--blue" style="margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; padding: 20px; background: linear-gradient(135deg, rgba(92,138,222,0.08) 0%, rgba(92,138,222,0.01) 100%); border-radius: 16px; border: 1px solid rgba(92,138,222,0.15);">
         <div>
@@ -712,438 +678,23 @@
     </div>
 
     <!-- ============ PAGE: CALCULATORS ============ -->
-    <div class="page" data-page="calculators" id="pageCalculators">
-
-      <!-- Premium Calculators Header -->
-      <div class="card"
-        style="margin-bottom: 24px; position: relative; overflow: hidden; padding: 32px 24px; border-radius: 24px; background: linear-gradient(135deg, rgba(139,124,247,0.1), transparent);">
-        <div style="position: absolute; right: -20px; top: -20px; opacity: 0.05; pointer-events: none;">
-          <svg width="200" height="200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-            <rect x="4" y="2" width="16" height="20" rx="2" ry="2" />
-            <line x1="8" y1="6" x2="16" y2="6" />
-            <line x1="8" y1="10" x2="8.01" y2="10" />
-            <line x1="12" y1="10" x2="12.01" y2="10" />
-            <line x1="16" y1="10" x2="16.01" y2="10" />
-            <line x1="8" y1="14" x2="8.01" y2="14" />
-            <line x1="12" y1="14" x2="12.01" y2="14" />
-            <line x1="16" y1="14" x2="16.01" y2="14" />
-            <line x1="8" y1="18" x2="8.01" y2="18" />
-            <line x1="12" y1="18" x2="12.01" y2="18" />
-            <line x1="16" y1="18" x2="16.01" y2="18" />
-          </svg>
+        <div class="page" data-page="calculators" id="pageCalculators">
+      <section class="hero2">
+        <div>
+          <h1><b data-i18n="navCalculators">Hesaplayıcılar</b></h1>
+          <p data-i18n="calcHeroSub">Performansını takip et ve analiz et</p>
         </div>
-
-        <div style="position: relative; z-index: 10; display: flex; align-items: center; gap: 16px;">
-          <div
-            style="width: 56px; height: 56px; border-radius: 16px; background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)); display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 16px rgba(139,124,247,0.3); flex-shrink: 0;">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"
-              stroke-linecap="round" stroke-linejoin="round">
-              <rect x="4" y="2" width="16" height="20" rx="2" ry="2" />
-              <line x1="8" y1="6" x2="16" y2="6" />
-              <line x1="8" y1="10" x2="8.01" y2="10" />
-              <line x1="12" y1="10" x2="12.01" y2="10" />
-              <line x1="16" y1="10" x2="16.01" y2="10" />
-              <line x1="8" y1="14" x2="8.01" y2="14" />
-              <line x1="12" y1="14" x2="12.01" y2="14" />
-              <line x1="16" y1="14" x2="16.01" y2="14" />
-              <line x1="8" y1="18" x2="8.01" y2="18" />
-              <line x1="12" y1="18" x2="12.01" y2="18" />
-              <line x1="16" y1="18" x2="16.01" y2="18" />
-            </svg>
-          </div>
-          <div>
-            <h2
-              style="font-size: 2rem; font-weight: 900; margin: 0 0 4px; color: var(--text-primary); letter-spacing: -0.03em;"
-              data-i18n="navCalculators">Hesaplayıcılar</h2>
-            <p style="font-size: 0.9rem; color: var(--text-secondary); margin: 0;">Performansını takip et ve analiz et
-            </p>
-          </div>
+        <div class="ibox">
+          <svg class="i"><use href="#zr-i-calc"/></svg>
         </div>
-      </div>
-
-      <div class="calc-container">
-        <!-- Calculator Sidebar Menu -->
-        <div class="calc-sidebar card">
-          <button class="calc-nav-btn" data-calc="1rm" data-i18n="calc1RM">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="12" cy="12" r="10" />
-              <circle cx="12" cy="12" r="6" />
-              <circle cx="12" cy="12" r="2" />
-            </svg>
-            1RM Hesapla
-          </button>
-          <button class="calc-nav-btn active" data-calc="converter" data-i18n="calcConverter">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M12 3v18" />
-              <rect x="4" y="6" width="6" height="4" />
-              <rect x="14" y="14" width="6" height="4" />
-              <path d="M7 3h10" />
-            </svg>
-            Birim Dönüştürücü
-          </button>
-          <button class="calc-nav-btn" data-calc="bfp" data-i18n="calcBfp">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-              <circle cx="12" cy="7" r="4" />
-            </svg>
-            Yağ Oranı
-          </button>
-          <button class="calc-nav-btn" data-calc="growth" data-i18n="calcGrowth">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <polyline points="22 7 13.5 15.5 8.5 10.5 2 17" />
-              <polyline points="16 7 22 7 22 13" />
-            </svg>
-            Gelişim
-          </button>
-          <button class="calc-nav-btn" data-calc="macros" data-i18n="calcMacros">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
-            </svg>
-            Makro/Kalori
-          </button>
-        </div>
-
-        <!-- Calculator Content Area -->
-        <div class="calc-content">
-          <!-- Converter UI -->
-          <div class="calc-view active" id="calc-converter">
-            <div class="card calc-card">
-              <div class="calc-input-row">
-                <div class="calc-field">
-                  <label>KILOGRAM (KG)</label>
-                  <div class="calc-input-wrapper">
-                    <input type="number" id="calcKg" class="calc-input" placeholder="0">
-                    <span class="calc-unit">KG</span>
-                  </div>
-                </div>
-                <div class="calc-field">
-                  <label>POUNDS (LBS)</label>
-                  <div class="calc-input-wrapper">
-                    <input type="number" id="calcLbs" class="calc-input" placeholder="0">
-                    <span class="calc-unit">LB</span>
-                  </div>
-                </div>
-              </div>
-
-            </div>
-          </div>
-
-          <div class="calc-view" id="calc-1rm">
-            <!-- 1RM Auto Calculator Card -->
-            <section class="card" style="margin-bottom:20px;">
-              <div class="card-header">
-                <div style="display:flex;align-items:center;gap:10px;">
-                  <div style="width:36px;height:36px;border-radius:12px;background:rgba(139,124,247,0.12);border:1px solid rgba(139,124,247,0.22);display:flex;align-items:center;justify-content:center;color:var(--accent-primary);">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
-                  </div>
-                  <div>
-                    <h3 class="card-title" style="margin:0;">1RM Hesaplayıcı</h3>
-                    <p style="margin:0;font-size:0.72rem;color:var(--text-muted);">Epley formülü • Loglardan otomatik</p>
-                  </div>
-                </div>
-              </div>
-              <div style="margin-top:16px;">
-                <div style="margin-bottom:12px;">
-                  <label style="font-size:0.7rem;font-weight:700;color:var(--text-muted);display:block;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.04em;">Kategori Seç</label>
-                  <select id="oneRMCategorySelect" class="log-input" onchange="init1RMCalculator()" style="margin-bottom: 8px;">
-                    <option value="all" data-i18n="catAll">Tümü (Tüm Vücut)</option>
-                    <option value="chest" data-i18n="catChest">Göğüs</option>
-                    <option value="shoulders" data-i18n="catShoulders">Omuz</option>
-                    <option value="back" data-i18n="catBack">Sırt &amp; Kanat</option>
-                    <option value="biceps" data-i18n="catBiceps">Ön Kol</option>
-                    <option value="forearms" data-i18n="catForearms">Önkol</option>
-                    <option value="traps" data-i18n="catTraps">Trapez</option>
-                    <option value="triceps" data-i18n="catTriceps">Arka Kol</option>
-                    <option value="quads" data-i18n="catQuads">Quadriceps</option>
-                    <option value="hamstrings" data-i18n="catHamstrings">Hamstring &amp; Kalça</option>
-                    <option value="calves" data-i18n="catCalves">Baldır</option>
-                    <option value="core" data-i18n="catCore">Karın &amp; Merkez</option>
-                  </select>
-
-
-
-
-
-
-
-
-
-
-                  <label style="font-size:0.7rem;font-weight:700;color:var(--text-muted);display:block;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.04em;">Egzersiz</label>
-                  <select id="oneRMExerciseSelect" class="log-input" onchange="calc1RMFromLogs()">
-                    <option value="">Egzersiz seçin...</option>
-                  </select>
-                </div>
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
-                  <div>
-                    <label style="font-size:0.7rem;font-weight:700;color:var(--text-muted);display:block;margin-bottom:6px;">Ağırlık (kg)</label>
-                    <input type="number" id="oneRMWeight" class="log-input" placeholder="0" step="0.5" min="0" oninput="calc1RMManual()">
-                  </div>
-                  <div>
-                    <label style="font-size:0.7rem;font-weight:700;color:var(--text-muted);display:block;margin-bottom:6px;">Tekrar Sayısı</label>
-                    <input type="number" id="oneRMReps" class="log-input" placeholder="0" min="1" max="30" oninput="calc1RMManual()">
-                  </div>
-                </div>
-                <div id="oneRMResult" style="display:none;background:linear-gradient(135deg,rgba(139,124,247,0.12),rgba(78,203,141,0.05));border:1px solid rgba(139,124,247,0.25);border-radius:16px;padding:20px;text-align:center;margin-top:4px;">
-                  <div style="font-size:0.65rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:6px;">Tahmini Maksimum (1RM)</div>
-                  <div style="font-family:'Space Grotesk',sans-serif;font-size:2.8rem;font-weight:900;background:linear-gradient(135deg,var(--accent-primary),var(--accent-secondary));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;" id="oneRMValue">— kg</div>
-                  <div id="oneRMBreakdown" style="margin-top:14px;display:grid;grid-template-columns:repeat(3,1fr);gap:8px;"></div>
-                </div>
-              </div>
-            </section>
-          </div>
-
-          <div class="calc-view" id="calc-bfp">
-            <div class="card calc-card">
-              <div
-                style="display: flex; padding: 4px; background: var(--bg-main); border: 1px solid var(--border-color); border-radius: 12px; width: fit-content; margin: 0 auto 24px;">
-                <button id="bfp-btn-male" class="bfp-gender-btn active"
-                  style="padding: 8px 24px; border-radius: 8px; font-size: 0.85rem; font-weight: bold; border: none; background: var(--accent-primary); color: white; cursor: pointer; transition: all 0.2s;"
-                  onclick="setBfpGender('male')">Erkek</button>
-                <button id="bfp-btn-female" class="bfp-gender-btn"
-                  style="padding: 8px 24px; border-radius: 8px; font-size: 0.85rem; font-weight: bold; border: none; background: transparent; color: var(--text-muted); cursor: pointer; transition: all 0.2s;"
-                  onclick="setBfpGender('female')">Kadın</button>
-              </div>
-              <div class="calc-input-row" style="grid-template-columns: 1fr 1fr;">
-                <div class="calc-field">
-                  <label>BOY</label>
-                  <div class="calc-input-wrapper">
-                    <input type="number" id="calcBfpH" class="calc-input" placeholder="cm" min="0">
-                    <span class="calc-unit">CM</span>
-                  </div>
-                </div>
-                <div class="calc-field">
-                  <label>BEL</label>
-                  <div class="calc-input-wrapper">
-                    <input type="number" id="calcBfpW" class="calc-input" placeholder="cm" min="0">
-                    <span class="calc-unit">CM</span>
-                  </div>
-                </div>
-                <div class="calc-field">
-                  <label>BOYUN</label>
-                  <div class="calc-input-wrapper">
-                    <input type="number" id="calcBfpN" class="calc-input" placeholder="cm" min="0">
-                    <span class="calc-unit">CM</span>
-                  </div>
-                </div>
-                <div class="calc-field" id="calcBfpHipField" style="display: none;">
-                  <label>KALÇA</label>
-                  <div class="calc-input-wrapper">
-                    <input type="number" id="calcBfpHip" class="calc-input" placeholder="cm" min="0">
-                    <span class="calc-unit">CM</span>
-                  </div>
-                </div>
-              </div>
-              <button class="btn-primary" style="width: 100%; padding: 16px; margin-top: 16px; font-size: 1.1rem;"
-                onclick="calcBFP()">Yağ Oranını Hesapla</button>
-
-              <div id="res-bfp" class="calc-info-box"
-                style="display:none; flex-direction: column; align-items: center; justify-content: center; padding: 32px; background: rgba(139, 124, 247, 0.05); margin-top: 24px; border-radius: 16px; border: 1px solid var(--border-color);">
-                <p
-                  style="font-size: 0.75rem; color: var(--accent-primary); text-transform: uppercase; letter-spacing: 0.1em; font-weight: bold; margin-bottom: 8px;">
-                  % YAĞ ORANI</p>
-                <p id="res-bfp-val" style="font-size: 4rem; font-weight: 900; color: var(--text-main); margin: 0;">0%
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div class="calc-view" id="calc-growth">
-            <div class="card calc-card">
-              <div style="margin-bottom: 24px; padding-bottom: 24px; border-bottom: 1px solid var(--border-color);">
-                <h4
-                  style="font-size: 0.75rem; font-weight: 900; color: var(--accent-primary); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 16px;">
-                  ÖNCEKİ KALDIRIŞ</h4>
-                <div class="calc-input-row" style="margin-bottom: 0;">
-                  <div class="calc-field">
-                    <label>AĞIRLIK</label>
-                    <div class="calc-input-wrapper">
-                      <input type="number" id="calcGrOldW" class="calc-input" placeholder="örn: 80" min="0">
-                    </div>
-                  </div>
-                  <div class="calc-field">
-                    <label>TEKRAR</label>
-                    <div class="calc-input-wrapper">
-                      <input type="number" id="calcGrOldR" class="calc-input" placeholder="örn: 8" min="0">
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div style="margin-bottom: 24px;">
-                <h4
-                  style="font-size: 0.75rem; font-weight: 900; color: var(--accent-secondary); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 16px;">
-                  ŞU ANKİ KALDIRIŞ</h4>
-                <div class="calc-input-row" style="margin-bottom: 0;">
-                  <div class="calc-field">
-                    <label>AĞIRLIK</label>
-                    <div class="calc-input-wrapper">
-                      <input type="number" id="calcGrNewW" class="calc-input" placeholder="örn: 85" min="0">
-                    </div>
-                  </div>
-                  <div class="calc-field">
-                    <label>TEKRAR</label>
-                    <div class="calc-input-wrapper">
-                      <input type="number" id="calcGrNewR" class="calc-input" placeholder="örn: 10" min="0">
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <button class="btn-primary" style="width: 100%; padding: 16px; font-size: 1.1rem;"
-                onclick="calcGrowth()">Kıyasla</button>
-
-              <div id="res-growth" class="calc-info-box"
-                style="display:none; flex-direction: column; align-items: center; justify-content: center; padding: 32px; background: rgba(255,255,255,0.02); border: 2px solid var(--accent-primary); border-radius: 20px; margin-top: 24px;">
-                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--accent-primary)"
-                  stroke-width="2" style="margin-bottom: 16px;">
-                  <polyline points="22 7 13.5 15.5 8.5 10.5 2 17" />
-                  <polyline points="16 7 22 7 22 13" />
-                </svg>
-                <p id="res-growth-val"
-                  style="font-size: 1.5rem; font-weight: 900; color: var(--text-main); margin-bottom: 16px; text-align: center;">
-                  Gücün %X arttı</p>
-                <div
-                  style="width: 100%; height: 8px; background: var(--bg-main); border-radius: 4px; overflow: hidden;">
-                  <div id="res-growth-bar"
-                    style="height: 100%; background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary)); width: 0%; transition: width 1s ease;">
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="calc-view" id="calc-macros">
-            <div class="card calc-card">
-              <div class="calc-input-row" style="grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 16px;">
-                <div class="calc-field">
-                  <label>AĞIRLIK</label>
-                  <div class="calc-input-wrapper">
-                    <input type="number" id="calcMacW" class="calc-input" placeholder="kg" min="0">
-                  </div>
-                </div>
-                <div class="calc-field">
-                  <label>BOY</label>
-                  <div class="calc-input-wrapper">
-                    <input type="number" id="calcMacH" class="calc-input" placeholder="cm" min="0">
-                  </div>
-                </div>
-                <div class="calc-field">
-                  <label>YAŞ</label>
-                  <div class="calc-input-wrapper">
-                    <input type="number" id="calcMacA" class="calc-input" placeholder="yıl" min="0">
-                  </div>
-                </div>
-              </div>
-              <div class="calc-field" style="margin-bottom: 24px;">
-                <label>AKTİVİTE SEVİYESİ</label>
-                <div class="rich-select-container">
-                  <div class="rich-select-trigger" id="richSelectTrigger">
-                    <div class="rich-option-content">
-                      <span class="rich-option-title">Moderately Active</span>
-                      <span class="rich-option-desc">Moderate exercise (3–5 days/week)</span>
-                    </div>
-                    <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                      stroke-width="2.5">
-                      <polyline points="6 9 12 15 18 9"></polyline>
-                    </svg>
-                  </div>
-                  <div class="rich-select-options" id="richOptions">
-                    <div class="rich-option-item" data-value="1.2">
-                      <div class="rich-option-content">
-                        <span class="rich-option-title">Sedentary</span>
-                        <span class="rich-option-desc">Little to no exercise</span>
-                      </div>
-                      <div class="rich-option-check">✔</div>
-                    </div>
-                    <div class="rich-option-item" data-value="1.375">
-                      <div class="rich-option-content">
-                        <span class="rich-option-title">Lightly Active</span>
-                        <span class="rich-option-desc">Light exercise (1–3 days/week)</span>
-                      </div>
-                      <div class="rich-option-check">✔</div>
-                    </div>
-                    <div class="rich-option-item selected" data-value="1.55">
-                      <div class="rich-option-content">
-                        <span class="rich-option-title">Moderately Active</span>
-                        <span class="rich-option-desc">Moderate exercise (3–5 days/week)</span>
-                      </div>
-                      <div class="rich-option-check">✔</div>
-                    </div>
-                    <div class="rich-option-item" data-value="1.725">
-                      <div class="rich-option-content">
-                        <span class="rich-option-title">Very Active</span>
-                        <span class="rich-option-desc">Intense exercise (6–7 days/week)</span>
-                      </div>
-                      <div class="rich-option-check">✔</div>
-                    </div>
-                    <div class="rich-option-item" data-value="1.9">
-                      <div class="rich-option-content">
-                        <span class="rich-option-title">Extremely Active</span>
-                        <span class="rich-option-desc">Physical job or double training</span>
-                      </div>
-                      <div class="rich-option-check">✔</div>
-                    </div>
-                  </div>
-                  <input type="hidden" id="calcMacAct" value="1.55">
-                </div>
-              </div>
-              <div
-                style="display: flex; padding: 4px; background: var(--bg-main); border: 1px solid var(--border-color); border-radius: 12px; width: fit-content; margin: 0 auto 24px;">
-                <button id="mac-btn-male" class="mac-gender-btn active"
-                  style="padding: 8px 24px; border-radius: 8px; font-size: 0.85rem; font-weight: bold; border: none; background: var(--accent-primary); color: white; cursor: pointer; transition: all 0.2s;"
-                  onclick="setMacGender('male')">Erkek</button>
-                <button id="mac-btn-female" class="mac-gender-btn"
-                  style="padding: 8px 24px; border-radius: 8px; font-size: 0.85rem; font-weight: bold; border: none; background: transparent; color: var(--text-muted); cursor: pointer; transition: all 0.2s;"
-                  onclick="setMacGender('female')">Kadın</button>
-              </div>
-
-              <button class="btn-primary" style="width: 100%; padding: 16px; font-size: 1.1rem;"
-                onclick="calcMacros()">Makro / Kalori Hesapla</button>
-
-              <div id="res-macros"
-                style="display:none; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-top: 24px;">
-                <div
-                  style="grid-column: span 2; padding: 20px; background: var(--accent-glow); border: 1px solid var(--accent-primary); border-radius: 16px; text-align: center;">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                    class="text-accent-primary" style="margin: 0 auto 4px; color: var(--accent-primary);">
-                    <path d="M12 2c0 0-5 3.5-5 9s5 9 5 9 5-3.5 5-9-5-9-5-9z" />
-                  </svg>
-                  <p
-                    style="font-size: 0.65rem; text-transform: uppercase; font-weight: 900; color: var(--text-muted); margin-bottom: 4px;">
-                    KALORİ</p>
-                  <p id="res-mac-kcal" style="font-size: 2.5rem; font-weight: 900; color: var(--text-main); margin: 0;">
-                    0</p>
-                </div>
-                <div
-                  style="padding: 16px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; text-align: center;">
-                  <p
-                    style="font-size: 0.65rem; text-transform: uppercase; font-weight: 900; color: var(--text-muted); margin-bottom: 4px;">
-                    PROTEİN</p>
-                  <p id="res-mac-p" style="font-size: 1.5rem; font-weight: 900; color: #60a5fa; margin: 0;">0g</p>
-                </div>
-                <div
-                  style="padding: 16px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; text-align: center;">
-                  <p
-                    style="font-size: 0.65rem; text-transform: uppercase; font-weight: 900; color: var(--text-muted); margin-bottom: 4px;">
-                    KARB</p>
-                  <p id="res-mac-c" style="font-size: 1.5rem; font-weight: 900; color: #f59e0b; margin: 0;">0g</p>
-                </div>
-                <div
-                  style="grid-column: span 2; padding: 16px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; text-align: center;">
-                  <p
-                    style="font-size: 0.65rem; text-transform: uppercase; font-weight: 900; color: var(--text-muted); margin-bottom: 4px;">
-                    YAĞ</p>
-                  <p id="res-mac-f" style="font-size: 1.5rem; font-weight: 900; color: #f43f5e; margin: 0;">0g</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+      </section>
+      <div class="hs">
+        <nav class="pn tl" id="tl" role="tablist" aria-label="Hesaplayıcılar"></nav>
+        <section class="pn" id="pane" role="tabpanel"></section>
       </div>
     </div>
 
-
-    <!-- ============ PAGE: DIET ============ -->
-    <div class="page" data-page="diet" id="pageDiet">
+  <div class="page" data-page="diet" id="pageDiet">
       <svg width="0" height="0" style="position:absolute"><defs>
 <linearGradient id="rg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8fb3cc"/><stop offset="1" stop-color="#dcc7a8"/></linearGradient>
 <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" stroke-width="2.4"/></symbol>

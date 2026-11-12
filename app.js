@@ -1911,7 +1911,7 @@ function navigateTo(page, opts){
   else if(page==='updates')renderUpdatesPage();
   else if(page==='notes')renderNotes();
   else if(page==='comments')renderComments();
-  else if(page==='calculators'){setTimeout(init1RMCalculator,50);}
+  else if(page==='calculators'){setTimeout(initCalculators,50);}
   else if(page==='beforeafter'){
     renderProgressPhotos();
     renderPRTable();
@@ -3479,235 +3479,354 @@ let editingNoteId = null;
 // =============================================
 // NOTES
 // =============================================
+// ============================================================
+// ZYRO NOTLAR (NOTES) — Zyro Panel v3 Redesign
+// Connected directly to appData.notes, preserved, multi-tag, colors
+// ============================================================
+currentNoteColor = '#8fb3cc';
+let currentNoteTag = null;
+let isAddingTag = false;
+let selectedNoteIds = new Set();
+
+const NOTE_COLORS = ['#8fb3cc', '#c99a9a', '#7d9be0', '#7fb08f', '#b99a7a'];
+
+function getAvailableTags() {
+  const defaultTags = [
+    { id: 'later', label: currentLang === 'tr' ? 'Daha Sonra' : 'Later', icon: 'zr-i-upd' },
+    { id: 'idea', label: currentLang === 'tr' ? 'Fikir' : 'Idea', icon: 'zr-i-post' },
+    { id: 'gym', label: 'GYM', icon: 'zr-i-dumb' }
+  ];
+  let custom = [];
+  try {
+    const stored = JSON.parse(localStorage.getItem('zyro-custom-tags'));
+    if (Array.isArray(stored)) custom = stored;
+  } catch (e) {}
+  return [...defaultTags, ...custom];
+}
+
 function initNotes() {
-  const saveBtn = document.getElementById('saveNoteBtn');
-  const input = document.getElementById('noteInput');
-  const titleInput = document.getElementById('noteTitleInput');
-  const tags = document.querySelectorAll('#pageNotes .tag-btn');
-  const colorBtns = document.querySelectorAll('.note-color-btn');
+  const form = document.getElementById('fn');
+  if (!form) return;
 
-  if (!saveBtn || !input) return;
+  const dotsEl = document.getElementById('dots');
+  const tagsEl = document.getElementById('tg');
+  const cancelBtn = document.getElementById('cx');
+  const bulkDeleteBtn = document.getElementById('ds');
 
-  // Auto-convert "-" to bullet point
-  input.addEventListener('input', function() {
-    if (this.value.startsWith('-')) {
-      this.value = '• ' + this.value.substring(1);
-    }
-    this.value = this.value.replace(/\n-/g, '\n• ');
-  });
+  // Render color dots
+  if (dotsEl) {
+    dotsEl.innerHTML = NOTE_COLORS.map((c, i) =>
+      `<button type="button" class="dot2" style="--c:${c}" data-c="${c}" aria-pressed="${c === currentNoteColor}" aria-label="Renk ${i + 1}"></button>`
+    ).join('');
 
-  tags.forEach(btn => {
-    btn.addEventListener('click', () => {
-      btn.classList.toggle('active');
-    });
-  });
+    dotsEl.onclick = e => {
+      const b = e.target.closest('[data-c]');
+      if (b) {
+        currentNoteColor = b.dataset.c;
+        renderNotesForm();
+      }
+    };
+  }
 
-  colorBtns.forEach(btn => {
-    btn.addEventListener('click', () => {
-      colorBtns.forEach(b => {
-        b.classList.remove('active');
-        b.style.borderColor = 'transparent';
-      });
-      btn.classList.add('active');
-      btn.style.borderColor = 'var(--accent-primary)';
-    });
-  });
+  // Tags click handling
+  if (tagsEl) {
+    tagsEl.onclick = async e => {
+      const t = e.target.closest('[data-t]');
+      const td = e.target.closest('[data-td]');
+      const ta = e.target.closest('[data-ta]');
 
-  saveBtn.addEventListener('click', async () => {
-    const text = input.value.trim();
-    if (!text) return;
-    
-    const title = titleInput ? titleInput.value.trim() : '';
-    const activeColorBtn = document.querySelector('.note-color-btn.active');
-    const color = activeColorBtn ? activeColorBtn.dataset.color : 'default';
-    
-    // 4.1: Only allow valid tags: 'Daha sonra', 'Fikir', 'GYM'
-    const VALID_TAGS = ['Daha sonra', 'Fikir', 'GYM'];
-    const selectedTags = [];
-    document.querySelectorAll('#pageNotes .tag-btn.active').forEach(b => {
-      if (VALID_TAGS.includes(b.dataset.tag)) selectedTags.push(b.dataset.tag);
-    });
+      if (t) {
+        currentNoteTag = currentNoteTag === t.dataset.t ? null : t.dataset.t;
+        renderNotesForm();
+        return;
+      }
 
-    const noteId = editingNoteId ? editingNoteId : Date.now().toString();
-    const note = {
-      id: noteId,
-      title,
-      text,
-      color,
-      tags: selectedTags,
-      timestamp: editingNoteId && appData.notes[noteId] ? appData.notes[noteId].timestamp : Date.now(),
-      date: editingNoteId && appData.notes[noteId] ? appData.notes[noteId].date : todayStr()
+      if (ta) {
+        const k = ta.dataset.ta;
+        if (k === 'new') {
+          isAddingTag = true;
+          renderNotesForm();
+          return;
+        }
+        if (k === 'no') {
+          isAddingTag = false;
+          renderNotesForm();
+          return;
+        }
+        if (k === 'ok') {
+          const input = document.getElementById('tn');
+          const val = input ? input.value.trim() : '';
+          if (!val) {
+            showToast(currentLang === 'tr' ? 'Etiket adı boş olamaz' : 'Tag name cannot be empty', 'error');
+            return;
+          }
+          let custom = [];
+          try {
+            custom = JSON.parse(localStorage.getItem('zyro-custom-tags')) || [];
+          } catch (e) {}
+          if (custom.some(x => x.label.toLowerCase() === val.toLowerCase())) {
+            showToast(currentLang === 'tr' ? 'Bu etiket zaten var' : 'This tag already exists', 'error');
+            return;
+          }
+          const newTag = { id: 't_' + Date.now(), label: val, icon: 'zr-i-tag-custom', custom: 1 };
+          custom.push(newTag);
+          localStorage.setItem('zyro-custom-tags', JSON.stringify(custom));
+          currentNoteTag = newTag.id;
+          isAddingTag = false;
+          renderNotesForm();
+          return;
+        }
+      }
+
+      if (td) {
+        if (confirm(currentLang === 'tr' ? 'Bu etiket silinsin mi?' : 'Delete this tag?')) {
+          let custom = [];
+          try {
+            custom = JSON.parse(localStorage.getItem('zyro-custom-tags')) || [];
+          } catch (e) {}
+          custom = custom.filter(x => x.id !== td.dataset.td);
+          localStorage.setItem('zyro-custom-tags', JSON.stringify(custom));
+          if (currentNoteTag === td.dataset.td) currentNoteTag = null;
+          renderNotesForm();
+          renderNotes();
+        }
+      }
     };
 
-    if (!appData.notes) appData.notes = {};
-    appData.notes[noteId] = note;
-    saveData();
-    
-    input.value = '';
-    if (titleInput) titleInput.value = '';
-    document.querySelectorAll('#pageNotes .tag-btn.active').forEach(b => b.classList.remove('active'));
-    colorBtns.forEach(b => {
-      b.classList.remove('active');
-      b.style.borderColor = 'transparent';
-    });
-    if(colorBtns[0]) {
-      colorBtns[0].classList.add('active');
-      colorBtns[0].style.borderColor = 'var(--accent-primary)';
+    tagsEl.onkeydown = e => {
+      if (e.target.id === 'tn') {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          const okBtn = tagsEl.querySelector('[data-ta=ok]');
+          if (okBtn) okBtn.click();
+        }
+        if (e.key === 'Escape') {
+          isAddingTag = false;
+          renderNotesForm();
+        }
+      }
+    };
+  }
+
+  // Cancel button
+  if (cancelBtn) {
+    cancelBtn.onclick = () => {
+      editingNoteId = null;
+      currentNoteTag = null;
+      currentNoteColor = NOTE_COLORS[0];
+      form.reset();
+      const errEl = document.getElementById('er');
+      if (errEl) errEl.textContent = '';
+      renderNotesForm();
+    };
+  }
+
+  // Form submit
+  form.onsubmit = e => {
+    e.preventDefault();
+    const title = (document.getElementById('nt').value || '').trim();
+    const text = (document.getElementById('nx').value || '').trim();
+    const errEl = document.getElementById('er');
+
+    if (!title && !text) {
+      if (errEl) errEl.textContent = currentLang === 'tr' ? 'Bir başlık veya not yaz.' : 'Write a title or note.';
+      return;
     }
-    
+    if (errEl) errEl.textContent = '';
+
+    if (!appData.notes) appData.notes = {};
+
+    const noteId = editingNoteId || ('n_' + Date.now());
+    const existing = appData.notes[noteId] || {};
+
+    appData.notes[noteId] = {
+      id: noteId,
+      title: title,
+      text: text,
+      color: currentNoteColor,
+      tag: currentNoteTag,
+      timestamp: existing.timestamp || Date.now(),
+      date: existing.date || todayStr()
+    };
+
+    saveData();
+    showToast(editingNoteId ? (currentLang === 'tr' ? 'Not güncellendi' : 'Note updated') : (currentLang === 'tr' ? 'Not kaydedildi' : 'Note saved'), 'success');
+
     editingNoteId = null;
-    saveBtn.innerHTML = currentLang === 'tr' ? 'Notu Kaydet' : 'Save Note';
-    
-    showToast(currentLang === 'tr' ? 'Not kaydedildi!' : 'Note saved!', 'success');
+    currentNoteTag = null;
+    currentNoteColor = NOTE_COLORS[0];
+    form.reset();
+    renderNotesForm();
     renderNotes();
-  });
+  };
+
+  // Bulk delete
+  if (bulkDeleteBtn) {
+    bulkDeleteBtn.onclick = () => {
+      if (!selectedNoteIds.size) return;
+      const count = selectedNoteIds.size;
+      const msg = currentLang === 'tr' ? `${count} not silinsin mi? Bu işlem geri alınamaz.` : `Delete ${count} notes? This cannot be undone.`;
+      if (!confirm(msg)) return;
+
+      selectedNoteIds.forEach(id => {
+        delete appData.notes[id];
+      });
+      selectedNoteIds.clear();
+      saveData();
+      renderNotes();
+      showToast(currentLang === 'tr' ? 'Notlar silindi' : 'Notes deleted', 'success');
+    };
+  }
+
+  renderNotesForm();
+  renderNotes();
+}
+
+function renderNotesForm() {
+  const dotsEl = document.getElementById('dots');
+  const tagsEl = document.getElementById('tg');
+  const ft = document.getElementById('ft');
+  const bg = document.getElementById('bg');
+  const svt = document.getElementById('svt');
+  const cx = document.getElementById('cx');
+
+  if (dotsEl) {
+    dotsEl.innerHTML = NOTE_COLORS.map((c, i) =>
+      `<button type="button" class="dot2" style="--c:${c}" data-c="${c}" aria-pressed="${c === currentNoteColor}" aria-label="Renk ${i + 1}"></button>`
+    ).join('');
+  }
+
+  if (tagsEl) {
+    const tags = getAvailableTags();
+    const tagItems = tags.map(t =>
+      `<span class="tc${t.custom ? ' cu' : ''}">` +
+        `<button type="button" data-t="${t.id}" aria-pressed="${t.id === currentNoteTag}">` +
+          `<svg class="i" width="14" height="14"><use href="#${t.icon}"/></svg>${t.label}` +
+        `</button>` +
+        (t.custom ? `<button type="button" class="tr2" data-td="${t.id}" aria-label="Sil">✕</button>` : '') +
+      `</span>`
+    ).join('');
+
+    const addPart = isAddingTag
+      ? `<span class="ta"><input class="in" id="tn" maxlength="20" placeholder="${currentLang === 'tr' ? 'Etiket adı' : 'Tag name'}"><button type="button" class="btn" data-ta="ok">${currentLang === 'tr' ? 'Ekle' : 'Add'}</button><button type="button" class="ghost" data-ta="no">${currentLang === 'tr' ? 'İptal' : 'Cancel'}</button></span>`
+      : `<button type="button" class="add" data-ta="new"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>${currentLang === 'tr' ? 'Etiket ekle' : 'Add tag'}</button>`;
+
+    tagsEl.innerHTML = tagItems + addPart;
+    if (isAddingTag) {
+      const inp = document.getElementById('tn');
+      if (inp) inp.focus();
+    }
+  }
+
+  if (ft) ft.textContent = editingNoteId ? (currentLang === 'tr' ? 'Notu düzenle' : 'Edit note') : (currentLang === 'tr' ? 'Bugünkü giriş' : 'Today\'s entry');
+  if (bg) bg.hidden = !!editingNoteId;
+  if (svt) svt.textContent = editingNoteId ? (currentLang === 'tr' ? 'Güncelle' : 'Update') : (currentLang === 'tr' ? 'Notu kaydet' : 'Save note');
+  if (cx) cx.hidden = !editingNoteId;
 }
 
 function renderNotes() {
-  const container = document.getElementById('notesHistory');
-  const bulkBtn = document.getElementById('bulkDeleteNotesBtn');
+  const container = document.getElementById('ls');
+  const countEl = document.getElementById('cn');
+  const deleteSelectedBtn = document.getElementById('ds');
+  const dst = document.getElementById('dst');
   if (!container) return;
-  
-  const entries = Object.values(appData.notes || {}).sort((a, b) => b.timestamp - a.timestamp);
+
+  const entries = Object.values(appData.notes || {}).sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+
+  // Prune deleted selected ids
+  selectedNoteIds = new Set([...selectedNoteIds].filter(id => appData.notes && appData.notes[id]));
+
+  if (countEl) countEl.textContent = entries.length;
+  if (deleteSelectedBtn) deleteSelectedBtn.disabled = !selectedNoteIds.size;
+  if (dst) {
+    dst.textContent = selectedNoteIds.size
+      ? (currentLang === 'tr' ? `Seçilenleri sil (${selectedNoteIds.size})` : `Delete selected (${selectedNoteIds.size})`)
+      : (currentLang === 'tr' ? 'Seçilenleri sil' : 'Delete selected');
+  }
+
   if (entries.length === 0) {
-    container.innerHTML = `<div class="logged-empty">${currentLang === 'tr' ? 'Henüz not yok.' : 'No notes yet.'}</div>`;
-    if (bulkBtn) bulkBtn.style.display = 'none';
+    container.innerHTML = `<div class="empty">${currentLang === 'tr' ? 'Henüz not yok. İlk girişini yukarıdan ekle.' : 'No notes yet. Add your first entry above.'}</div>`;
     return;
   }
-  
-  if (bulkBtn) bulkBtn.style.display = 'flex';
 
-  const TAG_SVG = {
-    'Daha sonra': '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>',
-    'Fikir': '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 1 7 7 7 7 0 0 1-4 6.32V17H9v-1.69A7.004 7.004 0 0 1 5 9a7 7 0 0 1 7-7z"/></svg>',
-    'GYM': '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6.5 6.5h11M6.5 17.5h11M12 2v4M12 18v4M4.5 8.5v7M19.5 8.5v7"/></svg>'
-  };
-  
-  const COLOR_STYLES = {
-    'default': 'background:var(--bg-card-alt); border:1px solid var(--border-subtle);',
-    'red': 'background:rgba(224,84,84,0.05); border:1px solid rgba(224,84,84,0.2);',
-    'blue': 'background:rgba(92,138,222,0.05); border:1px solid rgba(92,138,222,0.2);',
-    'green': 'background:rgba(78,203,141,0.05); border:1px solid rgba(78,203,141,0.2);',
-    'orange': 'background:rgba(224,148,58,0.05); border:1px solid rgba(224,148,58,0.2);'
-  };
+  const tags = getAvailableTags();
 
-  container.innerHTML = entries.map(note => {
-    const d = new Date(note.timestamp);
-    const dateLabel = note.date === todayStr() ? (currentLang === 'tr' ? 'Bugün' : 'Today') : d.toLocaleDateString(currentLang === 'tr' ? 'tr-TR' : 'en-US', { weekday: 'short', month: 'short', day: 'numeric' });
-    const tagsHtml = (note.tags || []).map(tg => `<span style="display:inline-flex;align-items:center;gap:3px;font-size:0.65rem;padding:2px 8px;border-radius:12px;background:var(--accent-glow);color:var(--accent-primary);font-weight:600;margin-right:4px;">${TAG_SVG[tg]||''}${tg}</span>`).join('');
-    
-    const noteStyle = COLOR_STYLES[note.color] || COLOR_STYLES['default'];
-    const titleHtml = note.title ? `<div style="font-size:1.05rem;font-weight:800;color:var(--text-primary);margin-bottom:6px;">${note.title}</div>` : '';
+  container.innerHTML = entries.map(n => {
+    const d = new Date(n.timestamp || Date.now());
+    const dateStr = d.toLocaleDateString(currentLang === 'tr' ? 'tr-TR' : 'en-US', {
+      day: 'numeric',
+      month: 'short',
+      weekday: 'short'
+    });
+    const foundTag = tags.find(x => x.id === n.tag);
+    const color = n.color || NOTE_COLORS[0];
+    const isChecked = selectedNoteIds.has(n.id);
 
     return `
-      <div class="note-entry" style="padding:16px;border-radius:12px;margin-bottom:12px;display:flex;gap:12px;${noteStyle}">
-        <div style="padding-top:2px;">
-          <input type="checkbox" class="note-checkbox" value="${note.id}" style="width:18px; height:18px; accent-color:var(--accent-primary); cursor:pointer;">
+      <article class="nt" style="--c:${color}" data-id="${n.id}">
+        <input type="checkbox" data-s ${isChecked ? 'checked' : ''} aria-label="Seç">
+        <div>
+          <time>${dateStr}</time>
+          ${n.title ? `<h3>${escapeHtml(n.title)}</h3>` : ''}
+          <div class="tx">${escapeHtml(n.text || '')}</div>
+          ${foundTag ? `<span class="tag"><svg class="i" width="12" height="12"><use href="#${foundTag.icon}"/></svg>${escapeHtml(foundTag.label)}</span>` : ''}
         </div>
-        <div style="flex:1;">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-            <span style="font-size:0.75rem;color:var(--text-muted);font-weight:600;">${dateLabel}</span>
-            <div style="display:flex; gap:8px;">
-              <button onclick="editNote('${note.id}')" style="background:rgba(92,138,222,0.08);border:1px solid rgba(92,138,222,0.2);color:#5c8ade;cursor:pointer;padding:5px 7px;border-radius:7px;transition:all 0.2s;display:flex;align-items:center;gap:4px;font-size:0.7rem;" title="Notu Düzenle">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                Düzenle
-              </button>
-              <button onclick="deleteNote('${note.id}')" style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);color:#ef4444;cursor:pointer;padding:5px 7px;border-radius:7px;transition:all 0.2s;display:flex;align-items:center;gap:4px;font-size:0.7rem;" title="Notu Sil">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-                Sil
-              </button>
-            </div>
-          </div>
-          ${titleHtml}
-          <div style="font-size:0.9rem;line-height:1.5;color:var(--text-primary);margin-bottom:10px;white-space:pre-wrap;">${note.text}</div>
-          <div style="display:flex;flex-wrap:wrap;gap:4px;">${tagsHtml}</div>
+        <div class="na">
+          <button class="ghost" data-a="e">
+            <svg class="i" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            ${currentLang === 'tr' ? 'Düzenle' : 'Edit'}
+          </button>
+          <button class="ghost danger" data-a="d">
+            <svg class="i" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+            ${currentLang === 'tr' ? 'Sil' : 'Delete'}
+          </button>
         </div>
-      </div>
+      </article>
     `;
   }).join('');
+
+  // Event delegation on list
+  container.onclick = e => {
+    const card = e.target.closest('[data-id]');
+    if (!card) return;
+    const id = card.dataset.id;
+    const note = appData.notes && appData.notes[id];
+
+    if (e.target.matches('[data-s]')) {
+      if (e.target.checked) selectedNoteIds.add(id);
+      else selectedNoteIds.delete(id);
+      renderNotes();
+      return;
+    }
+
+    const actionBtn = e.target.closest('[data-a]');
+    if (!actionBtn) return;
+
+    if (actionBtn.dataset.a === 'e' && note) {
+      editingNoteId = id;
+      currentNoteTag = note.tag || null;
+      currentNoteColor = note.color || NOTE_COLORS[0];
+      renderNotesForm();
+      const titleInput = document.getElementById('nt');
+      const textInput = document.getElementById('nx');
+      if (titleInput) titleInput.value = note.title || '';
+      if (textInput) textInput.value = note.text || '';
+      const formEl = document.getElementById('fn');
+      if (formEl) formEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      if (textInput) textInput.focus();
+    } else if (actionBtn.dataset.a === 'd') {
+      const msg = currentLang === 'tr' ? 'Not silinsin mi? Bu işlem geri alınamaz.' : 'Delete this note? This cannot be undone.';
+      if (confirm(msg)) {
+        delete appData.notes[id];
+        selectedNoteIds.delete(id);
+        saveData();
+        renderNotes();
+        showToast(currentLang === 'tr' ? 'Not silindi' : 'Note deleted', 'success');
+      }
+    }
+  };
 }
 
-window.bulkDeleteNotes = function() {
-  const checkboxes = document.querySelectorAll('.note-checkbox:checked');
-  if (checkboxes.length === 0) {
-    showToast('Lütfen silmek istediğiniz notları seçin.', 'error');
-    return;
-  }
-  
-  if (!confirm(`${checkboxes.length} adet notu silmek istediğinize emin misiniz?`)) return;
-  
-  const idsToDelete = Array.from(checkboxes).map(cb => cb.value);
-  idsToDelete.forEach(id => {
-    delete appData.notes[id];
-  });
-  
-  saveData();
-  renderNotes();
-  showToast(`${idsToDelete.length} not silindi.`, 'success');
-};
-
-window.editNote = function(noteId) {
-  const note = appData.notes[noteId];
-  if (!note) return;
-  
-  const input = document.getElementById('noteInput');
-  const titleInput = document.getElementById('noteTitleInput');
-  const saveBtn = document.getElementById('saveNoteBtn');
-  
-  if (input) input.value = note.text || '';
-  if (titleInput) titleInput.value = note.title || '';
-  
-  // Tags
-  document.querySelectorAll('#pageNotes .tag-btn').forEach(btn => {
-    if (note.tags && note.tags.includes(btn.dataset.tag)) {
-      btn.classList.add('active');
-    } else {
-      btn.classList.remove('active');
-    }
-  });
-  
-  // Colors
-  const colorBtns = document.querySelectorAll('.note-color-btn');
-  colorBtns.forEach(btn => {
-    if (btn.dataset.color === note.color) {
-      btn.classList.add('active');
-      btn.style.borderColor = 'var(--accent-primary)';
-    } else {
-      btn.classList.remove('active');
-      btn.style.borderColor = 'transparent';
-    }
-  });
-  
-  editingNoteId = noteId;
-  if (saveBtn) saveBtn.innerHTML = currentLang === 'tr' ? 'Notu Güncelle' : 'Update Note';
-  
-  // Scroll to top of notes page
-  const pageNotes = document.getElementById('pageNotes');
-  if (pageNotes) pageNotes.scrollTo({top: 0, behavior: 'smooth'});
-  window.scrollTo({top: 0, behavior: 'smooth'});
-};
-
-window.deleteNote = function(noteId) {
-  if (!appData.notes || !appData.notes[noteId]) return;
-  const backup = { ...appData.notes };
-  try {
-    delete appData.notes[noteId];
-    // Persist locally first
-    localStorage.setItem('zyro_data', JSON.stringify(appData));
-    // Also delete from Firestore directly so onSnapshot doesn't overwrite
-    if (isFirebaseConfigured && currentUser && db) {
-      db.collection('users').doc(currentUser.uid).update({
-        [`data.notes.${noteId}`]: firebase.firestore.FieldValue.delete()
-      }).catch(e => console.error('Note Firestore delete failed:', e));
-    }
-    renderNotes();
-    showToast(currentLang === 'tr' ? 'Not silindi' : 'Note deleted', 'success');
-  } catch(e) {
-    appData.notes = backup;
-    console.error('Note delete failed, rolled back:', e);
-    showToast(currentLang === 'tr' ? 'Silme basarisiz!' : 'Delete failed!', 'error');
-  }
-};
 
 // =============================================
 // STATS
@@ -7824,188 +7943,497 @@ function renderProgressTracker() {
 // =============================================
 // CALCULATORS
 // =============================================
-function initCalculators() {
-  document.querySelectorAll('.calc-nav-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('.calc-nav-btn').forEach(b => b.classList.remove('active'));
-      document.querySelectorAll('.calc-view').forEach(v => v.classList.remove('active'));
-      btn.classList.add('active');
-      const calcId = btn.dataset.calc;
-      const view = document.getElementById('calc-' + calcId);
-      if (view) view.classList.add('active');
-    });
-  });
+// ============================================================
+// ZYRO HESAPLAYICILAR (CALCULATORS) — Zyro Panel v3 Redesign
+// 5 Calculators: 1RM, Unit Converter, Body Fat, Growth, Macros
+// 1RM exercises populate automatically from user's workoutLogs & default workout program
+// ============================================================
+let currentCalcTab = 'rm';
 
-  const kgInput = document.getElementById('calcKg');
-  const lbsInput = document.getElementById('calcLbs');
+const CALC_TABS = [
+  ['rm', { tr: '1RM Hesapla', en: '1RM Calculator' }],
+  ['un', { tr: 'Birim Dönüştürücü', en: 'Unit Converter' }],
+  ['bf', { tr: 'Yağ Oranı', en: 'Body Fat' }],
+  ['pr', { tr: 'Gelişim', en: 'Growth / Progress' }],
+  ['mc', { tr: 'Makro/Kalori', en: 'Macros / Calories' }]
+];
 
-  if (kgInput && lbsInput) {
-    kgInput.addEventListener('input', () => {
-      const kg = parseFloat(kgInput.value);
-      if (!isNaN(kg)) {
-        lbsInput.value = (kg * 2.20462).toFixed(2);
-      } else {
-        lbsInput.value = '';
-      }
-    });
+const CALC_CATS = {
+  all: { tr: 'Tümü (Tüm Vücut)', en: 'All (Full Body)' },
+  chest: { tr: 'Göğüs', en: 'Chest' },
+  back: { tr: 'Sırt', en: 'Back' },
+  shoulders: { tr: 'Omuz', en: 'Shoulders' },
+  biceps: { tr: 'Biceps', en: 'Biceps' },
+  triceps: { tr: 'Triceps', en: 'Triceps' },
+  legs: { tr: 'Bacak', en: 'Legs' },
+  core: { tr: 'Core', en: 'Core' }
+};
 
-    lbsInput.addEventListener('input', () => {
-      const lbs = parseFloat(lbsInput.value);
-      if (!isNaN(lbs)) {
-        kgInput.value = (lbs / 2.20462).toFixed(2);
-      } else {
-        kgInput.value = '';
-      }
-    });
-  }
-  // Rich Activity Dropdown
-  const richTrigger = document.getElementById('richSelectTrigger');
-  const richOptions = document.getElementById('richOptions');
-  const actHidden = document.getElementById('calcMacAct');
-  
-  if (richTrigger && richOptions) {
-    richTrigger.addEventListener('click', (e) => {
-      e.stopPropagation();
-      richTrigger.classList.toggle('active');
-      richOptions.classList.toggle('show');
-    });
+const CALC_ACT = [
+  [1.2, { tr: 'Hareketsiz', en: 'Sedentary' }, { tr: 'Masa başı, az egzersiz', en: 'Desk job, little exercise' }],
+  [1.375, { tr: 'Hafif aktif', en: 'Lightly active' }, { tr: 'Haftada 1–3 gün egzersiz', en: '1–3 days/week exercise' }],
+  [1.55, { tr: 'Orta aktif', en: 'Moderately active' }, { tr: 'Haftada 3–5 gün egzersiz', en: '3–5 days/week exercise' }],
+  [1.725, { tr: 'Çok aktif', en: 'Very active' }, { tr: 'Haftada 6–7 gün egzersiz', en: '6–7 days/week exercise' }],
+  [1.9, { tr: 'Ekstra aktif', en: 'Extra active' }, { tr: 'Günde iki antrenman / ağır iş', en: 'Twice a day / heavy work' }]
+];
 
-    document.querySelectorAll('.rich-option-item').forEach(item => {
-      item.addEventListener('click', () => {
-        const val = item.dataset.value;
-        const title = item.querySelector('.rich-option-title').textContent;
-        const desc = item.querySelector('.rich-option-desc').textContent;
-        
-        actHidden.value = val;
-        
-        // Update Trigger Display
-        richTrigger.querySelector('.rich-option-title').textContent = title;
-        richTrigger.querySelector('.rich-option-desc').textContent = desc;
-        
-        // Update Selected State
-        document.querySelectorAll('.rich-option-item').forEach(i => i.classList.remove('selected'));
-        item.classList.add('selected');
-        
-        richOptions.classList.remove('show');
-        richTrigger.classList.remove('active');
+function getUserWorkoutExercises() {
+  const map = new Map();
+
+  // 1) From shared program if available
+  if (window.ZyroProgram && window.ZyroProgram.DAYS) {
+    Object.values(window.ZyroProgram.DAYS).forEach(day => {
+      (day.exercises || []).forEach(ex => {
+        if (!map.has(ex.name)) {
+          map.set(ex.name, { cat: ex.cat || 'chest', ex: ex.name, w: 0, r: 0 });
+        }
       });
     });
+  }
 
-    document.addEventListener('click', () => {
-      richOptions.classList.remove('show');
-      richTrigger.classList.remove('active');
+  // Fallback defaults if map empty
+  if (map.size === 0) {
+    const defaults = [
+      { cat: 'chest', ex: 'Bench Press', w: 80, r: 8 },
+      { cat: 'chest', ex: 'Incline Dumbbell Press', w: 28, r: 10 },
+      { cat: 'back', ex: 'Barbell Row', w: 70, r: 8 },
+      { cat: 'back', ex: 'Lat Pulldown', w: 65, r: 10 },
+      { cat: 'legs', ex: 'Squat', w: 100, r: 6 },
+      { cat: 'legs', ex: 'Romanian Deadlift', w: 90, r: 8 },
+      { cat: 'shoulders', ex: 'Overhead Press', w: 45, r: 8 },
+      { cat: 'biceps', ex: 'Barbell Curl', w: 30, r: 10 },
+      { cat: 'triceps', ex: 'Triceps Pushdown', w: 35, r: 12 }
+    ];
+    defaults.forEach(d => map.set(d.ex, d));
+  }
+
+  // 2) Overlay user's real workoutLogs to get latest weight & reps
+  if (appData && appData.workoutLogs) {
+    Object.keys(appData.workoutLogs).forEach(dateKey => {
+      const logs = appData.workoutLogs[dateKey] || [];
+      logs.forEach(l => {
+        if (l.exercise) {
+          const existing = map.get(l.exercise) || { cat: 'chest', ex: l.exercise, w: 0, r: 0 };
+          const w = parseFloat(l.weight) || 0;
+          const r = parseInt(l.reps) || 0;
+          if (w > 0) {
+            existing.w = w;
+            existing.r = r;
+          }
+          map.set(l.exercise, existing);
+        }
+      });
     });
+  }
+
+  return Array.from(map.values());
+}
+
+// Custom dropdown registry
+const DD = {};
+function ddClose(d) {
+  const l = d.querySelector('.dd-l');
+  const b = d.querySelector('.dd-b');
+  if (l) l.hidden = true;
+  if (b) b.setAttribute('aria-expanded', 'false');
+}
+
+function ddHTML(id, l) {
+  return `<div class="fld"><label id="${id}-l">${l}</label><div class="dd" id="${id}" data-v=""><button type="button" class="in dd-b" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="${id}-l"><span></span><svg class="i" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></button><div class="dd-l" role="listbox" hidden></div></div></div>`;
+}
+
+function ddDraw(id) {
+  const d = document.getElementById(id);
+  if (!d || !DD[id]) return;
+  const { opts, ph } = DD[id];
+  const cur = opts.find(o => String(o[0]) === d.dataset.v);
+  const sp = d.querySelector('.dd-b span');
+  if (sp) {
+    sp.textContent = cur ? cur[1] : ph;
+    sp.classList.toggle('ph', !cur);
+  }
+  const listEl = d.querySelector('.dd-l');
+  if (listEl) {
+    listEl.innerHTML = opts.length
+      ? (opts.length > 8 ? `<input class="in dd-s" placeholder="${currentLang === 'tr' ? 'Ara…' : 'Search…'}" aria-label="Ara">` : '') +
+        opts.map(o => `<button type="button" role="option" data-o="${escapeHtml(String(o[0]))}" aria-selected="${String(o[0]) === d.dataset.v}"><span>${escapeHtml(o[1])}</span>${o[2] ? `<small>${escapeHtml(o[2])}</small>` : ''}</button>`).join('')
+      : `<div class="dd-e">${currentLang === 'tr' ? 'Bu kategoride egzersiz yok' : 'No exercise in this category'}</div>`;
   }
 }
 
-window.calc1RM = function() {
-  const w = parseFloat(document.getElementById('calc1rmW').value);
-  const r = parseFloat(document.getElementById('calc1rmR').value);
-  if (w > 0 && r > 0) {
-    const oneRepMax = Math.round(w * (1 + r / 30));
-    document.getElementById('res-1rm-val').textContent = oneRepMax;
-    document.getElementById('res-1rm').style.display = 'flex';
+function ddSet(id, opts, v, ph, cb) {
+  DD[id] = { opts, ph, cb };
+  const d = document.getElementById(id);
+  if (d) {
+    d.dataset.v = v == null ? '' : v;
+    ddDraw(id);
   }
-};
+}
 
-let bfpGender = 'male';
-window.setBfpGender = function(gender) {
-  bfpGender = gender;
-  document.getElementById('bfp-btn-male').classList.toggle('active', gender === 'male');
-  document.getElementById('bfp-btn-male').style.background = gender === 'male' ? 'var(--accent-primary)' : 'transparent';
-  document.getElementById('bfp-btn-male').style.color = gender === 'male' ? 'white' : 'var(--text-muted)';
-  
-  document.getElementById('bfp-btn-female').classList.toggle('active', gender === 'female');
-  document.getElementById('bfp-btn-female').style.background = gender === 'female' ? 'var(--accent-primary)' : 'transparent';
-  document.getElementById('bfp-btn-female').style.color = gender === 'female' ? 'white' : 'var(--text-muted)';
-  
-  document.getElementById('calcBfpHipField').style.display = gender === 'female' ? 'block' : 'none';
-};
+function initCalculators() {
+  const tl = document.getElementById('tl');
+  const pane = document.getElementById('pane');
+  if (!tl || !pane) return;
 
-window.calcBFP = function() {
-  const h = parseFloat(document.getElementById('calcBfpH').value);
-  const w = parseFloat(document.getElementById('calcBfpW').value);
-  const n = parseFloat(document.getElementById('calcBfpN').value);
-  const hp = parseFloat(document.getElementById('calcBfpHip').value);
-  
-  if (!h || !w || !n) return;
-  
-  let result;
-  if (bfpGender === 'male') {
-    result = 495 / (1.0324 - 0.19077 * Math.log10(w - n) + 0.15456 * Math.log10(h)) - 450;
-  } else {
-    if (!hp) return;
-    result = 495 / (1.29579 - 0.35004 * Math.log10(w + hp - n) + 0.221 * Math.log10(h)) - 450;
+  // Dropdown global document click & keydown listeners (setup once)
+  if (!window.__zyroCalcDDInited) {
+    window.__zyroCalcDDInited = true;
+    document.addEventListener('click', e => {
+      const b = e.target.closest('.dd-b');
+      const o = e.target.closest('[data-o]');
+      document.querySelectorAll('.dd').forEach(d => {
+        if (!d.contains(e.target) || (b && b.parentNode === d && b.getAttribute('aria-expanded') === 'true')) {
+          ddClose(d);
+        }
+      });
+      if (b) {
+        const d = b.parentNode;
+        const l = d.querySelector('.dd-l');
+        if (b.getAttribute('aria-expanded') !== 'true') {
+          l.hidden = false;
+          b.setAttribute('aria-expanded', 'true');
+          const f = l.querySelector('[aria-selected=true]') || l.querySelector('[data-o]');
+          if (f) f.focus({ preventScroll: false });
+        }
+      } else if (o) {
+        const d = o.closest('.dd');
+        d.dataset.v = o.dataset.o;
+        ddDraw(d.id);
+        ddClose(d);
+        const btn = d.querySelector('.dd-b');
+        if (btn) btn.focus();
+        if (DD[d.id] && DD[d.id].cb) DD[d.id].cb(d.dataset.v);
+      }
+    });
+
+    document.addEventListener('input', e => {
+      if (e.target.classList.contains('dd-s')) {
+        const q = e.target.value.toLowerCase();
+        e.target.parentNode.querySelectorAll('[data-o]').forEach(b => {
+          b.hidden = !b.textContent.toLowerCase().includes(q);
+        });
+      }
+    });
+
+    document.addEventListener('keydown', e => {
+      const d = e.target.closest && e.target.closest('.dd');
+      if (!d) return;
+      if (e.key === 'Escape') {
+        ddClose(d);
+        const btn = d.querySelector('.dd-b');
+        if (btn) btn.focus();
+        return;
+      }
+      if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+        e.preventDefault();
+        const l = d.querySelector('.dd-l');
+        if (l.hidden) {
+          const btn = d.querySelector('.dd-b');
+          if (btn) btn.click();
+          return;
+        }
+        const a = [...l.querySelectorAll('[data-o]')].filter(x => !x.hidden);
+        const i = a.indexOf(document.activeElement);
+        const n = e.key === 'ArrowDown' ? Math.min(a.length - 1, i + 1) : Math.max(0, i - 1);
+        if (a[n]) a[n].focus();
+      }
+    });
   }
-  
-  if (!isNaN(result)) {
-    document.getElementById('res-bfp-val').textContent = result.toFixed(1) + '%';
-    document.getElementById('res-bfp').style.display = 'flex';
+
+  tl.onclick = e => {
+    const b = e.target.closest('[data-t]');
+    if (b) {
+      currentCalcTab = b.dataset.t;
+      renderCalculators();
+    }
+  };
+
+  pane.onclick = e => {
+    if (e.target.closest('[data-go]')) executeCalc(currentCalcTab);
+  };
+
+  pane.onkeydown = e => {
+    if (e.key === 'Enter' && e.target.matches('input.in')) executeCalc(currentCalcTab);
+  };
+
+  renderCalculators();
+}
+
+function renderCalculators() {
+  const tl = document.getElementById('tl');
+  const pane = document.getElementById('pane');
+  if (!tl || !pane) return;
+
+  // Render tab list
+  tl.innerHTML = CALC_TABS.map(([k, nameObj]) =>
+    `<button role="tab" data-t="${k}" aria-selected="${k === currentCalcTab}">${nameObj[currentLang] || nameObj.tr}</button>`
+  ).join('');
+
+  // Render active view
+  pane.innerHTML = getCalcViewHTML(currentCalcTab);
+  setupCalcView(currentCalcTab);
+}
+
+function getCalcViewHTML(tab) {
+  const numInp = (id, label, unit, ph) =>
+    `<div class="fld"><label for="${id}">${label}</label><div class="u"><input class="in" id="${id}" inputmode="decimal" placeholder="${ph || ''}" autocomplete="off"><span>${unit || ''}</span></div></div>`;
+
+  const genderSeg = () =>
+    `<div class="seg2" role="radiogroup" aria-label="Cinsiyet" style="margin-bottom:16px"><input type="radio" name="calcG" id="calcG1" value="m" checked><label for="calcG1">${currentLang === 'tr' ? 'Erkek' : 'Male'}</label><input type="radio" name="calcG" id="calcG2" value="f"><label for="calcG2">${currentLang === 'tr' ? 'Kadın' : 'Female'}</label></div>`;
+
+  const tailBtn = label =>
+    `<button class="btn w" data-go>${label}</button><div class="err" id="calcErr" role="alert"></div><div id="calcRes" aria-live="polite"></div>`;
+
+  const headBlock = (iconHref, title, subtitle) =>
+    `<div class="ph2"><div class="ibox" style="width:44px;height:44px;border-radius:14px"><svg class="i"><use href="#${iconHref}"/></svg></div><div><b>${title}</b><span>${subtitle}</span></div></div>`;
+
+  if (tab === 'rm') {
+    return headBlock('zr-i-trend', currentLang === 'tr' ? '1RM Hesaplayıcı' : '1RM Calculator', currentLang === 'tr' ? 'Epley formülü • Loglardan otomatik' : 'Epley formula • Auto from logs') +
+      `<div class="fl">${ddHTML('calcCat', currentLang === 'tr' ? 'Kategori seç' : 'Select category')}${ddHTML('calcEx', currentLang === 'tr' ? 'Egzersiz' : 'Exercise')}</div>` +
+      `<div class="fl" style="margin-top:14px">${numInp('calcW', currentLang === 'tr' ? 'Ağırlık' : 'Weight', 'KG', '0')}${numInp('calcR', currentLang === 'tr' ? 'Tekrar sayısı' : 'Reps', currentLang === 'tr' ? 'TEKRAR' : 'REPS', '0')}</div>` +
+      tailBtn(currentLang === 'tr' ? '1RM hesapla' : 'Calculate 1RM');
   }
-};
 
-window.calcGrowth = function() {
-  const oldW = parseFloat(document.getElementById('calcGrOldW').value);
-  const oldR = parseFloat(document.getElementById('calcGrOldR').value);
-  const newW = parseFloat(document.getElementById('calcGrNewW').value);
-  const currentR = parseFloat(document.getElementById('calcGrNewR').value);
-  
-  if (!oldW || !oldR || !newW || !currentR) return;
-  
-  const old1RM = oldW * (1 + oldR / 30);
-  const new1RM = newW * (1 + currentR / 30);
-  
-  const diff = ((new1RM - old1RM) / old1RM * 100).toFixed(1);
-  
-  const valText = currentLang === 'tr' ? `Gücün %${diff} ${diff >= 0 ? 'arttı' : 'azaldı'}` : `Strength ${diff >= 0 ? 'increased' : 'decreased'} by ${diff}%`;
-  document.getElementById('res-growth-val').textContent = valText;
-  
-  const bar = document.getElementById('res-growth-bar');
-  const width = Math.min(100, Math.max(0, parseFloat(diff)));
-  bar.style.width = width + '%';
-  document.getElementById('res-growth').style.display = 'flex';
-};
+  if (tab === 'un') {
+    return `<div class="fl">${numInp('calcKg', currentLang === 'tr' ? 'Kilogram (kg)' : 'Kilogram (kg)', 'KG', '0')}${numInp('calcLb', currentLang === 'tr' ? 'Pounds (lbs)' : 'Pounds (lbs)', 'LB', '0')}</div>`;
+  }
 
-let macGender = 'male';
-window.setMacGender = function(gender) {
-  macGender = gender;
-  document.getElementById('mac-btn-male').classList.toggle('active', gender === 'male');
-  document.getElementById('mac-btn-male').style.background = gender === 'male' ? 'var(--accent-primary)' : 'transparent';
-  document.getElementById('mac-btn-male').style.color = gender === 'male' ? 'white' : 'var(--text-muted)';
-  
-  document.getElementById('mac-btn-female').classList.toggle('active', gender === 'female');
-  document.getElementById('mac-btn-female').style.background = gender === 'female' ? 'var(--accent-primary)' : 'transparent';
-  document.getElementById('mac-btn-female').style.color = gender === 'female' ? 'white' : 'var(--text-muted)';
-};
+  if (tab === 'bf') {
+    return genderSeg() +
+      `<div class="fl">${numInp('calcH', currentLang === 'tr' ? 'Boy' : 'Height', 'CM', 'cm')}${numInp('calcWa', currentLang === 'tr' ? 'Bel' : 'Waist', 'CM', 'cm')}${numInp('calcNe', currentLang === 'tr' ? 'Boyun' : 'Neck', 'CM', 'cm')}<div id="calcHipWrap" hidden>${numInp('calcHi', currentLang === 'tr' ? 'Kalça' : 'Hip', 'CM', 'cm')}</div></div>` +
+      tailBtn(currentLang === 'tr' ? 'Yağ oranını hesapla' : 'Calculate Body Fat');
+  }
 
-window.calcMacros = function() {
-  const w = parseFloat(document.getElementById('calcMacW').value);
-  const h = parseFloat(document.getElementById('calcMacH').value);
-  const a = parseFloat(document.getElementById('calcMacA').value);
-  const act = parseFloat(document.getElementById('calcMacAct').value);
-  
-  if (!w || !h || !a) return;
-  
-  // Mifflin-St Jeor
-  let bmr = macGender === 'male'
-    ? (10 * w) + (6.25 * h) - (5 * a) + 5
-    : (10 * w) + (6.25 * h) - (5 * a) - 161;
+  if (tab === 'pr') {
+    return headBlock('zr-i-ba', currentLang === 'tr' ? 'Gelişim kıyaslaması' : 'Growth Comparison', currentLang === 'tr' ? 'Önceki ve şu anki kaldırışını karşılaştır' : 'Compare past and current lifts') +
+      `<p style="margin:0 0 10px;color:var(--steel);font-size:12px;letter-spacing:.06em">${currentLang === 'tr' ? 'ÖNCEKİ KALDIRIŞ' : 'PREVIOUS LIFT'}</p>` +
+      `<div class="fl">${numInp('calcW1', currentLang === 'tr' ? 'Ağırlık' : 'Weight', 'KG', '80')}${numInp('calcR1', currentLang === 'tr' ? 'Tekrar' : 'Reps', currentLang === 'tr' ? 'TEKRAR' : 'REPS', '8')}</div>` +
+      `<p style="margin:22px 0 10px;color:var(--steel);font-size:12px;letter-spacing:.06em">${currentLang === 'tr' ? 'ŞU ANKİ KALDIRIŞ' : 'CURRENT LIFT'}</p>` +
+      `<div class="fl">${numInp('calcW2', currentLang === 'tr' ? 'Ağırlık' : 'Weight', 'KG', '85')}${numInp('calcR2', currentLang === 'tr' ? 'Tekrar' : 'Reps', currentLang === 'tr' ? 'TEKRAR' : 'REPS', '10')}</div>` +
+      tailBtn(currentLang === 'tr' ? 'Kıyasla' : 'Compare');
+  }
 
-  const tdee = bmr * act;
-  const kcal = Math.round(tdee);
-  const p = Math.round(w * 2); // 2g/kg
-  const f = Math.round(w * 0.8); // 0.8g/kg
-  const c = Math.round((tdee - (w * 2 * 4) - (w * 0.8 * 9)) / 4);
-  
-  document.getElementById('res-mac-kcal').textContent = kcal;
-  document.getElementById('res-mac-p').textContent = p + 'g';
-  document.getElementById('res-mac-f').textContent = f + 'g';
-  document.getElementById('res-mac-c').textContent = c + 'g';
-  document.getElementById('res-macros').style.display = 'grid';
-};
+  if (tab === 'mc') {
+    return `<div class="fl">${numInp('calcMcW', currentLang === 'tr' ? 'Ağırlık' : 'Weight', 'KG', 'kg')}${numInp('calcMcH', currentLang === 'tr' ? 'Boy' : 'Height', 'CM', 'cm')}${numInp('calcMcA', currentLang === 'tr' ? 'Yaş' : 'Age', currentLang === 'tr' ? 'YIL' : 'YRS', 'yıl')}</div>` +
+      `<div style="margin:14px 0 16px">${ddHTML('calcAct', currentLang === 'tr' ? 'Aktivite seviyesi' : 'Activity level')}</div>` +
+      genderSeg() +
+      tailBtn(currentLang === 'tr' ? 'Makro / kalori hesapla' : 'Calculate Macros / Calories');
+  }
 
-// Ensure initCalculators is called when the app loads
-setTimeout(() => { initCalculators(); }, 500);
+  return '';
+}
+
+function setupCalcView(tab) {
+  if (tab === 'rm') {
+    const exercises = getUserWorkoutExercises();
+    const catOpts = Object.entries(CALC_CATS).map(([k, obj]) => [k, obj[currentLang] || obj.tr]);
+
+    function updateExOpts() {
+      const selectedCat = document.getElementById('calcCat')?.dataset.v || 'all';
+      const filtered = exercises.filter(e => selectedCat === 'all' || e.cat === selectedCat);
+      ddSet(
+        'calcEx',
+        filtered.map(e => [e.ex, e.ex, e.w ? `${e.w} kg × ${e.r}` : '']),
+        '',
+        currentLang === 'tr' ? 'Egzersiz seçin…' : 'Select exercise…',
+        v => {
+          const match = exercises.find(q => q.ex === v);
+          if (match && match.w) {
+            const wInput = document.getElementById('calcW');
+            const rInput = document.getElementById('calcR');
+            if (wInput) wInput.value = match.w;
+            if (rInput) rInput.value = match.r;
+          }
+        }
+      );
+    }
+
+    ddSet('calcCat', catOpts, 'all', currentLang === 'tr' ? 'Kategori seç' : 'Select category', updateExOpts);
+    updateExOpts();
+  }
+
+  if (tab === 'un') {
+    const kg = document.getElementById('calcKg');
+    const lb = document.getElementById('calcLb');
+    if (kg && lb) {
+      kg.oninput = e => {
+        const v = parseFloat(e.target.value.replace(',', '.'));
+        lb.value = (!isNaN(v) && v >= 0) ? (v * 2.20462).toFixed(2).replace('.', ',') : '';
+      };
+      lb.oninput = e => {
+        const v = parseFloat(e.target.value.replace(',', '.'));
+        kg.value = (!isNaN(v) && v >= 0) ? (v / 2.20462).toFixed(2).replace('.', ',') : '';
+      };
+    }
+  }
+
+  if (tab === 'bf') {
+    document.querySelectorAll('[name=calcG]').forEach(r => {
+      r.onchange = () => {
+        const isMale = document.getElementById('calcG1').checked;
+        const hipWrap = document.getElementById('calcHipWrap');
+        if (hipWrap) hipWrap.hidden = isMale;
+      };
+    });
+  }
+
+  if (tab === 'mc') {
+    const actOpts = CALC_ACT.map(([mult, titleObj, descObj]) => [
+      mult,
+      titleObj[currentLang] || titleObj.tr,
+      descObj[currentLang] || descObj.tr
+    ]);
+    ddSet('calcAct', actOpts, '1.55', currentLang === 'tr' ? 'Seç' : 'Select');
+  }
+}
+
+function executeCalc(tab) {
+  const getNum = id => {
+    const el = document.getElementById(id);
+    return el ? parseFloat((el.value || '').replace(',', '.')) : NaN;
+  };
+  const setErr = msg => {
+    const res = document.getElementById('calcRes');
+    const err = document.getElementById('calcErr');
+    if (res) res.innerHTML = '';
+    if (err) err.textContent = msg;
+  };
+  const setOk = html => {
+    const res = document.getElementById('calcRes');
+    const err = document.getElementById('calcErr');
+    if (err) err.textContent = '';
+    if (res) res.innerHTML = `<div class="rs">${html}</div>`;
+  };
+
+  const epley = (w, r) => (r === 1 ? w : w * (1 + r / 30));
+
+  if (tab === 'rm') {
+    const w = getNum('calcW');
+    const r = getNum('calcR');
+    if (!(w > 0 && w < 1000)) return setErr(currentLang === 'tr' ? 'Geçerli bir ağırlık gir.' : 'Enter a valid weight.');
+    if (!(Number.isInteger(r) && r >= 1 && r <= 30)) return setErr(currentLang === 'tr' ? 'Tekrar sayısı 1–30 arasında tam sayı olmalı.' : 'Reps must be integer between 1–30.');
+
+    const m = epley(w, r);
+    const percentages = [95, 90, 85, 80, 75, 70, 60, 50];
+    const rows = percentages.map(p =>
+      `<tr><td>%${p}</td><td>${(Math.round(m * p / 100 * 2) / 2).toFixed(1).replace('.', ',')} kg</td></tr>`
+    ).join('');
+
+    setOk(`
+      <div class="v">${m.toFixed(1).replace('.', ',')}<small>kg · ${currentLang === 'tr' ? 'tahmini 1RM' : 'est. 1RM'}</small></div>
+      <table class="pt">${rows}</table>
+    `);
+  }
+
+  if (tab === 'bf') {
+    const isMale = document.getElementById('calcG1').checked;
+    const h = getNum('calcH');
+    const wa = getNum('calcWa');
+    const ne = getNum('calcNe');
+    const hi = getNum('calcHi');
+
+    if (![h, wa, ne].every(x => x > 0)) return setErr(currentLang === 'tr' ? 'Boy, bel ve boyun ölçülerini gir.' : 'Enter height, waist and neck.');
+    if (!isMale && !(hi > 0)) return setErr(currentLang === 'tr' ? 'Kalça ölçüsünü gir.' : 'Enter hip measurement.');
+
+    const d = isMale ? (wa - ne) : (wa + hi - ne);
+    if (!(d > 0)) return setErr(currentLang === 'tr' ? 'Ölçüler tutarsız: bel boyundan büyük olmalı.' : 'Inconsistent measurements.');
+
+    const bf = isMale
+      ? 495 / (1.0324 - 0.19077 * Math.log10(d) + 0.15456 * Math.log10(h)) - 450
+      : 495 / (1.29579 - 0.35004 * Math.log10(d) + 0.221 * Math.log10(h)) - 450;
+
+    if (!(bf > 0 && bf < 70)) return setErr(currentLang === 'tr' ? 'Sonuç mantıksız çıktı, ölçüleri kontrol et.' : 'Invalid result, check measurements.');
+
+    const maleCats = [
+      [6, currentLang === 'tr' ? 'Temel yağ' : 'Essential fat'],
+      [14, currentLang === 'tr' ? 'Atletik' : 'Athletic'],
+      [18, currentLang === 'tr' ? 'Fit' : 'Fitness'],
+      [25, currentLang === 'tr' ? 'Ortalama' : 'Average'],
+      [99, currentLang === 'tr' ? 'Yüksek' : 'High']
+    ];
+    const femaleCats = [
+      [14, currentLang === 'tr' ? 'Temel yağ' : 'Essential fat'],
+      [21, currentLang === 'tr' ? 'Atletik' : 'Athletic'],
+      [25, currentLang === 'tr' ? 'Fit' : 'Fitness'],
+      [32, currentLang === 'tr' ? 'Ortalama' : 'Average'],
+      [99, currentLang === 'tr' ? 'Yüksek' : 'High']
+    ];
+    const catList = isMale ? maleCats : femaleCats;
+    const matched = catList.find(x => bf < x[0]) || catList[catList.length - 1];
+
+    setOk(`
+      <div class="v">%${bf.toFixed(1).replace('.', ',')}<small>${matched[1]}</small></div>
+      <p>${currentLang === 'tr' ? 'ABD Donanması yöntemiyle tahmini değerdir.' : 'Estimated using US Navy method.'}</p>
+    `);
+  }
+
+  if (tab === 'pr') {
+    const w1 = getNum('calcW1');
+    const r1 = getNum('calcR1');
+    const w2 = getNum('calcW2');
+    const r2 = getNum('calcR2');
+
+    if (!(w1 > 0 && w2 > 0)) return setErr(currentLang === 'tr' ? 'İki kaldırış için de ağırlık gir.' : 'Enter weight for both lifts.');
+    if (![r1, r2].every(r => Number.isInteger(r) && r >= 1 && r <= 30)) return setErr(currentLang === 'tr' ? 'Tekrar sayıları 1–30 arasında tam sayı olmalı.' : 'Reps must be integer between 1–30.');
+
+    const old1 = epley(w1, r1);
+    const new1 = epley(w2, r2);
+    const diff = new1 - old1;
+    const pct = (diff / old1) * 100;
+    const sign = diff > 0 ? '+' : (diff < 0 ? '−' : '');
+
+    const label = diff > 0
+      ? (currentLang === 'tr' ? 'artış' : 'increase')
+      : (diff < 0 ? (currentLang === 'tr' ? 'düşüş' : 'decrease') : (currentLang === 'tr' ? 'değişim yok' : 'no change'));
+
+    setOk(`
+      <div class="v">${sign}${Math.abs(diff).toFixed(1).replace('.', ',')}<small>kg · %${Math.abs(pct).toFixed(1).replace('.', ',')} ${label}</small></div>
+      <p>${currentLang === 'tr' ? 'Tahmini 1RM:' : 'Estimated 1RM:'} ${old1.toFixed(1).replace('.', ',')} kg → ${new1.toFixed(1).replace('.', ',')} kg</p>
+    `);
+  }
+
+  if (tab === 'mc') {
+    const w = getNum('calcMcW');
+    const h = getNum('calcMcH');
+    const a = getNum('calcMcA');
+
+    if (!(w > 20 && w < 400)) return setErr(currentLang === 'tr' ? 'Ağırlığı gir (kg).' : 'Enter weight (kg).');
+    if (!(h > 90 && h < 250)) return setErr(currentLang === 'tr' ? 'Boyu gir (cm).' : 'Enter height (cm).');
+    if (!(a >= 10 && a <= 100)) return setErr(currentLang === 'tr' ? 'Yaşı gir.' : 'Enter age.');
+
+    const isMale = document.getElementById('calcG1').checked;
+    const bmr = (10 * w) + (6.25 * h) - (5 * a) + (isMale ? 5 : -161);
+    const actMult = parseFloat(document.getElementById('calcAct')?.dataset.v || '1.55');
+    const tdee = bmr * actMult;
+
+    const goals = [
+      [currentLang === 'tr' ? 'Kilo ver' : 'Lose weight', 0.8],
+      [currentLang === 'tr' ? 'Koru' : 'Maintain', 1.0],
+      [currentLang === 'tr' ? 'Kilo al' : 'Gain weight', 1.1]
+    ];
+
+    const cards = goals.map(([n, mult]) => {
+      const c = tdee * mult;
+      const p = 2 * w;
+      const f = (c * 0.25) / 9;
+      const carbs = Math.max(0, (c - (p * 4) - (f * 9)) / 4);
+      return `
+        <div>
+          <small>${n}</small>
+          <b>${Math.round(c)} kcal</b>
+          <span>P ${Math.round(p)} g · K ${Math.round(carbs)} g · Y ${Math.round(f)} g</span>
+        </div>
+      `;
+    }).join('');
+
+    setOk(`
+      <div class="v">${Math.round(tdee)}<small>kcal · ${currentLang === 'tr' ? 'günlük harcama' : 'daily expenditure'} (BMR ${Math.round(bmr)})</small></div>
+      <div class="g3">${cards}</div>
+      <p>${currentLang === 'tr' ? 'Mifflin-St Jeor; protein 2 g/kg, yağ %25. Tahmini değerlerdir.' : 'Mifflin-St Jeor; protein 2 g/kg, fat 25%. Estimated values.'}</p>
+    `);
+  }
+}
+
 
 // =============================================
 // RENDER BEFORE/AFTER PHOTO NAV (renderProgressPhotoNav)
