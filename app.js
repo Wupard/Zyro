@@ -42,6 +42,32 @@ const I18N = {
     save: 'Save',
     profileBio: 'Biography',
     security: 'Security',
+    profileSettingsWord: 'settings',
+    emailLabel: 'Email',
+    profileAbout: 'About',
+    bioLabel: 'Bio',
+    bioPlaceholder: 'Tell us briefly about yourself',
+    heightLabel: 'Height (cm)',
+    weightLabel: 'Weight (kg)',
+    ageLabel: 'Age',
+    genderLabel: 'Gender',
+    genderMale: 'Male',
+    genderFemale: 'Female',
+    achHint: 'Choose up to 3 achievements to show on your profile',
+    achTitle: 'Selected achievements',
+    saveAchievementsBtn: 'Save achievements',
+    passwordTitle: 'Password management',
+    pushTitle: 'Notification settings (push)',
+    pushDesc: 'Get instant notifications so you never miss comment replies or important announcements.',
+    enablePushBtn: 'Enable notifications',
+    nameTooShort: 'Full name must be at least 2 characters.',
+    photoNotImage: 'Please select an image file.',
+    photoUploadFailed: 'Photo could not be uploaded: ',
+    errHeight: 'Height must be between 100–250 cm.',
+    errWeight: 'Weight must be between 30–300 kg.',
+    errAge: 'Age must be between 10 and 100.',
+    lockedAchMsg: 'You have not unlocked this achievement yet.',
+    maxAchMsg: 'You can select a maximum of 3 achievements.',
     aiSettings: 'AI Settings',
     geminiSettings: 'Gemini AI Settings',
     geminiInfo: 'A free <strong>Google Gemini API key</strong> is required to use Zyro AI features. Your key is completely private and only used on your device.',
@@ -411,6 +437,32 @@ const I18N = {
     save: 'Kaydet',
     profileBio: 'Biyografi',
     security: 'Güvenlik',
+    profileSettingsWord: 'ayarları',
+    emailLabel: 'E-posta',
+    profileAbout: 'Hakkında',
+    bioLabel: 'Biyografi',
+    bioPlaceholder: 'Kendinden kısaca bahset',
+    heightLabel: 'Boy (cm)',
+    weightLabel: 'Kilo (kg)',
+    ageLabel: 'Yaş',
+    genderLabel: 'Cinsiyet',
+    genderMale: 'Erkek',
+    genderFemale: 'Kadın',
+    achHint: 'Profilde gösterilecek en fazla 3 başarım seç',
+    achTitle: 'Seçili başarımlar',
+    saveAchievementsBtn: 'Başarımları kaydet',
+    passwordTitle: 'Şifre yönetimi',
+    pushTitle: 'Bildirim ayarları (push)',
+    pushDesc: 'Anlık uygulama bildirimleriyle yorum yanıtlarını ve önemli duyuruları kaçırma.',
+    enablePushBtn: 'Bildirimleri aç',
+    nameTooShort: 'Ad soyad en az 2 karakter olmalı.',
+    photoNotImage: 'Lütfen bir resim dosyası seç.',
+    photoUploadFailed: 'Fotoğraf yüklenemedi: ',
+    errHeight: 'Boy 100–250 cm arasında olmalı.',
+    errWeight: 'Kilo 30–300 kg arasında olmalı.',
+    errAge: 'Yaş 10–100 arasında olmalı.',
+    lockedAchMsg: 'Bu başarımı henüz kazanmadın.',
+    maxAchMsg: 'En fazla 3 başarım seçebilirsin.',
     aiSettings: 'AI Ayarları',
     geminiSettings: 'Gemini AI Ayarları',
     geminiInfo: 'Zyro AI özelliklerini kullanmak için ücretsiz bir <strong style="color:var(--accent-primary);">Google Gemini API key</strong> gereklidir. Key\'in tamamen sana özeldir, başkası kullanamaz.',
@@ -10124,31 +10176,20 @@ if (document.readyState === 'loading') {
 let selectedProfileAchievements = [];
 
 window.switchProfileTab = function(tab, ev) {
-  // Hide all tabs
-  document.getElementById('profileTabBio').style.display = 'none';
-  document.getElementById('profileTabAchievements').style.display = 'none';
-  document.getElementById('profileTabSecurity').style.display = 'none';
-  if (document.getElementById('profileTabAi')) {
-    document.getElementById('profileTabAi').style.display = 'none';
-  }
-  if (document.getElementById('profileTabTheme')) {
-    document.getElementById('profileTabTheme').style.display = 'none';
-  }
-  
-  // Update buttons
-  document.querySelectorAll('.profile-tab-btn').forEach(btn => {
-    btn.style.color = 'var(--text-muted)';
-    btn.style.borderBottomColor = 'transparent';
+  // Show/hide tab panels (Bio / Achievements / Security / Ai / Theme)
+  ['Bio', 'Achievements', 'Security', 'Ai', 'Theme'].forEach(name => {
+    const el = document.getElementById('profileTab' + name);
+    if (!el) return;
+    const show = tab.toLowerCase() === name.toLowerCase();
+    el.hidden = !show;
+    el.style.display = show ? 'block' : 'none';
   });
-  
-  // Show selected tab
-  document.getElementById('profileTab' + tab.charAt(0).toUpperCase() + tab.slice(1)).style.display = 'block';
-  const btn = ev && (ev.currentTarget || ev.target);
-  if (btn) {
-    btn.style.color = 'var(--text-primary)';
-    btn.style.borderBottomColor = 'var(--accent-primary)';
-  }
-  
+
+  // Tab button states (aria-selected, styled by CSS)
+  document.querySelectorAll('#pageProfile .ptabs [role="tab"]').forEach(btn => {
+    btn.setAttribute('aria-selected', btn.dataset.ptab === tab ? 'true' : 'false');
+  });
+
   // Load security tab content if needed
   if (tab === 'security') {
     renderPasswordSection();
@@ -10158,6 +10199,23 @@ window.switchProfileTab = function(tab, ev) {
   // Load achievements if needed
   if (tab === 'achievements') {
     renderProfileAchievementsSelector();
+  }
+};
+
+// Profile page avatar: initial letter + optional photo overlay (design .avl)
+window.setProfilePageAvatar = function(photoURL, name) {
+  const av = document.getElementById('profilePageAvatar');
+  if (!av) return;
+  const old = av.querySelector('img');
+  if (old) old.remove();
+  const initial = av.querySelector('.avt');
+  if (initial) initial.textContent = ((name || 'K').trim()[0] || 'K').toUpperCase();
+  if (photoURL) {
+    const im = document.createElement('img');
+    im.alt = '';
+    im.src = photoURL;
+    im.referrerPolicy = 'no-referrer';
+    av.prepend(im);
   }
 };
 
@@ -10176,43 +10234,19 @@ window.loadProfileData = function() {
         document.getElementById('profileDisplayName').value = profile.displayName || currentUser.displayName || '';
         document.getElementById('profileEmail').value = currentUser.email || '';
         document.getElementById('profileBio').value = profile.bio || '';
+        const bioCount = document.getElementById('profileBioCount');
+        if (bioCount) bioCount.textContent = (profile.bio || '').length + '/300';
         document.getElementById('profileHeight').value = profile.height || '';
         document.getElementById('profileWeight').value = profile.weight || '';
         document.getElementById('profileAge').value = profile.age || '';
         document.getElementById('profileGender').value = profile.gender || '';
         
-        // Load avatar
+        // Load avatar (initial + optional photo)
         const photo = profile.photoURL || (currentUser && currentUser.photoURL);
-        if (photo) {
-          const avatarLarge = document.getElementById('profilePageAvatar');
-          if (avatarLarge) {
-            avatarLarge.style.backgroundImage = `url('${photo}')`;
-            avatarLarge.style.backgroundSize = 'cover';
-            avatarLarge.style.backgroundPosition = 'center';
-            avatarLarge.style.backgroundRepeat = 'no-repeat';
-            avatarLarge.innerHTML = ''; // Remove default SVG
-          }
-        }
+        setProfilePageAvatar(photo, profile.displayName || currentUser.displayName || '');
         
         // Load selected achievements
         selectedProfileAchievements = profile.selectedAchievements || [];
-        
-        // Load rank (nested data.userRank veya kök alan rank — Android uyumu)
-        const rootSnap = doc.data();
-        let rankKey = rootSnap.rank || userData.userRank || 'default';
-        if (rankKey === 'admin') rankKey = 'mod';
-        const rank = RANKS[rankKey] || RANKS.default;
-        const labelEl = document.getElementById('profileRank');
-        const pctEl = document.getElementById('profileRankPct');
-        const barEl = document.getElementById('profileRankBar');
-        const tierLabel = rootSnap.rank && !RANKS[rankKey] ? rootSnap.rank : rank.label;
-        if (labelEl) {
-          labelEl.textContent = tierLabel;
-          labelEl.style.color = rank.color;
-        }
-        const pct = Math.max(0, Math.min(100, parseInt(rootSnap.rankProgress, 10) || 0));
-        if (pctEl) pctEl.textContent = '';
-        if (barEl) barEl.style.width = pct + '%';
         
         if (typeof updateLevelUI === 'function') updateLevelUI();
       }
@@ -10255,13 +10289,19 @@ function renderSidebarProfile(user){
 
 window.saveProfile = async function() {
   const nameInput = document.getElementById('profileDisplayName');
+  const perr = document.getElementById('perr');
   if (!nameInput || !currentUser) return;
+  
+  const nameVal = nameInput.value.trim();
+  if (nameVal.length < 2) {
+    if (perr) perr.textContent = t('nameTooShort');
+    return;
+  }
+  if (perr) perr.textContent = '';
   
   if (!appData.profile) appData.profile = {};
   
-  if (nameInput.value.trim() !== '') {
-    appData.profile.displayName = nameInput.value.trim();
-  }
+  appData.profile.displayName = nameVal;
   
   saveData();
   renderSidebarProfile(currentUser);
@@ -10271,6 +10311,17 @@ window.saveProfile = async function() {
 window.handleProfilePhotoUpload = async function(event) {
   const file = event.target.files[0];
   if (!file || !currentUser) return;
+  
+  const perr = document.getElementById('perr');
+  const showPhotoError = (msg) => {
+    if (perr) perr.textContent = msg;
+  };
+  
+  if (!file.type.startsWith('image/')) {
+    showPhotoError(t('photoNotImage'));
+    event.target.value = '';
+    return;
+  }
   
   const toAvatarDataUrl = (f) => new Promise((resolve, reject) => {
     const url = URL.createObjectURL(f);
@@ -10309,15 +10360,9 @@ window.handleProfilePhotoUpload = async function(event) {
   try {
     const photoURL = await toAvatarDataUrl(file);
     appData.profile = { ...appData.profile, photoURL };
-    const avatarLarge = document.getElementById('profilePageAvatar');
-    if (avatarLarge) {
-      avatarLarge.style.backgroundImage = `url('${photoURL}')`;
-      avatarLarge.style.backgroundSize = 'cover';
-      avatarLarge.style.backgroundPosition = 'center';
-      avatarLarge.style.backgroundRepeat = 'no-repeat';
-      avatarLarge.innerHTML = '';
-    }
+    setProfilePageAvatar(photoURL, (appData.profile && appData.profile.displayName) || currentUser.displayName || '');
     renderSidebarProfile(currentUser);
+    if (perr) perr.textContent = '';
 
     if (isFirebaseConfigured && db) {
       await db.collection('users').doc(currentUser.uid).set({
@@ -10336,7 +10381,8 @@ window.handleProfilePhotoUpload = async function(event) {
     }
   } catch (err) {
     console.error('Photo upload error:', err);
-    showToast('Fotoğraf yüklenemedi: ' + (err && err.message ? err.message : ''), 'error');
+    showPhotoError(t('photoUploadFailed') + (err && err.message ? err.message : ''));
+    showToast(t('photoUploadFailed') + (err && err.message ? err.message : ''), 'error');
   } finally {
     event.target.value = '';
   }
@@ -10356,6 +10402,19 @@ window.saveProfileBio = async function() {
     showToast('Lütfen ad soyad girin.', 'error');
     return;
   }
+  
+  // Design validation (berr): boy 100–250, kilo 30–300, yaş 10–100
+  const berr = document.getElementById('berr');
+  const h = height.trim(), w = weight.trim(), a = age.trim();
+  const nh = parseFloat(h), nw = parseFloat(w.replace(',', '.')), na = parseFloat(a);
+  const bad = (h && !(nh >= 100 && nh <= 250)) ? t('errHeight')
+    : (w && !(nw >= 30 && nw <= 300)) ? t('errWeight')
+    : (a && !(na >= 10 && na <= 100)) ? t('errAge') : '';
+  if (bad) {
+    if (berr) berr.textContent = bad;
+    return;
+  }
+  if (berr) berr.textContent = '';
   
   if (isFirebaseConfigured && db) {
     try {
@@ -10426,23 +10485,35 @@ window.renderProfileAchievementsSelector = function() {
   const grid = document.getElementById('profileAchievementsGrid');
   if (!grid) return;
   
+  const unlockedMap = appData.achievements || {};
+  
   grid.innerHTML = ACHIEVEMENT_DEFS.map(badge => {
-    const isSelected = selectedProfileAchievements.includes(badge.id);
-    const unlocked = appData.achievements && appData.achievements[badge.id];
-    
-    if (!unlocked) return '';
+    const isUnlocked = !!unlockedMap[badge.id];
+    const isSelected = isUnlocked && selectedProfileAchievements.includes(badge.id);
+    const icon = isUnlocked
+      ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z" fill="currentColor"/></svg>'
+      : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 11h12v9H6z"/><path d="M8 11V8a4 4 0 018 0v3"/></svg>';
     
     return `
-      <div style="padding:12px; background:${isSelected ? 'rgba(139,124,247,0.2)' : 'rgba(255,255,255,0.03)'}; border:2px solid ${isSelected ? 'var(--accent-primary)' : 'rgba(139,124,247,0.1)'}; border-radius:12px; cursor:pointer; transition:all 0.2s; display:flex; flex-direction:column; align-items:center; gap:8px;" onclick="toggleProfileAchievement('${badge.id}')">
-        <div style="font-size:2rem;">⭐</div>
-        <div style="font-size:0.7rem; font-weight:600; text-align:center; color:${isSelected ? 'var(--accent-primary)' : 'var(--text-primary)'};">${badge.name}</div>
-        ${isSelected ? `<div style="font-size:0.65rem; color:var(--accent-primary); font-weight:700;">${currentLang === 'tr' ? '✓ SEÇİLİ' : '✓ SELECTED'}</div>` : ''}
-      </div>
+      <button type="button" class="ac${isUnlocked ? '' : ' lk'}" data-a="${badge.id}" aria-pressed="${isSelected}"${isUnlocked ? '' : ' aria-disabled="true"'} onclick="toggleProfileAchievement('${badge.id}')">
+        ${icon}
+        <span>${badge.name}</span>
+      </button>
     `;
   }).join('');
+  
+  const title = document.getElementById('profileAchTitle');
+  if (title) {
+    title.textContent = `${t('achTitle')} (${selectedProfileAchievements.length})`;
+  }
 };
 
 window.toggleProfileAchievement = function(achievementId) {
+  // Locked (not unlocked) achievements cannot be selected
+  if (!(appData.achievements && appData.achievements[achievementId])) {
+    showToast(t('lockedAchMsg'), 'info');
+    return;
+  }
   const idx = selectedProfileAchievements.indexOf(achievementId);
   if (idx > -1) {
     selectedProfileAchievements.splice(idx, 1);
@@ -10450,7 +10521,13 @@ window.toggleProfileAchievement = function(achievementId) {
     if (selectedProfileAchievements.length < 3) {
       selectedProfileAchievements.push(achievementId);
     } else {
-      showToast(currentLang === 'tr' ? 'Maksimum 3 başarım seçebilirsiniz.' : 'You can select a maximum of 3 achievements.', 'info');
+      showToast(t('maxAchMsg'), 'info');
+      const btn = document.querySelector(`#profileAchievementsGrid [data-a="${achievementId}"]`);
+      if (btn) {
+        btn.classList.remove('shake');
+        void btn.offsetWidth;
+        btn.classList.add('shake');
+      }
       return;
     }
   }
@@ -10484,55 +10561,63 @@ window.renderPasswordSection = function() {
   
   if (hasPassword) {
     section.innerHTML = `
-      <div>
-        <label style="font-size:0.75rem; font-weight:700; color:var(--text-muted); display:block; margin-bottom:6px;">${t('currentPassword')}</label>
-        <input type="password" id="currentPassword" class="log-input" placeholder="${t('currentPasswordPlaceholder')}">
+      <div class="pw">
+        <div>
+          <label class="cap" for="currentPassword">${t('currentPassword')}</label>
+          <input type="password" id="currentPassword" class="in" autocomplete="current-password" placeholder="${t('currentPasswordPlaceholder')}">
+        </div>
+        <div>
+          <label class="cap" for="newPassword">${t('newPassword')}</label>
+          <input type="password" id="newPassword" class="in" autocomplete="new-password" placeholder="${t('newPasswordPlaceholder')}">
+        </div>
+        <div>
+          <label class="cap" for="confirmPassword">${t('confirmPassword')}</label>
+          <input type="password" id="confirmPassword" class="in" autocomplete="new-password" placeholder="${t('confirmPasswordPlaceholder')}">
+        </div>
       </div>
-      <div>
-        <label style="font-size:0.75rem; font-weight:700; color:var(--text-muted); display:block; margin-bottom:6px;">${t('newPassword')}</label>
-        <input type="password" id="newPassword" class="log-input" placeholder="${t('newPasswordPlaceholder')}">
-      </div>
-      <div>
-        <label style="font-size:0.75rem; font-weight:700; color:var(--text-muted); display:block; margin-bottom:6px;">${t('confirmPassword')}</label>
-        <input type="password" id="confirmPassword" class="log-input" placeholder="${t('confirmPasswordPlaceholder')}">
-      </div>
-      <button class="btn-primary" onclick="changePassword()" style="width:100%; margin-top:12px;">${t('changePasswordBtn')}</button>
+      <div class="err" id="serr" role="alert"></div>
+      <button class="btn w" onclick="changePassword()" style="margin-top:6px">${t('changePasswordBtn')}</button>
     `;
   } else {
     section.innerHTML = `
-      <div style="padding:16px; background:rgba(76,203,141,0.1); border:1px solid rgba(76,203,141,0.2); border-radius:10px; margin-bottom:16px;">
-        <div style="font-size:0.85rem; color:var(--green-vivid); font-weight:600; margin-bottom:8px;">ℹ️ ${t('info')}</div>
-        <div style="font-size:0.8rem; color:var(--text-secondary);">${t('googleNoPasswordInfo')}</div>
+      <div class="inf"><b>${t('info')}</b>${t('googleNoPasswordInfo')}</div>
+      <div class="pw">
+        <div>
+          <label class="cap" for="newPassword">${t('newPassword')}</label>
+          <input type="password" id="newPassword" class="in" autocomplete="new-password" placeholder="${t('setNewPasswordPlaceholder')}">
+        </div>
+        <div>
+          <label class="cap" for="confirmPassword">${t('confirmPassword')}</label>
+          <input type="password" id="confirmPassword" class="in" autocomplete="new-password" placeholder="${t('confirmPasswordPlaceholder')}">
+        </div>
       </div>
-      <div>
-        <label style="font-size:0.75rem; font-weight:700; color:var(--text-muted); display:block; margin-bottom:6px;">${t('newPassword')}</label>
-        <input type="password" id="newPassword" class="log-input" placeholder="${t('setNewPasswordPlaceholder')}">
-      </div>
-      <div>
-        <label style="font-size:0.75rem; font-weight:700; color:var(--text-muted); display:block; margin-bottom:6px;">${t('confirmPassword')}</label>
-        <input type="password" id="confirmPassword" class="log-input" placeholder="${t('confirmPasswordPlaceholder')}">
-      </div>
-      <button class="btn-primary" onclick="setNewPassword()" style="width:100%; margin-top:12px;">${t('setPasswordBtn')}</button>
+      <div class="err" id="serr" role="alert"></div>
+      <button class="btn w" onclick="setNewPassword()" style="margin-top:6px">${t('setPasswordBtn')}</button>
     `;
   }
 };
 
 window.changePassword = async function() {
+  const serr = document.getElementById('serr');
+  if (serr) serr.textContent = '';
   const currentPass = document.getElementById('currentPassword').value;
   const newPass = document.getElementById('newPassword').value;
   const confirmPass = document.getElementById('confirmPassword').value;
   
   if (!currentPass || !newPass || !confirmPass) {
+    if (serr) serr.textContent = t('fillAllFields');
     showToast(t('fillAllFields'), 'error');
     return;
   }
   
   if (newPass !== confirmPass) {
+    if (serr) serr.textContent = t('passwordsDoNotMatch');
     showToast(t('passwordsDoNotMatch'), 'error');
     return;
   }
   
   if (newPass.length < 6) {
+    if (serr) serr.textContent = t('passwordMinLength');
     showToast(t('passwordMinLength'), 'error');
     return;
   }
@@ -10557,20 +10642,25 @@ window.changePassword = async function() {
 };
 
 window.setNewPassword = async function() {
+  const serr = document.getElementById('serr');
+  if (serr) serr.textContent = '';
   const newPass = document.getElementById('newPassword').value;
   const confirmPass = document.getElementById('confirmPassword').value;
   
   if (!newPass || !confirmPass) {
+    if (serr) serr.textContent = t('fillAllFields');
     showToast(t('fillAllFields'), 'error');
     return;
   }
   
   if (newPass !== confirmPass) {
+    if (serr) serr.textContent = t('passwordsDoNotMatch');
     showToast(t('passwordsDoNotMatch'), 'error');
     return;
   }
   
   if (newPass.length < 6) {
+    if (serr) serr.textContent = t('passwordMinLength');
     showToast(t('passwordMinLength'), 'error');
     return;
   }
@@ -10592,24 +10682,29 @@ window.setNewPassword = async function() {
   
   if (!statusEl || !btnEl) return;
   
+  const renderStatus = (color, text) => {
+    statusEl.innerHTML = `<i style="--c:${color}"></i>${text}`;
+  };
+  
   if (!('Notification' in window)) {
-    statusEl.textContent = currentLang === 'tr' ? 'Durum: Tarayıcınız bildirimleri desteklemiyor.' : 'Status: Your browser does not support notifications.';
-    statusEl.style.color = 'var(--text-muted)';
+    renderStatus('#8a919c', currentLang === 'tr' ? 'Bu tarayıcı bildirimleri desteklemiyor' : 'Your browser does not support notifications');
+    btnEl.hidden = true;
+    btnEl.style.display = 'none';
     return;
   }
   
   if (Notification.permission === 'granted') {
-    statusEl.textContent = currentLang === 'tr' ? 'Durum: Aktif (Bildirimlere izin verdiniz)' : 'Status: Active (Notifications allowed)';
-    statusEl.style.color = 'var(--green-vivid)';
+    renderStatus('#8fb3cc', currentLang === 'tr' ? 'Aktif · Bildirimlere izin verdin' : 'Active · Notifications allowed');
+    btnEl.hidden = true;
     btnEl.style.display = 'none';
   } else if (Notification.permission === 'denied') {
-    statusEl.textContent = currentLang === 'tr' ? 'Durum: Reddedildi (Tarayıcı ayarlarından izni açmanız gerekir)' : 'Status: Denied (Please enable in browser settings)';
-    statusEl.style.color = 'var(--red-vivid)';
+    renderStatus('#c99a9a', currentLang === 'tr' ? 'Engelli · İzni tarayıcı ayarlarından açmalısın' : 'Blocked · Enable it from browser settings');
+    btnEl.hidden = true;
     btnEl.style.display = 'none';
   } else {
-    statusEl.textContent = currentLang === 'tr' ? 'Durum: İzin Bekleniyor' : 'Status: Waiting for permission';
-    statusEl.style.color = 'var(--text-secondary)';
-    btnEl.style.display = 'block';
+    renderStatus('#dcc7a8', currentLang === 'tr' ? 'Kapalı · Henüz izin vermedin' : 'Off · No permission yet');
+    btnEl.hidden = false;
+    btnEl.style.display = '';
   }
 };
 
@@ -10928,7 +11023,7 @@ function updateLevelUI() {
   const el = id => document.getElementById(id);
   if (el('sidebarLevelBadge')) el('sidebarLevelBadge').textContent = `Lv.${level}`;
   if (el('sidebarLevelBar')) el('sidebarLevelBar').style.width = xpProgress + '%';
-  if (el('profileLevelBadge')) el('profileLevelBadge').textContent = `Level ${level}`;
+  if (el('profileLevelBadge')) el('profileLevelBadge').textContent = level;
   if (el('profileXPBar')) el('profileXPBar').style.width = xpProgress + '%';
   if (el('profileXPText')) el('profileXPText').textContent = `${xp.toLocaleString('tr-TR')} XP • ${xpProgress}% → Lv.${Math.min(100, level + 1)}`;
 

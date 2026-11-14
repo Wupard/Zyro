@@ -1049,263 +1049,165 @@
 
     <!-- ============ PAGE: PROFILE ============ -->
     <div class="page" data-page="profile" id="pageProfile">
-      <!-- Premium Page Banner -->
-      <div class="page-banner page-banner--purple" style="margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; padding: 20px; background: linear-gradient(135deg, rgba(139,124,247,0.1) 0%, rgba(139,124,247,0.02) 100%); border-radius: 16px; border: 1px solid rgba(139,124,247,0.15);">
+      <header class="hd">
         <div>
-          <h1 style="font-size: 1.6rem; font-weight: 800; margin: 0 0 4px 0; color: var(--text-primary); letter-spacing: -0.5px;" data-i18n="navProfile">Profil</h1>
-          <p style="margin: 0; font-size: 0.85rem; color: var(--text-muted); font-weight: 500;" data-i18n="profileSubtitle">Hesap bilgilerini yönet ve kişiselleştir</p>
+          <h1>Profil <b data-i18n="profileSettingsWord">ayarları</b></h1>
+          <p data-i18n="profileSubtitle">Hesap bilgilerini yönet ve kişiselleştir</p>
         </div>
-        <div style="width: 48px; height: 48px; border-radius: 14px; background: rgba(139,124,247,0.15); display: flex; align-items: center; justify-content: center; color: var(--accent-primary); flex-shrink: 0;">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-        </div>
-      </div>
-      <!-- Profile Page (Full Width Two-Column Layout) -->
-      <div class="profile-layout-grid">
-        
-        <div class="profile-left-col-card">
-          
-          <div class="profile-user-card-header">
-            <div class="profile-avatar-container">
-              <div id="profilePageAvatar" style="width: 90px; height: 90px; border-radius: 20px; background: rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: center; overflow: hidden; border: 2px solid var(--accent-primary); box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
-                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="1.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-              </div>
-              <label for="profilePhotoFile" style="cursor: pointer; font-size: 0.65rem; font-weight: 700; color: var(--text-primary); text-transform: uppercase; letter-spacing: 0.05em; text-align: center; background: rgba(139,124,247,0.15); border: 1px solid rgba(139,124,247,0.3); padding: 5px 10px; border-radius: 12px; transition: all 0.2s; white-space: nowrap;" data-i18n="changePhoto">
-                Fotoğrafı Değiştir
-              </label>
-              <input type="file" id="profilePhotoFile" accept="image/*" onchange="handleProfilePhotoUpload(event)" style="display: none;">
+      </header>
+
+      <div class="prf">
+        <!-- Sol kart: profil özeti -->
+        <aside class="pn pf" aria-label="Profil özeti">
+          <div class="avb">
+            <label class="avl" id="profilePageAvatar" for="profilePhotoFile" title="Fotoğrafı değiştir" data-i18n-title="changePhoto">
+              <span class="avt" id="profileAvatarInitial">K</span>
+              <span class="cm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" style="width:26px;height:26px"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg></span>
+              <input type="file" id="profilePhotoFile" accept="image/*" aria-label="Fotoğrafı değiştir" onchange="handleProfilePhotoUpload(event)">
+            </label>
+            <label class="ghost" for="profilePhotoFile" style="cursor:pointer" data-i18n="changePhoto">Fotoğrafı değiştir</label>
+          </div>
+
+          <label class="cap" for="profileDisplayName" data-i18n="fullName">Ad soyad</label>
+          <input class="in" id="profileDisplayName" maxlength="40" autocomplete="name">
+          <label class="cap" for="profileEmail" data-i18n="emailLabel">E-posta</label>
+          <input class="in" id="profileEmail" readonly aria-readonly="true">
+
+          <div class="lv">
+            <div class="hex" id="profileLevelBadgeContainer"></div>
+            <div class="lvt">
+              <b>Level <span id="profileLevelBadge">1</span></b>
+              <small id="profileXPText"></small>
+              <div class="xp"><i id="profileXPBar"></i></div>
+              <div class="nx" id="profileXPRemainingText"></div>
             </div>
-            
-            <div class="profile-fields-container">
-              <div>
-                <label style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 8px; text-transform: uppercase;" data-i18n="fullName">Ad Soyad</label>
-                <input type="text" id="profileDisplayName" class="log-input" placeholder="Adınızı girin" style="font-size: 1rem; padding: 12px; background: rgba(255,255,255,0.03);">
+          </div>
+
+          <div class="err" id="perr" role="alert"></div>
+          <button class="btn w" id="profileSaveBtn" onclick="saveProfile()" style="margin-top:6px" data-i18n="save">Kaydet</button>
+        </aside>
+
+        <!-- Sağ: sekmeler -->
+        <section aria-label="Profil ayarları">
+          <div class="ptabs" role="tablist" aria-label="Profil bölümleri">
+            <button class="profile-tab-btn" type="button" role="tab" data-ptab="bio" aria-selected="true" onclick="switchProfileTab('bio', event)" data-i18n="profileBio">Biyografi</button>
+            <button class="profile-tab-btn" type="button" role="tab" data-ptab="achievements" aria-selected="false" tabindex="-1" onclick="switchProfileTab('achievements', event)" data-i18n="achievementsTitle">Başarımlar</button>
+            <button class="profile-tab-btn" type="button" role="tab" data-ptab="security" aria-selected="false" tabindex="-1" onclick="switchProfileTab('security', event)" data-i18n="security">Güvenlik</button>
+            <button class="profile-tab-btn" type="button" role="tab" data-ptab="theme" aria-selected="false" tabindex="-1" onclick="switchProfileTab('theme', event)">🎨 Tema</button>
+          </div>
+
+          <!-- Biyografi -->
+          <div class="tp" id="profileTabBio" role="tabpanel">
+            <div class="pn">
+              <div class="lab"><b data-i18n="profileAbout">Hakkında</b></div>
+              <label class="cap" for="profileBio" data-i18n="bioLabel">Biyografi</label>
+              <textarea class="in" id="profileBio" maxlength="300" placeholder="Kendinden kısaca bahset" oninput="document.getElementById('profileBioCount').textContent=this.value.length+'/300'"></textarea>
+              <div class="cnt" id="profileBioCount">0/300</div>
+              <div class="f2">
+                <div><label class="cap" for="profileHeight" data-i18n="heightLabel">Boy (cm)</label><input class="in" id="profileHeight" inputmode="numeric" placeholder="180"></div>
+                <div><label class="cap" for="profileWeight" data-i18n="weightLabel">Kilo (kg)</label><input class="in" id="profileWeight" inputmode="decimal" placeholder="80"></div>
+                <div><label class="cap" for="profileAge" data-i18n="ageLabel">Yaş</label><input class="in" id="profileAge" inputmode="numeric" placeholder="25"></div>
+                <div><label class="cap" for="profileGender" data-i18n="genderLabel">Cinsiyet</label>
+                  <select class="in" id="profileGender">
+                    <option value="male" data-i18n="genderMale">Erkek</option>
+                    <option value="female" data-i18n="genderFemale">Kadın</option>
+                  </select>
+                </div>
               </div>
-              <div>
-                <label style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 8px; text-transform: uppercase;">E-Mail</label>
-                <input type="email" id="profileEmail" class="log-input" placeholder="E-mail adresi" readonly style="font-size: 1rem; padding: 12px; background: rgba(255,255,255,0.02); opacity: 0.7; cursor: not-allowed; border: 1px dashed rgba(255,255,255,0.1);">
+              <div class="err" id="berr" role="alert"></div>
+              <button class="btn w" onclick="saveProfileBio()" style="margin-top:6px" data-i18n="save">Kaydet</button>
+            </div>
+          </div>
+
+          <!-- Başarımlar -->
+          <div class="tp" id="profileTabAchievements" role="tabpanel" hidden>
+            <div class="pn">
+              <div class="lab"><b id="profileAchTitle">Seçili başarımlar (0)</b><span data-i18n="achHint">Profilde gösterilecek en fazla 3 başarım seç</span></div>
+              <div class="ag" id="profileAchievementsGrid"></div>
+              <button class="btn w" onclick="saveProfileAchievements()" style="margin-top:6px" data-i18n="saveAchievementsBtn">Başarımları kaydet</button>
+            </div>
+          </div>
+
+          <!-- Güvenlik -->
+          <div class="tp" id="profileTabSecurity" role="tabpanel" hidden>
+            <div class="pn">
+              <div class="lab"><b data-i18n="passwordTitle">Şifre yönetimi</b></div>
+              <div id="passwordSection"><!-- JS ile render edilir --></div>
+            </div>
+            <div class="pn">
+              <div class="lab"><b data-i18n="pushTitle">Bildirim ayarları (push)</b></div>
+              <p class="ptx" data-i18n="pushDesc">Anlık uygulama bildirimleriyle yorum yanıtlarını ve önemli duyuruları kaçırma.</p>
+              <div class="stt">
+                <span id="pushNotificationStatus"></span>
+                <button class="ghost" type="button" id="btnEnablePush" onclick="requestNotificationPermission()" hidden data-i18n="enablePushBtn">Bildirimleri aç</button>
               </div>
             </div>
           </div>
-          
-          <!-- Seviye & XP Bilgisi -->
-          <div id="profileLevelSection" style="display: flex; align-items: center; gap: 16px; padding: 16px; background: rgba(139,124,247,0.06); border: 1px solid rgba(139,124,247,0.15); border-radius: 14px; margin-bottom: 24px; transition: all 0.3s ease;">
-            <!-- Badge Container (Responsive Image Container) -->
-            <div id="profileLevelBadgeContainer" style="width: clamp(56px, 12vw, 80px); height: clamp(56px, 12vw, 80px); display: flex; align-items: center; justify-content: center; flex-shrink: 0; position: relative;">
-              <img id="profileLevelBadgeIcon" src="assets/0-5.webp" alt="Level Badge" loading="lazy" style="width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2)); transition: transform 0.3s ease; animation: lbCrownFloat 3s ease-in-out infinite;">
-            </div>
-            
-            <!-- Seviye / XP Bilgileri -->
-            <div style="flex: 1; min-width: 0;">
-              <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 6px;">
-                <span id="profileLevelBadge" style="font-family: 'Space Grotesk', sans-serif; font-size: 1.1rem; font-weight: 800; color: var(--text-primary); letter-spacing: -0.3px;">Level 1</span>
-                <span id="profileXPText" style="font-size: 0.78rem; font-weight: 600; color: var(--text-muted);">0 XP • 0% → Lv.2</span>
+
+          <!-- Tema -->
+          <div class="tp" id="profileTabTheme" role="tabpanel" hidden>
+            <div class="pn">
+              <div class="lab"><b>🎨 Tema Rengi</b></div>
+              <p class="ptx">Sitenin genel accent rengini seç. Seçim cihazına kaydedilir.</p>
+
+              <div class="theme-swatches" id="themeSwatches">
+                <!-- Mor (Varsayılan) -->
+                <button class="theme-swatch active" id="theme-purple" onclick="applyTheme('purple')" style="--sw:#8b7cf7;">
+                  <span class="swatch-dot" style="background:linear-gradient(135deg,#8b7cf7,#5a4cc9);"></span>
+                  <span class="swatch-label">Mor</span>
+                  <span class="swatch-check">✔</span>
+                </button>
+                <!-- Kırmızı -->
+                <button class="theme-swatch" id="theme-red" onclick="applyTheme('red')">
+                  <span class="swatch-dot" style="background:linear-gradient(135deg,#f05555,#b91c1c);"></span>
+                  <span class="swatch-label">Kırmızı</span>
+                  <span class="swatch-check">✔</span>
+                </button>
+                <!-- Pembe -->
+                <button class="theme-swatch" id="theme-pink" onclick="applyTheme('pink')">
+                  <span class="swatch-dot" style="background:linear-gradient(135deg,#ec4899,#9d174d);"></span>
+                  <span class="swatch-label">Pembe</span>
+                  <span class="swatch-check">✔</span>
+                </button>
+                <!-- Turuncu -->
+                <button class="theme-swatch" id="theme-orange" onclick="applyTheme('orange')">
+                  <span class="swatch-dot" style="background:linear-gradient(135deg,#f97316,#c2410c);"></span>
+                  <span class="swatch-label">Turuncu</span>
+                  <span class="swatch-check">✔</span>
+                </button>
+                <!-- Yeşil -->
+                <button class="theme-swatch" id="theme-green" onclick="applyTheme('green')">
+                  <span class="swatch-dot" style="background:linear-gradient(135deg,#22c55e,#15803d);"></span>
+                  <span class="swatch-label">Yeşil</span>
+                  <span class="swatch-check">✔</span>
+                </button>
+                <!-- Mavi -->
+                <button class="theme-swatch" id="theme-blue" onclick="applyTheme('blue')">
+                  <span class="swatch-dot" style="background:linear-gradient(135deg,#3b82f6,#1d4ed8);"></span>
+                  <span class="swatch-label">Mavi</span>
+                  <span class="swatch-check">✔</span>
+                </button>
+                <!-- Altın -->
+                <button class="theme-swatch" id="theme-gold" onclick="applyTheme('gold')">
+                  <span class="swatch-dot" style="background:linear-gradient(135deg,#eab308,#a16207);"></span>
+                  <span class="swatch-label">Altın</span>
+                  <span class="swatch-check">✔</span>
+                </button>
+                <!-- Kahve -->
+                <button class="theme-swatch" id="theme-brown" onclick="applyTheme('brown')">
+                  <span class="swatch-dot" style="background:linear-gradient(135deg,#a8714a,#7c4a24);"></span>
+                  <span class="swatch-label">Kahve</span>
+                  <span class="swatch-check">✔</span>
+                </button>
               </div>
-              
-              <!-- İlerleme Çubuğu -->
-              <div style="width: 100%; height: 6px; background: rgba(255,255,255,0.04); border-radius: 10px; overflow: hidden; border: 1px solid rgba(255,255,255,0.06); margin-bottom: 6px; position: relative;">
-                <div id="profileXPBar" style="width: 0%; height: 100%; background: linear-gradient(90deg, var(--accent-deep), var(--accent-primary)); border-radius: 10px; transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);"></div>
-              </div>
-              
-              <div id="profileXPRemaining" style="font-size: 0.72rem; font-weight: 500; color: var(--text-muted); display: flex; align-items: center; gap: 4px;">
-                <span style="color: var(--accent-primary);">✨</span> <span id="profileXPRemainingText">Sonraki seviye için 50 XP kaldı</span>
+
+              <div id="themePreviewBar" class="tprev">
+                <i class="tdot"></i>
+                <span>Seçili tema <strong id="themePreviewName">Mor</strong> olarak ayarlandı.</span>
               </div>
             </div>
-          </div>
-          
-          <button class="btn-primary" onclick="saveProfile()" style="width: 100%; padding: 14px; font-size: 1rem;" data-i18n="save">Kaydet</button>
-        </div>
-
-      <div class="profile-right-col">
-      <!-- Tabs -->
-      <div class="profile-tabs-nav">
-        <button class="profile-tab-btn active" onclick="switchProfileTab('bio', event)" data-i18n="profileBio">Biyografi</button>
-        <button class="profile-tab-btn" onclick="switchProfileTab('achievements', event)" data-i18n="achievementsTitle">Başarımlar</button>
-        <button class="profile-tab-btn" onclick="switchProfileTab('security', event)" data-i18n="security">Güvenlik</button>
-        <button class="profile-tab-btn" onclick="switchProfileTab('theme', event)">
-          <span>🎨</span> Tema
-        </button>
-      </div>
-
-
-      <!-- Tab Content: Theme Settings -->
-      <div id="profileTabTheme" style="display:none;">
-        <section class="card">
-          <div class="card-header">
-            <div style="display:flex;align-items:center;gap:10px;">
-              <div style="width:32px;height:32px;border-radius:10px;background:linear-gradient(135deg,var(--accent-primary),var(--accent-deep));display:flex;align-items:center;justify-content:center;font-size:1rem;">🎨</div>
-              <h3 class="card-title" style="margin:0;">Tema Rengi</h3>
-            </div>
-          </div>
-          <div style="padding:20px;display:flex;flex-direction:column;gap:20px;">
-            <p style="font-size:0.82rem;color:var(--text-secondary);line-height:1.6;">
-              Sitenin genel accent rengini seç. Seçim cihazına kaydedilir.
-            </p>
-
-            <!-- Color Swatches Grid -->
-            <div class="theme-swatches" id="themeSwatches">
-
-              <!-- Mor (Varsayılan) -->
-              <button class="theme-swatch active" id="theme-purple"
-                onclick="applyTheme('purple')"
-                style="--sw:#8b7cf7;">
-                <span class="swatch-dot" style="background:linear-gradient(135deg,#8b7cf7,#5a4cc9);"></span>
-                <span class="swatch-label">Mor</span>
-                <span class="swatch-check">✔</span>
-              </button>
-
-              <!-- Kırmızı -->
-              <button class="theme-swatch" id="theme-red"
-                onclick="applyTheme('red')">
-                <span class="swatch-dot" style="background:linear-gradient(135deg,#f05555,#b91c1c);"></span>
-                <span class="swatch-label">Kırmızı</span>
-                <span class="swatch-check">✔</span>
-              </button>
-
-              <!-- Pembe -->
-              <button class="theme-swatch" id="theme-pink"
-                onclick="applyTheme('pink')">
-                <span class="swatch-dot" style="background:linear-gradient(135deg,#ec4899,#9d174d);"></span>
-                <span class="swatch-label">Pembe</span>
-                <span class="swatch-check">✔</span>
-              </button>
-
-              <!-- Turuncu -->
-              <button class="theme-swatch" id="theme-orange"
-                onclick="applyTheme('orange')">
-                <span class="swatch-dot" style="background:linear-gradient(135deg,#f97316,#c2410c);"></span>
-                <span class="swatch-label">Turuncu</span>
-                <span class="swatch-check">✔</span>
-              </button>
-
-              <!-- Yeşil -->
-              <button class="theme-swatch" id="theme-green"
-                onclick="applyTheme('green')">
-                <span class="swatch-dot" style="background:linear-gradient(135deg,#22c55e,#15803d);"></span>
-                <span class="swatch-label">Yeşil</span>
-                <span class="swatch-check">✔</span>
-              </button>
-
-              <!-- Mavi -->
-              <button class="theme-swatch" id="theme-blue"
-                onclick="applyTheme('blue')">
-                <span class="swatch-dot" style="background:linear-gradient(135deg,#3b82f6,#1d4ed8);"></span>
-                <span class="swatch-label">Mavi</span>
-                <span class="swatch-check">✔</span>
-              </button>
-
-              <!-- Altın -->
-              <button class="theme-swatch" id="theme-gold"
-                onclick="applyTheme('gold')">
-                <span class="swatch-dot" style="background:linear-gradient(135deg,#eab308,#a16207);"></span>
-                <span class="swatch-label">Altın</span>
-                <span class="swatch-check">✔</span>
-              </button>
-
-              <!-- Kahve -->
-              <button class="theme-swatch" id="theme-brown"
-                onclick="applyTheme('brown')">
-                <span class="swatch-dot" style="background:linear-gradient(135deg,#a8714a,#7c4a24);"></span>
-                <span class="swatch-label">Kahve</span>
-                <span class="swatch-check">✔</span>
-              </button>
-
-            </div>
-
-            <!-- Preview bar -->
-            <div style="padding:14px 16px;background:var(--accent-glow);border:1px solid var(--accent-primary);border-radius:12px;display:flex;align-items:center;gap:12px;transition:all 0.4s;" id="themePreviewBar">
-              <div style="width:10px;height:10px;border-radius:50%;background:var(--accent-primary);box-shadow:0 0 8px var(--accent-primary);"></div>
-              <span style="font-size:0.82rem;color:var(--text-secondary);">Seçili tema <strong style="color:var(--accent-primary);" id="themePreviewName">Mor</strong> olarak ayarlandı.</span>
-            </div>
-
           </div>
         </section>
-      </div>
-
-      <!-- Tab Content: Bio -->
-      <div id="profileTabBio" style="display:block;">
-        <section class="card">
-          <div class="card-header">
-            <h3 class="card-title">Hakkında</h3>
-          </div>
-          <div style="padding:20px; display:flex; flex-direction:column; gap:16px;">
-            <div>
-              <label
-                style="font-size:0.75rem; font-weight:700; color:var(--text-muted); display:block; margin-bottom:6px;">Biyografi</label>
-              <textarea id="profileBio" class="note-input" rows="4" placeholder="Kendiniz hakkında yazın..."></textarea>
-            </div>
-            <div class="profile-bio-grid">
-              <div>
-                <label
-                  style="font-size:0.75rem; font-weight:700; color:var(--text-muted); display:block; margin-bottom:6px;">Boy
-                  (cm)</label>
-                <input type="number" id="profileHeight" class="log-input" placeholder="180" step="1">
-              </div>
-              <div>
-                <label
-                  style="font-size:0.75rem; font-weight:700; color:var(--text-muted); display:block; margin-bottom:6px;">Kilo
-                  (kg)</label>
-                <input type="number" id="profileWeight" class="log-input" placeholder="80" step="0.1">
-              </div>
-              <div>
-                <label
-                  style="font-size:0.75rem; font-weight:700; color:var(--text-muted); display:block; margin-bottom:6px;">Yaş</label>
-                <input type="number" id="profileAge" class="log-input" placeholder="25" step="1">
-              </div>
-              <div>
-                <label
-                  style="font-size:0.75rem; font-weight:700; color:var(--text-muted); display:block; margin-bottom:6px;">Cinsiyet</label>
-                <select id="profileGender" class="log-input" style="background:var(--bg-input);">
-                  <option value="male">Erkek</option>
-                  <option value="female">Kadın</option>
-                </select>
-              </div>
-            </div>
-            <button class="btn-primary" onclick="saveProfileBio()" style="width:100%; margin-top:12px;">Kaydet</button>
-          </div>
-        </section>
-      </div>
-
-      <!-- Tab Content: Achievements -->
-      <div id="profileTabAchievements" style="display:none;">
-        <section class="card">
-          <div class="card-header">
-            <h3 class="card-title">Seçili Başarımlar (3 Tane)</h3>
-            <p style="font-size:0.75rem; color:var(--text-tertiary); margin:0; margin-top:4px;">Profilde gösterilecek 3
-              başarımı seçin</p>
-          </div>
-          <div style="padding:20px;">
-            <div id="profileAchievementsGrid"
-              style="display:grid; grid-template-columns:repeat(auto-fill,minmax(120px,1fr)); gap:12px; margin-bottom:20px;">
-            </div>
-            <button class="btn-primary" onclick="saveProfileAchievements()" style="width:100%;">Başarımları
-              Kaydet</button>
-          </div>
-        </section>
-      </div>
-
-      <!-- Tab Content: Security -->
-      <div id="profileTabSecurity" style="display:none;">
-        <section class="card">
-          <div class="card-header">
-            <h3 class="card-title">Şifre Yönetimi</h3>
-          </div>
-          <div style="padding:20px; display:flex; flex-direction:column; gap:16px;" id="passwordSection">
-            <!-- Will be rendered by JavaScript -->
-          </div>
-        </section>
-
-        <section class="card" style="margin-top: 20px;">
-          <div class="card-header">
-            <h3 class="card-title">Bildirim Ayarları (Push)</h3>
-          </div>
-          <div style="padding:20px; display:flex; flex-direction:column; gap:16px;">
-            <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0;">Anlık uygulama bildirimleri ile yorum yanıtlarını ve önemli duyuruları kaçırmayın.</p>
-            <div id="pushNotificationStatus" style="font-size: 0.85rem; font-weight: bold; margin-bottom: 8px;">Durum: Yükleniyor...</div>
-            <button id="btnEnablePush" class="btn-primary" onclick="requestNotificationPermission()" style="width:100%; display:none;">Bildirimlere İzin Ver</button>
-          </div>
-        </section>
-      </div>
-      </div>
       </div>
     </div>
 
