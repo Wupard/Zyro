@@ -9,6 +9,73 @@
   const React = Z.React;
   const ReactDOM = Z.ReactDOM;
 
+  // ---- Quick access — direct links without opening the main menu ----
+  function QuickAccess(props) {
+    const S = props.model.S;
+    const links = [
+      { page: 'workouts', key: 'workouts', icon: 'i-dumb', color: '#8fb3cc' },
+      { page: 'posture', key: 'posture', icon: 'i-user', color: '#dcc7a8' },
+      { page: 'diet', key: 'diet', icon: 'i-fork', color: '#9ecb8f' },
+      { page: 'progress', key: 'weight', icon: 'i-trend', color: '#c99a9a' }
+    ];
+    return html`<section className="p s12 qa" aria-label=${S.quickAccess}>
+      <div className="lab">${S.quickAccess}</div>
+      <div className="qa-grid">
+        ${links.map(function (l) {
+          return html`<button type="button" className="qa-btn" key=${l.page}
+            style=${{ '--c': l.color }}
+            onClick=${function () { Z.go(l.page); }}>
+            <span className="qa-ic">
+              <svg className="i" aria-hidden="true" focusable="false"><use href=${'#' + l.icon}/></svg>
+            </span>
+            <span className="qa-tx">${S.quick[l.key]}</span>
+            <svg className="qa-go" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <polyline points="9 18 15 12 9 6"/>
+            </svg>
+          </button>`;
+        })}
+      </div>
+    </section>`;
+  }
+
+  // ---- Latest updates — 4 most recent entries + "View all" ----
+  function UpdatesFeed(props) {
+    const S = props.model.S;
+    const updates = (props.model.updates || []);
+    return html`<section className="p s12 uf" aria-label=${S.latestUpdates}>
+      <div className="lab">
+        <span>${S.latestUpdates}</span>
+        <button type="button" className="uf-viewall" onClick=${function () { Z.go('updates'); }}>
+          ${S.viewAll}
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+      </div>
+      ${updates.length
+        ? html`<div className="uf-list">
+            ${updates.map(function (u) {
+              return html`<button type="button" className="uf-item" key=${u.id}
+                onClick=${function () { Z.go('updates'); }}>
+                <span className="uf-dot">
+                  <svg className="i" style=${{ width: 15, height: 15 }} aria-hidden="true" focusable="false"><use href="#i-spark"/></svg>
+                </span>
+                <span className="uf-body">
+                  <b>${u.title || S.latestUpdates}</b>
+                  ${u.summary ? html`<small>${u.summary}</small>` : null}
+                  ${u.dateLabel ? html`<em>${u.dateLabel}</em>` : null}
+                </span>
+              </button>`;
+            })}
+          </div>`
+        : html`<${Z.EmptyState} compact text=${S.noUpdates} action=${S.viewAll}
+            onAction=${function () { Z.go('updates'); }}/>`}
+    </section>`;
+  }
+
+  Z.QuickAccess = QuickAccess;
+  Z.UpdatesFeed = UpdatesFeed;
+
   function App(props) {
     const model = props.model;
     const S = model.S;
@@ -19,6 +86,7 @@
         <div className="grid">
           <${Z.Hero} model=${model} onStart=${Z.startWorkout}/>
           <${Z.WeeklyGoal} model=${model}/>
+          <${Z.QuickAccess} model=${model}/>
           <${Z.StatCard} stat=${model.stats.weight} color="#8fb3cc"
             emptyText=${S.emptyWeight} actionLabel=${S.addWeight} onAction=${Z.addWeight}/>
           <${Z.StatCard} stat=${model.stats.consistency} color="#dcc7a8"
@@ -28,6 +96,7 @@
           <${Z.ProgressChart} model=${model} onAddWeight=${Z.addWeight} onAddWorkout=${Z.goWorkouts}/>
           <${Z.Records} model=${model} onAddWorkout=${Z.goWorkouts}/>
           <${Z.Heatmap} model=${model} onAddWorkout=${Z.goWorkouts}/>
+          <${Z.UpdatesFeed} model=${model}/>
         </div>
       </main>
     </${React.Fragment}>`;

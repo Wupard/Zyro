@@ -118,10 +118,6 @@ const I18N = {
     monthlyTrackerTitle: 'Monthly Consistency Tracker',
     achievementsTitle: 'Achievements & Badges',
     achievementsSubtitle: 'Rewards and goals you unlocked',
-    beforeAfterTitle: 'Progress Photos',
-    beforeAfterSubtitle: 'Observe and document changes in your body',
-    beforeAfterTitleMain: 'Progress',
-    beforeAfterTitleBold: 'photos',
     photosTitle: 'Photos',
     btnCompare: 'Compare',
     btnNewPhoto: 'New Photo',
@@ -259,7 +255,6 @@ const I18N = {
     repetitions: 'Reps',
     sets: 'Sets',
     achievements: 'Achievements',
-    beforeAfter: 'Before/After',
     'Chin Tuck': 'Chin Tuck',
     'Deadbug': 'Deadbug',
     'Thoracic Extension (Rulo veya sandalye ile)': 'Thoracic Extension (with roller or chair)',
@@ -513,10 +508,6 @@ const I18N = {
     monthlyTrackerTitle: 'Aylık İlerleme Tablosu',
     achievementsTitle: 'Başarımlar & Rozetler',
     achievementsSubtitle: 'Kilidini açtığınız ödüller ve hedefler',
-    beforeAfterTitle: 'Gelişim Fotoğrafları',
-    beforeAfterSubtitle: 'Bedenindeki değişimi gözlemle ve belgele',
-    beforeAfterTitleMain: 'Gelişim',
-    beforeAfterTitleBold: 'fotoğrafları',
     photosTitle: 'Fotoğraflar',
     btnCompare: 'Karşılaştır',
     btnNewPhoto: 'Yeni Fotoğraf',
@@ -654,7 +645,6 @@ const I18N = {
     repetitions: 'Tekrar',
     sets: 'Set',
     achievements: 'Başarımlar',
-    beforeAfter: 'Gelişim',
     'Warm-up: Light shoulder circles': 'Isınma: Hafif omuz daireleri ve kafa hareketleri',
     'Y-T-W Raises': 'Y-T-W Raises',
     'Wall Angels': 'Wall Angels',
@@ -1609,7 +1599,7 @@ function updateUserUI(user){
   } else {
     avatar.textContent=(user&&user.displayName)?user.displayName[0].toUpperCase():'Z';
   }
-  name.textContent=(user&&user.displayName)?user.displayName.split(' ')[0]:'User';
+  name.textContent=(user&&user.displayName)?user.displayName:'User';
   if(status) {
     if (user) {
       status.style.display = 'none';
@@ -1913,7 +1903,7 @@ function __routerBasePath() {
 }
 
 const __ROUTER_BASE = __routerBasePath();
-const __ROUTER_PAGES = new Set(['dashboard','workouts','posture','progress','updates','notes','comments','calculators','beforeafter','achievements','profile','admin','diet']);
+const __ROUTER_PAGES = new Set(['dashboard','workouts','posture','progress','updates','notes','comments','calculators','achievements','profile','admin','diet']);
 
 function __pageToPath(page) {
   const p = page || 'dashboard';
@@ -2034,15 +2024,6 @@ function navigateTo(page, opts){
   else if(page==='notes')renderNotes();
   else if(page==='comments')renderComments();
   else if(page==='calculators'){setTimeout(initCalculators,50);}
-  else if(page==='beforeafter'){
-    renderProgressPhotos();
-    renderPRTable();
-    renderBodyMeasurements();
-    const df = document.getElementById('measFormDate');
-    if (df && !df.value) df.value = todayStr();
-    const pf = document.getElementById('photoDate');
-    if (pf && !pf.value) pf.value = todayStr();
-  }
   else if(page==='achievements')renderAchievements();
   else if(page==='profile')renderProfilePage();
   else if(page==='leaderboard') { if (typeof renderLeaderboard === 'function') renderLeaderboard(true); }
@@ -2067,6 +2048,7 @@ function navigateTo(page, opts){
       mainContent.scrollTop = 0;
     }
     window.scrollTo({ top: 0, behavior: 'instant' });
+    if (window.__zyroResetHeader) window.__zyroResetHeader();
   }
 
   // Center the active/today card inside horizontal selectors (day pickers, tabs)
@@ -2257,6 +2239,67 @@ function parseUpdateContent(items) {
   });
   return html || '<em style="color:var(--text-tertiary)">İçerik yok</em>';
 }
+
+// =============================================
+// DASHBOARD UPDATES FEED ("Son güncellemeler")
+// Keeps a small, date-sorted list of the latest
+// type === 'update' docs for the dashboard home.
+// =============================================
+window.zyroUpdatesFeed = window.zyroUpdatesFeed || [];
+
+function zyroDigestUpdate(items) {
+  var title = '';
+  var parts = [];
+  (items || []).forEach(function (line) {
+    var raw = String(line == null ? '' : line).trim();
+    if (!raw) return;
+    if (/^([*\u2022])(?!\*)\s*/.test(raw)) {
+      var h = raw.replace(/^([*\u2022])(?!\*)\s*/, '').replace(/\*\*/g, '').trim();
+      if (!title) title = h; else parts.push(h);
+    } else if (/^([-\u2013\u2014])\s*/.test(raw)) {
+      parts.push(raw.replace(/^([-\u2013\u2014])\s*/, '').replace(/\*\*/g, '').trim());
+    } else {
+      var plain = raw.replace(/\*\*/g, '').trim();
+      if (!title) title = plain; else parts.push(plain);
+    }
+  });
+  return { title: title, summary: parts.slice(0, 3).join(' • ') };
+}
+
+window.zyroStartUpdatesFeed = function () {
+  if (window.__zyroUpdatesFeedStarted) return;
+  if (typeof isFirebaseConfigured === 'undefined' || !isFirebaseConfigured) return;
+  if (typeof db === 'undefined' || !db) return;
+  window.__zyroUpdatesFeedStarted = true;
+  try {
+    db.collection('systemAnnouncements')
+      .orderBy('createdAt', 'desc')
+      .limit(20)
+      .onSnapshot(function (snap) {
+        var arr = [];
+        snap.forEach(function (doc) {
+          var d = doc.data() || {};
+          if (d.type !== 'update') return;
+          var at = d.createdAt && d.createdAt.toDate ? d.createdAt.toDate() : null;
+          var digest = zyroDigestUpdate(d.items);
+          arr.push({
+            id: doc.id,
+            ts: at ? at.getTime() : 0,
+            title: digest.title,
+            summary: digest.summary,
+            count: (d.items || []).length
+          });
+        });
+        arr.sort(function (a, b) { return b.ts - a.ts; });
+        window.zyroUpdatesFeed = arr;
+        if (window.ZyroDashboard && typeof window.ZyroDashboard.sync === 'function') {
+          window.ZyroDashboard.sync();
+        }
+      }, function (err) {
+        console.warn('[ZyroUpdatesFeed]', err && err.code ? err.code : err);
+      });
+  } catch (e) { /* ignore */ }
+};
 
 // Admin: Post a new update to Firestore
 window.adminPostUpdate = async function() {
@@ -2573,8 +2616,42 @@ function goToStrengthProgress() {
   }, 100);
 }
 
+// Elements that own their own horizontal gesture (category chips, day tabs,
+// trackers, calculators…). Starting a swipe here must never move the page/menu.
+const ZYRO_HSCROLL_SELECTOR = [
+  '.workout-list', '.card-tabs', '.monthly-tracker', '.tracker-grid',
+  '#pageCalculators', '#dietWeekDayTabs', '.calc-sidebar',
+  '.zw .chips', '.zw .days', '.zp .days', '#zwDays', '#zpDays',
+  '.pv-chips', '#pageProfile .ptabs', '.admin-nav-tabs', '.tl', '.no-swipe',
+  'input', 'textarea', 'select', '[contenteditable="true"]'
+].join(', ');
+function zyroStartsInScroller(el) {
+  const node = (el && el.nodeType === 1) ? el : (el && el.parentElement);
+  return !!(node && node.closest && node.closest(ZYRO_HSCROLL_SELECTOR));
+}
+
+// Sidebar order of the pages that actually exist, used by the swipe navigation.
+function zyroSwipePageOrder() {
+  const order = [];
+  document.querySelectorAll('.sidebar-nav .nav-item[data-page]').forEach(a => {
+    if (!a.offsetParent) return; // skip hidden entries (e.g. admin-only)
+    const p = a.getAttribute('data-page');
+    if (p && order.indexOf(p) === -1 && document.querySelector('.page[data-page="' + p + '"]')) order.push(p);
+  });
+  return order;
+}
+// Swipe left → next page, swipe right → previous page.
+function zyroSwipePage(step) {
+  if (document.querySelector('dialog[open]')) return;
+  const order = zyroSwipePageOrder();
+  const idx = order.indexOf(currentPage);
+  const next = idx + step;
+  if (idx === -1 || next < 0 || next >= order.length) return;
+  navigateTo(order[next]);
+}
+
 // =============================================
-// GESTURE HANDLER (Swipe to open sidebar)
+// GESTURE HANDLER (Swipe to open sidebar / change page)
 // =============================================
 function initGestures() {
   let touchStartX = 0;
@@ -2592,32 +2669,22 @@ function initGestures() {
     if (dy > maxVerticalDistance) return;
 
     const sidebar = document.getElementById('sidebar');
-    if (window.innerWidth <= 1000) {
-      if (sidebar.classList.contains('open')) {
-        if (dx < -minDistance) {
-          sidebar.classList.remove('open');
-        }
-      } else {
-        if (dx > minDistance && touchStartX < 40) {
-          sidebar.classList.add('open');
-        }
-      }
+    if (sidebar && sidebar.classList.contains('open')) {
+      if (dx < -minDistance) sidebar.classList.remove('open');
+      return;
+    }
+    if (window.innerWidth <= 1000 && dx > minDistance && touchStartX < 40) {
+      // Edge swipe from the left opens the drawer.
+      if (sidebar) sidebar.classList.add('open');
+      return;
+    }
+    if (Math.abs(dx) > minDistance) {
+      zyroSwipePage(dx < 0 ? 1 : -1);
     }
   };
 
-  // Elements that own their own horizontal gesture (category chips, day tabs,
-  // trackers, calculators…). Starting a swipe here must never move the page/menu.
-  const HSCROLL_SELECTOR = [
-    '.workout-list', '.card-tabs', '.monthly-tracker', '.tracker-grid',
-    '#pageCalculators', '#dietWeekDayTabs', '.calc-sidebar',
-    '.zw .chips', '.zw .days', '.zp .days', '#zwDays', '#zpDays',
-    '.pv-chips', '#pageProfile .ptabs', '.admin-nav-tabs', '.tl', '.no-swipe',
-    'input', 'textarea', 'select', '[contenteditable="true"]'
-  ].join(', ');
-  const startsInScroller = el => !!(el && el.closest && el.closest(HSCROLL_SELECTOR));
-
   document.addEventListener('touchstart', e => {
-    if (startsInScroller(e.target)) {
+    if (zyroStartsInScroller(e.target)) {
       touchStartX = -1; // Ignore this swipe
       return;
     }
@@ -2639,7 +2706,7 @@ function initGestures() {
   document.addEventListener('mousedown', e => {
     if (e.button !== 0) return; // Only left click
     if (window.innerWidth > 1000) return;
-    if (startsInScroller(e.target)) { isDragging = false; return; }
+    if (zyroStartsInScroller(e.target)) { isDragging = false; return; }
     isDragging = true;
     touchStartX = e.screenX;
     touchStartY = e.screenY;
@@ -2690,10 +2757,18 @@ function initGestures() {
     el.classList.remove('show');
   }
 
+  // A swipe only gets feedback when it can actually change the page.
+  function pageStepAvailable(step) {
+    const order = zyroSwipePageOrder();
+    const idx = order.indexOf(currentPage);
+    const next = idx + step;
+    return idx !== -1 && next >= 0 && next < order.length;
+  }
+
   // ---- touch ----
   let startX = 0, startY = 0, tracking = false;
   document.addEventListener('touchstart', e => {
-    if (e.touches.length !== 1) { tracking = false; return; }
+    if (e.touches.length !== 1 || zyroStartsInScroller(e.target)) { tracking = false; return; }
     tracking = true;
     startX = e.touches[0].screenX;
     startY = e.touches[0].screenY;
@@ -2704,7 +2779,9 @@ function initGestures() {
     const dx = e.touches[0].screenX - startX;
     const dy = e.touches[0].screenY - startY;
     if (Math.abs(dx) < THRESHOLD || Math.abs(dx) <= Math.abs(dy)) return;
-    show(dx < 0 ? 'left' : 'right');
+    const goingLeft = dx < 0; // swipe left → next page
+    if (!pageStepAvailable(goingLeft ? 1 : -1)) { hide(); return; }
+    show(goingLeft ? 'left' : 'right');
   }, { passive: true });
 
   const finish = () => { tracking = false; hide(); };
@@ -2715,8 +2792,7 @@ function initGestures() {
   let dragging = false, mouseX = 0, mouseY = 0;
   document.addEventListener('mousedown', e => {
     if (e.button !== 0) return;
-    const t = e.target;
-    if (t && t.closest && t.closest('input, textarea, select, [contenteditable="true"]')) return;
+    if (zyroStartsInScroller(e.target)) return;
     dragging = true;
     mouseX = e.screenX;
     mouseY = e.screenY;
@@ -2726,9 +2802,61 @@ function initGestures() {
     const dx = e.screenX - mouseX;
     const dy = e.screenY - mouseY;
     if (Math.abs(dx) < THRESHOLD || Math.abs(dx) <= Math.abs(dy)) return;
-    show(dx < 0 ? 'left' : 'right');
+    const goingLeft = dx < 0;
+    if (!pageStepAvailable(goingLeft ? 1 : -1)) { hide(); return; }
+    show(goingLeft ? 'left' : 'right');
   });
   document.addEventListener('mouseup', () => { dragging = false; hide(); });
+})();
+
+// =============================================
+// HEADER AUTO-HIDE: the greeting bar slides away while the user scrolls
+// down and comes back as soon as they scroll up (mobile only, via CSS).
+// =============================================
+(function initHeaderAutoHide() {
+  function setup() {
+    const header = document.querySelector('.main-content > .header');
+    if (!header) return;
+    const main = document.querySelector('.main-content');
+    let lastY = 0;
+    let ticking = false;
+
+    const scrollY = () => {
+      const win = window.scrollY || document.documentElement.scrollTop || document.body.scrollTop || 0;
+      const inner = main ? main.scrollTop : 0;
+      return Math.max(win, inner);
+    };
+
+    const update = () => {
+      ticking = false;
+      const y = scrollY();
+      const delta = y - lastY;
+      if (y <= 12) {
+        header.classList.remove('is-hidden');
+      } else if (delta > 6) {
+        if (y > header.offsetHeight) header.classList.add('is-hidden');
+      } else if (delta < -6) {
+        header.classList.remove('is-hidden');
+      }
+      lastY = y;
+    };
+
+    const onScroll = () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(update);
+    };
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    if (main) main.addEventListener('scroll', onScroll, { passive: true });
+
+    window.__zyroResetHeader = () => {
+      lastY = 0;
+      header.classList.remove('is-hidden');
+    };
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', setup, { once: true });
+  else setup();
 })();
 
 // =============================================
@@ -3632,9 +3760,98 @@ function initDashboardChartTabs(){
 // =============================================
 // PR TABLE
 // =============================================
+// ---- PR categories: top → bottom neck, shoulders, upper back, chest,
+//      mid back, lower back, arms, wrists (unmatched fall into "other") ----
+const PR_CATS = [
+  ['neck',      'Boyun',    'Neck'],
+  ['shoulders', 'Omuz',     'Shoulders'],
+  ['upperback', 'Üst sırt', 'Upper back'],
+  ['chest',     'Göğüs',    'Chest'],
+  ['midback',   'Orta sırt','Mid back'],
+  ['lowerback', 'Alt sırt', 'Lower back'],
+  ['arms',      'Kollar',   'Arms'],
+  ['wrists',    'Bilek',    'Wrists'],
+  ['other',     'Diğer',    'Other']
+];
+const PR_EX_CAT = {
+  // Boyun
+  'Neck Flexion/Extension':          'neck',
+  // Omuz
+  'Seated Dumbbell Shoulder Press':  'shoulders',
+  'Barbell Overhead Press':          'shoulders',
+  'Lateral Raise':                   'shoulders',
+  'Dumbbell Lateral Raise':          'shoulders',
+  'Cable Lateral Raise':             'shoulders',
+  'Arnold Press':                    'shoulders',
+  'Face Pull':                       'shoulders',
+  'Cable Rope Face Pull':            'shoulders',
+  'Cable Reverse Fly':               'shoulders',
+  // Üst sırt
+  'Lat Pulldown':                    'upperback',
+  'Close-Grip Lat Pulldown':         'upperback',
+  'Medium-Grip Lat Pulldown':        'upperback',
+  'Pull-Up':                         'upperback',
+  'Barbell Shrug':                   'upperback',
+  'Dumbbell Shrug':                  'upperback',
+  // Göğüs
+  'Barbell Bench Press':             'chest',
+  'Flat Barbell Bench Press':        'chest',
+  'Dumbbell Bench Press':            'chest',
+  'Incline Dumbbell Press':          'chest',
+  'Incline Dumbbell Fly':            'chest',
+  'Low-to-High Cable Crossover':     'chest',
+  'Cable Crossover':                 'chest',
+  'Dip':                             'chest',
+  // Orta sırt
+  'Barbell Row':                     'midback',
+  'Seated Cable Row':                'midback',
+  'Single-Arm Dumbbell Row':         'midback',
+  'Chest-Supported Row':             'midback',
+  // Alt sırt
+  'Deadlift':                        'lowerback',
+  'Romanian Deadlift':               'lowerback',
+  // Kollar (biceps / triceps / önkol)
+  'Incline Dumbbell Curl':           'arms',
+  'Single-Arm Incline Dumbbell Curl':'arms',
+  'Seated Incline Dumbbell Curl':    'arms',
+  'Hammer Curl':                     'arms',
+  'Cross-Body Hammer Curl':          'arms',
+  'EZ Bar Curl':                     'arms',
+  'EZ Bar Reverse Curl':             'arms',
+  'Triceps Pushdown':                'arms',
+  'Skull Crusher':                   'arms',
+  'Overhead Triceps Extension':      'arms',
+  // Bilek
+  'Wrist Curl':                      'wrists',
+  'Reverse Wrist Curl':              'wrists'
+};
+let prCatFilter = 'all';
+
+function prCatOf(name){
+  const key = String(name || '');
+  if (PR_EX_CAT[key]) return PR_EX_CAT[key];
+  const n = key.toLowerCase();
+  if (/neck/.test(n)) return 'neck';
+  if (/wrist/.test(n)) return 'wrists';
+  if (/deadlift|romanian|\brdl\b|good morning|hyperextension|lower back/.test(n)) return 'lowerback';
+  if (/shrug|pulldown|pull.?up|\blat\b|upper back/.test(n)) return 'upperback';
+  if (/\brow\b|mid back/.test(n)) return 'midback';
+  if (/bench|chest|pec|crossover|\bfly\b|\bdip\b/.test(n)) return 'chest';
+  if (/shoulder|overhead|lateral|arnold|face.?pull|\bdelt\b/.test(n)) return 'shoulders';
+  if (/curl|tricep|pushdown|skull|kickback|bicep|\barm\b|forearm/.test(n)) return 'arms';
+  return 'other';
+}
+
+function prRowHtml(name, pr){
+  return '<div class="pv-pr-r"><div><b>'+name+'</b><span>'+pr.bestReps+' tekrar · '+pvFy(pr.date)+'</span></div>'+
+         '<div class="pv-mx">'+pvFw(pr.maxWeight)+' <small>kg</small></div>'+
+         '<button class="pv-en-del" onclick="deletePR(\''+name+'\')" aria-label="Rekoru sil">✕</button></div>';
+}
+
 function renderPRTable(){
   const prc=document.getElementById('prc');
   const prl=document.getElementById('prl');
+  const chips=document.getElementById('prChips');
   if(!prl) return;
   const prs={};
   Object.entries(appData.workoutLogs||{}).forEach(([date,logs])=>{
@@ -3646,14 +3863,45 @@ function renderPRTable(){
       }
     });
   });
-  const sorted=Object.entries(prs).sort((a,b)=>b[1].maxWeight-a[1].maxWeight);
-  if(prc) prc.textContent=sorted.length;
-  if(sorted.length===0){prl.innerHTML='<div class="pv-empty">Henüz rekor yok.</div>';return;}
-  prl.innerHTML=sorted.map(([name,pr])=>{
-    return '<div class="pv-pr-r"><div><b>'+name+'</b><span>'+pr.bestReps+' tekrar · '+pvFy(pr.date)+'</span></div>'+
-           '<div class="pv-mx">'+pvFw(pr.maxWeight)+' <small>kg</small></div>'+
-           '<button class="pv-en-del" onclick="deletePR(\''+name+'\')" aria-label="Rekoru sil">✕</button></div>';
-  }).join('');
+  const entries=Object.entries(prs).map(([name,pr])=>({name:name,pr:pr,cat:prCatOf(name)}));
+  if(prc) prc.textContent=entries.length;
+
+  // Category filter chips
+  if(chips){
+    const tr=currentLang==='tr';
+    const counts={};
+    entries.forEach(e=>{counts[e.cat]=(counts[e.cat]||0)+1;});
+    let ch='<button data-pc="all" aria-pressed="'+(prCatFilter==='all')+'">'+(tr?'Tümü':'All')+'</button>';
+    PR_CATS.forEach(c=>{
+      if(!counts[c[0]]) return;
+      ch+='<button data-pc="'+c[0]+'" aria-pressed="'+(prCatFilter===c[0])+'">'+(tr?c[1]:c[2])+' <b>'+counts[c[0]]+'</b></button>';
+    });
+    chips.innerHTML=ch;
+    if(!chips.dataset.bound){
+      chips.dataset.bound='1';
+      chips.addEventListener('click',function(e){
+        const b=e.target.closest('[data-pc]'); if(!b) return;
+        prCatFilter=b.dataset.pc; renderPRTable();
+      });
+    }
+  }
+
+  if(!entries.length){prl.innerHTML='<div class="pv-empty">'+(currentLang==='tr'?'Henüz rekor yok.':'No records yet.')+'</div>';return;}
+  const shown=prCatFilter==='all'?entries:entries.filter(e=>e.cat===prCatFilter);
+  if(!shown.length){prl.innerHTML='<div class="pv-empty">'+(currentLang==='tr'?'Bu kategoride rekor yok.':'No records in this category.')+'</div>';return;}
+
+  const sorted=shown.slice().sort((a,b)=>b.pr.maxWeight-a.pr.maxWeight);
+  let out='';
+  if(prCatFilter==='all'){
+    PR_CATS.forEach(c=>{
+      const group=sorted.filter(e=>e.cat===c[0]);
+      if(!group.length) return;
+      out+='<div class="pv-pr-cat">'+(currentLang==='tr'?c[1]:c[2])+'</div>'+group.map(e=>prRowHtml(e.name,e.pr)).join('');
+    });
+  } else {
+    out=sorted.map(e=>prRowHtml(e.name,e.pr)).join('');
+  }
+  prl.innerHTML=out;
 }
 
 window.deletePR = function(exerciseName) {
@@ -3972,7 +4220,7 @@ function renderNotesForm() {
 
 function renderNotes() {
   const container = document.getElementById('ls');
-  const countEl = document.getElementById('cn');
+  const countEl = document.querySelector('#pageNotes #cn');
   const deleteSelectedBtn = document.getElementById('ds');
   const dst = document.getElementById('dst');
   if (!container) return;
@@ -4371,6 +4619,7 @@ document.addEventListener('keydown', e => {
 // REFRESH
 // =============================================
 function refreshDashboard(){
+  if (typeof window.zyroStartUpdatesFeed === 'function') window.zyroStartUpdatesFeed();
   if (window.ZyroDashboard && typeof window.ZyroDashboard.sync === 'function') {
     window.ZyroDashboard.sync();
   }
@@ -4467,7 +4716,6 @@ function refreshAllViews(){
   else if(currentPage==='updates')renderUpdatesPage();
   else if(currentPage==='notes')renderNotes();
   else if(currentPage==='comments')renderComments();
-  else if(currentPage==='beforeafter'){renderProgressPhotos();renderPRTable();renderBodyMeasurements();}
   else if(currentPage==='achievements')renderAchievements();
   else if(currentPage==='leaderboard') { if (typeof renderLeaderboard === 'function') renderLeaderboard(); }
   else if(currentPage==='profile')renderProfilePage();
@@ -4531,7 +4779,6 @@ document.addEventListener('DOMContentLoaded',()=>{
   loadData(()=>{
     refreshAllViews();
     renderAchievements();
-    renderProgressPhotos();
     initNotifications(); // 2.5: Initialize notifications system
     // Update sidebar after data load
     if(currentUser) updateUserUI(currentUser);
@@ -6132,14 +6379,6 @@ function initBeforeAfter() {
       }
     });
   }
-
-  let rz;
-  window.addEventListener('resize', () => {
-    clearTimeout(rz);
-    rz = setTimeout(() => {
-      if (currentPage === 'beforeafter') renderBodyMeasurements();
-    }, 160);
-  });
 }
 
 function renderProgressPhotos() {
@@ -7018,7 +7257,7 @@ function _renderCommentItemHtml(c, isReply) {
 
 function drawComments() {
   initComments();
-  const cn = document.getElementById('cn');
+  const cn = document.querySelector('#pageComments #cn');
   const so = document.getElementById('so');
   const list = document.getElementById('list');
   if (!list) return;
@@ -7945,6 +8184,9 @@ function __escapeHtml(v) {
     .replaceAll("'", '&#39;');
 }
 
+// Global alias used by notes, comments and calculator dropdown renderers.
+function escapeHtml(v) { return __escapeHtml(v); }
+
 window.closeAdminUserDetail = function() {
   const modal = document.getElementById('adminUserDetailModal');
   if (modal) modal.style.display = 'none';
@@ -8424,12 +8666,16 @@ function pvRenderStrength(anim){
   }
 }
 function renderProgressTracker() {
-  const container = document.getElementById('progressTrackerContainer');
+  const legacy = document.getElementById('progressTrackerContainer');
+  const chipsHost = document.getElementById('chips');
+  const strengthHost = document.getElementById('strength');
+  const container = legacy || strengthHost;
   if(!container) return;
   
   const allStats = computeExerciseStats();
   
   if (allStats.length === 0) {
+    if (chipsHost && chipsHost !== container) chipsHost.innerHTML = '';
     container.innerHTML = `
       <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 48px 0; text-align: center;">
         <div style="width: 64px; height: 64px; border-radius: 16px; background: rgba(52, 211, 153, 0.1); display: flex; align-items: center; justify-content: center; margin-bottom: 16px;">
@@ -8477,10 +8723,10 @@ function renderProgressTracker() {
 
 
 
-  let catBtnsHtml = `<button onclick="setTrackerCategory('')" class="tracker-cat-btn ${!currentTrackerCategory?'active':''}"><span style="display:inline-flex;align-items:center;gap:4px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg> ${currentLang === 'tr' ? 'Tümü' : 'All'}</span></button>`;
+  let catBtnsHtml = `<button onclick="setTrackerCategory('')" aria-pressed="${!currentTrackerCategory}">${currentLang === 'tr' ? 'Tümü' : 'All'}</button>`;
   Object.keys(EXERCISE_CATEGORIES).forEach(cat => {
     const label = CAT_LABELS[cat] || (cat.charAt(0).toUpperCase() + cat.slice(1));
-    catBtnsHtml += `<button onclick="setTrackerCategory('${cat}')" class="tracker-cat-btn ${currentTrackerCategory===cat?'active':''}"><span style="display:inline-flex;align-items:center;gap:4px;">${CATEGORY_ICONS[cat] || ''} ${label}</span></button>`;
+    catBtnsHtml += `<button onclick="setTrackerCategory('${cat}')" aria-pressed="${currentTrackerCategory===cat}"><span style="display:inline-flex;align-items:center;gap:5px;vertical-align:middle;">${CATEGORY_ICONS[cat] || ''} ${label}</span></button>`;
   });
   
   let listHtml = '';
@@ -8629,11 +8875,7 @@ function renderProgressTracker() {
     `;
   }
   
-  container.innerHTML = `
-    <div style="display:flex;flex-wrap:wrap;gap:6px;padding-bottom:12px;border-bottom:1px solid var(--border-subtle);margin-bottom:4px;">
-      ${catBtnsHtml}
-    </div>
-    
+  const bodyHtml = `
     <div style="margin-top:14px;">
       <label style="font-size:0.625rem;font-weight:800;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-muted);display:block;margin-bottom:8px;">
         Egzersiz Seç (${filtered.length})
@@ -8645,6 +8887,12 @@ function renderProgressTracker() {
     
     ${detailHtml}
   `;
+  if (chipsHost && chipsHost !== container) {
+    chipsHost.innerHTML = catBtnsHtml;
+    container.innerHTML = bodyHtml;
+  } else {
+    container.innerHTML = `<div class="pv-chips" style="margin-bottom:6px;">${catBtnsHtml}</div>` + bodyHtml;
+  }
 }
 
 
@@ -9189,7 +9437,7 @@ function updateUserUI(user){
     const n = profileName || (user && user.displayName) || 'U';
     avatar.textContent = n[0].toUpperCase();
   }
-  const displayN = profileName || (user && user.displayName ? user.displayName.split(' ')[0] : 'User');
+  const displayN = profileName || (user && user.displayName ? user.displayName : 'User');
   name.textContent = displayN;
   
   // Status: "Senkronize" when logged in
@@ -10378,7 +10626,7 @@ function renderSidebarProfile(user){
     const n = profileName || (user && user.displayName) || 'U';
     avatar.textContent = n[0].toUpperCase();
   }
-  const displayN = profileName || (user && user.displayName ? user.displayName.split(' ')[0] : 'User');
+  const displayN = profileName || (user && user.displayName ? user.displayName : 'User');
   name.textContent = displayN;
   
   if (rankEl) {
@@ -12173,3 +12421,337 @@ window.syncPastAchievements = function() {
   
   return modified;
 };
+
+/* =============================================
+   GLOBAL SEARCH — "Her şeyi ara"
+   Instant keyword-driven results + smart routing
+   ============================================= */
+(function () {
+  'use strict';
+  if (window.__zyroGlobalSearch) return;
+
+  var input = document.getElementById('zyroSearchInput');
+  var panel = document.getElementById('zyroSearchPanel');
+  var clearBtn = document.getElementById('zyroSearchClear');
+  var wrap = document.getElementById('zyroSearchWrap');
+  if (!input || !panel || !wrap) return;
+  window.__zyroGlobalSearch = true;
+
+  function isEn() { return typeof currentLang !== 'undefined' && currentLang === 'en'; }
+  function L(tr, en) { return isEn() ? en : tr; }
+
+  // Turkish-insensitive normalizer (göğüs → gogus)
+  function norm(s) {
+    return String(s == null ? '' : s)
+      .replace(/İ/g, 'i').replace(/I/g, 'i')
+      .toLowerCase()
+      .replace(/ı/g, 'i').replace(/ş/g, 's').replace(/ğ/g, 'g')
+      .replace(/ü/g, 'u').replace(/ö/g, 'o').replace(/ç/g, 'c')
+      .replace(/[^a-z0-9\s]/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+  }
+  function esc(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
+  // ---------------- icons ----------------
+  var ICONS = {
+    page: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5 12 3l9 6.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>',
+    home: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5 12 3l9 6.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>',
+    dumbbell: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 6.5v11M3 8.5v7M17.5 6.5v11M21 8.5v7M6.5 12h11"/></svg>',
+    body: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="2.4"/><path d="M12 8v6M8 11l4-1 4 1M9 21l3-7 3 7"/></svg>',
+    chart: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m7 14 3-4 3 3 5-7"/></svg>',
+    calc: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 6h8M8 10h.01M12 10h.01M16 10h.01M8 14h.01M12 14h.01M16 14h.01M8 18h8"/></svg>',
+    apple: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8c-2-4-7-4-8 0-1 5 4 12 8 12s9-7 8-12c-1-4-6-4-8 0z"/><path d="M12 8V3"/></svg>',
+    note: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v12l-4 4H4z"/><path d="M8 8h8M8 12h5"/></svg>',
+    chat: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.5 7.2L3 21l1.8-6.5A8 8 0 1 1 21 12z"/></svg>',
+    trophy: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3h8v5a4 4 0 0 1-8 0zM8 5H5v2a3 3 0 0 0 3 3M16 5h3v2a3 3 0 0 1-3 3M10 13h4M12 13v4M9 21h6l-1-4H10z"/></svg>',
+    rank: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>',
+    spark: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4M12 18v4M4.9 4.9l2.8 2.8M16.3 16.3l2.8 2.8M2 12h4M18 12h4M4.9 19.1l2.8-2.8M16.3 7.8l2.8-2.8"/></svg>',
+    user: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>'
+  };
+
+  // ---------------- index data ----------------
+  var PAGES = [
+    { page: 'dashboard', tr: 'Ana Sayfa', en: 'Dashboard', icon: 'home', kw: 'anasayfa ana sayfa dashboard ozet özet genel panel home' },
+    { page: 'workouts', tr: 'Antrenman', en: 'Workouts', icon: 'dumbbell', kw: 'antrenman workout spor program idman gym push pull bacak' },
+    { page: 'posture', tr: 'Postür', en: 'Posture', icon: 'body', kw: 'postur postür duruş durus posture esneme stretch mobility' },
+    { page: 'progress', tr: 'Gelişim', en: 'Progress', icon: 'chart', kw: 'gelisim gelişim progress ilerleme ağırlık takibi kilo weight takip istatistik grafik' },
+    { page: 'calculators', tr: 'Hesaplayıcılar', en: 'Calculators', icon: 'calc', kw: 'hesaplayici hesaplayıcılar calculator hesaplama dönüştürücü donusturucu 1rm makro kalori yağ oranı' },
+    { page: 'diet', tr: 'Beslenme', en: 'Diet & Nutrition', icon: 'apple', kw: 'beslenme diyet diet nutrition yemek kalori makro protein' },
+    { page: 'notes', tr: 'Notlar', en: 'Notes', icon: 'note', kw: 'not notlar notes defter' },
+    { page: 'comments', tr: 'Yorumlar', en: 'Comments', icon: 'chat', kw: 'yorum yorumlar comments sohbet chat' },
+    { page: 'achievements', tr: 'Başarımlar', en: 'Achievements', icon: 'trophy', kw: 'basari basarim achievement rozet odul kupa trophy' },
+    { page: 'leaderboard', tr: 'Liderlik Tablosu', en: 'Leaderboard', icon: 'rank', kw: 'lider liderlik leaderboard siralama tablo rank' },
+    { page: 'updates', tr: 'Güncellemeler', en: 'Updates', icon: 'spark', kw: 'guncelleme güncelleme updates yenilik surum sürüm degisiklik haber' },
+    { page: 'profile', tr: 'Profil', en: 'Profile', icon: 'user', kw: 'profil profile hesap account ayar ayarlar settings' }
+  ];
+
+  var MUSCLES = [
+    { cat: 'chest', tr: 'Göğüs', en: 'Chest', kw: 'gogus gögüs göğüs chest pec pecs bench press göğüs hareketleri' },
+    { cat: 'back', tr: 'Sırt', en: 'Back', kw: 'sirt sırt back lat lats latissimus row çekiş kanat' },
+    { cat: 'shoulders', tr: 'Omuz', en: 'Shoulders', kw: 'omuz shoulders shoulder delt deltoid' },
+    { cat: 'biceps', tr: 'Biceps', en: 'Biceps', kw: 'biceps biseps kol curl ön kol' },
+    { cat: 'triceps', tr: 'Triceps', en: 'Triceps', kw: 'triceps triseps arka kol pushdown' },
+    { cat: 'legs', tr: 'Bacak', en: 'Legs', kw: 'bacak legs leg quad quads hamstring kalça glute squat' },
+    { cat: 'core', tr: 'Core', en: 'Core', kw: 'core karın karin abs abdomen mekik plank' }
+  ];
+
+  var CALCS = [
+    { tab: 'rm', tr: '1RM Hesapla', en: '1RM Calculator', kw: '1rm max tekrar kaldırış güç hesaplama max lift' },
+    { tab: 'un', tr: 'Birim Dönüştürücü', en: 'Unit Converter', kw: 'dönüştürücü donusturucu birim unit converter kg lbs pound kilo çevir dönüştürme' },
+    { tab: 'bf', tr: 'Yağ Oranı', en: 'Body Fat', kw: 'yağ oranı yag orani body fat vücut yağ' },
+    { tab: 'pr', tr: 'Gelişim', en: 'Growth / Progress', kw: 'gelişim gelisim growth progress ilerleme' },
+    { tab: 'mc', tr: 'Makro / Kalori', en: 'Macros / Calories', kw: 'makro kalori macro calorie protein karbonhidrat yağ' }
+  ];
+
+  var MUSCLE_KW = {
+    chest: 'gogus gögüs göğüs chest pec pecs göğüs hareketleri',
+    back: 'sirt sırt back lat lats row çekiş kanat',
+    traps: 'trapez traps shrug omuz sırt',
+    shoulders: 'omuz shoulders shoulder delt deltoid',
+    biceps: 'biceps biseps kol curl',
+    forearms: 'onkol önkol forearm bilek wrist kol',
+    triceps: 'triceps triseps kol pushdown',
+    quads: 'bacak quad uyluk legs',
+    hamstrings: 'hamstring arka bacak legs',
+    glutes: 'kalca kalça glute legs',
+    calves: 'baldir baldır calf legs',
+    core: 'core karin karın abs mekik plank',
+    other: 'diger diğer other'
+  };
+
+  var EX_LABELS = {
+    chest: ['Göğüs', 'Chest'], back: ['Sırt', 'Back'], traps: ['Trapez', 'Traps'],
+    shoulders: ['Omuz', 'Shoulders'], biceps: ['Biceps', 'Biceps'], forearms: ['Önkol', 'Forearms'],
+    triceps: ['Triceps', 'Triceps'], quads: ['Bacak', 'Quads'], hamstrings: ['Hamstring', 'Hamstrings'],
+    glutes: ['Kalça', 'Glutes'], calves: ['Baldır', 'Calves'], core: ['Core', 'Core'], other: ['Diğer', 'Other']
+  };
+
+  // ---------------- routing helpers ----------------
+  function openCategory(cat) {
+    if (typeof window.setTrackerCategory === 'function') window.setTrackerCategory(cat);
+    if (typeof window.navigateTo === 'function') window.navigateTo('progress');
+  }
+  function openExercise(name) {
+    if (typeof window.setTrackerCategory === 'function') window.setTrackerCategory('');
+    if (typeof window.setTrackerExercise === 'function') window.setTrackerExercise(name);
+    if (typeof window.navigateTo === 'function') window.navigateTo('progress');
+  }
+  function openCalcTab(tab) {
+    if (typeof window.navigateTo === 'function') window.navigateTo('calculators');
+    setTimeout(function () {
+      var b = document.querySelector('#tl [data-t="' + tab + '"]');
+      if (b) b.click();
+    }, 160);
+  }
+
+  // ---------------- build entries ----------------
+  function buildEntries() {
+    var E = [];
+
+    PAGES.forEach(function (p) {
+      E.push({
+        g: 'pages', title: L(p.tr, p.en), sub: L('Sayfa', 'Page'), icon: p.icon,
+        text: norm(p.tr + ' ' + p.en + ' ' + p.kw), titleN: norm(p.tr + ' ' + p.en),
+        run: function () { if (window.navigateTo) window.navigateTo(p.page); }
+      });
+    });
+
+    MUSCLES.forEach(function (m) {
+      E.push({
+        g: 'muscles', title: L(m.tr, m.en), sub: L(m.tr + ' hareketleri', m.en + ' exercises'),
+        icon: m.cat, catIcon: true,
+        text: norm(m.tr + ' ' + m.en + ' ' + m.kw), titleN: norm(m.tr + ' ' + m.en),
+        run: function () { openCategory(m.cat); }
+      });
+    });
+
+    CALCS.forEach(function (c) {
+      E.push({
+        g: 'calcs', title: L(c.tr, c.en), sub: L('Hesaplayıcı', 'Calculator'), icon: 'calc',
+        text: norm(c.tr + ' ' + c.en + ' ' + c.kw), titleN: norm(c.tr + ' ' + c.en),
+        run: function () { openCalcTab(c.tab); }
+      });
+    });
+
+    if (typeof EXERCISE_MUSCLES !== 'undefined') {
+      Object.keys(EXERCISE_MUSCLES).forEach(function (name) {
+        var primary = (EXERCISE_MUSCLES[name] && EXERCISE_MUSCLES[name][0]) || 'other';
+        var lab = EX_LABELS[primary] || ['Diğer', 'Other'];
+        E.push({
+          g: 'exercises', title: name, sub: L(lab[0], lab[1]), icon: primary, catIcon: true,
+          text: norm(name + ' ' + lab[0] + ' ' + lab[1] + ' ' + (MUSCLE_KW[primary] || '')),
+          titleN: norm(name),
+          run: (function (n) { return function () { openExercise(n); }; })(name)
+        });
+      });
+    }
+
+    return E;
+  }
+
+  function popularEntries() {
+    var wanted = ['workouts', 'posture', 'diet', 'progress', 'calculators'];
+    var out = [];
+    wanted.forEach(function (pg) {
+      var p = null;
+      for (var i = 0; i < PAGES.length; i++) { if (PAGES[i].page === pg) { p = PAGES[i]; break; } }
+      if (!p) return;
+      out.push({
+        g: 'popular', title: L(p.tr, p.en), sub: L('Hızlı erişim', 'Quick access'), icon: p.icon,
+        run: (function (pp) { return function () { if (window.navigateTo) window.navigateTo(pp.page); }; })(p)
+      });
+    });
+    return out;
+  }
+
+  // ---------------- scoring ----------------
+  function score(e, q, toks) {
+    if (e.titleN === q) return 120;
+    if (e.titleN.indexOf(q) === 0) return 100;
+    if (e.titleN.indexOf(q) > -1) return 80;
+    for (var i = 0; i < toks.length; i++) { if (e.text.indexOf(toks[i]) < 0) return 0; }
+    return 50;
+  }
+
+  // ---------------- rendering ----------------
+  var GROUP_ORDER = ['popular', 'pages', 'muscles', 'calcs', 'exercises'];
+  var state = { results: [], active: -1 };
+
+  function groupLabel(g) {
+    if (g === 'popular') return L('Popüler', 'Popular');
+    if (g === 'pages') return L('Sayfalar', 'Pages');
+    if (g === 'muscles') return L('Kas Grupları', 'Muscle Groups');
+    if (g === 'calcs') return L('Hesaplayıcılar', 'Calculators');
+    return L('Hareketler', 'Exercises');
+  }
+
+  function iconHtml(e) {
+    if (e.catIcon && typeof CATEGORY_ICONS !== 'undefined' && CATEGORY_ICONS[e.icon]) return CATEGORY_ICONS[e.icon];
+    return ICONS[e.icon] || ICONS.page;
+  }
+
+  function openPanel() {
+    panel.hidden = false;
+    input.setAttribute('aria-expanded', 'true');
+  }
+  function closePanel() {
+    panel.hidden = true;
+    panel.innerHTML = '';
+    state.results = [];
+    state.active = -1;
+    input.setAttribute('aria-expanded', 'false');
+  }
+
+  function render(entries) {
+    state.results = entries || [];
+    state.active = -1;
+
+    if (!state.results.length) {
+      panel.innerHTML = '<div class="zs-empty">' + L('Sonuç bulunamadı', 'No results found') + '</div>';
+      openPanel();
+      return;
+    }
+
+    var html = '';
+    GROUP_ORDER.forEach(function (g) {
+      var group = state.results.filter(function (e) { return e.g === g; });
+      if (!group.length) return;
+      html += '<div class="zs-group-label">' + esc(groupLabel(g)) + '</div>';
+      group.forEach(function (e) {
+        var idx = state.results.indexOf(e);
+        html += '<button type="button" class="zs-item" role="option" data-i="' + idx + '">'
+          + '<span class="zs-ic">' + iconHtml(e) + '</span>'
+          + '<span class="zs-tx"><b>' + esc(e.title) + '</b><small>' + esc(e.sub) + '</small></span>'
+          + '<svg class="zs-go" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>'
+          + '</button>';
+      });
+    });
+    panel.innerHTML = html;
+    openPanel();
+  }
+
+  function setActive(i) {
+    var items = panel.querySelectorAll('.zs-item');
+    if (!items.length) return;
+    if (i < 0) i = items.length - 1;
+    if (i > items.length - 1) i = 0;
+    state.active = i;
+    for (var k = 0; k < items.length; k++) items[k].classList.toggle('is-active', k === i);
+    if (items[i] && items[i].scrollIntoView) items[i].scrollIntoView({ block: 'nearest' });
+  }
+
+  function choose(entry) {
+    if (!entry) return;
+    closePanel();
+    input.value = '';
+    updateClear();
+    input.blur();
+    try { entry.run(); } catch (err) { console.error('[ZyroSearch] action failed', err); }
+  }
+
+  function updateClear() {
+    if (clearBtn) clearBtn.hidden = !input.value;
+  }
+
+  function runQuery(raw) {
+    var q = norm(raw);
+    if (!q) { render(popularEntries()); return; }
+    var toks = q.split(' ').filter(Boolean);
+    var all = buildEntries();
+    var hits = [];
+    for (var i = 0; i < all.length; i++) {
+      var s = score(all[i], q, toks);
+      if (s > 0) { all[i]._s = s; hits.push(all[i]); }
+    }
+    hits.sort(function (a, b) { return b._s - a._s; });
+    render(hits.slice(0, 14));
+  }
+
+  // ---------------- events ----------------
+  input.addEventListener('input', function () { updateClear(); runQuery(input.value); });
+  input.addEventListener('focus', function () { runQuery(input.value); });
+
+  input.addEventListener('keydown', function (e) {
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      if (panel.hidden) runQuery(input.value); else setActive(state.active + 1);
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setActive(state.active - 1);
+    } else if (e.key === 'Enter') {
+      if (!state.results.length) return;
+      e.preventDefault();
+      choose(state.results[state.active >= 0 ? state.active : 0]);
+    } else if (e.key === 'Escape') {
+      if (!panel.hidden) { e.preventDefault(); closePanel(); } else { input.blur(); }
+    }
+  });
+
+  panel.addEventListener('click', function (e) {
+    var btn = e.target.closest ? e.target.closest('.zs-item') : null;
+    if (!btn) return;
+    var i = parseInt(btn.getAttribute('data-i'), 10);
+    choose(state.results[i]);
+  });
+
+  if (clearBtn) {
+    clearBtn.addEventListener('click', function () {
+      input.value = '';
+      updateClear();
+      closePanel();
+      input.focus();
+    });
+  }
+
+  document.addEventListener('click', function (e) {
+    if (!wrap.contains(e.target)) closePanel();
+  });
+
+  window.ZyroSearch = { query: runQuery, close: closePanel };
+  updateClear();
+})();

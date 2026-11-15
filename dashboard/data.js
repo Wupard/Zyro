@@ -377,11 +377,15 @@
       if (typeof computeExerciseStats === 'function') stats = computeExerciseStats();
     } catch (e) { stats = []; }
     if (!Array.isArray(stats) || !stats.length) return { has: false, title: S.strength };
-    let gain = 0;
+    // Percentage gain: average relative change of every lift's working weight
+    // versus its very first logged record (kg-based so mixed units stay fair).
+    let sumPct = 0, counted = 0;
     stats.forEach(s => {
-      const diff = (Number(s.currentWeightKg) || 0) - (Number(s.baselineWeightKg) || 0);
-      if (diff > 0) gain += diff;
+      const base = Number(s.baselineWeightKg) || 0;
+      const cur = Number(s.currentWeightKg) || 0;
+      if (base > 0) { sumPct += ((cur - base) / base) * 100; counted++; }
     });
+    const gain = counted ? sumPct / counted : 0;
     const weekly = call('getVolumePerWeek', { data: [] });
     let spark = (weekly.data || []).slice(-9);
     if (!spark.length) {
@@ -393,7 +397,7 @@
       title: S.strength,
       value: gain,
       decimals: 1,
-      unit: S.kg,
+      unit: '%',
       deltaText: gain > 0 ? S.sinceFirst : S.noProgress,
       spark
     };
@@ -506,6 +510,15 @@
     return { label: S.level, level, xp, next, progress };
   }
 
+  function buildUpdates() {
+    const feed = (typeof window !== 'undefined' && window.zyroUpdatesFeed) || [];
+    return feed.slice(0, 4).map(function (u) {
+      const d = u.ts ? new Date(u.ts) : null;
+      const dateLabel = d ? d.toLocaleDateString(Z.locale(), { day: 'numeric', month: 'long', year: 'numeric' }) : '';
+      return { id: u.id, title: u.title, summary: u.summary, dateLabel };
+    });
+  }
+
   Z.buildModel = function () {
     const lang = Z.lang();
     const S = Z.STR[lang];
@@ -530,6 +543,7 @@
       chart: buildChart(lang),
       records: buildRecords(lang),
       heat: buildHeat(lang),
+      updates: buildUpdates(),
       maps: { front: FRONT_KEYS, back: MAP_MUSCLES.filter(m => FRONT_KEYS.indexOf(m) < 0) }
     };
   };

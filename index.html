@@ -16,8 +16,8 @@
   <link rel="preload" href="fonts/hanken-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="fonts/bricolage-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="fonts/fonts.css">
-  <link rel="stylesheet" href="styles.css?v=3.0">
-  <link rel="stylesheet" href="dashboard/dashboard.css?v=2">
+  <link rel="stylesheet" href="styles.css?v=3.1">
+  <link rel="stylesheet" href="dashboard/dashboard.css?v=3">
   <link rel="stylesheet" href="workouts/workouts.css?v=2">
   <link rel="stylesheet" href="posture/posture.css?v=1">
 </head>
@@ -145,10 +145,6 @@
         <svg class="i" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><use href="#zr-i-trend"/></svg>
         <span class="t" data-i18n="navProgress">Progress</span>
       </a>
-      <a href="beforeafter" class="ni nav-item" data-page="beforeafter" id="nav-beforeafter">
-        <svg class="i" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><use href="#zr-i-ba"/></svg>
-        <span class="t" data-i18n="beforeAfter">Gelişim</span>
-      </a>
       <div class="sep" aria-hidden="true"><span class="lbl-tr">Topluluk</span><span class="lbl-en">Community</span></div>
       <a href="achievements" class="ni nav-item" data-page="achievements" id="nav-achievements">
         <svg class="i" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><use href="#zr-i-award"/></svg>
@@ -268,6 +264,28 @@
         </div>
       </div>
     </header>
+
+    <!-- ===== Global search — "Her şeyi ara" ===== -->
+    <section class="zyro-search-wrap" id="zyroSearchWrap" role="search" aria-label="Her şeyi ara">
+      <div class="zyro-search">
+        <svg class="zs-ico" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="11" cy="11" r="7" />
+          <line x1="21" y1="21" x2="16.65" y2="16.65" />
+        </svg>
+        <input id="zyroSearchInput" class="zs-input" type="search" placeholder="Her şeyi ara"
+          aria-label="Her şeyi ara" autocomplete="off" autocapitalize="off" spellcheck="false"
+          enterkeyhint="search" role="combobox" aria-expanded="false" aria-controls="zyroSearchPanel">
+        <button type="button" class="zs-clear" id="zyroSearchClear" aria-label="Temizle" hidden>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"
+            stroke-linecap="round">
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
+        </button>
+      </div>
+      <div class="zs-panel" id="zyroSearchPanel" role="listbox" aria-label="Arama sonuçları" hidden></div>
+    </section>
 
     <!-- Notification Drawer -->
     <div class="notif-drawer" id="notifDrawer">
@@ -599,7 +617,8 @@
               <h2 class="pv-h2" data-i18n="personalRecords">Kişisel rekorlar <span class="pv-tag" id="prc">0</span></h2>
               <svg class="pv-chev" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
             </summary>
-            <div id="prl" style="margin-top:14px;"></div>
+            <div class="pv-chips" id="prChips" role="group" aria-label="Kategori"></div>
+            <div id="prl"></div>
           </details>
         </section>
 
@@ -875,114 +894,6 @@
       </div>
       <div class="ov" id="ov" aria-hidden="true"></div>
       <div class="toast" id="toast" role="status" aria-live="polite"></div>
-    </div>
-
-    <!-- ===== PAGE: BEFORE/AFTER ===== -->
-    <div class="page" data-page="beforeafter" id="pageBeforeafter">
-      <section class="hero2">
-        <div>
-          <h1><span data-i18n="beforeAfterTitleMain">Gelişim</span> <b data-i18n="beforeAfterTitleBold">fotoğrafları</b></h1>
-          <p data-i18n="beforeAfterSubtitle">Bedenindeki değişimi gözlemle ve belgele</p>
-        </div>
-        <div class="ibox">
-          <svg class="i"><use href="#zr-i-ba"/></svg>
-        </div>
-      </section>
-
-      <div class="stk">
-        <section class="pn" id="photos">
-          <div class="lab">
-            <b class="tt"><svg class="i"><use href="#zr-i-image"/></svg><span data-i18n="photosTitle">Fotoğraflar</span></b>
-            <div class="acts">
-              <button class="ghost" id="bcmp" aria-pressed="false" data-i18n="btnCompare">Karşılaştır</button>
-              <button class="pill st" id="bai"><svg class="i"><use href="#zr-i-spark"/></svg><span data-i18n="aiAnalyze">AI Analiz Et</span></button>
-              <button class="btn" id="badd"><svg class="i"><use href="#zr-i-plus"/></svg><span data-i18n="btnNewPhoto">Yeni Fotoğraf</span></button>
-            </div>
-          </div>
-          <div class="chips" id="pchips" role="group" aria-label="Poz filtresi"></div>
-          <div id="cmp" hidden></div>
-          <div id="ai" hidden></div>
-          <div class="pg" id="pgrid" aria-live="polite"></div>
-        </section>
-
-        <section class="pn" id="meas">
-          <div class="lab">
-            <b class="tt"><svg class="i"><use href="#zr-i-pulse"/></svg><span data-i18n="bodyMeasurementsTitle">Vücut Ölçüleri</span> <span class="tag" id="mcnt">0</span></b>
-            <button class="btn" id="madd"><svg class="i"><use href="#zr-i-plus"/></svg><span data-i18n="btnAddMeasurement">Ölçü Ekle</span></button>
-          </div>
-          <div id="mbody"></div>
-        </section>
-      </div>
-
-      <dialog id="dlgP">
-        <form id="fP" novalidate>
-          <div class="dh2">
-            <b data-i18n="newPhotoDialogTitle">Yeni fotoğraf</b>
-            <button type="button" class="x" data-close aria-label="Kapat">✕</button>
-          </div>
-          <div class="db">
-            <label class="drop" id="drop">
-              <input type="file" id="pf" accept="image/*" hidden>
-              <span id="prev"><svg class="i" style="width:28px;height:28px"><use href="#zr-i-upl"/></svg><br><span data-i18n="dropPhotoText">Fotoğraf seç veya buraya bırak</span></span>
-            </label>
-            <div class="r2">
-              <div class="fld">
-                <label for="pdt" data-i18n="lblDate">Tarih</label>
-                <input class="in" type="date" id="pdt">
-              </div>
-              <div class="fld">
-                <label for="ppose" data-i18n="lblPose">Poz</label>
-                <select class="in" id="ppose">
-                  <option value="front" data-i18n="poseFront">Ön</option>
-                  <option value="side" data-i18n="poseSide">Yan</option>
-                  <option value="back" data-i18n="poseBack">Arka</option>
-                </select>
-              </div>
-            </div>
-            <div class="r2">
-              <div class="fld">
-                <label for="pkg" data-i18n="lblWeightOptional">Kilo (kg, isteğe bağlı)</label>
-                <input class="in" id="pkg" inputmode="decimal" placeholder="78,2">
-              </div>
-              <div class="fld">
-                <label for="pnote" data-i18n="lblNoteOptional">Not (isteğe bağlı)</label>
-                <input class="in" id="pnote" maxlength="140">
-              </div>
-            </div>
-            <div class="err" id="perr" role="alert"></div>
-            <div class="da">
-              <button type="button" class="ghost" data-close data-i18n="btnCancel">Vazgeç</button>
-              <button class="btn" id="psave" data-i18n="btnSave">Kaydet</button>
-            </div>
-          </div>
-        </form>
-      </dialog>
-
-      <dialog id="dlgM">
-        <form id="fM" novalidate>
-          <div class="dh2">
-            <b data-i18n="addMeasurementDialogTitle">Ölçü ekle</b>
-            <button type="button" class="x" data-close aria-label="Kapat">✕</button>
-          </div>
-          <div class="db">
-            <div class="fld">
-              <label for="mdt" data-i18n="lblDate">Tarih</label>
-              <input class="in" type="date" id="mdt">
-            </div>
-            <div class="r2" id="mfs"></div>
-            <div class="err" id="merr" role="alert"></div>
-            <div class="da">
-              <button type="button" class="ghost" data-close data-i18n="btnCancel">Vazgeç</button>
-              <button class="btn" id="msave" data-i18n="btnSave">Kaydet</button>
-            </div>
-          </div>
-        </form>
-      </dialog>
-
-      <dialog id="dlgV" class="lb">
-        <img id="vimg" alt="">
-        <div class="cap"><span id="vcap"></span><button class="ghost" data-close data-i18n="btnClose">Kapat</button></div>
-      </dialog>
     </div>
 
     <!-- ============ PAGE: UPDATES ============ -->
@@ -1668,9 +1579,9 @@
   <script src="vendor/react.production.min.js" defer></script>
   <script src="vendor/react-dom.production.min.js" defer></script>
   <script src="vendor/htm.umd.js" defer></script>
-  <script src="dashboard/core.js?v=1" defer></script>
-  <script src="dashboard/data.js?v=2" defer></script>
-  <script src="dashboard/components/icons.js?v=1" defer></script>
+  <script src="dashboard/core.js?v=2" defer></script>
+  <script src="dashboard/data.js?v=3" defer></script>
+  <script src="dashboard/components/icons.js?v=2" defer></script>
   <script src="dashboard/components/ui.js?v=1" defer></script>
   <script src="dashboard/components/muscle-map.js?v=1" defer></script>
   <script src="dashboard/components/header.js?v=1" defer></script>
@@ -1680,10 +1591,10 @@
   <script src="dashboard/components/progress-chart.js?v=1" defer></script>
   <script src="dashboard/components/records.js?v=1" defer></script>
   <script src="dashboard/components/heatmap.js?v=1" defer></script>
-  <script src="dashboard/app.js?v=1" defer></script>
+  <script src="dashboard/app.js?v=2" defer></script>
 
   <!-- Approved v2 Workouts + Posture pages are loaded on first visit -->
-  <script src="app.js?v=3.1" defer></script>
+  <script src="app.js?v=3.2" defer></script>
 
 
 

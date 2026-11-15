@@ -281,8 +281,8 @@ body.sidebar-collapsed .sidebar .cbtn svg{transform:rotate(180deg)}
 .sidebar .av{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,rgba(143,179,204,.35),rgba(220,199,168,.3));display:grid;place-items:center;font:600 15px var(--d);flex:none;border:none;box-shadow:none;color:var(--text);overflow:hidden}
 .sidebar .av img{width:100%;height:100%;object-fit:cover;border-radius:50%}
 .sidebar .who{flex:1;min-width:0;line-height:1.25;display:flex;flex-direction:column;gap:0}
-.sidebar .who b{display:flex;align-items:center;gap:8px;font:500 14.5px var(--b);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:500;color:var(--text);min-width:0}
-.sidebar .who b .user-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.sidebar .who b{display:flex;align-items:center;gap:8px;flex-wrap:wrap;row-gap:3px;font:500 14.5px var(--b);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:500;color:var(--text);min-width:0}
+.sidebar .who b .user-name{flex:1 0 100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
 .sidebar .who em{font:500 10.5px var(--b);font-style:normal;letter-spacing:.05em;padding:2px 7px;border-radius:999px;background:rgba(255,255,255,.08);color:var(--mute);text-transform:uppercase;border:none;flex:none;max-width:88px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .sidebar .who small{display:block;color:var(--mute);font-size:12px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .sidebar .sidebar-xp-label{margin-left:4px;opacity:.75}
@@ -2272,9 +2272,8 @@ textarea,
    BEFORE/AFTER PAGE
    =========================== */
 
-/* Page banner override for diet & before/after */
-#pageDiet .page-banner,
-#pageBeforeafter .page-banner {
+/* Page banner override for diet */
+#pageDiet .page-banner {
   border-radius: 20px !important;
   padding: 22px 20px !important;
 }
@@ -2347,7 +2346,6 @@ textarea,
     grid-template-columns: 1fr;
     gap: 12px;
   }
-  #pageBeforeafter .card { padding: 16px; }
 }
 
 /* ===========================
@@ -4971,6 +4969,16 @@ body.zyro-hidden *::after {
     border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
   }
 
+  /* Auto-hide header: slides away while scrolling down, returns on scroll up */
+  .main-content > .header {
+    transition: transform .3s cubic-bezier(.4, 0, .2, 1), opacity .25s ease;
+  }
+  .main-content > .header.is-hidden {
+    transform: translateY(-120%);
+    opacity: 0;
+    pointer-events: none;
+  }
+
   .menu-toggle {
     display: inline-flex !important;
     align-items: center !important;
@@ -5409,6 +5417,9 @@ body.zyro-hidden *::after {
 .pv-pr-r span { color:var(--text-muted); font-size:13px; }
 .pv-mx { font:500 22px var(--font-display,'Bricolage Grotesque','Segoe UI',sans-serif); }
 .pv-mx small { font:400 13px var(--font-body,'Hanken Grotesk','Segoe UI',sans-serif); color:var(--text-muted); }
+.pv-pr-cat { font:600 11.5px var(--font-body,'Hanken Grotesk','Segoe UI',sans-serif); letter-spacing:.09em; text-transform:uppercase; color:var(--text-muted); margin:20px 0 2px; }
+.pv-pr-cat:first-child { margin-top:4px; }
+.pv-chips button b { font-weight:600; opacity:.6; margin-left:3px; }
 
 /* monthly tracker new style */
 #pageProgress .pv-trk { display:grid; grid-template-columns:150px 1fr; gap:18px; align-items:center; padding:14px 0; border-top:1px solid rgba(255,255,255,.07); }
@@ -5514,10 +5525,6 @@ aşağıdakiler spesifik elementler için ---- */
   margin: 0 !important;
 }
 
-/* ---- BEFORE/AFTER PAGE redesign ---- */
-#pageBeforeafter .card { border-radius: 22px; }
-#pageBeforeafter .card-title { font-family: var(--d); font-weight: 600; }
-
 .progress-photo-item { border-radius: 20px; }
 .compare-photo-wrap { border-radius: 20px; }
 
@@ -5532,14 +5539,12 @@ aşağıdakiler spesifik elementler için ---- */
 /* Progress photo form */
 #progressPhotoForm { border-radius: 16px !important; }
 
-/* ---- MOBILE: Diyet & Before/After ---- */
+/* ---- MOBILE: Diyet ---- */
 @media (max-width: 768px) {
-  #pageDiet .page-banner,
-  #pageBeforeafter .page-banner {
+  #pageDiet .page-banner {
     padding: 16px !important;
   }
-  #pageDiet .page-banner h1,
-  #pageBeforeafter .page-banner h1 {
+  #pageDiet .page-banner h1 {
     font-size: 1.3rem !important;
   }
 
@@ -5550,8 +5555,7 @@ aşağıdakiler spesifik elementler için ---- */
   }
 
   /* Card padding tighter on mobile */
-  #pageDiet .card,
-  #pageBeforeafter .card {
+  #pageDiet .card {
     padding: 16px !important;
     border-radius: 20px !important;
   }
@@ -6857,6 +6861,19 @@ textarea.in {
   flex-wrap: wrap;
   align-items: center;
 }
+#pageComments .chips button {
+  border: 1px solid rgba(255,255,255,.1);
+  background: rgba(255,255,255,.03);
+  color: var(--mute);
+  border-radius: 999px;
+  padding: 8px 15px;
+  font-size: 13.5px;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: .25s var(--ease);
+}
+#pageComments .chips button:hover { color: var(--text); }
+#pageComments .chips button[aria-pressed=true] { color: var(--text); border-color: var(--steel); background: rgba(143,179,204,.16); }
 .tc {
   display: inline-flex;
   align-items: center;
@@ -7071,22 +7088,6 @@ dialog::backdrop {
 }
 .btn.dng:hover {
   background: #e0b4b4;
-}
-
-/* ------------------------------------------------------------
-   GELİŞİM (BEFORE/AFTER) SPECIFIC
-   ------------------------------------------------------------ */
-#pageBeforeafter {
-  --acc: 201, 154, 154;
-}
-#pageBeforeafter .hero2 {
-  background: radial-gradient(110% 170% at 100% 0%, rgba(201, 154, 154, .2), transparent 62%),
-              linear-gradient(160deg, rgba(255, 255, 255, .07), rgba(255, 255, 255, .01));
-}
-#pageBeforeafter .ibox {
-  background: rgba(201, 154, 154, .16);
-  border-color: rgba(201, 154, 154, .38);
-  color: rgb(201, 154, 154);
 }
 
 .pill.st {
@@ -8158,4 +8159,145 @@ dialog::backdrop {
 @media (prefers-reduced-motion: reduce) {
   .swipe-indicator,
   .swipe-indicator svg { transition: none; }
+}
+
+/* ===========================
+   GLOBAL SEARCH — "Her şeyi ara"
+   Shared header block: instant, keyboard-friendly, mobile ready.
+   =========================== */
+.zyro-search-wrap {
+  position: relative;
+  width: 100%;
+  margin: 0 0 22px;
+  z-index: 60;
+}
+.zyro-search {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  min-height: 52px;
+  padding: 0 14px;
+  border: 1px solid var(--border-card);
+  border-radius: var(--radius-md);
+  background: var(--bg-card);
+  transition: border-color var(--t-base), box-shadow var(--t-base), background var(--t-base);
+}
+.zyro-search:focus-within {
+  border-color: var(--accent-primary);
+  background: var(--bg-card-hover);
+  box-shadow: 0 0 0 3px var(--accent-glow);
+}
+.zyro-search .zs-ico { flex: none; color: var(--text-muted); }
+.zyro-search:focus-within .zs-ico { color: var(--accent-primary); }
+.zyro-search .zs-input {
+  flex: 1;
+  min-width: 0;
+  padding: 15px 0;
+  border: 0;
+  outline: none;
+  background: none;
+  color: var(--text-primary);
+  font: 500 0.95rem var(--b, 'Hanken Grotesk', 'Segoe UI', sans-serif);
+}
+.zyro-search .zs-input::placeholder { color: var(--text-tertiary); }
+.zyro-search .zs-input::-webkit-search-decoration,
+.zyro-search .zs-input::-webkit-search-cancel-button,
+.zyro-search .zs-input::-webkit-search-results-button,
+.zyro-search .zs-input::-webkit-search-results-decoration { display: none; }
+.zyro-search .zs-clear {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.07);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: background var(--t-fast), color var(--t-fast);
+}
+.zyro-search .zs-clear:hover { background: rgba(255, 255, 255, 0.14); color: var(--text-primary); }
+.zyro-search .zs-clear[hidden] { display: none; }
+
+.zs-panel {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(100% + 8px);
+  max-height: min(62vh, 430px);
+  overflow-y: auto;
+  padding: 8px;
+  border: 1px solid var(--border-card);
+  border-radius: var(--radius-md);
+  background: var(--bg-card);
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.55);
+  z-index: 70;
+  animation: zsIn 0.16s ease both;
+}
+.zs-panel[hidden] { display: none; }
+@keyframes zsIn { from { opacity: 0; transform: translateY(-4px); } }
+
+.zs-group-label {
+  padding: 11px 12px 6px;
+  color: var(--text-tertiary);
+  font: 700 0.66rem var(--b, 'Hanken Grotesk', 'Segoe UI', sans-serif);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.zs-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 10px 12px;
+  border: 0;
+  border-radius: 12px;
+  background: none;
+  color: var(--text-primary);
+  text-align: left;
+  cursor: pointer;
+  transition: background var(--t-fast);
+}
+.zs-item:hover,
+.zs-item.is-active { background: var(--accent-glow); }
+.zs-ic {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 11px;
+  background: rgba(139, 124, 247, 0.12);
+  color: var(--accent-primary);
+  font-size: 1rem;
+  line-height: 1;
+}
+.zs-tx { flex: 1; min-width: 0; }
+.zs-tx b {
+  display: block;
+  font: 600 0.9rem var(--b, 'Hanken Grotesk', 'Segoe UI', sans-serif);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.zs-tx small {
+  display: block;
+  margin-top: 1px;
+  color: var(--text-muted);
+  font-size: 0.74rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.zs-go { flex: none; color: var(--text-tertiary); }
+.zs-empty { padding: 20px 12px; color: var(--text-muted); font-size: 0.86rem; text-align: center; }
+
+@media (max-width: 768px) {
+  .zyro-search-wrap { margin-bottom: 16px; }
+  .zyro-search { min-height: 48px; border-radius: 14px; }
+  .zyro-search .zs-input { font-size: 1rem; }
+  .zs-panel { max-height: 56vh; }
 }

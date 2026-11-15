@@ -17,7 +17,8 @@
     ['i-cup', html`<path d="M8 4h8v6a4 4 0 01-8 0zM8 6H4v2a3 3 0 003 3M16 6h4v2a3 3 0 01-3 3M12 14v4M8 20h8"/>`],
     ['i-note', html`<path d="M5 4h14v16H5zM9 9h6M9 13h4"/>`],
     ['i-play', html`<path d="M7 4l13 8-13 8z" fill="currentColor"/>`],
-    ['i-flame', html`<path d="M12 3c1 4 5 5 5 10a5 5 0 01-10 0c0-2 1-3 2-4 0 2 1 3 2 3 0-3-1-5 1-9z"/>`]
+    ['i-flame', html`<path d="M12 3c1 4 5 5 5 10a5 5 0 01-10 0c0-2 1-3 2-4 0 2 1 3 2 3 0-3-1-5 1-9z"/>`],
+    ['i-spark', html`<path d="M12 3v4M12 17v4M4.9 4.9l2.8 2.8M16.3 16.3l2.8 2.8M3 12h4M17 12h4M4.9 19.1l2.8-2.8M16.3 7.8l2.8-2.8"/>`]
   ];
 
   function IconSprite() {
