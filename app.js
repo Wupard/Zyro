@@ -2670,6 +2670,8 @@ function initGestures() {
     if (!mounted) { document.body.appendChild(el); mounted = true; }
     return el;
   }
+  if (document.body) host();
+  else document.addEventListener('DOMContentLoaded', host, { once: true });
 
   const THRESHOLD = 14; // px before the arrow appears
   let dir = '';         // 'left' | 'right' | ''
