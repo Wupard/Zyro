@@ -260,6 +260,7 @@
       return '<button class="day' + (isToday ? ' today' : '') + '" role="tab" aria-selected="' + (key === selectedDay) + '" data-zday="' + key + '">' +
         '<small>' + esc(p.abbr[lang()]) + '</small><b>' + esc(p.split) + '</b><i><u style="--w:' + pct + '%"></u></i></button>';
     }).join('');
+    if (window.zyroCenterActiveCards) window.zyroCenterActiveCards();
   }
 
   function renderFocus() {
@@ -780,7 +781,15 @@
     });
   }
 
-  window.ZyroWorkouts = { sync: sync };
+  window.ZyroWorkouts = {
+    sync: sync,
+    // Open the Workouts page on one specific program day (used by the dashboard hero).
+    openDay: function (key) {
+      if (key && P.days[key] && !P.days[key].rest) selectedDay = key;
+      else selectedDay = defaultDay();
+      sync();
+    }
+  };
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function () { setTimeout(sync, 0); });
   else setTimeout(sync, 0);

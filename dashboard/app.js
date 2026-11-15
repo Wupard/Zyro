@@ -47,6 +47,8 @@
 
   Z.startWorkout = function (tab) {
     try { if (tab) currentWorkoutTab = tab; } catch (e) { /* ignore */ }
+    // Make sure the Workouts page opens on the same day the hero is showing.
+    try { if (window.ZyroWorkouts && window.ZyroWorkouts.openDay) window.ZyroWorkouts.openDay(tab); } catch (e) { /* ignore */ }
     Z.go('workouts');
   };
 

@@ -3,14 +3,8 @@
    Scoped to .zw so the rest of the application is untouched.
    ============================================================ */
 
-body.zyro-workouts-active { background: var(--bg); }
-body.zyro-workouts-active .main-content > .header,
-body.zyro-workouts-active #notifBanner {
-  display: none !important;
-}
 body.zyro-workouts-active .main-content > .page[data-page="workouts"] {
   width: 100%;
-  max-width: none;
   animation: none;
 }
 body.zyro-workouts-active #pageWorkouts > :not(#zyroWorkoutsRoot) {
@@ -18,13 +12,10 @@ body.zyro-workouts-active #pageWorkouts > :not(#zyroWorkoutsRoot) {
 }
 
 .zw {
-  background: var(--bg);
+  background: transparent;
   color: var(--text);
   font: 400 15px/1.5 var(--b);
-  min-height: 100dvh;
   width: 100%;
-  max-width: 1240px;
-  margin: 0 auto;
   display: flex;
   position: relative;
   overflow-x: hidden;
@@ -37,19 +28,16 @@ body.zyro-workouts-active #pageWorkouts > :not(#zyroWorkoutsRoot) {
 .zw::after {
   content: "";
   position: fixed;
-  border-radius: 50%;
+  inset: 0;
+  border-radius: 0;
   pointer-events: none;
   z-index: 0;
 }
 .zw::before {
-  width: 620px; height: 620px;
-  background: radial-gradient(closest-side, rgba(143,179,204,.18), rgba(143,179,204,0) 72%);
-  top: -220px; right: -120px;
+  background: radial-gradient(560px 560px at 88% -4%, rgba(143,179,204,.18), rgba(143,179,204,0) 72%);
 }
 .zw::after {
-  width: 520px; height: 520px;
-  background: radial-gradient(closest-side, rgba(220,199,168,.1), rgba(220,199,168,0) 72%);
-  bottom: -200px; left: 240px;
+  background: radial-gradient(520px 520px at 18% 108%, rgba(220,199,168,.1), rgba(220,199,168,0) 72%);
 }
 .zw a { color: inherit; text-decoration: none; }
 .zw :focus-visible {
@@ -81,9 +69,8 @@ body.zyro-workouts-active #pageWorkouts > :not(#zyroWorkoutsRoot) {
   flex: 1; min-width: 0;
   width: 100%;
   margin: 0 auto;
-  padding: 40px clamp(20px,4vw,56px) 64px;
+  padding: 0;
   position: relative; z-index: 1;
-  max-width: 1240px;
 }
 .zw header {
   display: flex; justify-content: space-between; align-items: flex-end;
@@ -212,8 +199,8 @@ body.zyro-workouts-active #pageWorkouts > :not(#zyroWorkoutsRoot) {
   gap: 10px; align-items: center; margin-bottom: 10px;
 }
 .zw .sr-row label { color: var(--mute); font-size: 13px; }
-.zw .fld { position: relative; }
-.zw .fld .in { padding-right: 56px; }
+.zw .fld { position: relative; min-width: 0; }
+.zw .fld .in { padding-right: 46px; }
 .zw .fld em {
   position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
   font-style: normal; color: var(--mute); font-size: 12px; pointer-events: none;
@@ -261,6 +248,7 @@ body.zyro-workouts-active #pageWorkouts > :not(#zyroWorkoutsRoot) {
 }
 .zw .in {
   width: 100%;
+  min-width: 0;
   background: rgba(0,0,0,.22);
   border: 1px solid rgba(255,255,255,.1);
   border-radius: 14px;
@@ -425,7 +413,10 @@ body.zyro-workouts-active #pageWorkouts > :not(#zyroWorkoutsRoot) {
 }
 @media (max-width: 640px) {
   .zw .f3 { grid-template-columns: 1fr; }
-  .zw .sr-row { grid-template-columns: 42px 1fr 1fr 46px; gap: 8px; }
+  .zw .sr-row { grid-template-columns: 34px 1fr 1fr 44px; gap: 6px; }
+  /* Keep room for multi-digit weights (e.g. "70", "102.5") */
+  .zw .fld .in { padding-left: 10px; padding-right: 36px; }
+  .zw .fld em { right: 10px; font-size: 11px; }
   .zw .toast { left: 16px; right: 16px; bottom: calc(84px + env(safe-area-inset-bottom)); max-width: none; }
   .zw .head { flex-wrap: wrap; }
   .zw .prog { display: none; }
@@ -436,7 +427,6 @@ body.zyro-workouts-active #pageWorkouts > :not(#zyroWorkoutsRoot) {
 
 /* Bottom spacing for the global mobile tab bar. */
 @media (max-width: 1000px) {
-  .zw { min-height: 100dvh; }
   .zw main { padding-bottom: calc(100px + env(safe-area-inset-bottom)); }
   .zw header { flex-wrap: wrap; }
   .zw .toast { bottom: calc(84px + env(safe-area-inset-bottom)); }
@@ -472,4 +462,31 @@ body.zyro-workouts-active #pageWorkouts > :not(#zyroWorkoutsRoot) {
     animation-delay: 0s !important;
     transition: none !important;
   }
+}
+
+/* ---------- MOBILE FULL OPTIMIZATION (Task 2) ---------- */
+@media (max-width: 1000px) {
+  /* Fluid page title instead of fixed 34-54px */
+  .zw h1 {
+    font-size: clamp(1.5rem, 6vw, 2rem);
+    line-height: 1.15;
+    text-wrap: balance;
+  }
+
+  /* Compact day cards (workout + posture) */
+  .zw .days { gap: 8px; }
+  .zw .day { padding: 10px 11px 9px; border-radius: 14px; min-height: 56px; }
+  .zw .day small { font-size: 11px; }
+  .zw .day b { font-size: 15px; margin: 2px 0 7px; }
+  .zw .day.rest b { font-size: 13px; }
+
+  /* Compact progress rings + rows */
+  .zw .rw { width: 58px; height: 58px; }
+  .zw .rw b { font-size: 15px; }
+
+  /* Compact segmented controls */
+  .zw .seg button { min-height: 38px; padding: 7px 12px; }
+
+  /* Tighter section rhythm */
+  .zw header { margin-bottom: 18px; }
 }

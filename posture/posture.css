@@ -4,14 +4,8 @@
    specific rows, progress and mobile rules.
    ============================================================ */
 
-body.zyro-posture-active { background: var(--bg); }
-body.zyro-posture-active .main-content > .header,
-body.zyro-posture-active #notifBanner {
-  display: none !important;
-}
 body.zyro-posture-active .main-content > .page[data-page="posture"] {
   width: 100%;
-  max-width: none;
   animation: none;
 }
 body.zyro-posture-active #pagePosture > :not(#zyroPostureRoot) {

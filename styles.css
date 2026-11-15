@@ -69,14 +69,14 @@ body.sidebar-collapsed {
 }
 
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
-html{font-size:15px;scroll-behavior:smooth;-webkit-text-size-adjust:100%;-moz-text-size-adjust:100%;text-size-adjust:100%}
+html{font-size:15px;scroll-behavior:smooth;-webkit-text-size-adjust:100%;-moz-text-size-adjust:100%;text-size-adjust:100%;min-height:100dvh}
 
 body {
   font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;
   background:var(--bg-primary);
   color:var(--text-primary);
   display:flex;
-  min-height:100vh;
+  min-height:100dvh;
   overflow-x:hidden;
   -webkit-font-smoothing:antialiased;
   overscroll-behavior-y: none;
@@ -448,6 +448,7 @@ body.sidebar-collapsed .sidebar .sep{display:block;height:1px;padding:0;margin:8
   display: flex;
   flex-direction: column;
   align-items: center;
+  min-height: 100dvh;
   transition: background-color var(--t-base), color var(--t-base), border-color var(--t-base), opacity var(--t-base), transform var(--t-base), box-shadow var(--t-base), fill var(--t-base), stroke var(--t-base);
   min-width: 0;
 }
@@ -459,7 +460,7 @@ body.sidebar-collapsed .sidebar .sep{display:block;height:1px;padding:0;margin:8
   max-width: 1200px;
 }
 
-.header{display:flex;flex-direction:row;align-items:center;justify-content:space-between;margin-bottom:22px;padding-bottom:16px;border-bottom:1px solid var(--border-subtle);width:100%}
+.header{display:flex;flex-direction:row;align-items:center;justify-content:space-between;margin-bottom:22px;padding-top:env(safe-area-inset-top);padding-bottom:16px;border-bottom:1px solid var(--border-subtle);width:100%}
 .header-left{display:flex;align-items:center;gap:16px;flex:1;min-width:0;}
 .header-right{margin-left:auto;flex-shrink:0;display:flex;align-items:center;gap:10px;}
 .notif-trigger {
@@ -478,7 +479,8 @@ body.sidebar-collapsed .sidebar .sep{display:block;height:1px;padding:0;margin:8
 .notif-trigger:hover { color: var(--text-primary); background: rgba(255,255,255,0.05); }
 
 .greeting{font-size:1.6rem;font-weight:700;line-height:1.2;background:linear-gradient(135deg,var(--text-primary),var(--text-accent));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
-.date-display{font-size:.82rem;color:var(--text-secondary);margin-top:3px}
+.header-titles{min-width:0;flex:1}
+.date-display{font-size:.82rem;color:var(--text-secondary);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
 
 .streak-badge{
   display:flex;align-items:center;gap:8px;padding:10px 20px;
@@ -2718,7 +2720,7 @@ html {
   right: -400px;
   width: 100%;
   max-width: 380px;
-  height: 100vh;
+  height: 100dvh;
   background: var(--bg-primary);
   border-left: 1px solid var(--border-subtle);
   z-index: 1002;
@@ -4437,7 +4439,7 @@ html {
   border: 1px solid var(--border-card);
   border-radius: 20px; overflow: hidden;
   display: flex; flex-direction: column;
-  height: calc(100vh - 280px); min-height: 400px;
+  height: calc(100dvh - 280px); min-height: 400px;
 }
 .ai-page-messages {
   flex: 1; overflow-y: auto;
@@ -4597,7 +4599,7 @@ html {
 @media (max-width: 480px) {
   .ai-float-btn { bottom: 20px; right: 16px; }
   .ai-chat-drawer { right: 8px; width: calc(100vw - 16px); bottom: calc(20px + env(safe-area-inset-bottom)); }
-  .ai-page-full-chat { height: calc(100vh - 240px); }
+  .ai-page-full-chat { height: calc(100dvh - 240px); }
 }
 
 /* Comment reply highlight animation */
@@ -7978,4 +7980,182 @@ dialog::backdrop {
   #pageProfile .pn { padding: 20px; }
   #pageProfile .f2 { grid-template-columns: 1fr; }
   #pageProfile .ag { grid-template-columns: repeat(auto-fill,minmax(130px,1fr)); }
+}
+
+/* ===========================
+   HORIZONTAL SCROLL CONTAINERS
+   Day pickers, tabs, carousels, chips
+   =========================== */
+.zw .days,
+.zp .days,
+#zwDays,
+#zpDays,
+#wk7,
+.wk7,
+#dietWeekDayTabs,
+.pv-chips,
+#pageDiet .chips,
+#pageLeaderboard .chips,
+.zw .chips,
+.card-tabs,
+.monthly-tracker,
+.tracker-grid,
+.admin-nav-tabs,
+.calc-sidebar,
+#pageProfile .ptabs,
+.tl {
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  touch-action: pan-x;
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x proximity;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.zw .days::-webkit-scrollbar,
+.zp .days::-webkit-scrollbar,
+#zwDays::-webkit-scrollbar,
+#zpDays::-webkit-scrollbar,
+#wk7::-webkit-scrollbar,
+.wk7::-webkit-scrollbar,
+#dietWeekDayTabs::-webkit-scrollbar,
+.pv-chips::-webkit-scrollbar,
+#pageDiet .chips::-webkit-scrollbar,
+#pageLeaderboard .chips::-webkit-scrollbar,
+.zw .chips::-webkit-scrollbar,
+.card-tabs::-webkit-scrollbar,
+.monthly-tracker::-webkit-scrollbar,
+.tracker-grid::-webkit-scrollbar,
+.admin-nav-tabs::-webkit-scrollbar,
+.calc-sidebar::-webkit-scrollbar,
+#pageProfile .ptabs::-webkit-scrollbar,
+.tl::-webkit-scrollbar {
+  display: none;
+}
+.zw .days > *,
+.zp .days > *,
+#zwDays > *,
+#zpDays > *,
+#wk7 > *,
+.wk7 > *,
+#dietWeekDayTabs > *,
+.pv-chips > *,
+#pageDiet .chips > *,
+#pageLeaderboard .chips > *,
+.zw .chips > *,
+.card-tabs > *,
+.monthly-tracker > *,
+.tracker-grid > *,
+.admin-nav-tabs > *,
+.calc-sidebar > *,
+#pageProfile .ptabs > *,
+.tl > * {
+  scroll-snap-align: center;
+}
+
+/* ===========================
+   MOBILE FULL OPTIMIZATION (Task 2)
+   Scale, touch ergonomics, render cost
+   =========================== */
+@media (max-width: 1000px) {
+
+  /* Touch: drop default tap highlight, block double-tap zoom on controls */
+  a, button, input, select, textarea, label, summary,
+  [role="button"], [onclick], .day, .chips > *, .pill,
+  .btn-primary, .btn-secondary, .btn-small,
+  .menu-toggle, .notif-trigger {
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+  /* Horizontal scrollers keep panning after the rule above */
+  .zw .days, .zp .days, #zwDays, #zpDays, #wk7, .wk7, #dietWeekDayTabs,
+  .pv-chips, #pageDiet .chips, #pageLeaderboard .chips, .zw .chips,
+  .card-tabs, .monthly-tracker, .tracker-grid, .admin-nav-tabs,
+  .calc-sidebar, #pageProfile .ptabs, .tl {
+    touch-action: pan-x;
+  }
+
+  /* Fluid type scale (body 14px, secondary 12-13px) */
+  body, .zyro-dash, .zw { font-size: 14px; }
+  .page-title,
+  .pv-title {
+    font-size: clamp(1.5rem, 6vw, 2rem) !important;
+    line-height: 1.15 !important;
+    text-wrap: balance;
+  }
+  .greeting { font-size: clamp(1.35rem, 5.5vw, 1.75rem) !important; text-wrap: balance; }
+  .date-display, .pv-sub-h, .zw .sub { font-size: 0.8rem; }
+
+  /* Cards: tighter padding + 16-20px radius */
+  .card { padding: 16px !important; border-radius: 18px !important; }
+  .zw .p, .zyro-dash .p { padding: 16px !important; border-radius: 18px !important; }
+
+  /* Primary buttons ~44px, compact pills */
+  .btn-primary, .btn-secondary { min-height: 44px; }
+  .pill, .zw .pill, .zyro-dash .pill { padding: 7px 13px; font-size: 0.8rem; }
+
+  /* Large components scaled down to fit more per screen */
+  #pageDiet .rb { width: 148px; height: 148px; }
+
+  /* Render cost: soften the fixed glow layers on phones */
+  .zw::before, .zw::after,
+  .zyro-dash::before, .zyro-dash::after { opacity: .6; }
+
+  /* Media never overflows the viewport */
+  img, video { max-width: 100%; }
+
+  /* Virtual keyboard: stop the sticky header from fighting the viewport */
+  html.kb-open .header { position: static !important; }
+}
+
+/* ===========================
+   SWIPE DIRECTION FEEDBACK
+   Left arrow while swiping left, right arrow while swiping right.
+   Visible only while the gesture is in progress.
+   =========================== */
+.swipe-indicator {
+  position: fixed;
+  top: 50%;
+  left: 0;
+  right: 0;
+  transform: translateY(-50%);
+  display: flex;
+  justify-content: space-between;
+  padding: 0 14px;
+  pointer-events: none;
+  z-index: 900;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity .18s ease, visibility .18s;
+}
+.swipe-indicator svg {
+  width: 46px;
+  height: 46px;
+  padding: 11px;
+  box-sizing: border-box;
+  border-radius: 50%;
+  background: rgba(143, 179, 204, .18);
+  border: 1px solid rgba(143, 179, 204, .45);
+  color: #e2ecf4;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0;
+  transform: scale(.85);
+  transition: opacity .18s ease, transform .18s ease;
+}
+.swipe-indicator.show {
+  opacity: 1;
+  visibility: visible;
+}
+.swipe-indicator.show.left .sw-left,
+.swipe-indicator.show.right .sw-right {
+  opacity: 1;
+  transform: scale(1);
+}
+@media (prefers-reduced-motion: reduce) {
+  .swipe-indicator,
+  .swipe-indicator svg { transition: none; }
 }

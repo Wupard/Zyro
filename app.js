@@ -1267,7 +1267,7 @@ function getMonday(d) {
   return date;
 }
 function formatDate(d){return d.toLocaleDateString(currentLang==='tr'?'tr-TR':'en-US',{month:'short',day:'numeric'})}
-function formatDateLong(d){return d.toLocaleDateString(currentLang==='tr'?'tr-TR':'en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'})}
+function formatDateLong(d){return String(d.toLocaleDateString(currentLang==='tr'?'tr-TR':'en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'})).replace(/\s+/g,' ').trim()}
 
 // =============================================
 // DATA PERSISTENCE
@@ -2017,10 +2017,6 @@ function navigateTo(page, opts){
     const pg=document.querySelector(`.page[data-page="${page}"]`);
     if(pg) {
       pg.classList.add('active');
-      if (opts.swipeDir) {
-        pg.classList.add(opts.swipeDir === 'left' ? 'page-swipe-in-left' : 'page-swipe-in-right');
-        setTimeout(() => pg.classList.remove('page-swipe-in-left', 'page-swipe-in-right'), 350);
-      }
     }
   }
 
@@ -2072,6 +2068,10 @@ function navigateTo(page, opts){
     }
     window.scrollTo({ top: 0, behavior: 'instant' });
   }
+
+  // Center the active/today card inside horizontal selectors (day pickers, tabs)
+  setTimeout(zyroCenterActiveCards, 60);
+  setTimeout(zyroCenterActiveCards, 350);
 }
 window.navigateTo = navigateTo;
 
@@ -2600,38 +2600,24 @@ function initGestures() {
       } else {
         if (dx > minDistance && touchStartX < 40) {
           sidebar.classList.add('open');
-        } else if (Math.abs(dx) > minDistance) {
-          // Page swipe logic
-          const swipePages = ['dashboard', 'workouts', 'posture', 'diet', 'progress', 'updates', 'notes', 'comments', 'calculators', 'beforeafter', 'achievements', 'leaderboard', 'ai', 'profile'];
-          let cPage = null;
-          document.querySelectorAll('.page').forEach(p => {
-             if (p.classList.contains('active') || p.style.display === 'block') cPage = p.dataset.page;
-          });
-          if (cPage) {
-            const idx = swipePages.indexOf(cPage);
-            if (idx !== -1) {
-              if (dx < -minDistance && idx < swipePages.length - 1) {
-                // Swipe Left -> Next Page
-                if (typeof navigateTo === 'function') navigateTo(swipePages[idx + 1]);
-              } else if (dx > minDistance && touchStartX >= 40 && idx > 0) {
-                // Swipe Right -> Prev Page
-                if (typeof navigateTo === 'function') navigateTo(swipePages[idx - 1]);
-              }
-            }
-          }
         }
       }
     }
   };
 
+  // Elements that own their own horizontal gesture (category chips, day tabs,
+  // trackers, calculators…). Starting a swipe here must never move the page/menu.
+  const HSCROLL_SELECTOR = [
+    '.workout-list', '.card-tabs', '.monthly-tracker', '.tracker-grid',
+    '#pageCalculators', '#dietWeekDayTabs', '.calc-sidebar',
+    '.zw .chips', '.zw .days', '.zp .days', '#zwDays', '#zpDays',
+    '.pv-chips', '#pageProfile .ptabs', '.admin-nav-tabs', '.tl', '.no-swipe',
+    'input', 'textarea', 'select', '[contenteditable="true"]'
+  ].join(', ');
+  const startsInScroller = el => !!(el && el.closest && el.closest(HSCROLL_SELECTOR));
+
   document.addEventListener('touchstart', e => {
-    // Check if the target is inside a scrollable list or horizontal menu or calculator
-    if (e.target.closest('.workout-list') || 
-        e.target.closest('.card-tabs') || 
-        e.target.closest('.monthly-tracker') ||
-        e.target.closest('#pageCalculators') ||
-        e.target.closest('#dietWeekDayTabs') ||
-        e.target.closest('.no-swipe')) {
+    if (startsInScroller(e.target)) {
       touchStartX = -1; // Ignore this swipe
       return;
     }
@@ -2647,10 +2633,13 @@ function initGestures() {
     handleGesture();
   }, { passive: true });
 
-  // Mouse dragging support
+  // Mouse dragging support (desktop) — only when the drag starts on plain content,
+  // never from a horizontal scroller or a form field.
   let isDragging = false;
   document.addEventListener('mousedown', e => {
     if (e.button !== 0) return; // Only left click
+    if (window.innerWidth > 1000) return;
+    if (startsInScroller(e.target)) { isDragging = false; return; }
     isDragging = true;
     touchStartX = e.screenX;
     touchStartY = e.screenY;
@@ -2664,6 +2653,122 @@ function initGestures() {
     handleGesture();
   });
 }
+
+// =============================================
+// SWIPE FEEDBACK: direction arrow while the user swipes left/right
+// =============================================
+(function initSwipeFeedback() {
+  const el = document.createElement('div');
+  el.className = 'swipe-indicator';
+  el.setAttribute('aria-hidden', 'true');
+  el.innerHTML =
+    '<svg class="sw-left" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>' +
+    '<svg class="sw-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>';
+
+  let mounted = false;
+  function host() {
+    if (!mounted) { document.body.appendChild(el); mounted = true; }
+    return el;
+  }
+
+  const THRESHOLD = 14; // px before the arrow appears
+  let dir = '';         // 'left' | 'right' | ''
+
+  function show(next) {
+    if (dir === next) return;
+    dir = next;
+    const node = host();
+    node.classList.toggle('left', next === 'left');
+    node.classList.toggle('right', next === 'right');
+    node.classList.add('show');
+  }
+  function hide() {
+    if (!dir) return;
+    dir = '';
+    el.classList.remove('show');
+  }
+
+  // ---- touch ----
+  let startX = 0, startY = 0, tracking = false;
+  document.addEventListener('touchstart', e => {
+    if (e.touches.length !== 1) { tracking = false; return; }
+    tracking = true;
+    startX = e.touches[0].screenX;
+    startY = e.touches[0].screenY;
+  }, { passive: true });
+
+  document.addEventListener('touchmove', e => {
+    if (!tracking || e.touches.length !== 1) return;
+    const dx = e.touches[0].screenX - startX;
+    const dy = e.touches[0].screenY - startY;
+    if (Math.abs(dx) < THRESHOLD || Math.abs(dx) <= Math.abs(dy)) return;
+    show(dx < 0 ? 'left' : 'right');
+  }, { passive: true });
+
+  const finish = () => { tracking = false; hide(); };
+  document.addEventListener('touchend', finish, { passive: true });
+  document.addEventListener('touchcancel', finish, { passive: true });
+
+  // ---- mouse drag (desktop) ----
+  let dragging = false, mouseX = 0, mouseY = 0;
+  document.addEventListener('mousedown', e => {
+    if (e.button !== 0) return;
+    const t = e.target;
+    if (t && t.closest && t.closest('input, textarea, select, [contenteditable="true"]')) return;
+    dragging = true;
+    mouseX = e.screenX;
+    mouseY = e.screenY;
+  });
+  document.addEventListener('mousemove', e => {
+    if (!dragging) return;
+    const dx = e.screenX - mouseX;
+    const dy = e.screenY - mouseY;
+    if (Math.abs(dx) < THRESHOLD || Math.abs(dx) <= Math.abs(dy)) return;
+    show(dx < 0 ? 'left' : 'right');
+  });
+  document.addEventListener('mouseup', () => { dragging = false; hide(); });
+})();
+
+// =============================================
+// HORIZONTAL SCROLL: keep the active/today card centered
+// =============================================
+function zyroCenterActiveCards() {
+  const containers = document.querySelectorAll(
+    '.zw .days, .zp .days, #zwDays, #zpDays, #wk7, .wk7, #dietWeekDayTabs, ' +
+    '.pv-chips, #pageDiet .chips, #pageLeaderboard .chips, .zw .chips, ' +
+    '.card-tabs, .monthly-tracker, .tracker-grid, .admin-nav-tabs, .calc-sidebar, #pageProfile .ptabs, .tl'
+  );
+  containers.forEach(c => {
+    if (!c || c.scrollWidth <= c.clientWidth + 1) return;
+    const active = c.querySelector('.today, [aria-selected="true"], [aria-pressed="true"], .active');
+    if (active && typeof active.scrollIntoView === 'function') {
+      try { active.scrollIntoView({ inline: 'center', block: 'nearest' }); } catch (e) { /* ignore */ }
+    }
+  });
+}
+window.zyroCenterActiveCards = zyroCenterActiveCards;
+
+// =============================================
+// MOBILE VIEWPORT / VIRTUAL KEYBOARD
+// Keep the layout stable when the on-screen keyboard opens.
+// =============================================
+(function initViewport(){
+  const root = document.documentElement;
+  const vv = window.visualViewport;
+  const update = () => {
+    const h = vv ? vv.height : window.innerHeight;
+    root.style.setProperty('--app-vh', (h * 0.01) + 'px');
+    const kbOpen = vv ? (window.innerHeight - vv.height) > 140 : false;
+    root.classList.toggle('kb-open', kbOpen);
+  };
+  if (vv) {
+    vv.addEventListener('resize', update);
+    vv.addEventListener('scroll', update);
+  }
+  window.addEventListener('resize', update);
+  window.addEventListener('orientationchange', update);
+  update();
+})();
 
 // =============================================
 // GREETING

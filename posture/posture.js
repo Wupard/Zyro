@@ -225,6 +225,7 @@
       return '<button class="day' + (key === todayKey ? ' today' : '') + '" role="tab" aria-selected="' + (key === selectedDay) + '" data-zpday="' + key + '">' +
         '<small>' + esc(day.abbr[lang()]) + '</small><b>' + esc(type ? type.name[lang()] : '') + '</b><i><u style="--w:' + pct + '%"></u></i></button>';
     }).join('');
+    if (window.zyroCenterActiveCards) window.zyroCenterActiveCards();
   }
 
   function renderFocus() {
