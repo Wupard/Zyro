@@ -1,0 +1,65 @@
+Created At: 2026-11-12T22:55:44+03:00
+Completed At: 2026-11-12T22:55:45+03:00
+Command exited with code 0.
+
+Command output:
+<!DOCTYPE html>
+<html lang="tr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Zyro â€“ HesaplayÄ±cÄ±lar</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300;12..96,500;12..96,700&family=Hanken+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#13161b;--text:#eceef1;--mute:#8a919c;--steel:#8fb3cc;--sand:#dcc7a8;--ease:cubic-bezier(.22,.8,.24,1);--d:'Bricolage Grotesque','Segoe UI',sans-serif;--b:'Hanken Grotesk','Segoe UI',sans-serif}
+*{box-sizing:border-box;margin:0}
+body{background:var(--bg);color:var(--text);font:400 15px/1.5 var(--b);min-height:100dvh;display:flex;position:relative;-webkit-font-smoothing:antialiased}
+body::before{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;background:radial-gradient(circle 560px at 88% -4%,rgba(143,179,204,.17),transparent),radial-gradient(circle 460px at 24% 104%,rgba(220,199,168,.1),transparent)}
+a,button{font:inherit;color:inherit}a{text-decoration:none}button{cursor:pointer}
+:focus-visible{outline:2px solid var(--steel);outline-offset:2px;border-radius:10px}
+svg.i{width:19px;height:19px;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;flex:none}
+
+/* ---- MENÃœ ---- */
+.rail{position:sticky;top:0;height:100dvh;width:248px;flex:none;z-index:2;display:flex;flex-direction:column;padding:22px 14px 16px;gap:14px;background:rgba(19,22,27,.94);border-right:1px solid rgba(255,255,255,.06);transition:width .35s var(--ease)}
+.top{display:flex;align-items:center;justify-content:space-between;padding:0 6px 0 10px;min-height:40px}
+.brand{display:flex;align-items:center;gap:12px;font:700 21px var(--d)}
+.cbtn{width:32px;height:32px;border-radius:10px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03);color:var(--mute);display:grid;place-items:center;transition:.25s var(--ease)}
+.cbtn:hover{color:var(--text);border-color:rgba(255,255,255,.22)}
+.cbtn svg{transition:transform .35s var(--ease)}
+
+.nav{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;display:flex;flex-direction:column;gap:2px;padding:2px;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.12) transparent}
+.ni{display:flex;align-items:center;gap:14px;min-height:42px;padding:0 12px;border-radius:12px;color:var(--mute);font-size:14.5px;white-space:nowrap;transition:color .2s,background .25s var(--ease)}
+.ni:hover{color:var(--text);background:rgba(255,255,255,.045)}
+.ni[aria-current]{color:var(--text);background:linear-gradient(90deg,rgba(143,179,204,.2),rgba(143,179,204,.03));box-shadow:inset 2px 0 var(--steel)}
+.sep{font-size:12px;color:var(--mute);opacity:.8;padding:16px 12px 6px;white-space:nowrap}
+.ni.adm{color:var(--sand)}
+.ni.adm:hover{background:rgba(220,199,168,.08)}
+.ni.adm[aria-current]{background:linear-gradient(90deg,rgba(220,199,168,.2),rgba(220,199,168,.03));box-shadow:inset 2px 0 var(--sand);color:var(--text)}
+
+.foot{display:flex;flex-direction:column;gap:10px;padding-top:12px;border-top:1px solid rgba(255,255,255,.06)}
+.wfit{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:14px;border:1px solid rgba(220,199,168,.28);background:linear-gradient(160deg,rgba(220,199,168,.12),rgba(220,199,168,.02));color:var(--text);transition:.25s var(--ease)}
+.wfit:hover{border-color:rgba(220,199,168,.5)}
+.wfit .ico{width:32px;height:32px;border-radius:10px;background:rgba(220,199,168,.18);color:var(--sand);display:grid;place-items:center;flex:none}
+.wfit b{font:500 14px var(--d);letter-spacing:.04em;flex:1}
+.wfit .ch{color:var(--mute)}
+.lang{display:grid;grid-template-columns:1fr 1fr;gap:3px;padding:3px;border-radius:12px;background:rgba(255,255,255,.05)}
+.lang button{border:0;background:none;color:var(--mute);font:500 12.5px var(--b);padding:7px 0;border-radius:9px;transition:.25s}
+.lang button[aria-pressed=true]{background:rgba(255,255,255,.13);color:var(--text)}
+.col .lang{grid-template-columns:1fr}.col .lang button:not([aria-pressed=true]){display:none}
+.user{display:flex;align-items:center;gap:12px;padding:10px;border-radius:16px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06)}
+.av{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,rgba(143,179,204,.35),rgba(220,199,168,.3));display:grid;place-items:center;font:600 15px var(--d);flex:none}
+.who{flex:1;min-width:0;line-height:1.25}
+.who b{display:flex;align-items:center;gap:8px;font:500 14.5px var(--b);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.who em{font:500 10.5px var(--b);font-style:normal;letter-spacing:.05em;padding:2px 7px;border-radius:999px;background:rgba(255,255,255,.08);color:var(--mute);text-transform:uppercase}
+.who small{display:block;color:var(--mute);font-size:12px;margin-top:2px}
+.xp{height:4px;border-radius:4px;background:rgba(255,255,255,.08);margin-top:7px;overflow:hidden}
+.xp i{display:block;height:100%;width:var(--x,0%);background:linear-gradient(90deg,var(--steel),var(--sand));border-radius:4px}
+.out{width:34px;height:34px;border-radius:10px;border:0;background:none;color:var(--mute);display:grid;place-items:center;flex:none;transition:.2s}
+.out:hover{background:rgba(255,255,255,.07);color:var(--text)}
+
+/* daraltÄ±lmÄ±ÅŸ */
+.col .rail{width:76px;padding-inline:10px}
+.col .top{flex-direction:column;gap:12px;padding:0}
+.col .brand .t,.col .sep,.col .wfit b,.col .wfit .ch,.col .who,.col .out,.col .ni .t{display:none}
+.col .cbtn svg{transform:rotate(180deg)}
+.col .ni,.col .wfit{justify-content:center;padding:0}
+.col .ni{width:100%}.col .wfit{height:46px}
+.col .user{justify-content:center;padding:8px 0;background:none;border:0}

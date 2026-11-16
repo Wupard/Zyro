@@ -1,0 +1,86 @@
+Created At: 2026-11-12T22:57:47+03:00
+Completed At: 2026-11-12T22:57:48+03:00
+Command exited with code 0.
+
+Command output:
+t class="ax" x="${W-pr}" y="${h-6}" text-anchor="end">${pts[pts.length-1].label}</text></svg>`;
+}
+
+
+let tt;
+function toast(t,s){const el=$('#toast');
+  el.innerHTML=`<div class="ic"><svg class="i" style="width:22px;height:22px"><use href="#i-check"/></svg></div><div><b>${t}</b><span>${s}</span></div>`;
+  el.classList.add('show');clearTimeout(tt);tt=setTimeout(()=>el.classList.remove('show'),3600)}
+
+function askConfirm(t,s){return new Promise(r=>{const d=$('#dlgC');$('#cT').textContent=t;$('#cS').textContent=s;d.returnValue='';d.onclose=()=>r(d.returnValue==='ok');d.showModal()})}
+document.addEventListener('click',e=>{const c=e.target.closest('[data-close]');if(c)c.closest('dialog').close();if(e.target.tagName==='DIALOG')e.target.close()});
+const h=new Date().getHours();$('#greet').textContent=h<5?'İyi geceler':h<12?'Günaydın':h<18?'İyi günler':'İyi akşamlar';
+$('#today').textContent=new Date().toLocaleDateString('tr-TR',{day:'numeric',month:'long',year:'numeric',weekday:'long'});
+// --- menü daralt ---
+const L={
+ tr:{dash:'Ana Sayfa',work:'Antrenman',post:'Postür',diet:'Diyet & Beslenme',prog:'İlerleme',ba:'Gelişim',s1:'Topluluk',ach:'Başarımlar',lead:'Liderlik Tablosu',comm:'Yorumlar',notes:'Notlar',s2:'Araçlar',calc:'Hesaplayıcılar',upd:'Güncellemeler',prof:'Profil',s3:'Yönetici paneli',adm:'Admin merkezi',role:'Kurucu',lvl:'Lv.11 XP',col:'Menüyü daralt',exp:'Menüyü genişlet'},
+ en:{dash:'Home',work:'Workout',post:'Posture',diet:'Diet & Nutrition',prog:'Progress',ba:'Transformation',s1:'Community',ach:'Achievements',lead:'Leaderboard',comm:'Comments',notes:'Notes',s2:'Tools',calc:'Calculators',upd:'Updates',prof:'Profile',s3:'Admin panel',adm:'Admin center',role:'Founder',lvl:'Lv.11 XP',col:'Collapse menu',exp:'Expand menu'}
+};
+let lang='tr';
+function render(){
+  const t=L[lang];document.documentElement.lang=lang;
+  document.querySelectorAll('[data-k]').forEach(e=>{const v=t[e.dataset.k];if(!v)return;
+    const s=e.querySelector('.t');(s||e).textContent=v;
+    if(e.classList.contains('ni')){e.title=v;e.setAttribute('aria-label',v)}});
+  document.querySelectorAll('.lang button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.l===lang));
+  const c=document.body.classList.contains('col');$('#cb').setAttribute('aria-label',c?t.exp:t.col);
+}
+$('.lang').onclick=e=>{const b=e.target.closest('button');if(b){lang=b.dataset.l;render()}};
+$('#cb').onclick=()=>{const c=document.body.classList.toggle('col');$('#cb').setAttribute('aria-expanded',!c);
+  try{localStorage.setItem('zyro-menu',c?'1':'0')}catch(e){}render()};
+try{if(localStorage.getItem('zyro-menu')==='1')document.body.classList.add('col')}catch(e){}
+render();
+
+
+// ===== VERİ KATMANI (ADAPTER) — gerçek sitede mevcut veri servisiyle değiştirilir =====
+const ZyroAPI=(()=>{const K='zyro-dev-notes',uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+ const seed=()=>[{id:'n1',d:'2026-07-23',ts:1784800000000,title:'Düzeltme',text:'Yorumları düzenleme bozuk',tag:'later',color:'#8fb3cc'}];
+ const load=()=>{try{const v=JSON.parse(localStorage.getItem(K));if(Array.isArray(v))return v}catch(e){}return window.__n||seed()},save=v=>{window.__n=v;try{localStorage.setItem(K,JSON.stringify(v))}catch(e){}};
+ const TD=[{id:'later',label:'Daha Sonra',icon:'upd'},{id:'idea',label:'Fikir',icon:'spark'},{id:'gym',label:'GYM',icon:'dumb'}],KT='zyro-dev-tags';
+ const lt=()=>{try{const v=JSON.parse(localStorage.getItem(KT));if(Array.isArray(v))return v}catch(e){}return window.__t||[]},st=v=>{window.__t=v;try{localStorage.setItem(KT,JSON.stringify(v))}catch(e){}};
+ return{async getTags(){return[...TD,...lt()]},async addTag(label){const t={id:'t'+uid(),label,icon:'tag',custom:1};st([...lt(),t]);return t},async deleteTag(id){st(lt().filter(t=>t.id!==id));save(load().map(n=>n.tag===id?{...n,tag:null}:n))},
+  async getNotes(){return load()},async addNote(n){save([...load(),{...n,id:uid(),d:TODAY,ts:Date.now()}])},async updateNote(id,n){save(load().map(x=>x.id===id?{...x,...n}:x))},async deleteNotes(ids){save(load().filter(x=>!ids.includes(x.id)))}}})();
+
+let TG=[],adding=false;const COL=['#8fb3cc','#c99a9a','#7d9be0','#7fb08f','#b99a7a'];
+let notes=[],sel=new Set(),color=COL[0],tag=null,editId=null;
+const ico=n=>`<svg class="i"><use href="#i-${n}"/></svg>`;
+function form(){
+ $('#dots').innerHTML=COL.map((c,i)=>`<button type="button" class="dot2" style="--c:${c}" data-c="${c}" aria-pressed="${c===color}" aria-label="Renk ${i+1}"></button>`).join('');
+ const tv=$('#tn')?$('#tn').value:'';$('#tg').innerHTML=TG.map(t=>`<span class="tc${t.custom?' cu':''}"><button type="button" data-t="${esc(t.id)}" aria-pressed="${t.id===tag}">${ico(t.icon)}${esc(t.label)}</button>${t.custom?`<button type="button" class="tr2" data-td="${esc(t.id)}" aria-label="${esc(t.label)} etiketini sil">✕</button>`:''}</span>`).join('')+(adding?`<span class="ta"><input class="in" id="tn" maxlength="20" placeholder="Etiket adı" aria-label="Yeni etiket"><button type="button" class="btn" data-ta="ok">Ekle</button><button type="button" class="ghost" data-ta="no">İptal</button></span>`:`<button type="button" class="add" data-ta="new">${ico('plus')}Etiket ekle</button>`);
+ if(adding){$('#tn').value=tv;$('#tn').focus()}
+ $('#ft').textContent=editId?'Notu düzenle':'Bugünkü giriş';$('#bg').hidden=!!editId;$('#svt').textContent=editId?'Güncelle':'Notu kaydet';$('#cx').hidden=!editId}
+function list(){
+ const a=[...notes].sort((x,y)=>y.ts-x.ts);sel=new Set([...sel].filter(i=>notes.some(n=>n.id===i)));
+ $('#cn').textContent=a.length;$('#ds').disabled=!sel.size;$('#dst').textContent=sel.size?`Seçilenleri sil (${sel.size})`:'Seçilenleri sil';
+ $('#ls').innerHTML=a.length?a.map(n=>{const t=TG.find(x=>x.id===n.tag);return `<article class="nt" style="--c:${esc(n.color||COL[0])}" data-id="${esc(n.id)}"><input type="checkbox" data-s ${sel.has(n.id)?'checked':''} aria-label="Seç">
+  <div><time>${fdl(n.d)}</time>${n.title?`<h3>${esc(n.title)}</h3>`:''}<div class="tx">${esc(n.text)}</div>${t?`<span class="tag">${ico(t.icon)}${esc(t.label)}</span>`:''}</div>
+  <div class="na"><button class="ghost" data-a="e">${ico('edit')}Düzenle</button><button class="ghost danger" data-a="d">${ico('trash')}Sil</button></div></article>`}).join(''):'<div class="empty">Henüz not yok. İlk girişini yukarıdan ekle.</div>'}
+const reset=()=>{editId=null;tag=null;color=COL[0];$('#fn').reset();$('#er').textContent='';form()};
+const run=async(f,m)=>{try{await f();notes=await ZyroAPI.getNotes();list();if(m)toast(m,'')}catch(e){toast('Bir sorun oluştu','İşlem tamamlanamadı, tekrar dene.')}};
+$('#dots').onclick=e=>{const b=e.target.closest('[data-c]');if(b){color=b.dataset.c;form()}};
+$('#tg').onclick=async e=>{const t=e.target.closest('[data-t]'),d=e.target.closest('[data-td]'),a=e.target.closest('[data-ta]');
+ if(t){tag=tag===t.dataset.t?null:t.dataset.t;return form()}
+ if(a){const k=a.dataset.ta;if(k==='new'){adding=true;return form()}if(k==='no'){adding=false;return form()}
+  const v=$('#tn').value.trim().replace(/\s+/g,' ');if(!v)return toast('Etiket adı boş olamaz','');
+  if(TG.some(x=>x.label.toLocaleLowerCase('tr')===v.toLocaleLowerCase('tr')))return toast('Bu etiket zaten var','');
+  if(TG.filter(x=>x.custom).length>=12)return toast('En fazla 12 özel etiket ekleyebilirsin','');
+  try{const n=await ZyroAPI.addTag(v);TG=await ZyroAPI.getTags();tag=n.id;adding=false;form()}catch(x){toast('Etiket eklenemedi','Tekrar dene.')}return}
+ if(d&&await askConfirm('Etiket silinsin mi?','Bu etiketi kullanan notlardan etiket kaldırılır.')){try{await ZyroAPI.deleteTag(d.dataset.td);if(tag===d.dataset.td)tag=null;[TG,notes]=await Promise.all([ZyroAPI.getTags(),ZyroAPI.getNotes()]);form();list()}catch(x){toast('Etiket silinemedi','Tekrar dene.')}}};
+$('#tg').onkeydown=e=>{if(e.target.id==='tn'){if(e.key==='Enter'){e.preventDefault();$('#tg [data-ta=ok]').click()}if(e.key==='Escape'){adding=false;form()}}};
+$('#cx').onclick=reset;
+$('#fn').onsubmit=async e=>{e.preventDefault();const text=$('#nx').value.trim(),title=$('#nt').value.trim();if(!text&&!title)return $('#er').textContent='Bir başlık veya not yaz.';
+ const n={title,text,tag,color},id=editId;$('#sv').disabled=true;await run(()=>id?ZyroAPI.updateNote(id,n):ZyroAPI.addNote(n),id?'Not güncellendi':'Not kaydedildi');reset();$('#sv').disabled=false};
+$('#ls').onclick=async e=>{const w=e.target.closest('[data-id]');if(!w)return;const id=w.dataset.id,n=notes.find(x=>x.id===id);
+ if(e.target.matches('[data-s]')){e.target.checked?sel.add(id):sel.delete(id);return list()}
+ const a=e.target.closest('[data-a]');if(!a)return;
+ if(a.dataset.a==='e'){editId=id;tag=n.tag||null;color=n.color||COL[0];form();$('#nt').value=n.title||'';$('#nx').value=n.text||'';$('#fn').scrollIntoView({behavior:'smooth',block:'center'});$('#nx').focus()}
+ else if(await askConfirm('Not silinsin mi?','Bu işlem geri alınamaz.'))run(()=>ZyroAPI.deleteNotes([id]),'Not silindi')};
+$('#ds').onclick=async()=>{if(sel.size&&await askConfirm(`${sel.size} not silinsin mi?`,'Bu işlem geri alınamaz.')){const ids=[...sel];sel.clear();run(()=>ZyroAPI.deleteNotes(ids),'Notlar silindi')}};
+form();(async()=>{try{[notes,TG]=await Promise.all([ZyroAPI.getNotes(),ZyroAPI.getTags()])}catch(e){toast('Notlar yüklenemedi','Sayfayı yenile.')}form();list()})();
+
+

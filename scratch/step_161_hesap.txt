@@ -1,0 +1,49 @@
+Created At: 2026-11-12T22:55:57+03:00
+Completed At: 2026-11-12T22:55:57+03:00
+Command exited with code 0.
+
+Command output:
+
+> <main>
+  <div class="tb"><div><h2 id="greet"></h2><p id="today"></p></div><div class="tr"><button class="bell has" aria-label=
+"Bildirimler"><svg class="i"><use href="#i-bell"/></svg></button><span class="pill" id="day">Day 0</span></div></div>
+  
+  <section class="hero2"><div><h1><b>HesaplayÄ±cÄ±lar</b></h1><p>PerformansÄ±nÄ± takip et ve analiz et</p></div><div cl
+ass="ibox"><svg class="i"><use href="#i-calc"/></svg></div></section>
+  <div class="hs"><nav class="pn tl" id="tl" role="tablist" aria-label="HesaplayÄ±cÄ±lar"></nav><section class="pn" id=
+"pane" role="tabpanel"></section></div>
+  
+  </main>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <dialog id="dlgC"><form method="dialog"><div class="dh2"><b id="cT"></b></div><div class="db"><p id="cS" style="color
+:var(--mute)"></p><div class="da"><button value="cancel" class="ghost">VazgeÃ§</button><button value="ok" class="btn dn
+g">Sil</button></div></div></form></dialog>
+  <script>
+  const $=s=>document.querySelector(s);
+  const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const MON=['Oca','Åub','Mar','Nis','May','Haz','Tem','AÄŸu','Eyl','Eki','Kas','Ara'],MONL=['Ocak','Åubat','Mart','N
+isan','MayÄ±s','Haziran','Temmuz','AÄŸustos','EylÃ¼l','Ekim','KasÄ±m','AralÄ±k'];
+  const DAY=['Pazar','Pazartesi','SalÄ±','Ã‡arÅŸamba','PerÅŸembe','Cuma','Cumartesi'],DS=['Paz','Pzt','Sal','Ã‡ar','Per
+','Cum','Cmt'];
+  const CAT={all:'TÃ¼mÃ¼',chest:'GÃ¶ÄŸÃ¼s',back:'SÄ±rt',shoulders:'Omuz',biceps:'Biceps',triceps:'Triceps',legs:'Bacak'
+,core:'Core'};
+  const iso=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+  const pd=s=>{const[y,m,d]=s.split('-');return new Date(+y,m-1,+d)};
+  const fd=s=>{const d=pd(s);return d.getDate()+' '+MON[d.getMonth()]};
+  const fdl=s=>fd(s)+' '+DS[pd(s).getDay()];
+  const fy=s=>fd(s)+' '+pd(s).getFullYear();
+  const fw=n=>String(+n.toFixed(1)).replace('.',',');
+  const wkey=s=>{const d=pd(s);d.setDate(d.getDate()-((d.getDay()+6)%7));return iso(d)};
+  const TODAY=iso(new Date());
+  
+  function lineChart(el,pts,h,anim){
+    const W=Math.max(el.clientWidth,260),pl=42,pr=14,pt=14,pb=28;
+    const t0=pts[0].t,t1=pts[pts.length-1].t,ys=pts.map(p=>p.y);
+    let mn=Math.min(...ys),mx=Math.max(...ys);const pad=(mx-mn||1)*.25;mn-=pad;mx+=pad;
+    const X=t=>pl+(t-t0)/(t1-t0||1)*(W-pl-pr),Y=v=>pt+(1-(v-mn)/(mx-mn))*(h-pt-pb);
+    const P=pts.map(p=>[X(p.t),Y(p.y)]);
+    let d=`M${P[0][0]},${P[0][1]}`;for(let i=1;i<P.length;i++){const m=(P[i-1][0]+P[i][0])/2;d+=` C${m},${P[i-1][1]} ${
+m},${P[i][1]} ${P[i][0]},${P[i][1]}`}
+
+
+

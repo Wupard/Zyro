@@ -1,4 +1,4 @@
-/* ===========================
+﻿/* ===========================
    Zyro — Dashboard V2
    i18n, Firebase Auth, Routing, Logging, Charts
    =========================== */
@@ -1875,7 +1875,7 @@ async function checkUserBan(user) {
       document.body.innerHTML = `
         <div style="height: 100vh; background: #0d0d12; color: white; display: flex; align-items: center; justify-content: center; font-family: sans-serif; text-align: center; padding: 20px;">
           <div style="max-width: 500px; padding: 40px; background: #181822; border-radius: 24px; border: 1px solid #ef4444; box-shadow: 0 0 40px rgba(239, 68, 68, 0.2);">
-            <div style="font-size: 4rem; margin-bottom: 20px;">g���</div>
+            <div style="font-size: 4rem; margin-bottom: 20px;">🚫</div>
             <h1 style="color: #ef4444; margin-bottom: 16px;">BANLANDINIZ</h1>
             <p style="color: #94a3b8; margin-bottom: 24px;">Sistem kurallarını ihlal ettiğiniz için erişiminiz engellendi.</p>
             <div style="text-align: left; background: rgba(0,0,0,0.2); padding: 20px; border-radius: 12px; font-size: 0.9rem;">
@@ -2019,7 +2019,7 @@ function navigateTo(page, opts){
     if (window.ZyroPosture) window.ZyroPosture.sync();
     else { zyroLoadPage('posture'); renderPosture(currentPostureTab); }
   }
-  else if(page==='progress')setTimeout(()=>{drawWeightChart();renderProgressTracker();renderPRTable();renderMonthlyTracker();if(typeof renderWeightLogList==='function')renderWeightLogList();},50);
+  else if(page==='progress')setTimeout(()=>{drawWeightChart();renderProgressTracker();renderPRTable();renderMonthlyTracker();if(typeof renderWeightLogList==='function')renderWeightLogList();if(typeof renderLiftHistory==='function')renderLiftHistory();},50);
   else if(page==='updates')renderUpdatesPage();
   else if(page==='notes')renderNotes();
   else if(page==='comments')renderComments();
@@ -2641,13 +2641,47 @@ function zyroSwipePageOrder() {
   return order;
 }
 // Swipe left → next page, swipe right → previous page.
+// Includes a slide transition: target slides in from the side, current slides out.
+let _swipeAnimating = false;
 function zyroSwipePage(step) {
   if (document.querySelector('dialog[open]')) return;
+  if (_swipeAnimating) return;
   const order = zyroSwipePageOrder();
   const idx = order.indexOf(currentPage);
   const next = idx + step;
   if (idx === -1 || next < 0 || next >= order.length) return;
-  navigateTo(order[next]);
+  const targetPage = order[next];
+
+  const currentEl = document.querySelector('.page.active');
+  const targetEl = document.querySelector('.page[data-page="' + targetPage + '"]');
+
+  // Fallback: no elements or reduced motion → instant navigation.
+  const reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (!currentEl || !targetEl || reduced || currentEl === targetEl) {
+    navigateTo(targetPage);
+    return;
+  }
+
+  const forward = step > 0;
+  const outClass = forward ? 'sw-out-left' : 'sw-out-right';
+  const inClass = forward ? 'sw-in-right' : 'sw-in-left';
+
+  _swipeAnimating = true;
+  document.body.classList.add('swipe-animating');
+  targetEl.classList.add(inClass);
+  currentEl.classList.add(outClass);
+
+  const finish = () => {
+    if (!_swipeAnimating) return;
+    _swipeAnimating = false;
+    document.body.classList.remove('swipe-animating');
+    currentEl.classList.remove(outClass);
+    targetEl.classList.remove(inClass);
+    navigateTo(targetPage);
+  };
+
+  targetEl.addEventListener('animationend', finish, { once: true });
+  setTimeout(finish, 320);
 }
 
 // =============================================
@@ -2659,7 +2693,7 @@ function initGestures() {
   let touchEndX = 0;
   let touchEndY = 0;
 
-  const minDistance = 70; // Minimum distance for swipe
+  const minDistance = 50; // Minimum distance for swipe
   const maxVerticalDistance = 100; // Ignore if heavy vertical scroll
 
   const handleGesture = () => {
@@ -3957,6 +3991,34 @@ function renderWeightLogList(){
   }).join('');
 }
 
+// Collapsible weight-log records section
+function toggleWeightLog(){
+  const sec = document.getElementById('weightLogSection');
+  const head = sec ? sec.querySelector('.pv-collapsible-head') : null;
+  if(!sec) return;
+  const collapsed = sec.classList.toggle('collapsed');
+  if(head) head.setAttribute('aria-expanded', String(!collapsed));
+  try { localStorage.setItem('zyro-wlog-collapsed', collapsed ? '1' : '0'); } catch(e){}
+}
+window.toggleWeightLog = toggleWeightLog;
+
+// Initialize records collapse state (default collapsed on mobile, expanded on desktop)
+(function initWeightLogCollapse(){
+  const sec = document.getElementById('weightLogSection');
+  if(!sec) return;
+  let collapsed = false;
+  try {
+    const stored = localStorage.getItem('zyro-wlog-collapsed');
+    if(stored !== null) collapsed = stored === '1';
+    else collapsed = window.innerWidth <= 1000;
+  } catch(e){ collapsed = window.innerWidth <= 1000; }
+  if(collapsed){
+    sec.classList.add('collapsed');
+    const head = sec.querySelector('.pv-collapsible-head');
+    if(head) head.setAttribute('aria-expanded','false');
+  }
+})();
+
 window.deleteWeightEntry = function(date){
   if(!appData.weightLog||!appData.weightLog[date]) return;
   delete appData.weightLog[date];
@@ -3966,6 +4028,39 @@ window.deleteWeightEntry = function(date){
   renderWeightLogList();
   showToast(currentLang==='tr'?'Kayıt silindi':'Entry deleted','success');
 };
+
+// Lift history: all past workout logs (exercise, date, sets, weight)
+function renderLiftHistory(){
+  const list = document.getElementById('lhList');
+  const countEl = document.getElementById('lhCount');
+  if(!list) return;
+  const all = [];
+  Object.entries(appData.workoutLogs||{}).forEach(([date, logs]) => {
+    (logs||[]).forEach(l => all.push({ date, ...l }));
+  });
+  all.sort((a,b) => (b.timestamp||0) - (a.timestamp||0));
+  if(countEl) countEl.textContent = all.length;
+  if(all.length === 0){
+    list.innerHTML = '<div class="pv-empty">'+(currentLang==='tr'?'Henüz kaldırış kaydı yok.':'No lift history yet.')+'</div>';
+    return;
+  }
+  const today = todayStr();
+  list.innerHTML = all.slice(0, 50).map(l => {
+    const label = l.date === today ? (currentLang==='tr'?'Bugün':'Today') : (typeof pvFdl==='function' ? pvFdl(l.date) : l.date);
+    const w = l.inputWeight && l.unit ? `${l.inputWeight}${l.unit.toUpperCase()}` : `${l.weight||0}kg`;
+    return `<div class="lh-item">
+      <div class="lh-ex">
+        <b>${escapeHtml(l.exercise||'')}</b>
+        <small>${label}</small>
+      </div>
+      <div class="lh-meta">
+        <span class="lh-pill s">${l.sets||0} set</span>
+        <span class="lh-pill w">${w}</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+window.renderLiftHistory = renderLiftHistory;
 
 
 let editingNoteId = null;
@@ -8467,7 +8562,10 @@ window.adminShowSection = function(section) {
     if (el) el.style.display = s === section ? 'block' : 'none';
 
     const btn = document.getElementById(`adminTab${s.charAt(0).toUpperCase() + s.slice(1)}`);
-    if (btn) btn.classList.toggle('active', s === section);
+    if (btn) {
+      btn.classList.toggle('active', s === section);
+      btn.setAttribute('aria-selected', s === section ? 'true' : 'false');
+    }
   });
 
   if (section === 'users') adminLoadUsers();
@@ -9037,20 +9135,18 @@ function initCalculators() {
     document.addEventListener('click', e => {
       const b = e.target.closest('.dd-b');
       const o = e.target.closest('[data-o]');
+      // Capture the state BEFORE closing anything
+      const wasOpen = b && b.getAttribute('aria-expanded') === 'true';
       document.querySelectorAll('.dd').forEach(d => {
-        if (!d.contains(e.target) || (b && b.parentNode === d && b.getAttribute('aria-expanded') === 'true')) {
-          ddClose(d);
-        }
+        ddClose(d);
       });
-      if (b) {
+      if (b && !wasOpen) {
         const d = b.parentNode;
         const l = d.querySelector('.dd-l');
-        if (b.getAttribute('aria-expanded') !== 'true') {
-          l.hidden = false;
-          b.setAttribute('aria-expanded', 'true');
-          const f = l.querySelector('[aria-selected=true]') || l.querySelector('[data-o]');
-          if (f) f.focus({ preventScroll: false });
-        }
+        l.hidden = false;
+        b.setAttribute('aria-expanded', 'true');
+        const f = l.querySelector('[aria-selected=true]') || l.querySelector('[data-o]');
+        if (f) f.focus({ preventScroll: false });
       } else if (o) {
         const d = o.closest('.dd');
         d.dataset.v = o.dataset.o;
@@ -9111,6 +9207,39 @@ function initCalculators() {
   pane.onkeydown = e => {
     if (e.key === 'Enter' && e.target.matches('input.in')) executeCalc(currentCalcTab);
   };
+
+  // Horizontal drag-scroll for tab list
+  if (!tl.__dragInited) {
+    tl.__dragInited = true;
+    let isDown = false, startX, scrollLeft;
+    tl.addEventListener('mousedown', e => {
+      if (e.button !== 0) return;
+      isDown = true;
+      tl.classList.add('dragging');
+      startX = e.pageX - tl.offsetLeft;
+      scrollLeft = tl.scrollLeft;
+      e.preventDefault();
+    });
+    tl.addEventListener('mouseleave', () => { isDown = false; tl.classList.remove('dragging'); });
+    tl.addEventListener('mouseup', () => { isDown = false; tl.classList.remove('dragging'); });
+    tl.addEventListener('mousemove', e => {
+      if (!isDown) return;
+      e.preventDefault();
+      const x = e.pageX - tl.offsetLeft;
+      const walk = (x - startX) * 1.5;
+      tl.scrollLeft = scrollLeft - walk;
+    });
+    // Touch drag support
+    let touchStart = 0, touchScrollLeft = 0;
+    tl.addEventListener('touchstart', e => {
+      touchStart = e.touches[0].pageX;
+      touchScrollLeft = tl.scrollLeft;
+    }, { passive: true });
+    tl.addEventListener('touchmove', e => {
+      const walk = touchStart - e.touches[0].pageX;
+      tl.scrollLeft = touchScrollLeft + walk;
+    }, { passive: true });
+  }
 
   renderCalculators();
 }
@@ -9727,10 +9856,10 @@ window.adminSendNotificationV2Enhanced = async function() {
   if (loader) loader.style.display = 'block';
 
   const categoryIcons = {
-    system: 'g���',
-    announcement: 'g���',
+    system: '🔧',
+    announcement: '📢',
     feature: '✨',
-    maintenance: 'g���',
+    maintenance: '🔨',
     urgent: '⚠️'
   };
 
@@ -9744,7 +9873,7 @@ window.adminSendNotificationV2Enhanced = async function() {
     type: recipientType === 'all' ? 'broadcast' : 'personal',
     sender: 'Admin',
     category: category,
-    icon: categoryIcons[category] || 'g���'
+    icon: categoryIcons[category] || '🔔'
   };
 
   try {
@@ -9784,13 +9913,13 @@ function renderAdminNotificationHistory() {
 
   historyEl.innerHTML = history.map(h => {
     const categoryIcons = {
-      system: 'g���',
-      announcement: 'g���',
+      system: '🔧',
+      announcement: '📢',
       feature: '✨',
-      maintenance: 'g���',
+      maintenance: '🔨',
       urgent: '⚠️'
     };
-    const icon = categoryIcons[h.category] || h.icon || 'g���';
+    const icon = categoryIcons[h.category] || h.icon || '🔔';
     const date = new Date(h.timestamp).toLocaleDateString('tr-TR', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
     
     return `
@@ -10105,7 +10234,7 @@ function applyMaintenanceState() {
     overlay.className = 'maintenance-overlay';
     overlay.innerHTML = `
       <div class="maintenance-card">
-        <div class="maintenance-icon">g���</div>
+        <div class="maintenance-icon">🔧</div>
         <h2 class="maintenance-title">Bakım Modu</h2>
         <div id="maintenanceOverlayMsg" class="maintenance-msg"></div>
         <div id="maintenanceOverlayUntil" class="maintenance-until"></div>
@@ -10248,7 +10377,7 @@ window.adminSendNotificationV2Enhanced = async function() {
     renderAdminNotificationHistory();
   } catch (err) {
     console.error('Notification error:', err);
-    showToast('Bildirim g�nderilemedi: ' + err.message, 'error');
+    showToast('Bildirim gönderilemedi: ' + err.message, 'error');
   } finally {
     if (btnText) btnText.style.opacity = '1';
     if (loader) loader.style.display = 'none';

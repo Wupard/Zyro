@@ -1,0 +1,7 @@
+Created At: 2026-11-12T22:57:54+03:00
+Completed At: 2026-11-12T22:57:55+03:00
+Command exited with code 0.
+
+Command output:
+Notlar style len: 22686
+Hesap style len: 22188

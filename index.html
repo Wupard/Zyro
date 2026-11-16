@@ -16,7 +16,7 @@
   <link rel="preload" href="fonts/hanken-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="fonts/bricolage-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="fonts/fonts.css">
-  <link rel="stylesheet" href="styles.css?v=3.1">
+  <link rel="stylesheet" href="styles.css?v=3.2">
   <link rel="stylesheet" href="dashboard/dashboard.css?v=3">
   <link rel="stylesheet" href="workouts/workouts.css?v=2">
   <link rel="stylesheet" href="posture/posture.css?v=1">
@@ -110,6 +110,11 @@
       <symbol id="zr-i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
       <symbol id="zr-i-bell" viewBox="0 0 24 24"><path d="M6 9a6 6 0 0112 0c0 5 2 6 2 7H4c0-1 2-2 2-7zM10 20a2 2 0 004 0"/></symbol>
       <symbol id="zr-i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" stroke-width="2.4"/></symbol>
+      <symbol id="zr-i-users" viewBox="0 0 24 24"><path d="M9 11a3 3 0 100-6 3 3 0 000 6zM3 19c0-3 3-5 6-5s6 2 6 5M17 7a3 3 0 010 6M21 19c0-2-1-3.5-3-4.5"/></symbol>
+      <symbol id="zr-i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+      <symbol id="zr-i-warn" viewBox="0 0 24 24"><path d="M12 4l9 16H3zM12 10v4M12 17v.5"/></symbol>
+      <symbol id="zr-i-refresh" viewBox="0 0 24 24"><path d="M20 11a8 8 0 10-2 6M20 4v7h-7"/></symbol>
+      <symbol id="zr-i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
       <symbol id="i-image" viewBox="0 0 24 24"><use href="#zr-i-image"/></symbol>
       <symbol id="i-spark" viewBox="0 0 24 24"><use href="#zr-i-spark"/></symbol>
       <symbol id="i-pulse" viewBox="0 0 24 24"><use href="#zr-i-pulse"/></symbol>
@@ -592,8 +597,11 @@
           <div id="wchart"></div>
           <div class="pv-err" id="werr" role="alert"></div>
         </section>
-        <section class="pv-p pv-s4">
-          <div class="pv-lab"><b>Kayıtlar</b><span class="pv-tag" id="wcnt">0</span></div>
+        <section class="pv-p pv-s4" id="weightLogSection">
+          <div class="pv-lab pv-collapsible-head" role="button" tabindex="0" aria-expanded="true" onclick="toggleWeightLog()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleWeightLog();}">
+            <span style="display:flex;align-items:center;gap:10px;"><b>Kayıtlar</b><span class="pv-tag" id="wcnt">0</span></span>
+            <svg class="pv-chev" id="wlistChev" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+          </div>
           <div class="pv-ents" id="wlist"></div>
         </section>
 
@@ -620,6 +628,18 @@
             <div class="pv-chips" id="prChips" role="group" aria-label="Kategori"></div>
             <div id="prl"></div>
           </details>
+        </section>
+
+        <!-- Kaldırış Geçmişi -->
+        <section class="pv-p pv-s12" id="liftHistorySection">
+          <div class="pv-sec-h">
+            <div>
+              <h2 class="pv-h2">Kaldırış geçmişi</h2>
+              <p class="pv-sub">Tüm antrenman kayıtların</p>
+            </div>
+            <span class="pv-tag" id="lhCount">0</span>
+          </div>
+          <div class="lh-list" id="lhList"></div>
         </section>
 
       </div>
@@ -1126,274 +1146,150 @@
 
     <!-- ============ PAGE: ADMIN ============ -->
     <div class="page" data-page="admin" id="pageAdmin">
-      <div class="admin-card-premium">
-        <div class="admin-header-main">
-          <div class="admin-brand-section">
-            <div class="admin-crown-icon">
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
-              </svg>
-            </div>
-            <div>
-              <h2 class="admin-title">Yönetim Merkezi</h2>
-              <p class="admin-subtitle">Zyro Global Admin Paneli</p>
-            </div>
-          </div>
-          <div class="admin-status-badge">Sistem Aktif</div>
+      <header class="hd">
+        <div>
+          <h1>Yönetim <b>merkezi</b></h1>
+          <p>Zyro global admin paneli</p>
         </div>
+        <div class="hb">
+          <span class="live" id="adminLiveStatus"><i></i><span>Sistem aktif</span></span>
+        </div>
+      </header>
 
-        <div class="admin-nav-tabs">
-          <button onclick="adminShowSection('dashboard')" class="admin-tab-btn active" id="adminTabDashboard">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
-              <rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
-            </svg>
-            Genel Bakış
-          </button>
-          <button onclick="adminShowSection('notifications')" class="admin-tab-btn" id="adminTabNotifications">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
-              <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
-            </svg>
-            Duyurular
-          </button>
-          <button onclick="adminShowSection('users')" class="admin-tab-btn" id="adminTabUsers">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-              <circle cx="9" cy="7" r="4"/>
-              <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><circle cx="19" cy="11" r="4"/>
-            </svg>
-            Kullanıcılar
-          </button>
-          <button onclick="adminShowSection('comments')" class="admin-tab-btn" id="adminTabComments">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
-            </svg>
-            Yorumlar
-          </button>
-          <button onclick="adminShowSection('reports')" class="admin-tab-btn" id="adminTabReports">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/>
-              <line x1="4" y1="22" x2="4" y2="15"/>
-            </svg>
-            Raporlar
-          </button>
-        </div>
+      <div class="atabs" role="tablist" aria-label="Yönetim bölümleri">
+        <button role="tab" id="adminTabDashboard" aria-selected="true" class="active" onclick="adminShowSection('dashboard')"><svg class="i" width="19" height="19" viewBox="0 0 24 24" aria-hidden="true"><use href="#zr-i-grid"/></svg>Genel bakış</button>
+        <button role="tab" id="adminTabNotifications" aria-selected="false" onclick="adminShowSection('notifications')"><svg class="i" width="19" height="19" viewBox="0 0 24 24" aria-hidden="true"><use href="#zr-i-bell"/></svg>Duyurular</button>
+        <button role="tab" id="adminTabUsers" aria-selected="false" onclick="adminShowSection('users')"><svg class="i" width="19" height="19" viewBox="0 0 24 24" aria-hidden="true"><use href="#zr-i-users"/></svg>Kullanıcılar</button>
+        <button role="tab" id="adminTabComments" aria-selected="false" onclick="adminShowSection('comments')"><svg class="i" width="19" height="19" viewBox="0 0 24 24" aria-hidden="true"><use href="#zr-i-chat"/></svg>Yorumlar</button>
+        <button role="tab" id="adminTabReports" aria-selected="false" onclick="adminShowSection('reports')"><svg class="i" width="19" height="19" viewBox="0 0 24 24" aria-hidden="true"><use href="#zr-i-flag"/></svg>Raporlar</button>
       </div>
 
-      <!-- ── DASHBOARD ── -->
-      <div id="adminDashboardSection" class="admin-content-section">
-        <div class="admin-stats-grid">
-          <div class="admin-stat-card">
-            <div class="admin-stat-icon" style="background:rgba(139,124,247,0.12);">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8b7cf7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><circle cx="19" cy="11" r="4"/></svg>
-            </div>
-            <div class="admin-stat-value" id="adminTotalUsers">—</div>
-            <div class="admin-stat-label">Toplam Kullanıcı</div>
+      <!-- ── GENEL BAKIŞ ── -->
+      <div class="tp" id="adminDashboardSection">
+        <div class="st4">
+          <div class="sc">
+            <div class="ic2"><svg class="i" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><use href="#zr-i-users"/></svg></div>
+            <b id="adminTotalUsers">—</b><span>Toplam kullanıcı</span>
           </div>
-          <div class="admin-stat-card">
-            <div class="admin-stat-icon" style="background:rgba(0,210,130,0.1);">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00d282" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
-            </div>
-            <div class="admin-stat-value" id="adminActiveUsers">—</div>
-            <div class="admin-stat-label">Aktif Kullanıcı</div>
+          <div class="sc">
+            <div class="ic2"><svg class="i" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><use href="#zr-i-pulse"/></svg></div>
+            <b id="adminActiveUsers">—</b><span>Aktif kullanıcı</span>
           </div>
-          <div class="admin-stat-card">
-            <div class="admin-stat-icon" style="background:rgba(79,142,247,0.12);">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#4f8ef7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
-            </div>
-            <div class="admin-stat-value" id="adminTodayComments">—</div>
-            <div class="admin-stat-label">Bugünkü Yorumlar</div>
+          <div class="sc">
+            <div class="ic2"><svg class="i" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><use href="#zr-i-chat"/></svg></div>
+            <b id="adminTodayComments">—</b><span>Bugünkü yorumlar</span>
           </div>
-          <div class="admin-stat-card">
-            <div class="admin-stat-icon" style="background:rgba(255,165,0,0.1);">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ffa500" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-            </div>
-            <div class="admin-stat-value" id="adminTodayDate" style="font-size:1.1rem;">—</div>
-            <div class="admin-stat-label">Sistem Tarihi</div>
+          <div class="sc">
+            <div class="ic2"><svg class="i" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><use href="#zr-i-clock"/></svg></div>
+            <b class="sm" id="adminTodayDate">—</b><span>Sistem tarihi</span>
           </div>
         </div>
-
-        <div style="padding:0 2px;">
-          <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
-            <div style="width:4px;height:22px;background:linear-gradient(180deg,#8b7cf7,#4f8ef7);border-radius:2px;flex-shrink:0;"></div>
-            <h3 style="margin:0;font-size:0.95rem;font-weight:800;color:var(--text-primary);">Son Aktivite</h3>
+        <section class="pn">
+          <div class="lab"><b>Son aktivite</b></div>
+          <div id="adminRecentActivity"><div class="empty">Yükleniyor...</div></div>
+        </section>
+        <section class="pn">
+          <div class="lab"><b>Sistem işlemleri</b></div>
+          <p class="ptx">Otomatik başarım tarama sistemi aktif. Başarımlar, kullanıcı giriş yaptığında geçmiş rekorlarına göre otomatik tanımlanır.</p>
+          <div class="dz">
+            <div><b><svg class="i" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><use href="#zr-i-warn"/></svg>XP sistemi tam sıfırlama</b><p>Tüm kullanıcıların XP'si sıfıra indirilir. Her kullanıcının mevcut XP'si hesaplanıp ters işaretli fark olarak kaydedilir. Kullanıcılar yeniden antrenman yaparak sıfırdan XP kazanmaya başlar.</p></div>
+            <button class="btn dg" id="adminResetXPBtn" onclick="adminResetAllXP()"><svg class="i" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><use href="#zr-i-refresh"/></svg>Tüm XP'leri sıfırla</button>
           </div>
-          <div id="adminRecentActivity" style="color:var(--text-muted);font-size:0.85rem;padding:20px;border-radius:12px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.05);text-align:center;">
-            Yükleniyor...
-          </div>
-        </div>
-
-        <div style="padding:0 2px; margin-top:24px;">
-          <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
-            <div style="width:4px;height:22px;background:linear-gradient(180deg,#f59e0b,#fbbf24);border-radius:2px;flex-shrink:0;"></div>
-            <h3 style="margin:0;font-size:0.95rem;font-weight:800;color:var(--text-primary);">Sistem İşlemleri</h3>
-          </div>
-          <div style="display:flex; flex-direction:column; gap:12px; padding:16px; border-radius:12px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.05);">
-            <div style="font-size:0.8rem; color:var(--text-muted); line-height:1.5;">
-              Otomatik başarım tarama sistemi aktif. Başarımlar kullanıcı giriş yaptığında geçmiş rekorlarına göre otomatik tanımlanır.
-            </div>
-            <div style="height:1px; background:rgba(255,255,255,0.06);"></div>
-            <div style="display:flex; flex-direction:column; gap:10px;">
-              <div style="font-size:0.85rem; font-weight:700; color:var(--text-primary);">⚠️ XP Sistemi Tam Sıfırlama</div>
-              <div style="font-size:0.75rem; color:var(--text-muted); line-height:1.5;">Tüm kullanıcıların XP'si sıfıra indirilir. Her kullanıcının mevcut organik XP'si hesaplanarak xpOffset olarak ters işaretle kaydedilir. Kullanıcılar yeniden antrenman yaparak sıfırdan XP kazanmaya başlar.</div>
-              <button id="adminResetXPBtn" onclick="adminResetAllXP()" style="width:100%; padding:12px 16px; background:rgba(239,68,68,0.15); border:1px solid rgba(239,68,68,0.35); color:#f87171; border-radius:10px; cursor:pointer; font-size:0.85rem; font-weight:800; transition:all 0.2s; margin-right:70px; box-sizing:border-box;">
-                🔄 Tüm XP'leri Sıfırla
-              </button>
-            </div>
-          </div>
-        </div>
+        </section>
       </div>
 
-      <!-- ── REPORTS ── -->
-      <div id="adminReportsSection" class="admin-content-section" style="display:none;">
-        <div class="admin-section-header">
-          <h3 class="admin-section-title">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-            Kullanıcı Raporları
-          </h3>
-          <button onclick="adminLoadReports()" class="btn-small" style="display:flex;align-items:center;gap:6px;">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
-            Yenile
-          </button>
-        </div>
-        <div style="padding:16px;">
-          <div id="adminReportsList"><div class="logged-empty">Yükleniyor...</div></div>
-        </div>
+      <!-- ── RAPORLAR ── -->
+      <div class="tp" id="adminReportsSection" style="display:none;">
+        <section class="pn">
+          <div class="lab"><b>Kullanıcı raporları</b>
+            <button class="ghost" onclick="adminLoadReports()" style="padding:6px 14px;"><svg class="i" width="14" height="14" viewBox="0 0 24 24" aria-hidden="true" style="vertical-align:-2px;margin-right:6px;"><use href="#zr-i-refresh"/></svg>Yenile</button>
+          </div>
+          <div id="adminReportsList"><div class="empty">Yükleniyor...</div></div>
+        </section>
       </div>
 
       <!-- ── DUYURULAR ── -->
-      <div id="adminNotificationsSection" class="admin-content-section" style="display:none;">
-        <div class="admin-section-header">
-          <h3 class="admin-section-title">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8b7cf7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-            Duyuru & Bildirim Yönetimi
-          </h3>
-        </div>
-
-        <div style="padding:24px; display:flex; flex-direction:column; gap:20px;">
-          <!-- Target -->
-          <div class="input-group">
-            <label style="font-size:0.72rem;font-weight:700;color:var(--text-muted);margin-bottom:8px;display:block;text-transform:uppercase;letter-spacing:0.06em;">Hedef Kullanıcı(lar)</label>
-            <select id="adminNotifRecipient" class="log-input" onchange="toggleAdminUidInput(this.value)">
-              <option value="all">🌍 Tüm Kullanıcılar</option>
-              <option value="specific">👤 Belirli Kullanıcı (UID)</option>
+      <div class="tp" id="adminNotificationsSection" style="display:none;">
+        <div class="g">
+          <section class="pn c7" aria-label="Bildirim yayınla">
+            <div class="lab"><b>Duyuru ve bildirim yönetimi</b></div>
+            <label class="cap" for="adminNotifRecipient">Hedef kullanıcı(lar)</label>
+            <select class="in" id="adminNotifRecipient" onchange="toggleAdminUidInput(this.value)">
+              <option value="all">Tüm kullanıcılar</option>
+              <option value="specific">Belirli kullanıcı (UID)</option>
             </select>
-          </div>
-
-          <div id="adminNotifUidWrap" class="input-group" style="display:none;">
-            <label style="font-size:0.72rem;font-weight:700;color:var(--text-muted);margin-bottom:8px;display:block;text-transform:uppercase;letter-spacing:0.06em;">Kullanıcı UID</label>
-            <input type="text" id="adminNotifUid" class="log-input" placeholder="Örn: u8xJ...7vQ2">
-          </div>
-
-          <!-- Category + Title — side by side -->
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
-            <div class="input-group">
-              <label style="font-size:0.72rem;font-weight:700;color:var(--text-muted);margin-bottom:8px;display:block;text-transform:uppercase;letter-spacing:0.06em;">Kategori</label>
-              <select id="adminNotifCategory" class="log-input">
-                <option value="system">🔧 Sistem Güncellemesi</option>
-                <option value="announcement">📢 Duyuru</option>
-                <option value="feature">✨ Yeni Özellik</option>
-                <option value="maintenance">🔨 Bakım</option>
-                <option value="urgent">⚠️ Acil Bildirim</option>
-              </select>
+            <div id="adminNotifUidWrap" style="display:none;margin-top:16px;">
+              <label class="cap" for="adminNotifUid">Kullanıcı UID</label>
+              <input class="in" type="text" id="adminNotifUid" placeholder="Örn: u8xJ...7vQ2">
             </div>
-            <div class="input-group">
-              <label style="font-size:0.72rem;font-weight:700;color:var(--text-muted);margin-bottom:8px;display:block;text-transform:uppercase;letter-spacing:0.06em;">Başlık</label>
-              <input type="text" id="adminNotifTitle" class="log-input" placeholder="Bildirim başlığı">
+            <div class="f2">
+              <div>
+                <label class="cap" for="adminNotifCategory">Kategori</label>
+                <select class="in" id="adminNotifCategory">
+                  <option value="system">🔧 Sistem güncellemesi</option>
+                  <option value="announcement">📢 Duyuru</option>
+                  <option value="feature">✨ Yeni özellik</option>
+                  <option value="maintenance">🔨 Bakım</option>
+                  <option value="urgent">⚠️ Acil bildirim</option>
+                </select>
+              </div>
+              <div>
+                <label class="cap" for="adminNotifTitle">Başlık</label>
+                <input class="in" type="text" id="adminNotifTitle" placeholder="Bildirim başlığı" maxlength="80">
+              </div>
             </div>
-          </div>
-
-          <!-- Message -->
-          <div class="input-group">
-            <label style="font-size:0.72rem;font-weight:700;color:var(--text-muted);margin-bottom:8px;display:block;text-transform:uppercase;letter-spacing:0.06em;">Mesaj İçeriği</label>
-            <textarea id="adminNotifMessage" class="note-input" rows="4" placeholder="Kullanıcılara gösterilecek mesaj..."></textarea>
-          </div>
-
-          <!-- Expiry -->
-          <div class="input-group">
-            <label style="font-size:0.72rem;font-weight:700;color:var(--text-muted);margin-bottom:8px;display:block;text-transform:uppercase;letter-spacing:0.06em;">Geçerlilik Süresi</label>
-            <div style="display:flex;gap:8px;align-items:center;">
-              <div style="display:flex;flex-direction:column;gap:4px;align-items:center;">
-                <input type="number" id="adminNotifExpiryDays" class="log-input small" value="7" min="0" placeholder="0" style="width:72px;text-align:center;">
-                <span style="font-size:0.65rem;color:var(--text-muted);">Gün</span>
-              </div>
-              <div style="display:flex;flex-direction:column;gap:4px;align-items:center;">
-                <input type="number" id="adminNotifExpiryHours" class="log-input small" value="0" min="0" max="23" placeholder="0" style="width:72px;text-align:center;">
-                <span style="font-size:0.65rem;color:var(--text-muted);">Saat</span>
-              </div>
-              <div style="display:flex;flex-direction:column;gap:4px;align-items:center;">
-                <input type="number" id="adminNotifExpiryMinutes" class="log-input small" value="0" min="0" max="59" placeholder="0" style="width:72px;text-align:center;">
-                <span style="font-size:0.65rem;color:var(--text-muted);">Dakika</span>
-              </div>
+            <label class="cap" for="adminNotifMessage" style="margin-top:16px">Mesaj içeriği</label>
+            <textarea class="in" id="adminNotifMessage" placeholder="Kullanıcılara gösterilecek mesaj…"></textarea>
+            <label class="cap" style="margin-top:16px">Geçerlilik süresi</label>
+            <div class="dur">
+              <div class="fld"><input class="in" id="adminNotifExpiryDays" inputmode="numeric" value="7" aria-label="Gün"><em>gün</em></div>
+              <div class="fld"><input class="in" id="adminNotifExpiryHours" inputmode="numeric" value="0" aria-label="Saat"><em>saat</em></div>
+              <div class="fld"><input class="in" id="adminNotifExpiryMinutes" inputmode="numeric" value="0" aria-label="Dakika"><em>dk</em></div>
             </div>
             <input type="hidden" id="adminNotifExpiry" value="7">
-          </div>
-
-          <!-- Notification History -->
-          <div id="adminNotifHistorySection" style="padding-top:16px; border-top:1px solid rgba(255,255,255,0.06);">
-            <h4 style="font-size:0.82rem;font-weight:700;color:var(--text-secondary);margin:0 0 12px;display:flex;align-items:center;justify-content:space-between;width:100%;">
-              <span style="display:flex;align-items:center;gap:8px;">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-                Gönderilen Bildirimler
-              </span>
-              <button onclick="clearAdminNotificationHistory()" style="background:none;border:none;color:var(--accent-primary);font-size:0.75rem;cursor:pointer;font-weight:600;padding:2px 8px;border-radius:4px;transition:all 0.2s;" onmouseenter="this.style.background='rgba(139,124,247,0.1)'" onmouseleave="this.style.background='none'">Geçmişi Temizle</button>
-            </h4>
-            <div id="adminNotifHistory" style="display:flex;flex-direction:column;gap:8px;max-height:200px;overflow-y:auto;"></div>
-          </div>
-
-          <!-- Maintenance mode -->
-          <div class="admin-only admin-maintenance">
-            <div class="admin-maintenance-header">
-              <h4 class="admin-maintenance-title">🔧 Bakım Modu</h4>
-              <div id="adminMaintenanceStatus" class="admin-maintenance-status"></div>
-            </div>
-            <div class="admin-maintenance-body">
-              <label class="admin-maintenance-label">Mesaj (kullanıcılara gösterilecek)</label>
-              <input type="text" id="adminMaintenanceMessage" class="log-input" placeholder="Bakım sebebi veya bilgilendirme mesajı...">
-              <label class="admin-maintenance-label">Süre</label>
-              <div class="admin-maintenance-duration">
-                <input type="number" id="adminMaintenanceExpiryDays" class="log-input small" value="0" min="0" placeholder="Gün" style="width:80px;">
-                <input type="number" id="adminMaintenanceExpiryHours" class="log-input small" value="1" min="0" max="23" placeholder="Saat" style="width:80px;">
-                <input type="number" id="adminMaintenanceExpiryMinutes" class="log-input small" value="0" min="0" max="59" placeholder="Dakika" style="width:100px;">
-              </div>
-              <div class="admin-maintenance-actions">
-                <button class="btn-primary" id="adminSaveMaintenanceBtn">Bakım Modunu Kaydet / Aç</button>
-                <button class="btn-small" id="adminClearMaintenanceBtn">Kapat</button>
-              </div>
-            </div>
-          </div>
-
-          <!-- Send button -->
-          <button class="btn-primary" onclick="adminSendNotificationV2()" style="width:100%;padding:14px;font-size:0.95rem;display:flex;align-items:center;justify-content:center;gap:10px;">
-            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-            <span id="adminNotifBtnText">Bildirimi Yayınla</span>
-            <div class="loader-mini" id="adminNotifLoader" style="display:none;"></div>
-          </button>
+            <button class="btn w" onclick="adminSendNotificationV2()">
+              <svg class="i" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><use href="#zr-i-send"/></svg>
+              <span id="adminNotifBtnText">Bildirimi yayınla</span>
+              <div class="loader-mini" id="adminNotifLoader" style="display:none;"></div>
+            </button>
+          </section>
+          <section class="pn c5" aria-label="Gönderilen bildirimler">
+            <div class="lab"><b>Gönderilen bildirimler</b><button class="ghost" onclick="clearAdminNotificationHistory()" style="padding:6px 14px;">Geçmişi temizle</button></div>
+            <div class="nl" id="adminNotifHistory"></div>
+          </section>
         </div>
+        <section class="pn" aria-label="Bakım modu">
+          <div class="lab"><b>Bakım modu</b><span class="tag" id="adminMaintenanceStatus">Kapalı</span></div>
+          <p class="ptx">Bakım modu açıkken kullanıcılar siteyi kullanamaz, sadece aşağıdaki mesajı görür.</p>
+          <label class="cap" for="adminMaintenanceMessage" style="margin-top:16px">Kullanıcılara gösterilecek mesaj</label>
+          <input class="in" type="text" id="adminMaintenanceMessage" placeholder="Bakım sebebi veya bilgilendirme mesajı…" maxlength="160">
+          <label class="cap" style="margin-top:16px">Süre</label>
+          <div class="dur">
+            <div class="fld"><input class="in" id="adminMaintenanceExpiryDays" inputmode="numeric" value="0" aria-label="Gün"><em>gün</em></div>
+            <div class="fld"><input class="in" id="adminMaintenanceExpiryHours" inputmode="numeric" value="1" aria-label="Saat"><em>saat</em></div>
+            <div class="fld"><input class="in" id="adminMaintenanceExpiryMinutes" inputmode="numeric" value="0" aria-label="Dakika"><em>dk</em></div>
+          </div>
+          <div class="row2" style="justify-content:flex-start;margin-top:14px;">
+            <button class="btn" id="adminSaveMaintenanceBtn">Kaydet ve aç</button>
+            <button class="ghost" id="adminClearMaintenanceBtn">Kapat</button>
+          </div>
+        </section>
       </div>
 
-      <!-- ── KULLANICLAR ── -->
-      <div id="adminUsersSection" class="admin-content-section" style="display:none;">
-        <div class="admin-section-header">
-          <h3 class="admin-section-title">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4f8ef7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><circle cx="19" cy="11" r="4"/></svg>
-            Kullanıcı Yönetimi
-          </h3>
-          <div id="adminUserCount" style="font-size:0.78rem;color:var(--text-muted);font-weight:600;"></div>
-        </div>
-        <div id="adminUsersList" style="padding:10px;"></div>
+      <!-- ── KULLANICILAR ── -->
+      <div class="tp" id="adminUsersSection" style="display:none;">
+        <section class="pn">
+          <div class="lab"><b>Kullanıcı yönetimi</b><span class="tag" id="adminUserCount"></span></div>
+          <div id="adminUsersList"></div>
+        </section>
       </div>
 
       <!-- ── YORUMLAR ── -->
-      <div id="adminCommentsSection" class="admin-content-section" style="display:none;">
-        <div class="admin-section-header">
-          <h3 class="admin-section-title">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8b7cf7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
-            Yorum Yönetimi
-          </h3>
-        </div>
-        <div id="adminAllCommentsList" style="padding:10px;"></div>
+      <div class="tp" id="adminCommentsSection" style="display:none;">
+        <section class="pn">
+          <div class="lab"><b>Yorum yönetimi</b></div>
+          <div id="adminAllCommentsList"></div>
+        </section>
       </div>
 
     </div>
@@ -1594,7 +1490,7 @@
   <script src="dashboard/app.js?v=2" defer></script>
 
   <!-- Approved v2 Workouts + Posture pages are loaded on first visit -->
-  <script src="app.js?v=3.2" defer></script>
+  <script src="app.js?v=3.3" defer></script>
 
 
 

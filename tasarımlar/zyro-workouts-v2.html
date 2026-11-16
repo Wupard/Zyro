@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Zyro – Antrenmanlar</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300;12..96,500;12..96,700&family=Hanken+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#13161b;--text:#eceef1;--mute:#8a919c;--steel:#8fb3cc;--sand:#dcc7a8;--ease:cubic-bezier(.22,.8,.24,1);--d:'Bricolage Grotesque','Segoe UI',sans-serif;--b:'Hanken Grotesk','Segoe UI',sans-serif}
+*{box-sizing:border-box;margin:0}
+body{background:var(--bg);color:var(--text);font:400 15px/1.5 var(--b);min-height:100vh;display:flex;position:relative;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+body::before{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;background:radial-gradient(circle 560px at 88% -4%,rgba(143,179,204,.17),transparent),radial-gradient(circle 460px at 24% 104%,rgba(220,199,168,.1),transparent)}
+a{color:inherit;text-decoration:none}
+:focus-visible{outline:2px solid var(--steel);outline-offset:3px;border-radius:8px}
+svg.i{width:19px;height:19px;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;flex:none}
+
+.rail{position:sticky;top:0;height:100vh;width:236px;flex:none;padding:30px 18px;display:flex;flex-direction:column;gap:30px;z-index:2;border-right:1px solid rgba(255,255,255,.06);background:rgba(19,22,27,.94)}
+.brand{display:flex;align-items:center;gap:12px;font:700 21px var(--d);padding-left:10px}
+.nav{display:flex;flex-direction:column;gap:4px}
+.nav a{display:flex;gap:14px;align-items:center;padding:11px 12px;border-radius:12px;color:var(--mute);font-size:14.5px;transition:.25s var(--ease)}
+.nav a:hover{color:var(--text);background:rgba(255,255,255,.04)}
+.nav a[aria-current]{color:var(--text);background:linear-gradient(90deg,rgba(143,179,204,.2),rgba(143,179,204,.03));box-shadow:inset 2px 0 var(--steel)}
+.lvl{margin-top:auto;padding:14px;border-radius:16px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);font-size:13px}
+.lvl b{font:500 15px var(--d);display:block}.lvl span{color:var(--mute)}
+.xp{height:4px;border-radius:4px;background:rgba(255,255,255,.08);margin-top:10px;overflow:hidden}
+
+main{flex:1;min-width:0;margin:0 auto;width:100%;padding:40px clamp(20px,4vw,56px) 64px;position:relative;z-index:1;max-width:1240px}
+header{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:30px;gap:20px}
+h1{font:300 clamp(34px,4.4vw,54px)/1 var(--d);letter-spacing:-.03em}h1 b{font-weight:700}
+.sub{color:var(--mute);margin-top:10px}
+.pill{padding:10px 18px;border-radius:999px;border:1px solid rgba(220,199,168,.3);background:rgba(220,199,168,.08);color:var(--sand);font-weight:500;white-space:nowrap}
+
+.p{background:linear-gradient(160deg,rgba(255,255,255,.065),rgba(255,255,255,.015));border:1px solid rgba(255,255,255,.075);border-radius:24px;padding:26px;position:relative}
+.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:18px;margin-top:18px}
+.s8{grid-column:span 8}.s4{grid-column:span 4}.s7{grid-column:span 7}.s5{grid-column:span 5}
+.lab{color:var(--mute);font-size:13.5px;display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;gap:10px}
+.lab b{font:500 19px var(--d);color:var(--text)}
+
+/* day chips */
+.days{display:grid;grid-template-columns:repeat(7,1fr);gap:10px}
+.day{border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.03);color:var(--mute);border-radius:18px;padding:13px 14px 12px;text-align:left;cursor:pointer;font:inherit;transition:.3s var(--ease);position:relative;overflow:hidden}
+.day small{display:flex;justify-content:space-between;font-size:12.5px}
+.day b{display:block;font:500 18px var(--d);color:var(--text);margin:4px 0 10px}
+.day i{display:block;height:3px;border-radius:3px;background:rgba(255,255,255,.08);overflow:hidden}
+.day i u{display:block;height:100%;width:var(--w,0%);background:linear-gradient(90deg,var(--steel),var(--sand));transition:width .6s var(--ease)}
+.day:hover:not(.rest){border-color:rgba(255,255,255,.2)}
+.day[aria-selected=true]{border-color:var(--steel);background:linear-gradient(160deg,rgba(143,179,204,.2),rgba(143,179,204,.04))}
+.day.today small::after{content:"";width:6px;height:6px;border-radius:50%;background:var(--sand);order:2;align-self:center}
+.day.rest{border-style:dashed;cursor:default;opacity:.55}.day.rest b{color:var(--mute);font-size:15px}
+
+/* list */
+.head{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:8px}
+.head h2{font:700 clamp(30px,3.4vw,42px)/1 var(--d);letter-spacing:-.03em}
+.head p{color:var(--sand);margin-top:8px;font-size:14px}
+.hr{display:flex;align-items:center;gap:16px}
+.rw{position:relative;width:74px;height:74px;flex:none;display:grid;place-items:center}
+.rw svg{position:absolute;inset:0;transform:rotate(-90deg)}.rw circle{fill:none;stroke-width:7;stroke-linecap:round}
+.rw .t{stroke:rgba(255,255,255,.08)}.rw .v{stroke:url(#rg);stroke-dasharray:1;stroke-dashoffset:1;transition:stroke-dashoffset .8s var(--ease)}
+.rw b{font:500 17px var(--d)}
+.seg{display:inline-flex;background:rgba(255,255,255,.06);border-radius:12px;padding:3px}
+.seg button{border:0;background:none;color:var(--mute);font:500 12.5px var(--b);padding:7px 12px;border-radius:9px;cursor:pointer}
+.seg button[aria-pressed=true]{background:rgba(255,255,255,.14);color:var(--text)}
+
+.ex{border-top:1px solid rgba(255,255,255,.07)}
+.ex.ent{animation:in .5s var(--ease) both;animation-delay:calc(var(--n)*45ms)}
+@keyframes in{from{opacity:0;transform:translateY(6px)}}
+.ex-h{width:100%;display:flex;align-items:center;gap:16px;background:none;border:0;color:inherit;font:inherit;text-align:left;padding:16px 0;cursor:pointer}
+.nm{flex:1;min-width:0;font:500 16px var(--b);transition:color .3s}.nm span{display:block;color:var(--mute);font-size:12.5px;font-weight:400}
+.meta{text-align:right;flex:none}.meta b{font:500 17px var(--d);display:block}.meta span{font-size:12.5px;color:var(--mute)}
+.prog{display:flex;gap:5px;flex:none}.prog u{width:9px;height:9px;border-radius:50%;background:rgba(255,255,255,.14);transition:background .3s}.prog u.on{background:var(--steel)}
+.chev{stroke:var(--mute);transition:transform .35s var(--ease);flex:none}.ex.open .chev{transform:rotate(180deg)}
+.ex.ok .nm{color:var(--mute)}.ex.ok .prog u.on{background:var(--sand)}
+.sets{display:grid;grid-template-rows:0fr;transition:grid-template-rows .45s var(--ease)}
+.ex.open .sets{grid-template-rows:1fr}
+.sets>div{overflow:hidden;min-height:0}
+.ex:not(.open) .sets>div{visibility:hidden;transition:visibility 0s .45s}
+.sets-in{padding:2px 0 20px}
+.sr-row{display:grid;grid-template-columns:50px 1fr 1fr 46px;gap:10px;align-items:center;margin-bottom:10px}
+.sr-row label{color:var(--mute);font-size:13px}
+.fld{position:relative}.fld .in{padding-right:56px}
+.fld em{position:absolute;right:14px;top:50%;transform:translateY(-50%);font-style:normal;color:var(--mute);font-size:12px;pointer-events:none}
+.in.bad{border-color:#d9a3a3}
+.sr-row.ok .in{opacity:.55}
+.ck{width:46px;height:46px;border-radius:14px;border:1.5px solid rgba(255,255,255,.2);background:none;cursor:pointer;display:grid;place-items:center;transition:.25s var(--ease);color:transparent}
+.ck:hover{border-color:var(--steel)}.ck[aria-pressed=true]{background:var(--steel);border-color:var(--steel);color:#13161b}
+.foot{display:flex;justify-content:space-between;align-items:center;color:var(--mute);font-size:13px;margin-top:6px}
+.w{display:inline-flex;gap:6px;align-items:center;font-size:12.5px;color:var(--mute);padding:6px 12px;border-radius:999px;border:1px solid rgba(255,255,255,.12);transition:.25s}
+.w:hover{color:var(--text);border-color:var(--sand)}
+
+.note{display:flex;gap:12px;padding:14px 0;border-top:1px solid rgba(255,255,255,.07);color:var(--mute);font-size:14px}
+.note:first-of-type{border:0;padding-top:0}.note b{color:var(--text);font-weight:500}
+.big{font:300 40px/1.05 var(--d);letter-spacing:-.02em;margin:4px 0 12px}
+
+/* free log */
+.cap{display:block;color:var(--mute);font-size:13px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center}
+.in{width:100%;background:rgba(0,0,0,.22);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:13px 14px;color:var(--text);font:inherit;transition:border-color .25s}
+.in:focus{outline:0;border-color:var(--steel)}.in option{background:#1a1d22}
+.chips{display:flex;gap:8px;overflow-x:auto;padding-bottom:6px;scrollbar-width:none}
+.chips button{border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03);color:var(--mute);border-radius:999px;padding:8px 15px;font:inherit;font-size:13.5px;cursor:pointer;white-space:nowrap;transition:.25s var(--ease)}
+.chips button:hover{color:var(--text)}
+.chips button[aria-pressed=true]{color:var(--text);border-color:var(--steel);background:rgba(143,179,204,.16)}
+.f3{display:grid;grid-template-columns:1.3fr 1fr 1fr;gap:14px;margin-top:18px}
+.st{display:flex;align-items:center;gap:4px;background:rgba(0,0,0,.22);border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:5px;transition:border-color .25s}
+.st:focus-within{border-color:var(--steel)}
+.st button{width:36px;height:40px;flex:none;border-radius:11px;border:0;background:rgba(255,255,255,.07);color:var(--text);font-size:19px;cursor:pointer;transition:background .2s}
+.st button:hover{background:rgba(255,255,255,.14)}
+.st input{width:100%;min-width:0;background:none;border:0;text-align:center;color:var(--text);font:500 21px var(--d)}.st input:focus{outline:0}
+.btn{width:100%;margin-top:20px;display:flex;gap:10px;justify-content:center;align-items:center;background:var(--text);color:#13161b;border:0;border-radius:999px;padding:14px 26px;font:600 15px var(--b);cursor:pointer;transition:.3s var(--ease)}
+.btn:hover{background:var(--sand);transform:translateY(-2px)}
+.link{display:flex;justify-content:space-between;margin-top:14px;padding:14px 18px;border-radius:16px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.03);color:var(--steel);font-weight:500;transition:.25s}
+.link:hover{border-color:var(--steel)}
+.err{color:#d9a3a3;font-size:13px;margin-top:10px;min-height:20px}
+.lg{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;padding:14px 0;border-top:1px solid rgba(255,255,255,.07)}
+.lg:first-child{border:0;padding-top:0}
+.lg b{font:500 18px var(--d);white-space:nowrap}.lg>span{color:var(--mute);font-size:13.5px}
+.sch{display:flex;gap:6px;flex-wrap:wrap;margin-top:7px}.sch i{font-style:normal;font-size:12.5px;color:var(--mute);background:rgba(255,255,255,.06);padding:3px 10px;border-radius:999px}
+.empty{border:1px dashed rgba(255,255,255,.14);border-radius:18px;padding:30px;color:var(--mute);text-align:center}
+.tag{padding:4px 12px;border-radius:999px;background:rgba(255,255,255,.07);font-size:12.5px;color:var(--text)}
+
+/* toast + finish */
+.toast{position:fixed;right:24px;bottom:24px;z-index:50;display:flex;gap:14px;align-items:center;padding:16px 22px 16px 16px;border-radius:22px;background:rgba(30,34,41,.88);backdrop-filter:blur(18px);border:1px solid rgba(255,255,255,.12);box-shadow:0 20px 50px rgba(0,0,0,.45);transform:translateY(30px) scale(.97);opacity:0;pointer-events:none;transition:.5s var(--ease);max-width:350px}
+.toast.show{transform:none;opacity:1}
+.ic{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,var(--steel),var(--sand));display:grid;place-items:center;color:#13161b;flex:none}
+.toast b{font:500 16px var(--d);display:block}.toast span{color:var(--mute);font-size:13px}
+.fin{position:fixed;inset:0;z-index:60;display:grid;place-items:center;padding:20px;background:rgba(10,12,15,.55);backdrop-filter:blur(8px);opacity:0;pointer-events:none;transition:opacity .5s var(--ease)}
+.fin.show{opacity:1;pointer-events:auto}
+.fin .card{text-align:center;padding:44px 44px 38px;border-radius:32px;max-width:420px;width:100%;background:radial-gradient(120% 90% at 50% 0,rgba(143,179,204,.25),transparent 70%),#1a1d22;border:1px solid rgba(255,255,255,.12);transform:scale(.92) translateY(14px);transition:transform .6s var(--ease)}
+.fin.show .card{transform:none}
+.fin .ic{width:64px;height:64px;margin:0 auto}
+.card h3{font:700 34px/1.05 var(--d);letter-spacing:-.03em;margin:20px 0 10px}.card p{color:var(--mute)}
+.stats{display:flex;gap:30px;justify-content:center;margin:26px 0}.stats b{font:500 28px var(--d);display:block}.stats span{color:var(--mute);font-size:12.5px}
+.card .btn{width:auto;margin:0 auto;padding:12px 32px}
+#cf{position:fixed;inset:0;z-index:70;pointer-events:none}
+
+@media(max-width:1000px){body{flex-direction:column}
+.rail{position:static;width:auto;height:auto;flex-direction:row;align-items:center;padding:14px;overflow-x:auto;gap:12px}.brand{padding:0}.nav{flex-direction:row}.nav a{padding:9px 12px;white-space:nowrap}.nav a span{display:none}.lvl{display:none}
+.s8,.s4,.s7,.s5{grid-column:span 12}.days{grid-template-columns:repeat(7,minmax(92px,1fr));overflow-x:auto;padding-bottom:4px}}
+@media(max-width:640px){.f3{grid-template-columns:1fr}.sr-row{grid-template-columns:42px 1fr 1fr 46px;gap:8px}.toast{left:16px;right:16px;bottom:16px;max-width:none}.head{flex-wrap:wrap}.prog{display:none}.meta b{font-size:15px}.p{padding:20px}.fin .card{padding:34px 24px}}
+@media(prefers-reduced-motion:reduce){*{animation-duration:.01s!important;animation-delay:0s!important;transition:none!important}}
+@media(max-width:1000px){
+body{min-height:100dvh}
+.rail{position:fixed;top:auto;bottom:0;left:0;right:0;width:auto;height:auto;z-index:40;padding:6px 6px calc(6px + env(safe-area-inset-bottom));gap:0;border-right:0;border-top:1px solid rgba(255,255,255,.08);background:rgba(19,22,27,.97)}
+.brand,.lvl{display:none}
+.nav{width:100%;flex-direction:row;gap:2px;overflow-x:auto;scrollbar-width:none}
+.nav a{flex:1 0 76px;flex-direction:column;gap:3px;padding:8px 4px;font-size:11px;text-align:center;border-radius:12px;box-shadow:none!important}
+.nav a span{display:block!important;white-space:nowrap}
+.nav a[aria-current]{background:rgba(143,179,204,.16)}
+main{padding-bottom:calc(100px + env(safe-area-inset-bottom))}
+header{flex-wrap:wrap}
+.toast{bottom:calc(84px + env(safe-area-inset-bottom))}
+}
+@media(max-width:640px){input,select,textarea{font-size:16px!important}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute"><defs>
+<linearGradient id="rg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8fb3cc"/><stop offset="1" stop-color="#dcc7a8"/></linearGradient>
+<symbol id="i-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/></symbol>
+<symbol id="i-dumb" viewBox="0 0 24 24"><path d="M6 7v10M18 7v10M3 10v4M21 10v4M6 12h12"/></symbol>
+<symbol id="i-trend" viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8M15 7h6v6"/></symbol>
+<symbol id="i-fork" viewBox="0 0 24 24"><path d="M7 3v8M4 3v5a3 3 0 006 0V3M7 11v10M17 21V3c-2 2-3 5-3 8h3"/></symbol>
+<symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="5" r="2"/><path d="M12 8v6M7 10h10M9 21l3-7 3 7"/></symbol>
+<symbol id="i-calc" viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="3"/><path d="M9 7h6M9 12h.01M12 12h.01M15 12h.01M9 16h.01M12 16h.01M15 16h.01"/></symbol>
+<symbol id="i-cup" viewBox="0 0 24 24"><path d="M8 4h8v6a4 4 0 01-8 0zM8 6H4v2a3 3 0 003 3M16 6h4v2a3 3 0 01-3 3M12 14v4M8 20h8"/></symbol>
+<symbol id="i-note" viewBox="0 0 24 24"><path d="M5 4h14v16H5zM9 9h6M9 13h4"/></symbol>
+<symbol id="i-play" viewBox="0 0 24 24"><path d="M7 4l13 8-13 8z" fill="currentColor" stroke="none"/></symbol>
+<symbol id="i-chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></symbol>
+<symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" stroke-width="2.4"/></symbol>
+<symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+</defs></svg>
+
+<aside class="rail">
+  <div class="brand"><svg width="30" height="30" viewBox="0 0 28 28"><path d="M4 4h20L13 12z" fill="#8fb3cc"/><path d="M24 4v6L9 24H4v-6z" fill="#dcc7a8"/><path d="M9 24h15v-6l-6 3z" fill="#8fb3cc" opacity=".55"/></svg>Zyro</div>
+  <nav class="nav" aria-label="Ana menü">
+    <a href="#"><svg class="i"><use href="#i-grid"/></svg><span>Panel</span></a>
+    <a href="#" aria-current="page"><svg class="i"><use href="#i-dumb"/></svg><span>Antrenmanlar</span></a>
+    <a href="#"><svg class="i"><use href="#i-trend"/></svg><span>İlerleme</span></a>
+    <a href="#"><svg class="i"><use href="#i-fork"/></svg><span>Beslenme</span></a>
+    <a href="#"><svg class="i"><use href="#i-user"/></svg><span>Duruş</span></a>
+    <a href="#"><svg class="i"><use href="#i-calc"/></svg><span>Hesaplayıcılar</span></a>
+    <a href="#"><svg class="i"><use href="#i-cup"/></svg><span>Liderlik</span></a>
+    <a href="#"><svg class="i"><use href="#i-note"/></svg><span>Notlar</span></a>
+  </nav>
+  <div class="lvl"><b>Seviye 1</b><span>0 XP</span><div class="xp"></div></div>
+</aside>
+
+<main>
+  <header>
+    <div><h1>Antrenman <b>programı</b></h1><p class="sub">5 günlük split · Push / Pull / Legs / Upper / Lower</p></div>
+    <div class="pill" id="pill"></div>
+  </header>
+
+  <div class="days" id="days" role="tablist" aria-label="Haftalık program"></div>
+
+  <div class="grid">
+    <section class="p s8" id="list"></section>
+    <aside class="p s4">
+      <div class="lab">Bugünün odağı</div>
+      <div class="big" id="focus"></div>
+      <div class="note"><span><b>RIR</b> Başarısızlığa kalan tekrar sayısı. RIR 2 demek, 2 tekrar daha yapabilecek durumda bırakmak.</span></div>
+      <div class="note"><span><b>Büyük hareketler</b> arasında 2–3 dk dinlen.</span></div>
+      <div class="note"><span><b>İzolasyon hareketleri</b> arasında 60–90 sn dinlen.</span></div>
+    </aside>
+
+    <section class="p s7">
+      <div class="lab"><b>Serbest kayıt</b><span>Programda olmayan bir egzersiz</span></div>
+      <div class="chips" id="chips" role="group" aria-label="Kategori"></div>
+      <div style="margin-top:14px"><label class="cap" for="exs">Egzersiz</label><select class="in" id="exs"></select></div>
+      <div class="f3">
+        <div><div class="cap"><span>Ağırlık</span><span class="seg useg"><button data-u="kg" aria-pressed="true">kg</button><button data-u="lbs" aria-pressed="false">lbs</button></span></div>
+          <div class="st"><button data-t="wgt" data-d="-2.5" aria-label="Azalt">−</button><input id="wgt" inputmode="decimal" placeholder="0" aria-label="Ağırlık"><button data-t="wgt" data-d="2.5" aria-label="Artır">+</button></div></div>
+        <div><div class="cap"><span>Tekrar</span></div>
+          <div class="st"><button data-t="rep" data-d="-1" aria-label="Azalt">−</button><input id="rep" inputmode="numeric" placeholder="0" aria-label="Tekrar"><button data-t="rep" data-d="1" aria-label="Artır">+</button></div></div>
+        <div><div class="cap"><span>Set</span></div>
+          <div class="st"><button data-t="set" data-d="-1" aria-label="Azalt">−</button><input id="set" inputmode="numeric" placeholder="0" aria-label="Set"><button data-t="set" data-d="1" aria-label="Artır">+</button></div></div>
+      </div>
+      <button class="btn" id="save"><svg class="i" style="width:16px;height:16px"><use href="#i-plus"/></svg>Kaydı ekle</button>
+      <div class="err" id="err" role="alert"></div>
+      <a class="link" href="#"><span>Güç ilerlemesini gör</span><span>›</span></a>
+    </section>
+
+    <section class="p s5">
+      <div class="lab"><b>Bugünkü kayıtlar</b><span class="tag" id="cnt">0 kayıt</span></div>
+      <div id="log"></div>
+    </section>
+  </div>
+</main>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<div class="fin" id="fin"></div>
+<canvas id="cf" aria-hidden="true"></canvas>
+
+<script>
+const $=s=>document.querySelector(s);
+const CAT={all:'Tümü',chest:'Göğüs',back:'Sırt',shoulders:'Omuz',biceps:'Biceps / ön kol',triceps:'Triceps / arka kol',legs:'Bacak ve kalça',core:'Karın'};
+// Program: [ad, set, tekrar, RIR, kategori]
+const P={
+ sal:{a:'Sal',n:'Salı',s:'Push',f:'Üst göğüs ve yan omuz',e:[['Barbell Bench Press',3,'5–8','2','chest'],['Incline Dumbbell Press',3,'8–12','1–2','chest'],['Seated Shoulder Press',2,'8–10','2','shoulders'],['Cable Lateral Raise',3,'12–20','1–2','shoulders'],['Seated Cable Crossover',2,'12–15','1–2','chest'],['Triceps Pushdown',3,'10–15','1–2','triceps']]},
+ car:{a:'Çar',n:'Çarşamba',s:'Pull',f:'Sırt genişliği ve arka omuz',e:[['Barbell Row',3,'6–10','2','back'],['Seated Machine Lat Pulldown',3,'8–12','1–2','back'],['Seated Cable Row (Close Grip)',2,'10–12','1–2','back'],['Chest-Supported Rear Delt Fly',3,'12–20','1–2','shoulders'],['Barbell Shrug',2,'10–15','2','back'],['Incline Dumbbell Curl',3,'8–12','1–2','biceps'],['Hammer Curl',2,'10–15','1–2','biceps']]},
+ cum:{a:'Cum',n:'Cuma',s:'Legs',f:'Arka bacak ve baldır',e:[['Squat',3,'5–8','2','legs'],['Romanian Deadlift',3,'8–10','2','legs'],['Leg Press',2,'10–12','1–2','legs'],['Lying Leg Curl',3,'10–15','1','legs'],['Leg Press Calf Raise',4,'10–15','1–2','legs'],['Hanging Leg Raise',3,'10–15','2','core']]},
+ cmt:{a:'Cmt',n:'Cumartesi',s:'Upper',f:'Üst gövde dengesi',e:[['Incline Smith Machine Press',3,'8–10','2','chest'],['Pull-Up veya Assisted Pull-Up',3,'6–10','2','back'],['Chest Supported Row',3,'8–12','2','back'],['Dumbbell Lateral Raise',3,'12–20','1–2','shoulders'],['Seated Cable Fly',2,'12–15','1–2','chest'],['EZ Bar Curl',2,'10–12','1–2','biceps'],['Skull Crusher',2,'10–12','2','triceps'],['Reverse Wrist Curl',2,'15–20','2','biceps']]},
+ paz:{a:'Paz',n:'Pazar',s:'Lower',f:'Arka bacak, kalça ve baldır',e:[['Bulgarian Split Squat',2,'8–10','2','legs'],['Cable Pull-Through',3,'8–12','2','legs'],['Seated Leg Curl',3,'10–15','1–2','legs'],['Leg Extension',2,'12–15','2','legs'],['Seated Calf Raise',4,'12–20','1–2','legs'],['Cable Crunch',3,'12–15','2','core']]}
+};
+const WEEK=[['pzt','Pzt'],['sal'],['car'],['per','Per'],['cum'],['cmt'],['paz']];
+const KEY=['paz','pzt','sal','car','per','cum','cmt'][new Date().getDay()];
+let sel=P[KEY]?KEY:(['sal','car','cum','cmt','paz'].find(k=>WEEK.findIndex(w=>w[0]===k)>WEEK.findIndex(w=>w[0]===KEY))||'sal');
+const S={},free=[],cel={};let unit='kg',openK=null,fcat='all',tt;
+const key=(d,i)=>d+'|'+i;
+const arr=(d,i)=>S[key(d,i)]||(S[key(d,i)]=Array.from({length:P[d].e[i][1]},()=>({w:'',r:'',ok:false,u:'kg'})));
+const vol=a=>a.filter(s=>s.ok).reduce((t,s)=>t+(+s.w||0)*(s.u==='lbs'?.4536:1)*(+s.r||0),0);
+const fin=(d,i)=>arr(d,i).every(s=>s.ok);
+const nFin=d=>P[d].e.filter((e,i)=>fin(d,i)).length;
+const setsDone=d=>P[d].e.reduce((t,e,i)=>t+arr(d,i).filter(s=>s.ok).length,0);
+const total=d=>P[d].e.reduce((t,e)=>t+e[1],0);
+const dayVol=d=>P[d].e.reduce((t,e,i)=>t+vol(arr(d,i)),0);
+const fmt=n=>Math.round(n).toLocaleString('tr-TR');
+$('#pill').textContent=P[KEY]?`Bugün: ${P[KEY].n} · ${P[KEY].s}`:'Bugün dinlenme günü';
+
+function days(){
+  $('#days').innerHTML=WEEK.map(([k,r])=>{
+    if(!P[k])return `<div class="day rest${k===KEY?' today':''}"><small>${r}</small><b>Dinlenme</b><i></i></div>`;
+    const p=P[k],w=Math.round(setsDone(k)/total(k)*100);
+    return `<button class="day${k===KEY?' today':''}" role="tab" aria-selected="${k===sel}" data-k="${k}"><small>${p.a}</small><b>${p.s}</b><i><u style="--w:${w}%"></u></i></button>`}).join('');
+}
+function list(first){
+  const p=P[sel],n=p.e.length;
+  $('#list').innerHTML=`<div class="head"><div><h2>${p.n} · ${p.s}</h2><p>Öncelik: ${p.f}</p></div>
+  <div class="hr"><div class="seg useg"><button data-u="kg" aria-pressed="${unit==='kg'}">kg</button><button data-u="lbs" aria-pressed="${unit==='lbs'}">lbs</button></div>
+  <div class="rw"><svg viewBox="0 0 100 100"><circle class="t" cx="50" cy="50" r="42"/><circle class="v" id="rv" cx="50" cy="50" r="42" pathLength="1"/></svg><b>${nFin(sel)}/${n}</b></div></div></div>`+
+  p.e.map((e,i)=>{const a=arr(sel,i),k=key(sel,i);
+    return `<div class="ex${first?' ent':''}${fin(sel,i)?' ok':''}${openK===k?' open':''}" data-k="${k}" style="--n:${i}">
+    <button class="ex-h" aria-expanded="${openK===k}"><span class="nm">${e[0]}<span>${CAT[e[4]]}</span></span>
+    <span class="meta"><b>${e[1]} × ${e[2]}</b><span>RIR ${e[3]}</span></span>
+    <span class="prog">${a.map(s=>`<u class="${s.ok?'on':''}"></u>`).join('')}</span>
+    <svg class="i chev"><use href="#i-chev"/></svg></button>
+    <div class="sets"><div><div class="sets-in">`+a.map((s,j)=>`<div class="sr-row${s.ok?' ok':''}"><label>Set ${j+1}</label>
+      <div class="fld"><input class="in" inputmode="decimal" data-f="w" data-j="${j}" placeholder="0" value="${s.w}" aria-label="Set ${j+1} ağırlık"><em>${unit}</em></div>
+      <div class="fld"><input class="in" inputmode="numeric" data-f="r" data-j="${j}" placeholder="${e[2].split('–')[0]}" value="${s.r}" aria-label="Set ${j+1} tekrar"><em>tekrar</em></div>
+      <button class="ck" data-j="${j}" aria-pressed="${s.ok}" aria-label="Set ${j+1} tamam"><svg class="i" style="width:22px;height:22px"><use href="#i-check"/></svg></button></div>`).join('')+
+    `<div class="foot"><span>Hedef: ${e[2]} tekrar · RIR ${e[3]}</span><a class="w" target="_blank" rel="noopener" href="https://www.youtube.com/results?search_query=${encodeURIComponent(e[0]+' form')}"><svg class="i" style="width:11px;height:11px"><use href="#i-play"/></svg>İzle</a></div></div></div></div></div>`}).join('');
+  $('#focus').textContent=p.f;
+  requestAnimationFrame(()=>{const v=$('#rv');if(v)v.style.strokeDashoffset=1-nFin(sel)/n});
+}
+function renderLog(){
+  const rows=[];let tv=0;
+  Object.keys(P).forEach(d=>P[d].e.forEach((e,i)=>{const a=arr(d,i),ok=a.filter(s=>s.ok);if(!ok.length)return;const v=vol(a);tv+=v;
+    rows.push(`<div class="lg"><div>${e[0]}<div class="sch">${ok.map(s=>`<i>${s.w?s.w+' '+s.u+' × ':''}${s.r}</i>`).join('')}</div></div><b>${v?fmt(v)+' kg':'—'}</b></div>`)}));
+  free.forEach(l=>{tv+=l.v;rows.push(`<div class="lg"><div>${l.name}<div class="sch"><i>${l.sets} × ${l.r}${l.w?' · '+l.w+' '+l.u:''}</i></div></div><b>${l.v?fmt(l.v)+' kg':'—'}</b></div>`)});
+  $('#cnt').textContent=rows.length+' kayıt';
+  $('#log').innerHTML=rows.length?rows.join('')+`<div class="lg"><span>Toplam hacim</span><b>${fmt(tv)} kg</b></div>`:'<div class="empty">Bugün henüz kayıt yok. Bir hareketin üstüne dokunup ilk setini gir.</div>';
+}
+const refresh=()=>{days();list(false);renderLog()};
+
+// --- etkileşim ---
+$('#days').onclick=e=>{const b=e.target.closest('[data-k]');if(!b)return;sel=b.dataset.k;openK=null;days();list(true)};
+$('#list').addEventListener('input',e=>{const t=e.target;if(!t.dataset.f)return;
+  S[t.closest('.ex').dataset.k][+t.dataset.j][t.dataset.f]=t.value.replace(',','.');t.classList.remove('bad')});
+$('#list').addEventListener('click',e=>{
+  const h=e.target.closest('.ex-h');
+  if(h){const ex=h.parentElement,k=ex.dataset.k,o=openK!==k;openK=o?k:null;
+    document.querySelectorAll('.ex').forEach(x=>{const on=o&&x===ex;x.classList.toggle('open',on);x.querySelector('.ex-h').setAttribute('aria-expanded',on)});
+    if(o)setTimeout(focusNext,380);return}
+  const c=e.target.closest('.ck');if(c)confirmSet(c);
+});
+function focusNext(){const r=document.querySelector('.ex.open .sr-row:not(.ok)');if(!r)return;
+  const ins=[...r.querySelectorAll('input')];(ins.find(x=>!x.value)||ins[1]).focus({preventScroll:true})}
+function confirmSet(c){
+  const k=c.closest('.ex').dataset.k,i=+k.split('|')[1],j=+c.dataset.j,a=S[k],s=a[j];
+  if(s.ok){s.ok=false;refresh();return}
+  if(!(+s.r>0)){const r=c.closest('.sr-row').querySelector('[data-f=r]');r.classList.add('bad');r.focus();return}
+  s.ok=true;s.u=unit;
+  const nx=a[j+1];if(nx&&!nx.w)nx.w=s.w;
+  if(a.every(x=>x.ok)){openK=null;refresh();doneEx(i)}else{refresh();setTimeout(focusNext,40)}
+}
+function doneEx(i){
+  const e=P[sel].e[i],a=arr(sel,i),v=vol(a);
+  if(nFin(sel)===P[sel].e.length&&!cel[sel]){cel[sel]=1;$('#toast').classList.remove('show');setTimeout(celebrate,450);return}
+  toast(e[0]+' tamamlandı',`${a.length} set${v?' · '+fmt(v)+' kg hacim':''}`)}
+function toast(t,s){const el=$('#toast');
+  el.innerHTML=`<div class="ic"><svg class="i" style="width:22px;height:22px"><use href="#i-check"/></svg></div><div><b>${t}</b><span>${s}</span></div>`;
+  el.classList.add('show');clearTimeout(tt);tt=setTimeout(()=>el.classList.remove('show'),4200)}
+function celebrate(){
+  const d=sel;
+  $('#fin').innerHTML=`<div class="card" role="dialog" aria-label="Antrenman tamamlandı"><div class="ic"><svg class="i" style="width:30px;height:30px"><use href="#i-check"/></svg></div>
+  <h3>Antrenman tamamlandı</h3><p>${P[d].n} · ${P[d].s}. Güzel iş, bugünü bitirdin.</p>
+  <div class="stats"><div><b>${P[d].e.length}</b><span>hareket</span></div><div><b>${setsDone(d)}</b><span>set</span></div><div><b>${fmt(dayVol(d))}</b><span>kg hacim</span></div></div>
+  <button class="btn" id="fx">Kapat</button></div>`;
+  $('#fin').classList.add('show');confetti();$('#fx').focus()}
+$('#fin').onclick=e=>{if(e.target.id==='fin'||e.target.id==='fx')$('#fin').classList.remove('show')};
+addEventListener('keydown',e=>{if(e.key==='Escape')$('#fin').classList.remove('show')});
+function confetti(){
+  if(matchMedia('(prefers-reduced-motion:reduce)').matches)return;
+  const c=$('#cf'),x=c.getContext('2d');c.width=innerWidth;c.height=innerHeight;
+  const col=['#8fb3cc','#dcc7a8','#eceef1','#a9c7da','#c99a9a'],t0=performance.now();
+  const ps=Array.from({length:170},()=>{const a=Math.random()*6.283,v=6+Math.random()*10;
+    return{x:c.width/2,y:c.height*.4,vx:Math.cos(a)*v,vy:Math.sin(a)*v-6,w:6+Math.random()*7,h:4+Math.random()*5,r:Math.random()*6,vr:(Math.random()-.5)*.3,c:col[Math.random()*5|0]}});
+  (function f(t){const el=t-t0;x.clearRect(0,0,c.width,c.height);
+    ps.forEach(p=>{p.vy+=.28;p.vx*=.985;p.x+=p.vx;p.y+=p.vy;p.r+=p.vr;x.save();x.globalAlpha=Math.max(0,1-el/4200);x.translate(p.x,p.y);x.rotate(p.r);x.fillStyle=p.c;x.fillRect(-p.w/2,-p.h/2,p.w,p.h);x.restore()});
+    if(el<4200)requestAnimationFrame(f);else x.clearRect(0,0,c.width,c.height)})(t0)}
+
+// --- birim + serbest kayıt ---
+document.addEventListener('click',e=>{const b=e.target.closest('.useg button');if(!b)return;
+  unit=b.dataset.u;document.querySelectorAll('.useg button').forEach(x=>x.setAttribute('aria-pressed',x.dataset.u===unit));list(false)});
+function chips(){$('#chips').innerHTML=Object.entries(CAT).map(([k,v])=>`<button data-c="${k}" aria-pressed="${k===fcat}">${v}</button>`).join('')}
+function opts(){const seen=new Set(),o=['<option value="">Egzersiz seç…</option>'];
+  Object.values(P).forEach(p=>p.e.forEach(e=>{if((fcat==='all'||e[4]===fcat)&&!seen.has(e[0])){seen.add(e[0]);o.push(`<option>${e[0]}</option>`)}}));
+  $('#exs').innerHTML=o.join('')}
+$('#chips').onclick=e=>{const b=e.target.closest('[data-c]');if(!b)return;fcat=b.dataset.c;chips();opts()};
+document.addEventListener('click',e=>{const b=e.target.closest('.st button');if(!b)return;
+  const i=$('#'+b.dataset.t),v=Math.max(0,(+i.value||0)+(+b.dataset.d));i.value=Number.isInteger(v)?v:v.toFixed(1)});
+$('#save').onclick=()=>{
+  const name=$('#exs').value,r=+$('#rep').value,n=+$('#set').value,w=+$('#wgt').value||0;
+  if(!name||r<1||n<1){$('#err').textContent='Egzersiz, tekrar ve set sayısını doldur.';return}
+  $('#err').textContent='';
+  free.unshift({name,r,sets:n,w,u:unit,v:w*(unit==='lbs'?.4536:1)*r*n});
+  ['#wgt','#rep','#set'].forEach(s=>$(s).value='');renderLog();toast(name+' kaydedildi',`${n} set × ${r} tekrar`)};
+chips();opts();days();list(true);renderLog();
+</script>
+</body>
+</html>

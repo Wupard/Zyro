@@ -1,0 +1,56 @@
+Created At: 2026-11-12T22:57:41+03:00
+Completed At: 2026-11-12T22:57:42+03:00
+Command exited with code 0.
+
+Command output:
+div id="res" aria-live="polite"></div>`;
+const bad=m=>{$('#res').innerHTML='';$('#err').textContent=m};
+const ok=h=>{$('#err').textContent='';$('#res').innerHTML=`<div class="rs">${h}</div>`};
+const e1=(w,r)=>r===1?w:w*(1+r/30);
+const head=(i,t,s)=>`<div class="ph2"><div class="ibox" style="width:44px;height:44px;border-radius:14px"><svg class="i"><use href="#i-${i}"/></svg></div><div><b>${t}</b><span>${s}</span></div></div>`;
+// ----- özel açılır menü -----
+const DD={},ddClose=d=>{d.querySelector('.dd-l').hidden=true;d.querySelector('.dd-b').setAttribute('aria-expanded','false')};
+const ddHTML=(id,l)=>`<div class="fld"><label id="${id}-l">${l}</label><div class="dd" id="${id}" data-v=""><button type="button" class="in dd-b" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="${id}-l"><span></span><svg class="i"><use href="#i-down"/></svg></button><div class="dd-l" role="listbox" hidden></div></div></div>`;
+function ddDraw(id){const d=$('#'+id),{opts,ph}=DD[id],cur=opts.find(o=>String(o[0])===d.dataset.v),sp=d.querySelector('.dd-b span');sp.textContent=cur?cur[1]:ph;sp.classList.toggle('ph',!cur);
+ d.querySelector('.dd-l').innerHTML=opts.length?(opts.length>8?'<input class="in dd-s" placeholder="Ara…" aria-label="Ara">':'')+opts.map(o=>`<button type="button" role="option" data-o="${esc(o[0])}" aria-selected="${String(o[0])===d.dataset.v}"><span>${esc(o[1])}</span>${o[2]?`<small>${esc(o[2])}</small>`:''}</button>`).join(''):'<div class="dd-e">Bu kategoride egzersiz yok</div>'}
+function ddSet(id,opts,v,ph,cb){DD[id]={opts,ph,cb};$('#'+id).dataset.v=v==null?'':v;ddDraw(id)}
+document.addEventListener('click',e=>{const b=e.target.closest('.dd-b'),o=e.target.closest('[data-o]');
+ document.querySelectorAll('.dd').forEach(d=>{if(!d.contains(e.target)||(b&&b.parentNode===d))ddClose(d)});
+ if(b){const d=b.parentNode,l=d.querySelector('.dd-l');if(b.getAttribute('aria-expanded')!=='true'){l.hidden=false;b.setAttribute('aria-expanded','true');const f=l.querySelector('[aria-selected=true]')||l.querySelector('[data-o]');if(f)f.focus({preventScroll:false})}}
+ else if(o){const d=o.closest('.dd');d.dataset.v=o.dataset.o;ddDraw(d.id);ddClose(d);d.querySelector('.dd-b').focus();if(DD[d.id].cb)DD[d.id].cb(d.dataset.v)}});
+document.addEventListener('input',e=>{if(e.target.classList.contains('dd-s')){const q=e.target.value.toLocaleLowerCase('tr');e.target.parentNode.querySelectorAll('[data-o]').forEach(b=>b.hidden=!b.textContent.toLocaleLowerCase('tr').includes(q))}});
+document.addEventListener('keydown',e=>{const d=e.target.closest&&e.target.closest('.dd');if(!d)return;
+ if(e.key==='Escape'){ddClose(d);d.querySelector('.dd-b').focus();return}
+ if(e.key==='ArrowDown'||e.key==='ArrowUp'){e.preventDefault();const l=d.querySelector('.dd-l');if(l.hidden){d.querySelector('.dd-b').click();return}
+  const a=[...l.querySelectorAll('[data-o]')].filter(x=>!x.hidden),i=a.indexOf(document.activeElement),n=e.key==='ArrowDown'?Math.min(a.length-1,i+1):Math.max(0,i-1);if(a[n])a[n].focus()}});
+const V={
+ rm:()=>head('trend','1RM Hesaplayıcı','Epley formülü • Loglardan otomatik')+`<div class="fl">${ddHTML('cat','Kategori seç')}${ddHTML('ex','Egzersiz')}</div><div class="fl" style="margin-top:14px">${inp('w','Ağırlık','KG','0')}${inp('r','Tekrar sayısı','TEKRAR','0')}</div>`+tail('1RM hesapla'),
+ un:()=>`<div class="fl">${inp('kg','Kilogram (kg)','KG','0')}${inp('lb','Pounds (lbs)','LB','0')}</div>`,
+ bf:()=>gen()+`<div class="fl">${inp('h','Boy','CM','cm')}${inp('wa','Bel','CM','cm')}${inp('ne','Boyun','CM','cm')}<div id="hipw" hidden>${inp('hi','Kalça','CM','cm')}</div></div>`+tail('Yağ oranını hesapla'),
+ pr:()=>head('ba','Gelişim kıyaslaması','Önceki ve şu anki kaldırışını karşılaştır')+`<p class="sl" style="margin:0 0 10px;color:var(--steel);font-size:12px;letter-spacing:.06em">ÖNCEKİ KALDIRIŞ</p><div class="fl">${inp('w1','Ağırlık','KG','örn: 80')}${inp('r1','Tekrar','TEKRAR','örn: 8')}</div><p style="margin:22px 0 10px;color:var(--steel);font-size:12px;letter-spacing:.06em">ŞU ANKİ KALDIRIŞ</p><div class="fl">${inp('w2','Ağırlık','KG','örn: 85')}${inp('r2','Tekrar','TEKRAR','örn: 10')}</div>`+tail('Kıyasla'),
+ mc:()=>`<div class="fl">${inp('w','Ağırlık','KG','kg')}${inp('h','Boy','CM','cm')}${inp('a','Yaş','YIL','yıl')}</div><div style="margin:14px 0 16px">${ddHTML('act','Aktivite seviyesi')}</div>${gen()}`+tail('Makro / kalori hesapla')};
+function drawTabs(){$('#tl').innerHTML=T.map(([k,v])=>`<button role="tab" data-t="${k}" aria-selected="${k===tab}">${v}</button>`).join('')}
+function exOpts(){if(!$('#ex'))return;const c=$('#cat').dataset.v,l=EX.filter(e=>c==='all'||e.cat===c);ddSet('ex',l.map(e=>[e.ex,e.ex,e.w?`${f1(e.w)} kg × ${e.r}`:'']),'','Egzersiz seçin…',v=>{const x=EX.find(q=>q.ex===v);if(x&&x.w){$('#w').value=f1(x.w);$('#r').value=x.r}})}
+function show(){drawTabs();$('#pane').innerHTML=V[tab]();
+ if(tab==='rm'){ddSet('cat',Object.entries(CATS),'all','Kategori seç',exOpts);exOpts()}if(tab==='mc')ddSet('act',ACT.map(([m,t,d])=>[m,t,d]),'1.55','Seç')
+ if(tab==='un'){$('#kg').oninput=e=>{const v=parseFloat(e.target.value.replace(',','.'));$('#lb').value=v>=0?f2(v*2.20462):''};$('#lb').oninput=e=>{const v=parseFloat(e.target.value.replace(',','.'));$('#kg').value=v>=0?f2(v/2.20462):''}}
+ if(tab==='bf')document.querySelectorAll('[name=g]').forEach(r=>r.onchange=()=>$('#hipw').hidden=$('#g1').checked)}
+const CALC={
+ rm(){const w=num('w'),r=num('r');if(!(w>0&&w<1000))return bad('Geçerli bir ağırlık gir.');if(!(Number.isInteger(r)&&r>=1&&r<=30))return bad('Tekrar sayısı 1–30 arasında tam sayı olmalı.');
+  const m=e1(w,r);ok(`<div class="v">${f1(m)}<small>kg · tahmini 1RM</small></div><table class="pt">${[95,90,85,80,75,70,60,50].map(p=>`<tr><td>%${p}</td><td>${f1(Math.round(m*p/100*2)/2)} kg</td></tr>`).join('')}</table>`)},
+ bf(){const m=$('#g1').checked,h=num('h'),wa=num('wa'),ne=num('ne'),hi=num('hi');if(![h,wa,ne].every(x=>x>0))return bad('Boy, bel ve boyun ölçülerini gir.');if(!m&&!(hi>0))return bad('Kalça ölçüsünü gir.');
+  const d=m?wa-ne:wa+hi-ne;if(!(d>0))return bad('Ölçüler tutarsız: bel (ve kalça) değeri boyundan büyük olmalı.');
+  const bf=m?495/(1.0324-.19077*Math.log10(d)+.15456*Math.log10(h))-450:495/(1.29579-.35004*Math.log10(d)+.221*Math.log10(h))-450;if(!(bf>0&&bf<70))return bad('Sonuç mantıksız çıktı, ölçüleri kontrol et.');
+  const c=(m?[[6,'Temel yağ'],[14,'Atletik'],[18,'Fit'],[25,'Ortalama'],[99,'Yüksek']]:[[14,'Temel yağ'],[21,'Atletik'],[25,'Fit'],[32,'Ortalama'],[99,'Yüksek']]).find(x=>bf<x[0])[1];
+  ok(`<div class="v">%${f1(bf)}<small>${c}</small></div><p>ABD Donanması yöntemiyle tahmini değerdir.</p>`)},
+ pr(){const a=[num('w1'),num('r1'),num('w2'),num('r2')];if(!(a[0]>0&&a[2]>0))return bad('İki kaldırış için de ağırlık gir.');if(![a[1],a[3]].every(r=>Number.isInteger(r)&&r>=1&&r<=30))return bad('Tekrar sayıları 1–30 arasında tam sayı olmalı.');
+  const o=e1(a[0],a[1]),n=e1(a[2],a[3]),d=n-o,p=d/o*100,s=d>0?'+':d<0?'−':'';ok(`<div class="v">${s}${f1(Math.abs(d))}<small>kg · %${f1(Math.abs(p))} ${d>0?'artış':d<0?'düşüş':'değişim yok'}</small></div><p>Tahmini 1RM: ${f1(o)} kg → ${f1(n)} kg</p>`)},
+ mc(){const w=num('w'),h=num('h'),a=num('a');if(!(w>20&&w<400))return bad('Ağırlığı gir (kg).');if(!(h>90&&h<250))return bad('Boyu gir (cm).');if(!(a>=10&&a<=100))return bad('Yaşı gir.');
+  const bmr=10*w+6.25*h-5*a+($('#g1').checked?5:-161),t=bmr*parseFloat($('#act').dataset.v),G=[['Kilo ver',.8],['Koru',1],['Kilo al',1.1]];
+  ok(`<div class="v">${Math.round(t)}<small>kcal · günlük harcama (BMR ${Math.round(bmr)})</small></div><div class="g3">${G.map(([n,k])=>{const c=t*k,p=2*w,f=c*.25/9,cb=Math.max(0,(c-p*4-f*9)/4);return `<div><small>${n}</small><b>${Math.round(c)} kcal</b><span>P ${Math.round(p)} g · K ${Math.round(cb)} g · Y ${Math.round(f)} g</span></div>`}).join('')}</div><p>Mifflin-St Jeor; protein 2 g/kg, yağ %25. Tahmini değerlerdir.</p>`)}};
+$('#tl').onclick=e=>{const b=e.target.closest('[data-t]');if(b){tab=b.dataset.t;show()}};
+$('#pane').onclick=e=>{if(e.target.closest('[data-go]'))CALC[tab]()};
+$('#pane').onkeydown=e=>{if(e.key==='Enter'&&e.target.matches('input.in')&&CALC[tab])CALC[tab]()};
+show();ZyroAPI.getExercises().then(l=>{EX=l;if(tab==='rm')exOpts()}).catch(()=>{});
+
+

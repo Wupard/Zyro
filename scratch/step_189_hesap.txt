@@ -1,0 +1,28 @@
+Created At: 2026-11-12T22:57:24+03:00
+Completed At: 2026-11-12T22:57:25+03:00
+Command exited with code 0.
+
+Command output:
+--- NOTLAR MAIN ---
+<main>
+<div class="tb"><div><h2 id="greet"></h2><p id="today"></p></div><div class="tr"><button class="bell has" aria-label="Bildirimler"><svg class="i"><use href="#i-bell"/></svg></button><span class="pill" id="day">Day 0</span></div></div>
+
+<svg width="0" height="0" style="position:absolute"><symbol id="i-tag" viewBox="0 0 24 24"><path d="M3 12V4h8l10 10-8 8zM7.5 8.5h.01"/></symbol></svg>
+<section class="hero2"><div><h1>Günlük <b>notlar</b></h1><p>Düşüncelerini, planlarını ve fikirlerini kaydet</p></div><div class="ibox"><svg class="i"><use href="#i-chat"/></svg></div></section>
+<div class="stk">
+<section class="pn"><div class="lab"><b id="ft">Bugünkü giriş</b><span class="tag" id="bg">BUGÜN</span></div>
+ <form id="fn" novalidate><div class="top2"><input class="in" id="nt" maxlength="80" placeholder="Başlık (opsiyonel)" aria-label="Başlık"><div class="dots" id="dots" role="group" aria-label="Renk"></div></div>
+ <textarea class="in" id="nx" maxlength="5000" placeholder="Günün nasıldı? Ne öğrendin? Nasıl hissediyorsun?…" aria-label="Not"></textarea>
+ <div class="chips" id="tg" role="group" aria-label="Etiket" style="margin-top:14px"></div>
+ <div class="acts" style="margin-top:16px"><button class="btn" id="sv"><svg class="i"><use href="#i-check"/></svg><span id="svt">Notu kaydet</span></button><button type="button" class="ghost" id="cx" hidden>İptal</button><span class="err" id="er" role="alert" style="margin:0;align-self:center"></span></div></form></section>
+<section class="pn"><div class="lab"><b>Geçmiş girişler <span class="tag" id="cn">0</span></b><button class="ghost danger" id="ds" disabled><svg class="i"><use href="#i-trash"/></svg><span id="dst">Seçilenleri sil</span></button></div><div id="ls"></div></section></div>
+
+</main>
+--- HESAPLAYICILAR MAIN ---
+<main>
+<div class="tb"><div><h2 id="greet"></h2><p id="today"></p></div><div class="tr"><button class="bell has" aria-label="Bildirimler"><svg class="i"><use href="#i-bell"/></svg></button><span class="pill" id="day">Day 0</span></div></div>
+
+<section class="hero2"><div><h1><b>Hesaplayıcılar</b></h1><p>Performansını takip et ve analiz et</p></div><div class="ibox"><svg class="i"><use href="#i-calc"/></svg></div></section>
+<div class="hs"><nav class="pn tl" id="tl" role="tablist" aria-label="Hesaplayıcılar"></nav><section class="pn" id="pane" role="tabpanel"></section></div>
+
+</main>

@@ -1,0 +1,54 @@
+Created At: 2026-11-12T22:55:50+03:00
+Completed At: 2026-11-12T22:55:51+03:00
+Command exited with code 0.
+
+Command output:
+
+> <main>
+  <div class="tb"><div><h2 id="greet"></h2><p id="today"></p></div><div class="tr"><button class="bell has" aria-label=
+"Bildirimler"><svg class="i"><use href="#i-bell"/></svg></button><span class="pill" id="day">Day 0</span></div></div>
+  
+  <svg width="0" height="0" style="position:absolute"><symbol id="i-tag" viewBox="0 0 24 24"><path d="M3 12V4h8l10 10-8
+ 8zM7.5 8.5h.01"/></symbol></svg>
+  <section class="hero2"><div><h1>GÃ¼nlÃ¼k <b>notlar</b></h1><p>DÃ¼ÅŸÃ¼ncelerini, planlarÄ±nÄ± ve fikirlerini kaydet</p
+></div><div class="ibox"><svg class="i"><use href="#i-chat"/></svg></div></section>
+  <div class="stk">
+  <section class="pn"><div class="lab"><b id="ft">BugÃ¼nkÃ¼ giriÅŸ</b><span class="tag" id="bg">BUGÃœN</span></div>
+   <form id="fn" novalidate><div class="top2"><input class="in" id="nt" maxlength="80" placeholder="BaÅŸlÄ±k (opsiyonel
+)" aria-label="BaÅŸlÄ±k"><div class="dots" id="dots" role="group" aria-label="Renk"></div></div>
+   <textarea class="in" id="nx" maxlength="5000" placeholder="GÃ¼nÃ¼n nasÄ±ldÄ±? Ne Ã¶ÄŸrendin? NasÄ±l hissediyorsun?â€
+¦" aria-label="Not"></textarea>
+   <div class="chips" id="tg" role="group" aria-label="Etiket" style="margin-top:14px"></div>
+   <div class="acts" style="margin-top:16px"><button class="btn" id="sv"><svg class="i"><use href="#i-check"/></svg><sp
+an id="svt">Notu kaydet</span></button><button type="button" class="ghost" id="cx" hidden>Ä°ptal</button><span class="e
+rr" id="er" role="alert" style="margin:0;align-self:center"></span></div></form></section>
+  <section class="pn"><div class="lab"><b>GeÃ§miÅŸ giriÅŸler <span class="tag" id="cn">0</span></b><button class="ghost
+ danger" id="ds" disabled><svg class="i"><use href="#i-trash"/></svg><span id="dst">SeÃ§ilenleri sil</span></button></d
+iv><div id="ls"></div></section></div>
+  
+  </main>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <dialog id="dlgC"><form method="dialog"><div class="dh2"><b id="cT"></b></div><div class="db"><p id="cS" style="color
+:var(--mute)"></p><div class="da"><button value="cancel" class="ghost">VazgeÃ§</button><button value="ok" class="btn dn
+g">Sil</button></div></div></form></dialog>
+  <script>
+  const $=s=>document.querySelector(s);
+  const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const MON=['Oca','Åub','Mar','Nis','May','Haz','Tem','AÄŸu','Eyl','Eki','Kas','Ara'],MONL=['Ocak','Åubat','Mart','N
+isan','MayÄ±s','Haziran','Temmuz','AÄŸustos','EylÃ¼l','Ekim','KasÄ±m','AralÄ±k'];
+  const DAY=['Pazar','Pazartesi','SalÄ±','Ã‡arÅŸamba','PerÅŸembe','Cuma','Cumartesi'],DS=['Paz','Pzt','Sal','Ã‡ar','Per
+','Cum','Cmt'];
+  const CAT={all:'TÃ¼mÃ¼',chest:'GÃ¶ÄŸÃ¼s',back:'SÄ±rt',shoulders:'Omuz',biceps:'Biceps',triceps:'Triceps',legs:'Bacak'
+,core:'Core'};
+  const iso=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+  const pd=s=>{const[y,m,d]=s.split('-');return new Date(+y,m-1,+d)};
+  const fd=s=>{const d=pd(s);return d.getDate()+' '+MON[d.getMonth()]};
+  const fdl=s=>fd(s)+' '+DS[pd(s).getDay()];
+  const fy=s=>fd(s)+' '+pd(s).getFullYear();
+  const fw=n=>String(+n.toFixed(1)).replace('.',',');
+  const wkey=s=>{const d=pd(s);d.setDate(d.getDate()-((d.getDay()+6)%7));return iso(d)};
+  const TODAY=iso(new Date());
+  
+
+
+
