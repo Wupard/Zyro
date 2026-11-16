@@ -6445,13 +6445,20 @@ body.theme-light .zyro-logo-adaptive {
   display: grid;
   place-items: center;
   flex: none;
-  background: rgba(var(--acc), .16);
-  border: 1px solid rgba(var(--acc), .38);
-  color: rgb(var(--acc));
+  background: rgba(var(--acc, 143, 179, 204), .16);
+  border: 1px solid rgba(var(--acc, 143, 179, 204), .38);
+  color: rgb(var(--acc, 143, 179, 204));
 }
-.ibox svg {
+.ibox svg,
+.ibox svg.i,
+svg.i {
   width: 26px;
   height: 26px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 @media (max-width: 640px) {
   .hero2 {
@@ -7497,16 +7504,22 @@ dialog::backdrop {
 }
 
 /* ------------------------------------------------------------
-   YORUMLAR (COMMENTS) SPECIFIC
+   YORUMLAR (COMMENTS), NOTLAR & HESAPLAYICILAR SPECIFIC
    ------------------------------------------------------------ */
-#pageComments {
+#pageComments,
+#pageNotes,
+#pageCalculators {
   --acc: 143, 179, 204;
 }
-#pageComments .hero2 {
+#pageComments .hero2,
+#pageNotes .hero2,
+#pageCalculators .hero2 {
   background: radial-gradient(110% 170% at 100% 0%, rgba(143, 179, 204, .2), transparent 62%),
               linear-gradient(160deg, rgba(255, 255, 255, .07), rgba(255, 255, 255, .01));
 }
-#pageComments .ibox {
+#pageComments .ibox,
+#pageNotes .ibox,
+#pageCalculators .ibox {
   background: rgba(143, 179, 204, .16);
   border-color: rgba(143, 179, 204, .38);
   color: rgb(143, 179, 204);
@@ -8062,6 +8075,15 @@ dialog::backdrop {
   scroll-snap-type: x proximity;
   scrollbar-width: none;
   -ms-overflow-style: none;
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.tl.dragging {
+  cursor: grabbing;
+}
+.tl.dragging button {
+  pointer-events: none;
 }
 .zw .days::-webkit-scrollbar,
 .zp .days::-webkit-scrollbar,
@@ -8466,23 +8488,60 @@ dialog::backdrop {
   }
 }
 
-/* Profile mobil dokunma hedef boyutları */
+/* Profile mobil dokunma hedef boyutları & tam mobil uyumluluk */
 @media (max-width: 768px) {
+  #pageProfile .ptabs {
+    gap: 8px;
+    padding-bottom: 6px;
+  }
   #pageProfile .ptabs button {
     min-height: 44px;
     min-width: 44px;
+    padding: 10px 16px;
+    font-size: 14px;
+    touch-action: manipulation;
   }
   #pageProfile .btn {
+    min-height: 46px;
+    font-size: 15px;
+    touch-action: manipulation;
+  }
+  #pageProfile .ghost {
     min-height: 44px;
+    padding: 10px 18px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    touch-action: manipulation;
+  }
+  #pageProfile .avl {
+    width: 96px;
+    height: 96px;
   }
   #pageProfile .pf .in {
     font-size: 16px !important;
     padding: 14px 16px;
+    min-height: 46px;
   }
   #pageProfile select.in {
     font-size: 16px !important;
+    min-height: 46px;
   }
   #pageProfile textarea.in {
     font-size: 16px !important;
+    min-height: 110px;
+  }
+  #pageProfile .f2 {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  #pageProfile .ag {
+    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+    gap: 10px;
+  }
+  #pageProfile .ach {
+    padding: 14px 10px;
+    min-height: 120px;
+    touch-action: manipulation;
   }
 }

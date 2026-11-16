@@ -9208,36 +9208,135 @@ function initCalculators() {
     if (e.key === 'Enter' && e.target.matches('input.in')) executeCalc(currentCalcTab);
   };
 
-  // Horizontal drag-scroll for tab list
+  // Horizontal drag-scroll for tab list with velocity & momentum
   if (!tl.__dragInited) {
     tl.__dragInited = true;
-    let isDown = false, startX, scrollLeft;
+    let isDown = false;
+    let startX = 0;
+    let scrollStart = 0;
+    let lastX = 0;
+    let lastTime = 0;
+    let velocity = 0;
+    let momentumId = null;
+    let hasMoved = false;
+
+    const stopMomentum = () => {
+      if (momentumId) {
+        cancelAnimationFrame(momentumId);
+        momentumId = null;
+      }
+    };
+
+    const applyMomentum = () => {
+      stopMomentum();
+      let v = velocity * 18; // hıza göre momentum faktörü
+      if (Math.abs(v) < 0.5) return;
+      const step = () => {
+        tl.scrollLeft -= v;
+        v *= 0.92; // sürtünme katsayısı
+        if (Math.abs(v) > 0.5) {
+          momentumId = requestAnimationFrame(step);
+        } else {
+          momentumId = null;
+        }
+      };
+      momentumId = requestAnimationFrame(step);
+    };
+
+    // Mouse drag
     tl.addEventListener('mousedown', e => {
       if (e.button !== 0) return;
+      stopMomentum();
       isDown = true;
+      hasMoved = false;
       tl.classList.add('dragging');
-      startX = e.pageX - tl.offsetLeft;
-      scrollLeft = tl.scrollLeft;
-      e.preventDefault();
+      startX = e.pageX;
+      lastX = e.pageX;
+      lastTime = performance.now();
+      scrollStart = tl.scrollLeft;
+      velocity = 0;
     });
-    tl.addEventListener('mouseleave', () => { isDown = false; tl.classList.remove('dragging'); });
-    tl.addEventListener('mouseup', () => { isDown = false; tl.classList.remove('dragging'); });
-    tl.addEventListener('mousemove', e => {
+
+    const onPointerMove = (pageX) => {
+      if (!isDown) return;
+      const dx = pageX - startX;
+      if (Math.abs(dx) > 4) hasMoved = true;
+      tl.scrollLeft = scrollStart - dx;
+
+      const now = performance.now();
+      const dt = Math.max(1, now - lastTime);
+      const moveDelta = pageX - lastX;
+      velocity = moveDelta / dt; // px / ms
+      lastX = pageX;
+      lastTime = now;
+    };
+
+    window.addEventListener('mousemove', e => {
       if (!isDown) return;
       e.preventDefault();
-      const x = e.pageX - tl.offsetLeft;
-      const walk = (x - startX) * 1.5;
-      tl.scrollLeft = scrollLeft - walk;
+      onPointerMove(e.pageX);
     });
-    // Touch drag support
-    let touchStart = 0, touchScrollLeft = 0;
+
+    const onPointerUp = () => {
+      if (!isDown) return;
+      isDown = false;
+      tl.classList.remove('dragging');
+      applyMomentum();
+    };
+
+    window.addEventListener('mouseup', onPointerUp);
+
+    // Prevent click on drag
+    tl.addEventListener('click', e => {
+      if (hasMoved) {
+        e.preventDefault();
+        e.stopPropagation();
+        hasMoved = false;
+      }
+    }, true);
+
+    // Touch drag with momentum
+    let touchDown = false;
+    let touchStartX = 0;
+    let touchScrollStart = 0;
+    let touchLastX = 0;
+    let touchLastTime = 0;
+    let touchVelocity = 0;
+
     tl.addEventListener('touchstart', e => {
-      touchStart = e.touches[0].pageX;
-      touchScrollLeft = tl.scrollLeft;
+      stopMomentum();
+      if (e.touches.length !== 1) return;
+      touchDown = true;
+      hasMoved = false;
+      touchStartX = e.touches[0].pageX;
+      touchLastX = touchStartX;
+      touchLastTime = performance.now();
+      touchScrollStart = tl.scrollLeft;
+      touchVelocity = 0;
     }, { passive: true });
+
     tl.addEventListener('touchmove', e => {
-      const walk = touchStart - e.touches[0].pageX;
-      tl.scrollLeft = touchScrollLeft + walk;
+      if (!touchDown || e.touches.length !== 1) return;
+      const pageX = e.touches[0].pageX;
+      const dx = pageX - touchStartX;
+      if (Math.abs(dx) > 4) hasMoved = true;
+      tl.scrollLeft = touchScrollStart - dx;
+
+      const now = performance.now();
+      const dt = Math.max(1, now - touchLastTime);
+      touchVelocity = (pageX - touchLastX) / dt;
+      touchLastX = pageX;
+      touchLastTime = now;
+    }, { passive: true });
+
+    tl.addEventListener('touchend', () => {
+      if (!touchDown) return;
+      touchDown = false;
+      velocity = touchVelocity;
+      applyMomentum();
+    }, { passive: true });
+    tl.addEventListener('touchcancel', () => {
+      touchDown = false;
     }, { passive: true });
   }
 
@@ -11533,7 +11632,8 @@ function updateLevelUI() {
     container.style.background = 'transparent';
     container.style.boxShadow = 'none';
     container.style.border = 'none';
-    container.innerHTML = `<img src="${badgeImage}" alt="Level Badge" style="width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 4px 12px ${badgeGlow}); transition: transform 0.3s ease; animation: lbCrownFloat 3s ease-in-out infinite;">`;
+    const badgeAlt = typeof currentLang !== 'undefined' && currentLang === 'tr' ? `Seviye ${level} Rozeti` : `Level ${level} Badge`;
+    container.innerHTML = `<img src="${badgeImage}" alt="${badgeAlt}" onerror="if(!this.dataset.erred){this.dataset.erred=1;this.src=this.src.replace('.webp','.png');}" style="width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 4px 12px ${badgeGlow}); transition: transform 0.3s ease; animation: lbCrownFloat 3s ease-in-out infinite;">`;
   }
 
   // Only show toast when actually leveling up (not on page load/reload)
